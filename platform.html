@@ -489,23 +489,23 @@
                 <!-- Stats Dashboard -->
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                     <div class="stat-card">
-                        <div id="stat-total" class="stat-value">521</div>
+                        <div id="stat-total" class="stat-value">Loading...</div>
                         <div class="stat-label">Total Players</div>
                     </div>
                     <div class="stat-card">
-                        <div id="stat-avg-fga" class="stat-value">0.0</div>
+                        <div id="stat-avg-fga" class="stat-value">--</div>
                         <div class="stat-label">Avg FGA</div>
                     </div>
                     <div class="stat-card">
-                        <div id="stat-legends" class="stat-value">0</div>
+                        <div id="stat-legends" class="stat-value">--</div>
                         <div class="stat-label">Legends (90+)</div>
                     </div>
                     <div class="stat-card">
-                        <div id="stat-elite" class="stat-value">0</div>
+                        <div id="stat-elite" class="stat-value">--</div>
                         <div class="stat-label">Elite (85+)</div>
                     </div>
                     <div class="stat-card">
-                        <div id="stat-showing" class="stat-value">0</div>
+                        <div id="stat-showing" class="stat-value">--</div>
                         <div class="stat-label">Showing</div>
                     </div>
                 </div>
@@ -2125,6 +2125,21 @@
         // This section will be replaced with the complete 521-player array
         let playerData = [];
 
+        // Function to update stats display
+        function updateStatsDisplay() {
+            if (playerData.length === 0) return;
+            
+            const legends = playerData.filter(p => p.fga >= 90).length;
+            const elite = playerData.filter(p => p.fga >= 85).length;
+            const avgFga = (playerData.reduce((sum, p) => sum + (p.fga || 0), 0) / playerData.length).toFixed(1);
+            
+            document.getElementById('stat-total').textContent = playerData.length.toLocaleString();
+            document.getElementById('stat-avg-fga').textContent = avgFga;
+            document.getElementById('stat-legends').textContent = legends;
+            document.getElementById('stat-elite').textContent = elite;
+            document.getElementById('stat-showing').textContent = playerData.length.toLocaleString();
+        }
+
         // Load player database from JSON
         fetch('complete_player_database.json')
             .then(response => {
@@ -2151,6 +2166,9 @@
                 console.log('✅ Loaded', playerData.length, 'players from database');
                 console.log('   Premium profiles:', playerData.filter(p => p.status === 'premium').length);
                 console.log('   Basic profiles:', playerData.filter(p => p.status === 'basic').length);
+                
+                // Update stats display
+                updateStatsDisplay();
                 
                 // Trigger initial display
                 if (typeof applyFilters === 'function') {
