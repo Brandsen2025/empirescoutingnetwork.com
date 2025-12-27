@@ -544,9 +544,11 @@
                                     <th onclick="sortTable('name')">Player Name ⇅</th>
                                     <th onclick="sortTable('position')">Position ⇅</th>
                                     <th onclick="sortTable('age')">Age ⇅</th>
+                                    <th onclick="sortTable('currentClub')">Current Club ⇅</th>
                                     <th onclick="sortTable('nationality')">Nationality ⇅</th>
                                     <th onclick="sortTable('fga')">FGA Rating ⇅</th>
                                     <th onclick="sortTable('bestPhilosophy')">Top Philosophy ⇅</th>
+                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -2687,22 +2689,41 @@ fetch('complete_player_database.json')
                     filteredPlayers = playerData.filter(p => p.fga >= 85 && p.fga < 90);
                     break;
                 case 'prospects':
-                    filteredPlayers = playerData.filter(p => p.age <= 21);
+                    filteredPlayers = playerData.filter(p => p.age && p.age <= 21);
                     break;
                 case 'active':
-                    filteredPlayers = playerData.filter(p => p.age <= 38);
+                    filteredPlayers = playerData.filter(p => !p.age || p.age <= 38);
                     break;
                 case 'strikers':
-                    filteredPlayers = playerData.filter(p => p.position === 'ST');
+                    filteredPlayers = playerData.filter(p => {
+                        const pos = (p.position || '').toUpperCase();
+                        return pos.includes('STRIKER') || pos.includes('ST') || 
+                               pos.includes('FORWARD') || pos.includes('FW') ||
+                               pos.includes('CF') || pos.includes('ATTACKER');
+                    });
                     break;
                 case 'midfielders':
-                    filteredPlayers = playerData.filter(p => ['CM', 'AM', 'DM'].includes(p.position));
+                    filteredPlayers = playerData.filter(p => {
+                        const pos = (p.position || '').toUpperCase();
+                        return pos.includes('MIDFIELD') || pos.includes('CM') || 
+                               pos.includes('AM') || pos.includes('DM') ||
+                               pos.includes('CAM') || pos.includes('CDM');
+                    });
                     break;
                 case 'defenders':
-                    filteredPlayers = playerData.filter(p => ['CB', 'FB'].includes(p.position));
+                    filteredPlayers = playerData.filter(p => {
+                        const pos = (p.position || '').toUpperCase();
+                        return pos.includes('DEFENDER') || pos.includes('CB') || 
+                               pos.includes('FB') || pos.includes('LB') || pos.includes('RB') ||
+                               pos.includes('BACK') || pos.includes('DF');
+                    });
                     break;
                 case 'goalkeepers':
-                    filteredPlayers = playerData.filter(p => p.position === 'GK');
+                    filteredPlayers = playerData.filter(p => {
+                        const pos = (p.position || '').toUpperCase();
+                        return pos.includes('GOALKEEPER') || pos.includes('GK') || 
+                               pos.includes('KEEPER');
+                    });
                     break;
                 default:
                     filteredPlayers = [...playerData];
@@ -2798,17 +2819,25 @@ fetch('complete_player_database.json')
                             </div>
                         </td>
                         <td class="py-3">${player.position}</td>
-                        <td class="py-3">${player.age}</td>
-                        <td class="py-3">${player.nationality}</td>
-                        <td class="py-3"><span class="font-bold text-blue-400">${player.fga.toFixed(1)}</span></td>
-                        <td class="py-3 text-sm">${player.bestPhilosophy}</td>
+                        <td class="py-3">${player.age || 'N/A'}</td>
+                        <td class="py-3"><span class="text-sm">${player.currentClub || 'Unknown'}</span></td>
+                        <td class="py-3">${player.nationality || 'Unknown'}</td>
+                        <td class="py-3"><span class="font-bold text-blue-400">${player.fga ? player.fga.toFixed(1) : '0.0'}</span></td>
+                        <td class="py-3 text-sm">${player.bestPhilosophy || 'Unknown'}</td>
+                        <td class="py-3">
+                            ${player.profileHtml && player.profileHtml !== '' ? 
+                                '<span class="px-2 py-1 bg-green-600/20 text-green-400 rounded text-xs font-semibold">✓ Premium</span>' : 
+                                '<span class="px-2 py-1 bg-slate-600/20 text-slate-400 rounded text-xs">Basic</span>'
+                            }
+                        </td>
                         <td class="py-3">
                             <div class="flex gap-2">
-                                <button onclick="addToComparison('${player.name.replace(/'/g, "\\'")}')" class="text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded transition">
+                                ${player.profileHtml && player.profileHtml !== '' ?
+                                    `<a href="${player.profileHtml}" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded transition">View Profile</a>` :
+                                    `<button onclick="requestAnalysis('${player.name.replace(/'/g, "\\'")}')" class="text-xs bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded transition">Request</button>`
+                                }
+                                <button onclick="addToComparison('${player.name.replace(/'/g, "\\'")}')" class="text-xs bg-slate-600 hover:bg-slate-700 px-3 py-1 rounded transition">
                                     Compare
-                                </button>
-                                <button onclick="exportPlayerProfile('${player.name.replace(/'/g, "\\'")}')" class="text-xs bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded transition" title="Export Player Profile PDF">
-                                    PDF
                                 </button>
                             </div>
                         </td>
