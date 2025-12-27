@@ -2591,8 +2591,28 @@ fetch('complete_player_database.json')
         
         console.log('✅ LOADED', playerData.length, 'PLAYERS!');
         
+        // Update stats display
+        const legends = playerData.filter(p => p.fga >= 90).length;
+        const elite = playerData.filter(p => p.fga >= 85).length;
+        const avgFga = (playerData.reduce((sum, p) => sum + (p.fga || 0), 0) / playerData.length).toFixed(1);
+        
+        document.getElementById('stat-total').textContent = playerData.length.toLocaleString();
+        document.getElementById('stat-avg-fga').textContent = avgFga;
+        document.getElementById('stat-legends').textContent = legends;
+        document.getElementById('stat-elite').textContent = elite;
+        document.getElementById('stat-showing').textContent = '0';
+        
+        console.log('📊 Stats updated:', playerData.length, 'total,', legends, 'legends');
+        
         // Initialize display
-        if (typeof applyFilters === 'function') applyFilters();
+        if (typeof applyFilters === 'function') {
+            console.log('🎯 Calling applyFilters...');
+            applyFilters();
+        }
+        if (typeof renderGrid === 'function') {
+            console.log('🎯 Calling renderGrid...');
+            renderGrid();
+        }
     })
     .catch(error => {
         console.error('❌ DATABASE ERROR:', error);
