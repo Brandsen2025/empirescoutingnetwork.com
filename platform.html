@@ -2675,19 +2675,38 @@ fetch('complete_player_database.json')
         
         // Convert to platform format
         playerData = data.map(p => {
-            // Extract nationality from position string if nationality is "Unknown"
+            // Extract nationality from position string
             let nationality = p.nationality || '';
-            if (nationality === 'Unknown' || !nationality) {
-                // Try to extract from position string like "Central Midfielder (Professional) · Wales · Born: 26 Dec 1990"
-                const posMatch = (p.position || '').match(/·\s*([A-Za-z\s]+)\s*·\s*Born:/);
-                if (posMatch) {
-                    nationality = posMatch[1].trim();
+            let age = p.age;
+            let currentClub = p.club || '';
+            
+            // Position string format: "Striker · Norway · Born: 21 July 2000 · Height: 1.95 m"
+            const positionStr = p.position || '';
+            
+            // Extract nationality (between first and second ·)
+            if (!nationality || nationality === 'Unknown' || nationality === '' || /^\d+\.?\d*$/.test(nationality)) {
+                const natMatch = positionStr.match(/·\s*([A-Za-z\s]+)\s*·\s*Born:/i);
+                if (natMatch) {
+                    nationality = natMatch[1].trim();
                 }
             }
             
-            // Extract club from position string if club is "Legend"
-            let currentClub = p.club || '';
-            if (currentClub === 'Legend') {
+            // Extract age from birth date if age is null
+            if (!age || age === null) {
+                const birthMatch = positionStr.match(/Born:\s*(\d+)\s+(\w+)\s+(\d{4})/i);
+                if (birthMatch) {
+                    const birthYear = parseInt(birthMatch[3]);
+                    const currentYear = new Date().getFullYear();
+                    age = currentYear - birthYear;
+                }
+            }
+            
+            // Fix club - if it's "Legend" but player has age < 40, it's wrong
+            if (currentClub === 'Legend' && age && age < 40) {
+                // Try to extract club from position or other fields
+                // For now, mark as "Active Player" to indicate data needs update
+                currentClub = 'Active Player';
+            } else if (currentClub === 'Legend') {
                 currentClub = 'Retired/Legend';
             }
             
@@ -2697,8 +2716,8 @@ fetch('complete_player_database.json')
                 image_url: p.image_url || '',
                 profileHtml: p.filename || '',
                 position: p.position || '',
-                age: p.age || null,
-                nationality: nationality,
+                age: age,
+                nationality: nationality || 'Unknown',
                 fga: p.fga_rating || 0,
                 bestPhilosophy: p.top_philosophy || '',
                 agent: p.agent || '',
@@ -2708,6 +2727,13 @@ fetch('complete_player_database.json')
         });
         
         console.log('✅ LOADED', playerData.length, 'PLAYERS!');
+        
+        // Log extraction results
+        const extractedAges = playerData.filter(p => p.age !== null).length;
+        const extractedNationalities = playerData.filter(p => p.nationality && p.nationality !== 'Unknown').length;
+        console.log('📊 Extraction results:');
+        console.log('   Ages extracted:', extractedAges, '/', playerData.length);
+        console.log('   Nationalities extracted:', extractedNationalities, '/', playerData.length);
         
         // Update stats display
         const legends = playerData.filter(p => p.fga >= 90).length;
@@ -2978,8 +3004,16 @@ fetch('complete_player_database.json')
                 // Name search
                 if (search && !p.name.toLowerCase().includes(search)) return false;
                 
-                // Age range
-                if (p.age && (p.age < ageMin || p.age > ageMax)) return false;
+                // Age range - only filter if age exists and is not null
+                if (p.age !== null && p.age !== undefined) {
+                    if (p.age < ageMin || p.age > ageMax) return false;
+                } else {
+                    // If age is null/undefined, only exclude if user set specific age range
+                    if (ageMin > 0 || ageMax < 999) {
+                        // User wants specific age range but player has no age - exclude
+                        return false;
+                    }
+                }
                 
                 // FGA range
                 if (p.fga < fgaMin || p.fga > fgaMax) return false;
@@ -3001,6 +3035,8 @@ fetch('complete_player_database.json')
             if (document.getElementById('export-count')) {
                 document.getElementById('export-count').textContent = filteredPlayers.length;
             }
+            
+            console.log('🔍 Filter applied:', filteredPlayers.length, 'players shown');
         }
         
         function resetAdvancedSearch() {
