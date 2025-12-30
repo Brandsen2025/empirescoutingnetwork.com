@@ -7415,7 +7415,123 @@ function showMarketSection(sectionId, clickedButton) {
         document.addEventListener('DOMContentLoaded', function() {
             initializePlatform(); // Initialize platform immediately
             setTimeout(initializeMarketIntelligence, 1000);
+            setTimeout(loadMarketAnalysis, 1500); // Load market data after 1.5 seconds
         });
+
+        // ==================== MARKET ANALYSIS DATA LOADER ====================
+        function loadMarketAnalysis() {
+            console.log('📊 Loading Market Analysis data...');
+            
+            // Undervalued players data (from final_data.csv analysis)
+            const undervalued = [
+                {name: 'Neymar', team: 'Al-Hilal', position: 'LW', age: 31, current: 70000000, highest: 180000000},
+                {name: 'Lionel Messi', team: 'Inter Miami', position: 'RW', age: 35, current: 45000000, highest: 180000000},
+                {name: 'Raheem Sterling', team: 'Chelsea', position: 'LW', age: 28, current: 60000000, highest: 160000000},
+                {name: 'Philippe Coutinho', team: 'Aston Villa', position: 'LW', age: 30, current: 14000000, highest: 150000000},
+                {name: 'Mohamed Salah', team: 'Liverpool', position: 'RW', age: 30, current: 70000000, highest: 150000000},
+                {name: 'Kevin De Bruyne', team: 'Manchester City', position: 'AM', age: 31, current: 80000000, highest: 150000000},
+                {name: 'Harry Kane', team: 'Bayern Munich', position: 'ST', age: 29, current: 90000000, highest: 150000000},
+                {name: 'Sadio Mané', team: 'Al-Nassr', position: 'LW', age: 31, current: 45000000, highest: 150000000},
+                {name: 'Antoine Griezmann', team: 'Atlético Madrid', position: 'SS', age: 32, current: 25000000, highest: 150000000},
+                {name: 'Eden Hazard', team: 'Retired', position: 'LW', age: 32, current: 5000000, highest: 150000000}
+            ];
+
+            const risingStars = [
+                {name: 'Erling Haaland', team: 'Manchester City', position: 'ST', age: 22, value: 170000000, goals: 1.1, assists: 0.2},
+                {name: 'Vinicius Junior', team: 'Real Madrid', position: 'LW', age: 22, value: 150000000, goals: 0.4, assists: 0.4},
+                {name: 'Jude Bellingham', team: 'Real Madrid', position: 'CM', age: 19, value: 120000000, goals: 0.2, assists: 0.3},
+                {name: 'Phil Foden', team: 'Manchester City', position: 'LW', age: 23, value: 110000000, goals: 0.4, assists: 0.3},
+                {name: 'Bukayo Saka', team: 'Arsenal', position: 'RW', age: 21, value: 110000000, goals: 0.3, assists: 0.2},
+                {name: 'Jamal Musiala', team: 'Bayern Munich', position: 'AM', age: 20, value: 110000000, goals: 0.4, assists: 0.4},
+                {name: 'Rodrygo', team: 'Real Madrid', position: 'RW', age: 22, value: 100000000, goals: 0.4, assists: 0.3},
+                {name: 'Pedri', team: 'Barcelona', position: 'CM', age: 20, value: 100000000, goals: 0.2, assists: 0.1},
+                {name: 'Gavi', team: 'Barcelona', position: 'CM', age: 18, value: 90000000, goals: 0.1, assists: 0.2},
+                {name: 'Enzo Fernández', team: 'Chelsea', position: 'DM', age: 22, value: 85000000, goals: 0.1, assists: 0.2}
+            ];
+
+            const injuryRisks = [
+                {name: 'Ousmane Dembélé', team: 'PSG', position: 'RW', age: 26, days: 567, games: 89, value: 50000000},
+                {name: 'Marco Reus', team: 'Borussia Dortmund', position: 'AM', age: 34, days: 523, games: 87, value: 8000000},
+                {name: 'Ansu Fati', team: 'Barcelona', position: 'LW', age: 21, days: 456, games: 72, value: 40000000},
+                {name: 'Andy Carroll', team: 'Free Agent', position: 'ST', age: 34, days: 1268, games: 130, value: 300000},
+                {name: 'Naby Keïta', team: 'Werder Bremen', position: 'CM', age: 28, days: 387, games: 64, value: 15000000}
+            ];
+
+            // Populate undervalued players
+            const undervaluedTbody = document.getElementById('undervalued-players');
+            if (undervaluedTbody) {
+                undervaluedTbody.innerHTML = undervalued.map(p => {
+                    const discount = ((1 - p.current / p.highest) * 100).toFixed(0);
+                    return `
+                        <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition">
+                            <td class="px-4 py-3">
+                                <div class="font-semibold text-blue-400">${p.name}</div>
+                                <div class="text-xs text-slate-400">${p.team}</div>
+                            </td>
+                            <td class="px-4 py-3 text-slate-300">${p.position}</td>
+                            <td class="px-4 py-3 text-center">${p.age}</td>
+                            <td class="px-4 py-3 text-center font-semibold">€${(p.current / 1000000).toFixed(1)}M</td>
+                            <td class="px-4 py-3 text-center text-slate-400">€${(p.highest / 1000000).toFixed(1)}M</td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="px-3 py-1 bg-green-600/20 text-green-400 rounded-full font-bold text-sm">
+                                    -${discount}% 🔥
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                console.log('✅ Loaded 10 undervalued players');
+            }
+
+            // Populate rising stars
+            const risingTbody = document.getElementById('rising-stars');
+            if (risingTbody) {
+                risingTbody.innerHTML = risingStars.map(p => `
+                    <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition">
+                        <td class="px-4 py-3">
+                            <div class="font-semibold text-blue-400">${p.name}</div>
+                            <div class="text-xs text-slate-400">${p.team}</div>
+                        </td>
+                        <td class="px-4 py-3 text-slate-300">${p.position}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded text-sm font-semibold">
+                                ${p.age} 🌟
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center font-bold text-green-400">€${(p.value / 1000000).toFixed(0)}M</td>
+                        <td class="px-4 py-3 text-center">${p.goals.toFixed(2)}</td>
+                        <td class="px-4 py-3 text-center">${p.assists.toFixed(2)}</td>
+                    </tr>
+                `).join('');
+                console.log('✅ Loaded 10 rising stars');
+            }
+
+            // Populate injury risks
+            const injuryTbody = document.getElementById('injury-risks');
+            if (injuryTbody) {
+                injuryTbody.innerHTML = injuryRisks.map(p => `
+                    <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition">
+                        <td class="px-4 py-3">
+                            <div class="font-semibold text-blue-400">${p.name}</div>
+                            <div class="text-xs text-slate-400">${p.team}</div>
+                        </td>
+                        <td class="px-4 py-3 text-slate-300">${p.position}</td>
+                        <td class="px-4 py-3 text-center">${p.age}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-3 py-1 bg-red-600/20 text-red-400 rounded-full font-bold text-sm">
+                                ${p.days} days ⚠️
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center text-slate-300">${p.games}</td>
+                        <td class="px-4 py-3 text-center font-semibold">€${(p.value / 1000000).toFixed(1)}M</td>
+                    </tr>
+                `).join('');
+                console.log('✅ Loaded 5 injury risk players');
+            }
+
+            console.log('✅ Market Analysis fully loaded!');
+        }
+
         // Calculate transfer risk
         function calculateTransferRisk() {
             const playerSelect = document.getElementById('riskPlayerSelect');
