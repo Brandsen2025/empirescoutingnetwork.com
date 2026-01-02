@@ -630,6 +630,10 @@
                     </div>
                     <div class="text-sm text-slate-400">
                         Showing <span id="export-count" class="font-bold text-blue-400">0</span> players
+                        <span class="ml-4">
+                            (<span id="fga-rated-count" class="text-green-400 font-semibold">0</span> 🏆 FGA-Rated, 
+                            <span id="profile-only-count" class="text-slate-400 font-semibold">0</span> 📋 Profile)
+                        </span>
                     </div>
                 </div>
 
@@ -2779,6 +2783,27 @@ fetch('complete_player_database.json')
     .then(data => {
         console.log('✅ Loading', data.length, 'players...');
         
+        // Convert optimized format to full format
+        playerData = data.map(p => ({
+            name: p.name || 'Unknown',
+            position: p.pos || 'N/A',
+            nationality: p.nat || 'Unknown',
+            age: p.age || null,
+            club: p.club || 'Unknown',
+            fga_rating: p.fga || null,
+            has_fga_rating: p.rated || false,
+            height: p.h || null,
+            foot: p.ft || null,
+            agent: p.ag || null,
+            contract_expires: p.con || null,
+            is_eu: p.eu !== undefined ? p.eu : null,
+            tier: p.rated ? 'FGA Rated' : 'Profile'
+        }));
+        
+        console.log('✅ LOADED', playerData.length, 'PLAYERS!');
+        console.log('   📊 FGA-Rated:', playerData.filter(p => p.has_fga_rating).length);
+        console.log('   📋 Profile-Only:', playerData.filter(p => !p.has_fga_rating).length);
+        
         // Convert to platform format
         // Country code mapping
         const countryCodeMap = {
@@ -3443,15 +3468,27 @@ fetch('complete_player_database.json')
             
             document.getElementById('stat-total').textContent = playerData.length;
             
-            const avgFga = filteredPlayers.length > 0 
-                ? (filteredPlayers.reduce((sum, p) => sum + p.fga, 0) / filteredPlayers.length).toFixed(1)
+            // Calculate tier counts
+            const fgaRated = filteredPlayers.filter(p => p.has_fga_rating).length;
+            const profileOnly = filteredPlayers.filter(p => !p.has_fga_rating).length;
+            
+            // Update tier counts
+            const fgaCountEl = document.getElementById('fga-rated-count');
+            const profileCountEl = document.getElementById('profile-only-count');
+            if (fgaCountEl) fgaCountEl.textContent = fgaRated;
+            if (profileCountEl) profileCountEl.textContent = profileOnly;
+            
+            // Calculate average FGA (only for rated players)
+            const ratedPlayers = filteredPlayers.filter(p => p.has_fga_rating && p.fga_rating);
+            const avgFga = ratedPlayers.length > 0 
+                ? (ratedPlayers.reduce((sum, p) => sum + (p.fga_rating || 0), 0) / ratedPlayers.length).toFixed(1)
                 : '0.0';
             document.getElementById('stat-avg-fga').textContent = avgFga;
             
-            const legends = filteredPlayers.filter(p => p.fga >= 90).length;
+            const legends = ratedPlayers.filter(p => p.fga_rating >= 90).length;
             document.getElementById('stat-legends').textContent = legends;
             
-            const elite = filteredPlayers.filter(p => p.fga >= 85 && p.fga < 90).length;
+            const elite = ratedPlayers.filter(p => p.fga_rating >= 85 && p.fga_rating < 90).length;
             document.getElementById('stat-elite').textContent = elite;
         }
 
