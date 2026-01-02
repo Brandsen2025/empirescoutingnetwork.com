@@ -2790,7 +2790,7 @@ fetch('complete_player_database.json')
             nationality: p.nat || 'Unknown',
             age: p.age || null,
             club: p.club || 'Unknown',
-            fga_rating: p.fga || null,
+            fga_rating: p.fga_rating || null,
             has_fga_rating: p.rated || false,
             height: p.h || null,
             foot: p.ft || null,
@@ -2901,9 +2901,9 @@ fetch('complete_player_database.json')
         console.log('   Nationalities extracted:', extractedNationalities, '/', playerData.length);
         
         // Update stats display
-        const legends = playerData.filter(p => p.fga >= 90).length;
-        const elite = playerData.filter(p => p.fga >= 85).length;
-        const avgFga = (playerData.reduce((sum, p) => sum + (p.fga || 0), 0) / playerData.length).toFixed(1);
+        const legends = playerData.filter(p => p.fga_rating >= 90).length;
+        const elite = playerData.filter(p => p.fga_rating >= 85).length;
+        const avgFga = (playerData.reduce((sum, p) => sum + (p.fga_rating || 0), 0) / playerData.length).toFixed(1);
         
         document.getElementById('stat-total').textContent = playerData.length.toLocaleString();
         document.getElementById('stat-avg-fga').textContent = avgFga;
@@ -3012,10 +3012,10 @@ fetch('complete_player_database.json')
             
             switch(type) {
                 case 'legends':
-                    filteredPlayers = playerData.filter(p => p.fga >= 90);
+                    filteredPlayers = playerData.filter(p => p.fga_rating >= 90);
                     break;
                 case 'elite':
-                    filteredPlayers = playerData.filter(p => p.fga >= 85 && p.fga < 90);
+                    filteredPlayers = playerData.filter(p => p.fga_rating >= 85 && p.fga_rating < 90);
                     break;
                 case 'prospects':
                     filteredPlayers = playerData.filter(p => p.age && p.age <= 21);
@@ -3180,11 +3180,17 @@ fetch('complete_player_database.json')
                     }
                 }
                 
-                // FGA range
-                if (p.fga < fgaMin || p.fga > fgaMax) return false;
+                // FGA range - only check if player has FGA rating
+                if (p.has_fga_rating && p.fga_rating !== null) {
+                    if (p.fga_rating < fgaMin || p.fga_rating > fgaMax) return false;
+                } else {
+                    // Player has no FGA rating
+                    // Only exclude if user specifically wants rated players (fgaMin > 0)
+                    if (fgaMin > 0) return false;
+                }
                 
                 // Nationality
-                if (nationality && (p.nationality || '').toLowerCase() !== nationality.toLowerCase()) return false;
+                if (nationality && nationality !== 'All Countries' && (p.nationality || '').toLowerCase() !== nationality.toLowerCase()) return false;
                 
                 // Agency
                 if (agency && !(p.agentCompany || '').includes(agency)) return false;
@@ -3244,7 +3250,7 @@ fetch('complete_player_database.json')
                     player.age || 'N/A',
                     (player.currentClub || 'Unknown').replace(/,/g, ';'),
                     player.nationality || 'Unknown',
-                    player.fga ? player.fga.toFixed(1) : '0.0',
+                    player.fga_rating ? player.fga_rating.toFixed(1) : '0.0',
                     (player.bestPhilosophy || 'Unknown').replace(/,/g, ';'),
                     (player.agentCompany || 'Unknown').replace(/,/g, ';'),
                     player.profileHtml && player.profileHtml !== '' ? 'Premium' : 'Basic'
@@ -3377,7 +3383,7 @@ fetch('complete_player_database.json')
                         <td class="py-3">${player.age || 'N/A'}</td>
                         <td class="py-3"><span class="text-sm">${player.currentClub || 'Unknown'}</span></td>
                         <td class="py-3">${player.nationality || 'Unknown'}</td>
-                        <td class="py-3"><span class="font-bold text-blue-400">${player.fga ? player.fga.toFixed(1) : '0.0'}</span></td>
+                        <td class="py-3"><span class="font-bold text-blue-400">${player.fga_rating ? player.fga_rating.toFixed(1) : '0.0'}</span></td>
                         <td class="py-3 text-sm">${player.bestPhilosophy || 'Unknown'}</td>
                         <td class="py-3">
                             ${player.profileHtml && player.profileHtml !== '' ? 
@@ -3509,7 +3515,7 @@ fetch('complete_player_database.json')
                     <div class="flex justify-between items-center">
                         <div>
                             <div class="font-bold">${player.name}</div>
-                            <div class="text-sm text-slate-400">${player.position} | ${player.nationality} | FGA: ${player.fga.toFixed(1)}</div>
+                            <div class="text-sm text-slate-400">${player.position} | ${player.nationality} | FGA: ${player.fga_rating.toFixed(1)}</div>
                         </div>
                         <button class="bg-blue-600 px-3 py-1 rounded text-sm">Add</button>
                     </div>
@@ -3549,7 +3555,7 @@ fetch('complete_player_database.json')
                     <div class="flex justify-between items-center">
                         <div>
                             <div class="font-bold">${player.name}</div>
-                            <div class="text-sm text-slate-400">${player.position} | FGA: ${player.fga.toFixed(1)}</div>
+                            <div class="text-sm text-slate-400">${player.position} | FGA: ${player.fga_rating.toFixed(1)}</div>
                         </div>
                         <button onclick="removeFromComparison('${player.name.replace(/'/g, "\\'")}')" class="bg-red-600 px-3 py-1 rounded text-sm">Remove</button>
                     </div>
@@ -3564,7 +3570,7 @@ fetch('complete_player_database.json')
         // ============ COMPONENT SCORE ESTIMATION ============
         // ============ EMPIRE FGA CORE METRICS CALCULATION ============
         function calculateFGACoreMetrics(player) {
-            const fga = player.fga;
+            const fga = player.fga_rating;
             const pos = player.position;
             const age = player.age;
             const philosophy = player.bestPhilosophy;
@@ -3714,7 +3720,7 @@ fetch('complete_player_database.json')
         function calculateDerivedMetrics(player) {
             // Value Efficiency Score: FGA quality per €1M
             const valueEfficiency = player.marketValue > 0 
-                ? ((player.fga - 75) / (player.marketValue / 1000000)).toFixed(3)
+                ? ((player.fga_rating - 75) / (player.marketValue / 1000000)).toFixed(3)
                 : null;
             
             // Age-Adjusted Rating (Peak Performance Index)
@@ -3726,11 +3732,11 @@ fetch('complete_player_database.json')
             else if (player.age >= 33 && player.age <= 36) ageMultiplier = 0.88;
             else ageMultiplier = 0.75;
             
-            const ageAdjustedRating = (player.fga * ageMultiplier).toFixed(1);
+            const ageAdjustedRating = (player.fga_rating * ageMultiplier).toFixed(1);
             
             // Longevity Score: Expected elite years remaining
             const yearsToDecline = Math.max(0, 33 - player.age);
-            const longevityScore = (yearsToDecline * (player.fga / 100)).toFixed(1);
+            const longevityScore = (yearsToDecline * (player.fga_rating / 100)).toFixed(1);
             
             // Age Category
             let ageCategory, ageBadge;
@@ -3891,7 +3897,7 @@ fetch('complete_player_database.json')
             if (activePlayersWithValue.length > 1) {
                 const valuePlayers = activePlayersWithValue.map(p => ({
                     ...p,
-                    efficiency: (p.fga - 75) / (p.marketValue / 1000000)
+                    efficiency: (p.fga_rating - 75) / (p.marketValue / 1000000)
                 })).sort((a, b) => b.efficiency - a.efficiency);
                 
                 const bestValue = valuePlayers[0];
@@ -3918,19 +3924,19 @@ fetch('complete_player_database.json')
         // ============ FIND BEST IN CATEGORY ============
         function findBestInCategory(players, category) {
             if (category === 'fga') {
-                const best = Math.max(...players.map(p => p.fga));
-                return players.filter(p => p.fga === best).map(p => p.name);
+                const best = Math.max(...players.map(p => p.fga_rating));
+                return players.filter(p => p.fga_rating === best).map(p => p.name);
             } else if (category === 'value' && players.every(p => p.marketValue > 0)) {
                 const efficiencies = players.map(p => ({
                     name: p.name,
-                    eff: (p.fga - 75) / (p.marketValue / 1000000)
+                    eff: (p.fga_rating - 75) / (p.marketValue / 1000000)
                 }));
                 const best = Math.max(...efficiencies.map(e => e.eff));
                 return efficiencies.filter(e => e.eff === best).map(e => e.name);
             } else if (category === 'longevity') {
                 const scores = players.map(p => ({
                     name: p.name,
-                    score: Math.max(0, (33 - p.age) * (p.fga / 100))
+                    score: Math.max(0, (33 - p.age) * (p.fga_rating / 100))
                 }));
                 const best = Math.max(...scores.map(s => s.score));
                 return scores.filter(s => s.score === best).map(s => s.name);
@@ -3941,7 +3947,7 @@ fetch('complete_player_database.json')
         
         // ============ PHILOSOPHY COMPATIBILITY SCORING ============
         function calculatePhilosophyScores(player) {
-            const fga = player.fga;
+            const fga = player.fga_rating;
             const pos = player.position;
             const philosophy = player.bestPhilosophy;
             const age = player.age;
@@ -4578,7 +4584,7 @@ fetch('complete_player_database.json')
                                     <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                                         <span class="text-slate-400">FGA Rating</span>
                                         <span class="font-bold text-2xl ${isBestFGA ? 'text-green-400' : 'text-blue-400'}">
-                                            ${player.fga.toFixed(1)} ${isBestFGA ? '✓' : ''}
+                                            ${player.fga_rating.toFixed(1)} ${isBestFGA ? '✓' : ''}
                                         </span>
                                     </div>
                                     
@@ -4986,7 +4992,7 @@ fetch('complete_player_database.json')
             
             // Calculate value gaps (expected value based on FGA vs actual market value)
             const playersWithGaps = activePlayers.map(p => {
-                const expectedValue = calculateExpectedValue(p.fga, p.age);
+                const expectedValue = calculateExpectedValue(p.fga_rating, p.age);
                 const gap = expectedValue - p.marketValue;
                 const gapPercentage = p.marketValue > 0 ? (gap / p.marketValue) * 100 : 0;
                 return { ...p, expectedValue, gap, gapPercentage };
@@ -5028,7 +5034,7 @@ fetch('complete_player_database.json')
                         </div>
                     </div>
                     <div class="text-right">
-                        <div class="font-bold text-green-400">FGA: ${player.fga.toFixed(1)}</div>
+                        <div class="font-bold text-green-400">FGA: ${player.fga_rating.toFixed(1)}</div>
                         <div class="text-sm text-slate-400">Market: €${(player.marketValue / 1000000).toFixed(1)}M</div>
                         <div class="text-sm text-green-300">Expected: €${(player.expectedValue / 1000000).toFixed(1)}M</div>
                         <span class="value-badge undervalued">${player.gapPercentage.toFixed(0)}% undervalued</span>
@@ -5233,7 +5239,7 @@ fetch('complete_player_database.json')
                     <div class="flex justify-between items-center">
                         <div>
                             <div class="font-bold text-sm">${player.name}</div>
-                            <div class="text-xs text-slate-400">${player.position} | FGA: ${player.fga.toFixed(1)}</div>
+                            <div class="text-xs text-slate-400">${player.position} | FGA: ${player.fga_rating.toFixed(1)}</div>
                         </div>
                         <button class="bg-green-600 px-2 py-1 rounded text-xs">Add</button>
                     </div>
@@ -5269,7 +5275,7 @@ fetch('complete_player_database.json')
             document.getElementById('squad-count').textContent = selectedSquadPlayers.length;
             
             if (selectedSquadPlayers.length > 0) {
-                const avgFga = selectedSquadPlayers.reduce((sum, p) => sum + p.fga, 0) / selectedSquadPlayers.length;
+                const avgFga = selectedSquadPlayers.reduce((sum, p) => sum + p.fga_rating, 0) / selectedSquadPlayers.length;
                 document.getElementById('squad-avg-fga').textContent = avgFga.toFixed(1);
                 
                 // Calculate chemistry based on philosophy diversity
@@ -5324,7 +5330,7 @@ function loadImage(url) {
 }
 
 function calculateAdvancedMarketValue(player, metrics) {
-    const fga = player.fga;
+    const fga = player.fga_rating;
     const age = player.age;
     const pos = player.position;
     const club = player.currentClub || '';
@@ -5407,7 +5413,7 @@ function generateSmartTargetClubs(player, metrics, philScores) {
     const pos = player.position;
     const age = player.age;
     const phil = player.bestPhilosophy;
-    const fga = player.fga;
+    const fga = player.fga_rating;
     
     // Sort philosophies by score
     const topPhils = Object.entries(philScores)
@@ -5617,7 +5623,7 @@ function generateSmartTargetClubs(player, metrics, philScores) {
 function generateComparableTransfers(player, metrics) {
     const pos = player.position;
     const age = player.age;
-    const fga = player.fga;
+    const fga = player.fga_rating;
     
     // Real transfer database (simplified - expand with actual data)
     const transfers = [
@@ -5685,7 +5691,7 @@ function calculateTierClassification(fga) {
 }
 
 function generateNegotiationStrategy(player, metrics, marketValue) {
-    const fga = player.fga;
+    const fga = player.fga_rating;
     const age = player.age;
     const pos = player.position;
     
@@ -5782,7 +5788,7 @@ async function exportPlayerProfile(playerName) {
         const targetClubs = generateSmartTargetClubs(player, metrics, philScores);
         const comparables = generateComparableTransfers(player, metrics);
         const negotiation = generateNegotiationStrategy(player, metrics, marketValue);
-        const tierInfo = calculateTierClassification(player.fga);
+        const tierInfo = calculateTierClassification(player.fga_rating);
         
         // ========================================================================
         // PAGE 1: EXECUTIVE INTELLIGENCE
@@ -5853,7 +5859,7 @@ async function exportPlayerProfile(playerName) {
         
         // FGA Rating with tier
         doc.setFont(undefined, 'bold');
-        doc.text(`Overall Rating: ${player.fga.toFixed(1)}/100`, 25, 98);
+        doc.text(`Overall Rating: ${player.fga_rating.toFixed(1)}/100`, 25, 98);
         doc.setTextColor(...tierInfo.color);
         doc.text(`[${tierInfo.tier}]`, 75, 98);
         doc.setTextColor(0, 0, 0);
@@ -6214,7 +6220,7 @@ async function exportPlayerProfile(playerName) {
                 doc.setFont(undefined, 'normal');
                 doc.text(`€${comp.fee}M (${comp.from} → ${comp.to}, ${comp.year})`, 55, yPos);
                 yPos += 4;
-                doc.text(`  Age ${comp.age}, ${comp.pos}, FGA ${comp.fga}`, 27, yPos);
+                doc.text(`  Age ${comp.age}, ${comp.pos}, FGA ${comp.fga_rating}`, 27, yPos);
                 yPos += 6;
             });
             
@@ -6249,7 +6255,7 @@ async function exportPlayerProfile(playerName) {
         doc.setFontSize(8);
         doc.text(`• Recommended: €${negotiation.salary.min}K - €${negotiation.salary.max}K per week`, 25, yPos);
         yPos += 4;
-        doc.text(`• Based on: FGA ${player.fga}, Age ${player.age}, Position ${player.position}`, 25, yPos);
+        doc.text(`• Based on: FGA ${player.fga_rating}, Age ${player.age}, Position ${player.position}`, 25, yPos);
         
         yPos += 6;
         doc.setFontSize(9);
@@ -6889,7 +6895,7 @@ async function exportPlayerProfile(playerName) {
                     p.position,
                     p.age,
                     p.nationality,
-                    p.fga,
+                    p.fga_rating,
                     p.bestPhilosophy,
                     p.currentClub || 'N/A'
                 ]);
@@ -7593,7 +7599,7 @@ async function exportPlayerProfile(playerName) {
         }
 
         function calculateOvervaluationRisk(player, transferFee, targetLeague) {
-            let fgaValue = (player.fga || 75) * 1.2 * 1000000; // €1.2M per FGA point
+            let fgaValue = (player.fga_rating || 75) * 1.2 * 1000000; // €1.2M per FGA point
             
             // Apply Premier League premium
             if (targetLeague === 'Premier League') {
@@ -7635,7 +7641,7 @@ async function exportPlayerProfile(playerName) {
         function calculateStyleRisk(player, targetLeague) {
             // Simplified: Premier League = high intensity
             if (targetLeague === 'Premier League') {
-                return (player.fga < 80) ? 6 : 2;
+                return (player.fga_rating < 80) ? 6 : 2;
             }
             return 3;
         }
@@ -7735,7 +7741,7 @@ async function exportPlayerProfile(playerName) {
             
             if (breakdown.overvaluationRisk > 15) {
                 const feeInM = (transferFee / 1000000).toFixed(1);
-                const fgaValue = ((player.fga || 75) * 1.2).toFixed(1);
+                const fgaValue = ((player.fga_rating || 75) * 1.2).toFixed(1);
                 recommendations.push({
                     type: 'warning',
                     text: `Overvalued: €${feeInM}M fee vs €${fgaValue}M FGA value`
@@ -8216,7 +8222,7 @@ async function exportPlayerProfile(playerName) {
                     p.position,
                     p.age,
                     p.nationality,
-                    p.fga,
+                    p.fga_rating,
                     p.bestPhilosophy,
                     p.currentClub || 'N/A'
                 ]);
@@ -8524,7 +8530,7 @@ async function exportPlayerProfile(playerName) {
         }
 
         function calculateOvervaluationRisk(player, transferFee, targetLeague) {
-            let fgaValue = (player.fga || 75) * 1.2 * 1000000; // €1.2M per FGA point
+            let fgaValue = (player.fga_rating || 75) * 1.2 * 1000000; // €1.2M per FGA point
             
             // Apply Premier League premium
             if (targetLeague === 'Premier League') {
@@ -8566,7 +8572,7 @@ async function exportPlayerProfile(playerName) {
         function calculateStyleRisk(player, targetLeague) {
             // Simplified: Premier League = high intensity
             if (targetLeague === 'Premier League') {
-                return (player.fga < 80) ? 6 : 2;
+                return (player.fga_rating < 80) ? 6 : 2;
             }
             return 3;
         }
@@ -8666,7 +8672,7 @@ async function exportPlayerProfile(playerName) {
             
             if (breakdown.overvaluationRisk > 15) {
                 const feeInM = (transferFee / 1000000).toFixed(1);
-                const fgaValue = ((player.fga || 75) * 1.2).toFixed(1);
+                const fgaValue = ((player.fga_rating || 75) * 1.2).toFixed(1);
                 recommendations.push({
                     type: 'warning',
                     text: `Overvalued: €${feeInM}M fee vs €${fgaValue}M FGA value`
