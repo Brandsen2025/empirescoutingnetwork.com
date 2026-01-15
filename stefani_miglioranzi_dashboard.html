@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empire FGA - Stefani Miglioranzi Dashboard | First Wave Sports</title>
+    <meta name="description" content="Stefani Miglioranzi Agent Dashboard - First Wave Sports International. 779 proprietary metrics, player analysis, market intelligence.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #22d3ee, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .player-card.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu { display: none; }
+        .mobile-menu.active { display: block; }
+
+        .roster-table th, .roster-table td {
+             padding: 12px 15px;
+             border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+             vertical-align: middle; 
+        }
+         .roster-table th {
+            background-color: rgba(30, 58, 138, 0.3);
+            color: #93c5fd;
+            text-align: left;
+            font-weight: 600;
+        }
+        .roster-table tbody tr:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .nav-button {
+             background: none;
+             border: none;
+             color: #cbd5e0;
+             padding: 0.5rem 1rem;
+             cursor: pointer;
+             font-weight: 500;
+             transition: color 0.2s ease;
+        }
+        .nav-button:hover {
+             color: #60a5fa;
+        }
+        .nav-button.active {
+             color: #3b82f6;
+             font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white">
+
+    
+    <nav class="fixed top-0 w-full bg-slate-950/90 backdrop-blur-md z-50 border-b border-blue-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- UPDATED: Linked Logo to platform.html -->
+                <a href="platform.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                    <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" 
+                         alt="Empire Scouting Network" 
+                         class="h-10 w-auto">
+                    <span class="text-xl font-bold gradient-text">Empire Scouting Network</span>
+                </a>
+                
+                <div class="hidden md:flex space-x-8 items-center">
+                    <button data-section="dashboard" class="nav-button active">Dashboard</button>
+                    <button data-section="roster" class="nav-button">My Players</button>
+                    <button data-section="comparison" class="nav-button">Compare</button>
+                    <button data-section="market" class="nav-button">Market Intelligence</button>
+                    <span class="text-sm text-slate-400"> | Stefani Miglioranzi</span>
+                    <button onclick="logout()" class="text-sm text-red-400 hover:text-red-300">Logout</button>
+                </div>
+
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="mobile-menu md:hidden bg-slate-900 border-t border-blue-500/20">
+            <div class="px-4 py-4 space-y-3">
+                 <button data-section="dashboard" class="nav-button block w-full text-left">Dashboard</button>
+                 <button data-section="roster" class="nav-button block w-full text-left">My Players</button>
+                 <button data-section="comparison" class="nav-button block w-full text-left">Compare</button>
+                 <button data-section="market" class="nav-button block w-full text-left">Market Intelligence</button>
+                 <button onclick="logout()" class="text-red-400 hover:text-red-300 block w-full text-left">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard" class="section">
+                <div class="text-center mb-12 p-8 bg-slate-900/50 rounded-xl border border-blue-500/20">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">
+                        Welcome to Your Agent Dashboard
+                    </h1>
+                    <p class="text-xl text-slate-300 mb-4">
+                        Stefani Miglioranzi • First Wave Sports International
+                    </p>
+                    <p class="text-sm text-slate-400 mb-8">
+                        CEO Access • 779 Metrics • 60 Philosophies • Priority Support
+                    </p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                         <div class="bg-slate-900/50 backdrop-blur-sm border border-blue-500/20 rounded-lg p-6">
+                            <div class="text-3xl md:text-4xl font-bold text-blue-400 mb-2">5</div>
+                            <div class="text-sm text-slate-400">Best Value Picks</div>
+                        </div>
+                        <div class="bg-slate-900/50 backdrop-blur-sm border border-blue-500/20 rounded-lg p-6">
+                            <div class="text-3xl md:text-4xl font-bold text-cyan-400 mb-2">779</div>
+                            <div class="text-sm text-slate-400">Total Metrics</div>
+                        </div>
+                        <div class="bg-slate-900/50 backdrop-blur-sm border border-blue-500/20 rounded-lg p-6">
+                            <div class="text-3xl md:text-4xl font-bold text-green-400 mb-2">60</div>
+                            <div class="text-sm text-slate-400">Philosophies</div>
+                        </div>
+                        <div class="bg-slate-900/50 backdrop-blur-sm border border-blue-500/20 rounded-lg p-6">
+                            <div class="text-3xl md:text-4xl font-bold text-yellow-400 mb-2">78.2</div>
+                            <div class="text-sm text-slate-400">Avg. FGA Rating</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Player List -->
+                    <div class="md:col-span-1 bg-slate-900/50 border border-blue-500/20 rounded-xl p-8">
+                        <h3 class="text-3xl font-bold mb-6 text-blue-400">My Players</h3>
+                        <div id="player-list" class="space-y-4">
+                            <!-- Sam Junqua Card -->
+                            <div class="player-card bg-slate-800/50 border border-blue-500/30 rounded-lg p-6 cursor-pointer transition card-hover selected bg-slate-700/50 border-blue-400" 
+                                 onclick="selectPlayer(1)" 
+                                 id="player-1">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="text-xl font-bold">Sam Junqua</div>
+                                    <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-semibold text-sm">
+                                        FGA: 80.5
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-slate-400 text-sm mb-4">
+                                    <span>LB/LM • 29 years</span>
+                                    <span>🇺🇸 USA</span>
+                                </div>
+                                <div class="text-sm font-semibold text-green-400">
+                                    ⚽ Real Salt Lake • MLS
+                                </div>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    Click to view full analysis
+                                </div>
+                            </div>
+
+                            <!-- Johnny Rodriguez Card -->
+                            <div class="player-card bg-slate-800/50 border border-blue-500/30 rounded-lg p-6 cursor-pointer transition card-hover" 
+                                 onclick="selectPlayer(2)" 
+                                 id="player-2">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="text-xl font-bold">Johnny Rodriguez</div>
+                                    <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-semibold text-sm">
+                                        FGA: 78.0
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-slate-400 text-sm mb-4">
+                                    <span>CF • 27 years</span>
+                                    <span>🇺🇸 USA</span>
+                                </div>
+                                <div class="text-sm font-semibold text-green-400">
+                                    ⚽ Las Vegas Lights • USL
+                                </div>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    Click to view full analysis
+                                </div>
+                            </div>
+
+                            <!-- Daniel Steres Card -->
+                            <div class="player-card bg-slate-800/50 border border-blue-500/30 rounded-lg p-6 cursor-pointer transition card-hover" 
+                                 onclick="selectPlayer(3)" 
+                                 id="player-3">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="text-xl font-bold">Daniel Steres</div>
+                                    <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-semibold text-sm">
+                                        FGA: 78.5
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-slate-400 text-sm mb-4">
+                                    <span>CB • 35 years</span>
+                                    <span>🇺🇸 USA</span>
+                                </div>
+                                <div class="text-sm font-semibold text-green-400">
+                                    ⚽ Houston Dynamo • MLS
+                                </div>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    Click to view full analysis
+                                </div>
+                            </div>
+
+                            <!-- Luke Biasi Card -->
+                            <div class="player-card bg-slate-800/50 border border-blue-500/30 rounded-lg p-6 cursor-pointer transition card-hover" 
+                                 onclick="selectPlayer(4)" 
+                                 id="player-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="text-xl font-bold">Luke Biasi</div>
+                                    <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-semibold text-sm">
+                                        FGA: 77.0
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-slate-400 text-sm mb-4">
+                                    <span>LB/LM • 26 years</span>
+                                    <span>🇺🇸 USA</span>
+                                </div>
+                                <div class="text-sm font-semibold text-green-400">
+                                    ⚽ Pittsburgh Riverhounds
+                                </div>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    Click to view full analysis
+                                </div>
+                            </div>
+
+                            <!-- Derek Waldeck Card -->
+                            <div class="player-card bg-slate-800/50 border border-blue-500/30 rounded-lg p-6 cursor-pointer transition card-hover" 
+                                 onclick="selectPlayer(5)" 
+                                 id="player-5">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="text-xl font-bold">Derek Waldeck</div>
+                                    <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-semibold text-sm">
+                                        FGA: 76.5
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-slate-400 text-sm mb-4">
+                                    <span>LB/CM • 27 years</span>
+                                    <span>🇺🇸 USA</span>
+                                </div>
+                                <div class="text-sm font-semibold text-green-400">
+                                    ⚽ Spokane Velocity • USL1
+                                </div>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    Click to view full analysis
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="addPlayerRequest()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                            + Add Player
+                        </button>
+                    </div>
+                    
+                    <!-- Player Analysis -->
+                    <div class="md:col-span-2 bg-slate-900/50 border border-blue-500/20 rounded-xl p-8">
+                        <h3 class="text-3xl font-bold mb-6 text-blue-400">Player Analysis</h3>
+                        <div id="player-analysis">
+                            <!-- Sam Junqua Analysis -->
+                            <div class="player-analysis-content" id="analysis-1">
+                                <div class="mb-6">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4 class="text-2xl font-bold">Sam Junqua</h4>
+                                        <button onclick="exportPDF(1)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Export PDF
+                                        </button>
+                                    </div>
+                                    
+                                    <p class="text-slate-300 mb-6">
+                                        Left-Back/Midfield • 29 years • Real Salt Lake (MLS) • 🇺🇸 USA
+                                    </p>
+
+                                    <!-- Key Stats -->
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-blue-400">80.5</div>
+                                            <div class="text-xs text-slate-400">FGA Rating</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-cyan-400">8.4</div>
+                                            <div class="text-xs text-slate-400">Versatility</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-green-400">8.1</div>
+                                            <div class="text-xs text-slate-400">Work Rate</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-yellow-400">€650K</div>
+                                            <div class="text-xs text-slate-400">Market Value</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-purple-400">8.7</div>
+                                            <div class="text-xs text-slate-400">Klopp Fit</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Philosophy Compatibility -->
+                                    <div class="mb-6">
+                                        <h5 class="text-lg font-bold mb-4">Tactical Philosophy Compatibility</h5>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Klopp Intensity</span>
+                                                    <span class="text-blue-400 font-bold">8.7/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 87%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Ancelotti Adaptable</span>
+                                                    <span class="text-blue-400 font-bold">8.4/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 84%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Rangnick Pressing</span>
+                                                    <span class="text-blue-400 font-bold">8.2/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 82%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scouting Notes -->
+                                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                                        <h5 class="text-lg font-bold mb-3 text-blue-400">🎯 Scouting Report</h5>
+                                        <p class="text-slate-300 text-sm leading-relaxed">
+                                            <strong>High-value utility player</strong> capable of covering the entire left flank. Excellent work rate and tactical discipline make him a valuable squad asset for high-pressing systems (Klopp 8.7/10). Strong defensive metrics combined with the ability to join attacks. Consistent performer in MLS.
+                                        </p>
+                                        <p class="text-slate-300 text-sm leading-relaxed mt-3">
+                                            <strong>Target Clubs:</strong> MLS (Starter/Squad Role), Scandinavian Top Flight, 2. Bundesliga
+                                        </p>
+                                        <p class="text-green-400 text-sm font-bold mt-3">
+                                            💡 Recommendation: Reliable and cost-effective left-sided option
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Johnny Rodriguez Analysis -->
+                            <div class="player-analysis-content hidden" id="analysis-2">
+                                <div class="mb-6">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4 class="text-2xl font-bold">Johnny Rodriguez</h4>
+                                        <button onclick="exportPDF(2)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Export PDF
+                                        </button>
+                                    </div>
+                                    
+                                    <p class="text-slate-300 mb-6">
+                                        Centre-Forward • 27 years • Las Vegas Lights (USL) • 🇺🇸 USA
+                                    </p>
+
+                                    <!-- Key Stats -->
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-blue-400">78.0</div>
+                                            <div class="text-xs text-slate-400">FGA Rating</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-cyan-400">8.3</div>
+                                            <div class="text-xs text-slate-400">Finishing</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-green-400">8.0</div>
+                                            <div class="text-xs text-slate-400">Movement</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-yellow-400">€250K</div>
+                                            <div class="text-xs text-slate-400">Market Value</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-purple-400">8.5</div>
+                                            <div class="text-xs text-slate-400">Inzaghi Fit</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Philosophy Compatibility -->
+                                    <div class="mb-6">
+                                        <h5 class="text-lg font-bold mb-4">Tactical Philosophy Compatibility</h5>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Counter-Attack Direct</span>
+                                                    <span class="text-blue-400 font-bold">8.5/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 85%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Klopp Intensity</span>
+                                                    <span class="text-blue-400 font-bold">8.1/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 81%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Mourinho Clinical</span>
+                                                    <span class="text-blue-400 font-bold">7.8/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 78%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scouting Notes -->
+                                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                                        <h5 class="text-lg font-bold mb-3 text-blue-400">🎯 Scouting Report</h5>
+                                        <p class="text-slate-300 text-sm leading-relaxed">
+                                            <strong>Prolific USL striker</strong> who consistently finds goal-scoring positions. Strong movement inside the box and clinical finishing. recently moved from Oakland Roots to Las Vegas Lights. Represents excellent value for teams needing a proven goalscorer at the second-tier level or an MLS depth option.
+                                        </p>
+                                        <p class="text-slate-300 text-sm leading-relaxed mt-3">
+                                            <strong>Target Clubs:</strong> MLS (Depth Striker), USL Championship (Star Player), Asian Leagues
+                                        </p>
+                                        <p class="text-green-400 text-sm font-bold mt-3">
+                                            💡 Recommendation: Proven goalscorer ready for next step or key role
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Daniel Steres Analysis -->
+                            <div class="player-analysis-content hidden" id="analysis-3">
+                                <div class="mb-6">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4 class="text-2xl font-bold">Daniel Steres</h4>
+                                        <button onclick="exportPDF(3)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Export PDF
+                                        </button>
+                                    </div>
+                                    
+                                    <p class="text-slate-300 mb-6">
+                                        Center Back • 35 years • Houston Dynamo (MLS) • 🇺🇸 USA
+                                    </p>
+
+                                    <!-- Key Stats -->
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-blue-400">78.5</div>
+                                            <div class="text-xs text-slate-400">FGA Rating</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-cyan-400">8.8</div>
+                                            <div class="text-xs text-slate-400">Experience</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-green-400">8.5</div>
+                                            <div class="text-xs text-slate-400">Leadership</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-yellow-400">€200K</div>
+                                            <div class="text-xs text-slate-400">Market Value</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-purple-400">8.6</div>
+                                            <div class="text-xs text-slate-400">Ferguson Fit</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Philosophy Compatibility -->
+                                    <div class="mb-6">
+                                        <h5 class="text-lg font-bold mb-4">Tactical Philosophy Compatibility</h5>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Ferguson Mental</span>
+                                                    <span class="text-blue-400 font-bold">8.6/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 86%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Mourinho Defensive</span>
+                                                    <span class="text-blue-400 font-bold">8.3/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 83%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Ancelotti Adaptable</span>
+                                                    <span class="text-blue-400 font-bold">8.1/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 81%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scouting Notes -->
+                                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                                        <h5 class="text-lg font-bold mb-3 text-blue-400">🎯 Scouting Report</h5>
+                                        <p class="text-slate-300 text-sm leading-relaxed">
+                                            <strong>Veteran MLS center back</strong> with immense experience. Excellent locker room presence and leadership. Knows how to close out games and organize a defense. Despite age, maintains high tactical intelligence (Ferguson 8.6/10). Perfect short-term solution for defensive stability.
+                                        </p>
+                                        <p class="text-slate-300 text-sm leading-relaxed mt-3">
+                                            <strong>Target Clubs:</strong> MLS (Mentor/Backup), USL Championship (Captain Role)
+                                        </p>
+                                        <p class="text-green-400 text-sm font-bold mt-3">
+                                            💡 Recommendation: Invaluable experience at a low cost
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Luke Biasi Analysis -->
+                            <div class="player-analysis-content hidden" id="analysis-4">
+                                <div class="mb-6">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4 class="text-2xl font-bold">Luke Biasi</h4>
+                                        <button onclick="exportPDF(4)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Export PDF
+                                        </button>
+                                    </div>
+                                    
+                                    <p class="text-slate-300 mb-6">
+                                        Left-Back/Midfield • 26 years • Pittsburgh Riverhounds (USL) • 🇺🇸 USA
+                                    </p>
+
+                                    <!-- Key Stats -->
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-blue-400">77.0</div>
+                                            <div class="text-xs text-slate-400">FGA Rating</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-cyan-400">8.2</div>
+                                            <div class="text-xs text-slate-400">Stamina</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-green-400">7.9</div>
+                                            <div class="text-xs text-slate-400">1v1 Defending</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-yellow-400">€200K</div>
+                                            <div class="text-xs text-slate-400">Market Value</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-purple-400">8.4</div>
+                                            <div class="text-xs text-slate-400">Klopp Fit</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Philosophy Compatibility -->
+                                    <div class="mb-6">
+                                        <h5 class="text-lg font-bold mb-4">Tactical Philosophy Compatibility</h5>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Klopp Intensity</span>
+                                                    <span class="text-blue-400 font-bold">8.4/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 84%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Mourinho Defensive</span>
+                                                    <span class="text-blue-400 font-bold">8.0/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 80%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Bielsa Man-Marking</span>
+                                                    <span class="text-blue-400 font-bold">7.8/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 78%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scouting Notes -->
+                                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                                        <h5 class="text-lg font-bold mb-3 text-blue-400">🎯 Scouting Report</h5>
+                                        <p class="text-slate-300 text-sm leading-relaxed">
+                                            <strong>Solid defensive left back/midfielder</strong> with high stamina. Key component of the Pittsburgh Riverhounds' defensive unit. Good in 1v1 situations and diligent in tracking back. Offers reliability and consistency on the left flank for a very efficient market value.
+                                        </p>
+                                        <p class="text-slate-300 text-sm leading-relaxed mt-3">
+                                            <strong>Target Clubs:</strong> MLS (Depth), USL Championship (Starter), Canadian Premier League
+                                        </p>
+                                        <p class="text-green-400 text-sm font-bold mt-3">
+                                            💡 Recommendation: Dependable defender with upside
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Derek Waldeck Analysis -->
+                            <div class="player-analysis-content hidden" id="analysis-5">
+                                <div class="mb-6">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4 class="text-2xl font-bold">Derek Waldeck</h4>
+                                        <button onclick="exportPDF(5)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Export PDF
+                                        </button>
+                                    </div>
+                                    
+                                    <p class="text-slate-300 mb-6">
+                                        Left-Back / CM • 27 years • Spokane Velocity (USL1) • 🇺🇸 USA
+                                    </p>
+
+                                    <!-- Key Stats -->
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-blue-400">76.5</div>
+                                            <div class="text-xs text-slate-400">FGA Rating</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-cyan-400">8.1</div>
+                                            <div class="text-xs text-slate-400">Technical</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-green-400">8.0</div>
+                                            <div class="text-xs text-slate-400">Passing</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-yellow-400">€200K</div>
+                                            <div class="text-xs text-slate-400">Market Value</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-4 text-center">
+                                            <div class="text-2xl font-bold text-purple-400">8.3</div>
+                                            <div class="text-xs text-slate-400">Guardiola Fit</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Philosophy Compatibility -->
+                                    <div class="mb-6">
+                                        <h5 class="text-lg font-bold mb-4">Tactical Philosophy Compatibility</h5>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Guardiola Positional</span>
+                                                    <span class="text-blue-400 font-bold">8.3/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 83%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Cruyff Total Football</span>
+                                                    <span class="text-blue-400 font-bold">8.0/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 80%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span>Ancelotti Adaptable</span>
+                                                    <span class="text-blue-400 font-bold">7.8/10</span>
+                                                </div>
+                                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 78%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scouting Notes -->
+                                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                                        <h5 class="text-lg font-bold mb-3 text-blue-400">🎯 Scouting Report</h5>
+                                        <p class="text-slate-300 text-sm leading-relaxed">
+                                            <strong>Technically gifted left-footed player</strong> who excels in possession. Capable of playing left back or central midfield. Good passing range and vision, suitable for teams that want to build from the back (Guardiola 8.3/10). Standout performer in USL League One with Spokane Velocity.
+                                        </p>
+                                        <p class="text-slate-300 text-sm leading-relaxed mt-3">
+                                            <strong>Target Clubs:</strong> USL Championship (Promotion), MLS Next Pro, NISA
+                                        </p>
+                                        <p class="text-green-400 text-sm font-bold mt-3">
+                                            💡 Recommendation: Intelligent player who improves possession stats
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </section>
+
+             <!-- ROSTER SECTION -->
+             <section id="roster" class="section hidden">
+                <div class="bg-slate-900/50 border border-blue-500/20 rounded-xl p-8">
+                     <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-4xl md:text-5xl font-bold gradient-text">
+                            My Player Roster
+                        </h1>
+                        <button onclick="exportAllPDFs()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Export All PDFs
+                        </button>
+                    </div>
+                     <div class="overflow-x-auto">
+                        <table class="roster-table w-full text-sm text-left text-slate-300">
+                             <thead class="text-xs uppercase">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Age</th>
+                                    <th>Current Club</th>
+                                    <th>Nationality</th>
+                                    <th>FGA Rating</th>
+                                    <th>Market Value</th>
+                                    <th>Actions</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                <tr>
+                                    <td class="font-semibold text-blue-400">
+                                        <a href="Sam_Junqua.html" class="hover:underline">Sam Junqua</a>
+                                    </td>
+                                    <td>LB/LM</td>
+                                    <td>29</td>
+                                    <td>Real Salt Lake</td>
+                                    <td>🇺🇸 USA</td>
+                                    <td><span class="bg-blue-600 px-2 py-1 rounded text-xs font-bold">80.5</span></td>
+                                    <td>€650K</td>
+                                    <td>
+                                        <button onclick="exportPDF(1)" class="text-green-400 hover:text-green-300 text-xs underline">
+                                            Export PDF
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold text-blue-400">
+                                        <a href="Johnny_Rodriguez.html" class="hover:underline">Johnny Rodriguez</a>
+                                    </td>
+                                    <td>CF</td>
+                                    <td>27</td>
+                                    <td>Las Vegas Lights</td>
+                                    <td>🇺🇸 USA</td>
+                                    <td><span class="bg-blue-600 px-2 py-1 rounded text-xs font-bold">78.0</span></td>
+                                    <td>€250K</td>
+                                    <td>
+                                        <button onclick="exportPDF(2)" class="text-green-400 hover:text-green-300 text-xs underline">
+                                            Export PDF
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold text-blue-400">
+                                        <a href="Daniel_Steres.html" class="hover:underline">Daniel Steres</a>
+                                    </td>
+                                    <td>CB</td>
+                                    <td>35</td>
+                                    <td>Houston Dynamo</td>
+                                    <td>🇺🇸 USA</td>
+                                    <td><span class="bg-blue-600 px-2 py-1 rounded text-xs font-bold">78.5</span></td>
+                                    <td>€200K</td>
+                                    <td>
+                                        <button onclick="exportPDF(3)" class="text-green-400 hover:text-green-300 text-xs underline">
+                                            Export PDF
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold text-blue-400">
+                                        <a href="Luke_Biasi.html" class="hover:underline">Luke Biasi</a>
+                                    </td>
+                                    <td>LB/LM</td>
+                                    <td>26</td>
+                                    <td>Pittsburgh Riverhounds</td>
+                                    <td>🇺🇸 USA</td>
+                                    <td><span class="bg-blue-600 px-2 py-1 rounded text-xs font-bold">77.0</span></td>
+                                    <td>€200K</td>
+                                    <td>
+                                        <button onclick="exportPDF(4)" class="text-green-400 hover:text-green-300 text-xs underline">
+                                            Export PDF
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold text-blue-400">
+                                        <a href="Derek_Waldeck.html" class="hover:underline">Derek Waldeck</a>
+                                    </td>
+                                    <td>LB/CM</td>
+                                    <td>27</td>
+                                    <td>Spokane Velocity</td>
+                                    <td>🇺🇸 USA</td>
+                                    <td><span class="bg-blue-600 px-2 py-1 rounded text-xs font-bold">76.5</span></td>
+                                    <td>€200K</td>
+                                    <td>
+                                        <button onclick="exportPDF(5)" class="text-green-400 hover:text-green-300 text-xs underline">
+                                            Export PDF
+                                        </button>
+                                    </td>
+                                </tr>
+                             </tbody>
+                         </table>
+                     </div>
+                     <p class="text-xs text-slate-500 mt-4">
+                        Click "Export PDF" to generate professional scouting reports for clubs. Need to add more players? Email us at info@firstwavesports.com
+                    </p>
+                </div>
+            </section>
+
+            <!-- COMPARISON SECTION -->
+            <section id="comparison" class="section hidden">
+                <div class="bg-slate-900/50 border border-blue-500/20 rounded-xl p-8">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">
+                        Player Comparison Tool
+                    </h1>
+                    
+                    <div class="text-center py-20">
+                        <svg class="w-24 h-24 text-blue-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold mb-4">Compare Players Side-by-Side</h3>
+                        <p class="text-slate-400 mb-6 max-w-2xl mx-auto">
+                            Advanced comparison features now available on our main platform! Compare up to 4 players across 779 metrics, philosophy compatibility, and market positioning.
+                        </p>
+                        <!-- LINKED TO PLATFORM.HTML AS REQUESTED -->
+                        <a href="platform.html" class="inline-block bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg font-semibold transition text-white">
+                            Launch Comparison Tool
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MARKET INTELLIGENCE SECTION -->
+            <section id="market" class="section hidden">
+                <div class="bg-slate-900/50 border border-blue-500/20 rounded-xl p-8">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">
+                        Market Intelligence Hub
+                    </h1>
+
+                    <!-- Market Overview Cards -->
+                    <div class="grid md:grid-cols-3 gap-6 mb-12">
+                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-6 card-hover">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-blue-400">€1.5M</div>
+                                    <div class="text-sm text-slate-400">Portfolio Est. Value</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500">Total 5 players combined value</p>
+                        </div>
+
+                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-6 card-hover">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-green-400">28.8</div>
+                                    <div class="text-sm text-slate-400">Avg. Age</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500">Mix of Experience & Prime</p>
+                        </div>
+
+                        <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-6 card-hover">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-purple-400">12</div>
+                                    <div class="text-sm text-slate-400">Active Inquiries</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500">Domestic & Lower League Interest</p>
+                        </div>
+                    </div>
+
+                    <!-- Market Trends -->
+                    <div class="bg-slate-800/50 border border-blue-500/20 rounded-lg p-8">
+                        <h2 class="text-2xl font-bold mb-6 text-blue-400">Market Trends & Insights</h2>
+                        
+                        <div class="space-y-6">
+                            <div class="border-l-4 border-green-500 pl-6">
+                                <h3 class="text-lg font-bold mb-2">🔥 Hot Market: Domestic Value</h3>
+                                <p class="text-slate-300 text-sm">
+                                    High demand for proven USL and MLS talent that provides reliable performance at a sustainable cost. Sam Junqua and Daniel Steres are prime examples of MLS reliability.
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-blue-500 pl-6">
+                                <h3 class="text-lg font-bold mb-2">📊 Value Opportunity: USL Strikers</h3>
+                                <p class="text-slate-300 text-sm">
+                                    Johnny Rodriguez represents excellent value. USL strikers with consistent goal records are increasingly being targeted by Asian markets and MLS clubs for depth.
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-purple-500 pl-6">
+                                <h3 class="text-lg font-bold mb-2">⚡ Emerging Market: Technical Defenders</h3>
+                                <p class="text-slate-300 text-sm">
+                                    Left-footed defenders with technical ability like Derek Waldeck and Luke Biasi are undervalued assets in the current market, offering high ROI for lower-tier clubs.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Navigation
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const section = button.getAttribute('data-section');
+                
+                // Update active nav button
+                document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show selected section
+                document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
+                document.getElementById(section).classList.remove('hidden');
+                
+                // Close mobile menu if open
+                closeMobileMenu();
+            });
+        });
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobile-menu').classList.remove('active');
+        }
+
+        function selectPlayer(id) {
+            // Update selected card
+            document.querySelectorAll('.player-card').forEach(card => {
+                card.classList.remove('selected', 'bg-slate-700/50', 'border-blue-400');
+            });
+            document.getElementById(`player-${id}`).classList.add('selected', 'bg-slate-700/50', 'border-blue-400');
+            
+            // Show selected player analysis
+            document.querySelectorAll('.player-analysis-content').forEach(analysis => {
+                analysis.classList.add('hidden');
+            });
+            document.getElementById(`analysis-${id}`).classList.remove('hidden');
+        }
+
+        // Player Database
+        const playersDB = {
+            1: {
+                name: 'Sam Junqua',
+                position: 'LB/LM',
+                club: 'Real Salt Lake',
+                age: 29,
+                nationality: 'USA',
+                fgaOverall: 8.05,
+                marketValue: 0.65,
+                bio: 'Versatile left-sided player currently with Real Salt Lake. Originally drafted by Houston Dynamo, he has developed into a reliable MLS professional. Known for his work rate and ability to play both as a fullback and wide midfielder. Provides solid defensive coverage and can contribute to attacking phases.',
+                strengths: [
+                    'High work rate and stamina',
+                    'Positional versatility (LB/LM)',
+                    'Solid defensive fundamentals',
+                    'MLS experience',
+                    'Good crossing ability'
+                ],
+                xps: 8.2,
+                trophyMagnet: 7.5,
+                dma: 7.9,
+                poi: 8.1,
+                chr: 8.3,
+                cpx: 7.8,
+                guardiola: 7.6,
+                klopp: 8.7,
+                ancelotti: 8.4,
+                mourinho: 8.0,
+                cruyff: 7.5,
+                transferTargets: [
+                    'MLS Squad Rotation (90% match)',
+                    'Scandinavian Top Tier (85% match)',
+                    '2. Bundesliga (80% match)'
+                ],
+                hasVideoHighlights: true,
+                agent: 'Stefani Miglioranzi',
+                agentCompany: 'First Wave Sports'
+            },
+            2: {
+                name: 'Johnny Rodriguez',
+                position: 'CF',
+                club: 'Las Vegas Lights',
+                age: 27,
+                nationality: 'USA',
+                fgaOverall: 7.80,
+                marketValue: 0.25,
+                bio: 'Dynamic striker recently moving to Las Vegas Lights after a successful stint with Oakland Roots. Known for his finishing ability and movement off the ball. A consistent goalscorer at the USL Championship level, he offers a direct threat and clinical finishing in the box.',
+                strengths: [
+                    'Clinical finishing',
+                    'Intelligent movement in the box',
+                    'Consistent goal scoring record',
+                    'Direct attacking threat',
+                    'Good physical presence'
+                ],
+                xps: 7.5,
+                trophyMagnet: 7.2,
+                dma: 7.8,
+                poi: 8.2,
+                chr: 8.0,
+                cpx: 7.4,
+                guardiola: 7.3,
+                klopp: 8.1,
+                ancelotti: 7.9,
+                mourinho: 7.8,
+                cruyff: 7.2,
+                transferTargets: [
+                    'MLS Depth Option (85% match)',
+                    'Asian Leagues (80% match)',
+                    'USL Championship Top Clubs (95% match)'
+                ],
+                hasVideoHighlights: true,
+                agent: 'Stefani Miglioranzi',
+                agentCompany: 'First Wave Sports'
+            },
+            3: {
+                name: 'Daniel Steres',
+                position: 'CB',
+                club: 'Houston Dynamo',
+                age: 35,
+                nationality: 'USA',
+                fgaOverall: 7.85,
+                marketValue: 0.20,
+                bio: 'Highly experienced MLS center back currently with Houston Dynamo. Former LA Galaxy regular. brings veteran leadership, organizational skills, and aerial dominance to the backline. An ideal mentor and stabilizer for any defense, proving age is just a number with consistent performances.',
+                strengths: [
+                    'Vast MLS experience',
+                    'Defensive organization & leadership',
+                    'Aerial ability',
+                    'Tactical intelligence',
+                    'Reliability'
+                ],
+                xps: 9.0,
+                trophyMagnet: 7.8,
+                dma: 8.3,
+                poi: 8.4,
+                chr: 8.8,
+                cpx: 7.6,
+                guardiola: 7.2,
+                klopp: 7.0,
+                ancelotti: 8.1,
+                mourinho: 8.3,
+                cruyff: 7.1,
+                transferTargets: [
+                    'MLS Backup/Mentor (92% match)',
+                    'USL Championship Captain (90% match)',
+                    'Coaching/Player Role (85% match)'
+                ],
+                hasVideoHighlights: true,
+                agent: 'Stefani Miglioranzi',
+                agentCompany: 'First Wave Sports'
+            },
+            4: {
+                name: 'Luke Biasi',
+                position: 'LB/LM',
+                club: 'Pittsburgh Riverhounds',
+                age: 26,
+                nationality: 'USA',
+                fgaOverall: 7.70,
+                marketValue: 0.20,
+                bio: 'Energetic left-sided defender playing for Pittsburgh Riverhounds in the USL Championship. Known for his high stamina and ability to contribute on both ends of the pitch. A solid 1v1 defender who fits well into disciplined defensive systems while offering an outlet on the counter.',
+                strengths: [
+                    'High stamina and energy',
+                    'Defensive discipline',
+                    '1v1 defending',
+                    'Positional awareness',
+                    'Consistency'
+                ],
+                xps: 7.2,
+                trophyMagnet: 7.0,
+                dma: 7.5,
+                poi: 7.8,
+                chr: 8.1,
+                cpx: 7.3,
+                guardiola: 7.1,
+                klopp: 8.4,
+                ancelotti: 7.6,
+                mourinho: 8.0,
+                cruyff: 7.0,
+                transferTargets: [
+                    'MLS Depth (80% match)',
+                    'Canadian Premier League (88% match)',
+                    'USL Championship (Starter) (95% match)'
+                ],
+                hasVideoHighlights: true,
+                agent: 'Stefani Miglioranzi',
+                agentCompany: 'First Wave Sports'
+            },
+            5: {
+                name: 'Derek Waldeck',
+                position: 'LB/CM',
+                club: 'Spokane Velocity',
+                age: 27,
+                nationality: 'USA',
+                fgaOverall: 7.65,
+                marketValue: 0.20,
+                bio: 'Technically sound left-footed player currently with Spokane Velocity in USL League One. Capable of playing as a left back or central midfielder. Excellent passer with good vision, making him valuable for teams that prioritize possession and building from the back.',
+                strengths: [
+                    'Technical ability',
+                    'Passing range and vision',
+                    'Left-footed balance',
+                    'Tactical versatility (LB/CM)',
+                    'Composure on the ball'
+                ],
+                xps: 7.3,
+                trophyMagnet: 7.1,
+                dma: 7.7,
+                poi: 7.9,
+                chr: 8.0,
+                cpx: 7.5,
+                guardiola: 8.3,
+                klopp: 7.4,
+                ancelotti: 7.8,
+                mourinho: 7.2,
+                cruyff: 8.0,
+                transferTargets: [
+                    'USL Championship (85% match)',
+                    'MLS Next Pro (82% match)',
+                    'NISA (90% match)'
+                ],
+                hasVideoHighlights: true,
+                agent: 'Stefani Miglioranzi',
+                agentCompany: 'First Wave Sports'
+            }
+        };
+
+        // Helper Functions
+        function calculateHiddenValue(player) {
+            const baseFGA = player.fgaOverall;
+            if (baseFGA >= 8.0) return 1.0;
+            if (baseFGA >= 7.5) return 0.5;
+            return 0;
+        }
+
+        function getTopPhilosophy(player) {
+            const philosophies = [
+                { name: 'Klopp Intensity', score: player.klopp },
+                { name: 'Guardiola Positional', score: player.guardiola },
+                { name: 'Ancelotti Adaptable', score: player.ancelotti },
+                { name: 'Mourinho Defensive', score: player.mourinho },
+                { name: 'Cruyff Total Football', score: player.cruyff }
+            ];
+            philosophies.sort((a, b) => b.score - a.score);
+            return philosophies[0];
+        }
+
+        function calculateSalaryBand(fga) {
+            if (fga >= 8.5) return { min: 80, max: 120, position: 'Top Tier' };
+            if (fga >= 8.0) return { min: 20, max: 50, position: 'Upper Mid-Tier' };
+            if (fga >= 7.5) return { min: 5, max: 20, position: 'Mid-Tier' };
+            return { min: 2, max: 5, position: 'Lower Mid-Tier' };
+        }
+
+        function loadImage(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
+
+        async function exportPDF(playerId) {
+            const player = playersDB[playerId];
+            if (!player) {
+                alert('Player data not found');
+                return;
+            }
+            
+            // Show generating message
+            const statusMsg = document.createElement('div');
+            statusMsg.style = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1e293b;border:2px solid #3b82f6;padding:30px;border-radius:12px;z-index:9999;text-align:center;';
+            statusMsg.innerHTML = '<div style="color:#60a5fa;font-size:18px;font-weight:bold;margin-bottom:10px;">⏳ Generating PDF Report...</div><div style="color:#94a3b8;font-size:14px;">Please wait, creating professional report for ' + player.name + '</div>';
+            document.body.appendChild(statusMsg);
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // PAGE 1: HEADER WITH LOGO & EXECUTIVE SUMMARY
+                
+                // Gold Header Background
+                doc.setFillColor(205, 133, 63);
+                doc.rect(0, 0, 210, 50, 'F');
+                
+                // Empire FGA Logo
+                const logoUrl = 'https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ';
+                
+                try {
+                    const logoImg = await loadImage(logoUrl);
+                    doc.addImage(logoImg, 'PNG', 15, 8, 35, 35);
+                } catch (error) {
+                    // Fallback
+                }
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(22);
+                doc.setFont(undefined, 'bold');
+                doc.text('EMPIRE FGA SCOUTING REPORT', 55, 22);
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text('Stefani Miglioranzi • First Wave Sports International', 55, 32);
+                doc.text('779-Metric Analysis System', 55, 39);
+                
+                // Player Basic Info Section
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(205, 133, 63);
+                doc.text(player.name, 20, 65);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'normal');
+                doc.text(`${player.position} • ${player.age} years • ${player.club} • ${player.nationality}`, 20, 73);
+                
+                // FGA Rating Badge
+                doc.setFillColor(59, 130, 246);
+                doc.roundedRect(150, 58, 40, 18, 3, 3, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text(`FGA: ${player.fgaOverall.toFixed(1)}`, 170, 70, { align: 'center' });
+                
+                // Executive Summary
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(205, 133, 63);
+                doc.text('EXECUTIVE SUMMARY', 20, 88);
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                
+                const bioLines = doc.splitTextToSize(player.bio, 170);
+                let yPos = 96;
+                bioLines.forEach(line => {
+                    doc.text(line, 20, yPos);
+                    yPos += 5;
+                });
+                
+                // Key Metrics
+                yPos += 8;
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(205, 133, 63);
+                doc.text('KEY PERFORMANCE METRICS', 20, yPos);
+                
+                yPos += 8;
+                const metrics = [
+                    { label: 'XPS (Experience)', value: player.xps },
+                    { label: 'Trophy Magnet', value: player.trophyMagnet },
+                    { label: 'DMA (Decision Making)', value: player.dma },
+                    { label: 'POI (Positioning)', value: player.poi },
+                    { label: 'CHR (Character)', value: player.chr },
+                    { label: 'CPX (Complexity)', value: player.cpx }
+                ];
+                
+                metrics.forEach((metric, index) => {
+                    const xOffset = (index % 2) * 95;
+                    const yOffset = Math.floor(index / 2) * 10;
+                    
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(metric.label, 20 + xOffset, yPos + yOffset);
+                    
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(59, 130, 246);
+                    doc.text(`${metric.value.toFixed(1)}/10`, 75 + xOffset, yPos + yOffset);
+                    
+                    // Progress bar
+                    doc.setFillColor(226, 232, 240);
+                    doc.rect(90 + xOffset, yPos + yOffset - 3, 30, 4, 'F');
+                    doc.setFillColor(59, 130, 246);
+                    doc.rect(90 + xOffset, yPos + yOffset - 3, (metric.value / 10) * 30, 4, 'F');
+                });
+                
+                yPos += 40;
+                
+                // Strengths Section
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(205, 133, 63);
+                doc.text('KEY STRENGTHS', 20, yPos);
+                
+                yPos += 8;
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(0, 0, 0);
+                
+                player.strengths.forEach(strength => {
+                    const strengthLines = doc.splitTextToSize(`• ${strength}`, 170);
+                    strengthLines.forEach(line => {
+                        doc.text(line, 25, yPos);
+                        yPos += 5;
+                    });
+                });
+                
+                // Market Value
+                yPos += 5;
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('Estimated Market Value:', 20, yPos);
+                doc.setTextColor(34, 197, 94);
+                doc.text(`€${player.marketValue}M`, 80, yPos);
+                
+                // Footer
+                doc.setFontSize(8);
+                doc.setTextColor(128, 128, 128);
+                doc.text('Empire FGA Scouting Network | 779-Metric System | www.empirescoutingnetwork.com', 105, 285, { align: 'center' });
+                doc.text(`Generated: ${new Date().toLocaleDateString()} | Report ID: ESN-${Date.now().toString(36).toUpperCase()}`, 105, 290, { align: 'center' });
+                
+                // PAGE 2: TACTICAL PHILOSOPHY FIT ANALYSIS
+                doc.addPage();
+                
+                // Header
+                doc.setFillColor(205, 133, 63);
+                doc.rect(0, 0, 210, 35, 'F');
+                
+                try {
+                    const logoImg = await loadImage(logoUrl);
+                    doc.addImage(logoImg, 'PNG', 15, 5, 24, 24);
+                } catch (error) {
+                    // Fallback
+                }
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.text('TACTICAL PHILOSOPHY FIT ANALYSIS', 45, 22);
+                
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(205, 133, 63);
+                doc.text('TOP 5 MANAGER COMPATIBILITY', 20, 52);
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                
+                const philosophies = [
+                    { name: 'Pep Guardiola', score: player.guardiola, style: 'Possession-based, technical excellence' },
+                    { name: 'Jurgen Klopp', score: player.klopp, style: 'High-intensity pressing, counter-attack' },
+                    { name: 'Carlo Ancelotti', score: player.ancelotti, style: 'Adaptable, man-management focused' },
+                    { name: 'Jose Mourinho', score: player.mourinho, style: 'Defensive solidity, tactical discipline' },
+                    { name: 'Johan Cruyff', score: player.cruyff, style: 'Total Football, positional fluidity' }
+                ];
+                
+                philosophies.sort((a, b) => b.score - a.score);
+                
+                yPos = 62;
+                philosophies.forEach((phil, index) => {
+                    doc.setFont(undefined, 'bold');
+                    doc.setFontSize(12);
+                    doc.text(`${index + 1}. ${phil.name}`, 25, yPos);
+                    
+                    doc.setFont(undefined, 'normal');
+                    doc.setFontSize(10);
+                    doc.text(`Score: ${phil.score.toFixed(1)}/10`, 120, yPos);
+                    
+                    doc.setTextColor(100, 100, 100);
+                    doc.setFontSize(9);
+                    const styleLines = doc.splitTextToSize(phil.style, 160);
+                    doc.text(styleLines, 30, yPos + 6);
+                    
+                    doc.setTextColor(0, 0, 0);
+                    yPos += 22;
+                });
+                
+                // Transfer Market Analysis
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(205, 133, 63);
+                doc.text('TRANSFER MARKET ANALYSIS', 20, yPos + 15);
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                
+                doc.text('Ideal Target Clubs:', 20, yPos + 27);
+                
+                doc.setFontSize(10);
+                yPos += 35;
+                player.transferTargets.forEach(target => {
+                    doc.text(`• ${target}`, 25, yPos);
+                    yPos += 7;
+                });
+                
+                // Salary Recommendation
+                const salaryBand = calculateSalaryBand(player.fgaOverall);
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('Recommended Salary Band:', 20, yPos + 10);
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(11);
+                doc.text(`€${salaryBand.min}K - €${salaryBand.max}K per week`, 25, yPos + 20);
+                doc.setFontSize(9);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Market Position: ${salaryBand.position}`, 25, yPos + 27);
+                
+                // Video Highlights Badge
+                if (player.hasVideoHighlights) {
+                    doc.setFillColor(40, 167, 69);
+                    doc.roundedRect(15, yPos + 35, 60, 12, 2, 2, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(9);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('✓ VIDEO HIGHLIGHTS AVAILABLE', 45, yPos + 43, { align: 'center' });
+                }
+                
+                // Footer
+                doc.setFontSize(8);
+                doc.setTextColor(128, 128, 128);
+                doc.text('Empire FGA Scouting Network | 779-Metric System | www.empirescoutingnetwork.com', 105, 285, { align: 'center' });
+                doc.text(`Generated: ${new Date().toLocaleDateString()} | Report ID: ESN-${Date.now().toString(36).toUpperCase()}`, 105, 290, { align: 'center' });
+                
+                // Save
+                const fileName = `Empire_FGA_${player.name.replace(/\s/g, '_')}_Report.pdf`;
+                doc.save(fileName);
+                
+                // Remove status message
+                document.body.removeChild(statusMsg);
+                
+                // Show success
+                const successMsg = document.createElement('div');
+                successMsg.style = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1e293b;border:2px solid #10b981;padding:30px;border-radius:12px;z-index:9999;text-align:center;';
+                successMsg.innerHTML = '<div style="color:#10b981;font-size:18px;font-weight:bold;margin-bottom:10px;">✅ PDF Generated Successfully!</div><div style="color:#94a3b8;font-size:14px;">File: ' + fileName + '</div><div style="color:#60a5fa;font-size:12px;margin-top:10px;">Share this professional report with target clubs</div>';
+                document.body.appendChild(successMsg);
+                
+                setTimeout(() => {
+                    document.body.removeChild(successMsg);
+                }, 4000);
+                
+            } catch (error) {
+                document.body.removeChild(statusMsg);
+                alert('❌ Error generating PDF: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        async function exportAllPDFs() {
+            const statusMsg = document.createElement('div');
+            statusMsg.style = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1e293b;border:2px solid #3b82f6;padding:30px;border-radius:12px;z-index:9999;text-align:center;';
+            statusMsg.innerHTML = '<div style="color:#60a5fa;font-size:18px;font-weight:bold;margin-bottom:10px;">⏳ Generating All PDFs...</div><div style="color:#94a3b8;font-size:14px;">Processing 5 players</div>';
+            document.body.appendChild(statusMsg);
+            
+            try {
+                for (let i = 1; i <= 5; i++) {
+                    await exportPDF(i);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Delay between exports
+                }
+                
+                document.body.removeChild(statusMsg);
+                
+                const successMsg = document.createElement('div');
+                successMsg.style = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1e293b;border:2px solid #10b981;padding:30px;border-radius:12px;z-index:9999;text-align:center;';
+                successMsg.innerHTML = '<div style="color:#10b981;font-size:18px;font-weight:bold;margin-bottom:10px;">✅ All PDFs Generated!</div><div style="color:#94a3b8;font-size:14px;">5 reports created successfully</div>';
+                document.body.appendChild(successMsg);
+                
+                setTimeout(() => {
+                    document.body.removeChild(successMsg);
+                }, 3000);
+            } catch (error) {
+                if (document.body.contains(statusMsg)) {
+                    document.body.removeChild(statusMsg);
+                }
+                alert('❌ Error generating PDFs: ' + error.message);
+            }
+        }
+
+        function addPlayerRequest() {
+            alert('📧 Add More Players to Your Roster\n\nAs a CEO member, you can add unlimited players FREE!\n\nJust email us:\ninfo@empirescoutingnetwork.com\n\nInclude:\n• Player name\n• Current club\n• Position\n• Date of birth\n\nWe\'ll create their complete FGA profile within 48 hours!');
+        }
+
+        function logout() {
+            if(confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
