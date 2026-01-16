@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wílder Viera — Empire FGA Profile</title>
+  <style>
+    :root {
+      --bg: #071226;
+      --card: #0b1220;
+      --accent: #7c3aed;
+      --accent2: #00d1ff;
+      --muted: #9fb0c8;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      background:
+        radial-gradient(900px 500px at 8% 12%, rgba(124, 58, 237, 0.06), transparent 10%),
+        radial-gradient(800px 400px at 92% 88%, rgba(0, 209, 255, 0.03), transparent 8%),
+        var(--bg);
+      color: #e6eef8;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 1320px; margin: 32px auto; padding: 22px;
+      display: grid; grid-template-columns: 360px 1fr; gap: 28px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1320px;
+      margin: 10px auto 0 auto;
+      padding: 0 22px;
+    }
+    header img {
+      height: 50px;
+      object-fit: contain;
+    }
+    aside.card {
+      background: var(--card);
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    aside .photo {
+      width: 100%; border-radius: 12px; display: block;
+      object-fit: cover; border: 4px solid rgba(255,255,255,0.04);
+      height: 500px;
+    }
+    .bigname {
+      font-size: 44px; font-weight: 900; margin: 16px 0 8px; color: #fff; line-height: 1;
+    }
+    .sub {
+      font-size: 15px; line-height: 1.4; color: var(--muted);
+    }
+    .quickfacts {
+      margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .pill {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    main.card {
+      background: var(--card);
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.04);
+      overflow-y: auto;
+      position: relative;
+    }
+    h3, h2 {
+      margin: 0 0 20px 0;
+      color: var(--accent2);
+      font-weight: 900;
+    }
+    p, ul {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #e6eef8;
+    }
+    table, th, td {
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: var(--accent);
+    }
+    .metrics-table td, .metrics-table th {
+      text-align: center;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .radar-chart, .heatmap {
+      margin: 15px auto;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      user-select: none;
+      max-width: 320px;
+    }
+    .radar-chart { height: 320px; }
+    .heatmap { height: 250px; }
+    .video-container iframe { width: 100%; height: 315px; border-radius: 8px; border: none; }
+    .rating-badge {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: var(--accent2);
+      color: var(--card);
+      font-weight: 900;
+      font-size: 52px;
+      padding: 15px 30px;
+      border-radius: 30px;
+      box-shadow: 0 0 15px rgba(0, 209, 255, 0.6);
+      user-select: none;
+      text-align: center;
+      width: 130px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      z-index: 10;
+    }
+    .rating-label {
+      font-size: 12px; font-weight: 600; margin-top: -10px; color: #ffffffcc; letter-spacing: 1px;
+    }
+    #career-overview-title { margin-top: 100px; }
+    .fav-dislike { display:grid; grid-template-columns: 1fr 1fr; gap:24px;}
+    .fav-box, .dislike-box { background:rgba(0,0,0,0.11); border-radius:10px; padding:18px;}
+    .fav-title { color: #00d1ff; font-weight: bold; }
+    .dislike-title { color: #7c3aed; font-weight: bold; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+<header aria-label="Empire FGA Branding">
+  <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA Logo" />
+</header>
+<div class="container" role="main" aria-labelledby="profile-title">
+  <aside class="card" aria-label="Player Basic Information">
+    <img src="https://img.a.transfermarkt.technology/portrait/big/651891-1689341082.jpg?lm=1" alt="Wílder Viera playing" class="photo" />
+    <div class="bigname" id="profile-title">Wílder Viera</div>
+    <div class="sub">Defensive Midfielder · Paraguay · Born: 4 Mar 2002 · Foot: Left</div>
+    <div class="quickfacts" aria-label="Player quick facts">
+      <div class="pill">Club: Cerro Porteño (2020–Present)</div>
+      <div class="pill">Academy graduate · Jersey #20</div>
+      <div class="pill">Market Value: €2,000,000</div>
+      <div class="pill">Contract: until Dec 2028</div>
+    </div>
+    <div class="section" aria-label="Physical and mental metrics">
+      <h3>Physical & Mental Metrics</h3>
+      <table class="metrics-table" aria-describedby="Physical mental metrics for player">
+        <thead><tr><th>Metric</th><th>Score (0-10)</th></tr></thead>
+        <tbody>
+          <tr><td>Pace / Sprint Performance Index (SPI)</td><td>6.8</td></tr>
+          <tr><td>Strength</td><td>7.5</td></tr>
+          <tr><td>Stamina</td><td>7.8</td></tr>
+          <tr><td>Mobility (MOB)</td><td>7.2</td></tr>
+          <tr><td>Decision Making (DMA)</td><td>7.4</td></tr>
+          <tr><td>Calmness (CLM)</td><td>6.9</td></tr>
+          <tr><td>Clutch Response Score (CRS)</td><td>6.8</td></tr>
+          <tr><td>Character (CHR)</td><td>7.6</td></tr>
+          <tr><td>Mental Competence Score (MCS)</td><td>7.3</td></tr>
+          <tr><td>Creative Risk Taking (CRK)</td><td>5.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </aside>
+  <main class="card" aria-label="Main content">
+    <div class="rating-badge" aria-label="Empire FGA Rating">
+      74
+      <div class="rating-label">FGA RATING</div>
+    </div>
+    <section class="section" aria-labelledby="overview-title">
+      <h2 id="overview-title">🎯 Player Overview</h2>
+      <p>
+        Wílder Viera Caballero is a tenacious defensive midfielder who has established himself as a key player for Cerro Porteño. Born in Ypané, Paraguay, Viera rose through the club's youth academy and made his professional debut at just 18 years old in August 2020. His development has been marked by strong defensive instincts, excellent positioning awareness, and a disciplined approach to the game.
+      </p>
+      <p>
+        As a left-footed central defensive midfielder, Viera excels in breaking up opposition attacks, protecting his back line, and initiating build-up play. His reading of the game, combined with good anticipation skills, makes him effective at intercepting passes and winning tackles. While not primarily an attacking threat, he contributes with intelligent passing and occasional forward runs.
+      </p>
+      <p>
+        Viera's international pedigree includes captaining Paraguay at U-15 and U-17 levels, notably helping his team reach the quarterfinals of the 2019 FIFA U-17 World Cup with crucial assists in the comeback victory against Argentina. He made his senior international debut in September 2024 against Uruguay in a World Cup qualifier, marking another milestone in his promising career.
+      </p>
+    </section>
+    <section class="section" aria-labelledby="career-overview-title">
+      <h2 id="career-overview-title">📋 Career Overview</h2>
+      <p>
+        <strong>Youth Academy (Pre-2020):</strong> Developed through Cerro Porteño's renowned youth system, showing promise as a defensive midfielder with strong tactical awareness.
+      </p>
+      <p>
+        <strong>Professional Breakthrough (2020-2021):</strong> Signed first professional contract in May 2020 at age 18. Made immediate impact with solid defensive performances, though playing time was limited in first two seasons.
+      </p>
+      <p>
+        <strong>Loan Spell (2022):</strong> Gained valuable experience on loan at General Caballero JLM, where he appeared in 13 matches and scored 2 goals, showing he could be effective in different tactical systems.
+      </p>
+      <p>
+        <strong>Establishment (2023-Present):</strong> Returned to Cerro Porteño and became a regular starter. Scored his first goal for the club in February 2023 vs Guaireña. Extended contract through 2026 (later extended to 2028), cementing his status as a key squad member. Has amassed over 90 career appearances across domestic and international competitions.
+      </p>
+    </section>
+    <section class="section" aria-labelledby="strengths-weaknesses-title">
+      <h2 id="strengths-weaknesses-title">⚡ Strengths & Weaknesses</h2>
+      <div class="fav-dislike">
+        <div class="fav-box">
+          <div class="fav-title">✅ STRENGTHS — FAVORITES</div>
+          <ul>
+            <li>Exceptional defensive positioning and anticipation</li>
+            <li>Strong tackler with good timing and aggression</li>
+            <li>Excellent stamina allows him to cover ground throughout 90 minutes</li>
+            <li>Good passing accuracy (74.5%) and distribution from deep</li>
+            <li>Leadership qualities demonstrated at youth international level</li>
+            <li>Physical strength in duels and aerial challenges</li>
+            <li>Versatile, can play multiple midfield roles</li>
+            <li>Mentally strong, reliable in high-pressure situations</li>
+          </ul>
+        </div>
+        <div class="dislike-box">
+          <div class="dislike-title">⚠️ AREAS FOR IMPROVEMENT</div>
+          <ul>
+            <li>Limited offensive contribution (0-1 goal per season average)</li>
+            <li>Disciplinary record needs improvement (29 yellows, 1 red in 97 games)</li>
+            <li>Shooting accuracy needs work (15.8% shots on target)</li>
+            <li>Creative risk-taking could be more adventurous</li>
+            <li>Pace is adequate but not exceptional for modern game</li>
+            <li>Sometimes overly cautious in attacking third</li>
+            <li>Low attacking work rate limits forward contributions</li>
+            <li>Needs to improve composure under intense pressure</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="global-impact-title">
+      <h2 id="global-impact-title">Global Impact Analysis</h2>
+      <ul>
+        <li>Key player for Cerro Porteño, one of Paraguay's most successful clubs, helping maintain competitive position in Primera División.</li>
+        <li>Represented Paraguay at U-17 World Cup and 2024 Olympics, gaining valuable international experience.</li>
+        <li>Senior international debut marks him as part of Paraguay's future national team core.</li>
+        <li>Attracted interest from Brazilian clubs, indicating growing reputation beyond Paraguay.</li>
+        <li>Contract extension through 2028 shows club's confidence in his long-term value.</li>
+      </ul>
+    </section>
+    <section class="section" aria-labelledby="advanced-metrics-title">
+      <h2 id="advanced-metrics-title">📊 Advanced Metrics</h2>
+      <table aria-describedby="Detailed advanced performance metrics">
+        <thead>
+          <tr style="background-color: var(--accent);">
+            <th>Metric</th><th>Value</th><th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>TAC (Tackling Index)</td><td>7.8</td><td>Excellent timing and success rate in tackles.</td></tr>
+          <tr><td>INT (Interception Rating)</td><td>7.9</td><td>Reads passing lanes exceptionally well.</td></tr>
+          <tr><td>POI (Position Intelligence)</td><td>7.7</td><td>Always in right defensive positions.</td></tr>
+          <tr><td>LGP (Long Pass Accuracy)</td><td>6.7</td><td>Solid distribution, room to improve.</td></tr>
+          <tr><td>DMA (Decision Making)</td><td>7.4</td><td>Makes smart choices under pressure.</td></tr>
+          <tr><td>CHR (Character)</td><td>7.6</td><td>Leadership shown at youth level, reliable teammate.</td></tr>
+          <tr><td>CPX (Composure)</td><td>6.9</td><td>Generally calm, occasional lapses in discipline.</td></tr>
+          <tr><td>MRK (Marking)</td><td>7.5</td><td>Stays tight to opponents, rarely loses his man.</td></tr>
+          <tr><td>CAR (Ball Carrying)</td><td>6.3</td><td>Functional carrier, not a primary dribbler.</td></tr>
+          <tr><td>OMS (Transition Speed)</td><td>7.1</td><td>Quick to react to turnovers.</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="section" aria-labelledby="career-stats-full-title">
+      <h2 id="career-stats-full-title">Complete Career Statistics & FGA Rating Breakdown</h2>
+      <table aria-describedby="Complete career stats table by club">
+        <thead>
+          <tr>
+            <th>Club</th><th>Country</th><th>Seasons</th><th>Apps</th><th>Goals</th><th>Assists</th><th>Minutes</th><th>FGA Rating</th><th>Coach</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Cerro Porteño</td><td>Paraguay</td><td>2020–Present</td><td>84</td><td>1</td><td>4</td><td>~5,500</td><td>74</td><td>Facundo Sava</td></tr>
+          <tr><td>General Caballero JLM (loan)</td><td>Paraguay</td><td>2022</td><td>13</td><td>2</td><td>2</td><td>~900</td><td>71</td><td>Various</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="section" aria-labelledby="career-milestones-title">
+      <h2 id="career-milestones-title">Career Milestones & Highlights</h2>
+      <ul>
+        <li>Professional debut for Cerro Porteño (August 2, 2020) vs Club Sportivo San Lorenzo at age 18.</li>
+        <li>Copa Libertadores debut (May 25, 2021) - stepped in for suspended captain.</li>
+        <li>Captain of Paraguay U-17 team at 2019 FIFA U-17 World Cup, reaching quarterfinals.</li>
+        <li>Provided 2 assists in historic 3-2 comeback win vs Argentina in U-17 World Cup Round of 16.</li>
+        <li>First professional goal (February 17, 2023) vs Guaireña - left-footed strike in 2-0 win.</li>
+        <li>Contract extension through 2026, later extended to 2028 (June 2023).</li>
+        <li>Rejected transfer to SC Internacional (Brazil) showing loyalty to Cerro Porteño (2023).</li>
+        <li>2024 Olympics participation with Paraguay U-23 team.</li>
+        <li>Senior international debut (September 6, 2024) vs Uruguay in World Cup qualifier.</li>
+      </ul>
+    </section>
+    <section class="section" aria-labelledby="last-matches-title">
+      <h2 id="last-matches-title">Last 5 Matches (2025 Season)</h2>
+      <table aria-describedby="last 5 matches performance">
+        <thead>
+          <tr>
+            <th>Date</th><th>Competition</th><th>Opponent</th><th>Result</th>
+            <th>Min</th><th>Goals</th><th>Assists</th>
+            <th>Tackles</th><th>Pass%</th><th>Rating*</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>14 Aug 2025</td><td>Libertadores</td><td>Estudiantes</td><td>0–1 L</td><td>90</td><td>0</td><td>0</td><td>5</td><td>72%</td><td>6.5</td></tr>
+          <tr><td>08 Aug 2025</td><td>Primera Div</td><td>Nacional</td><td>0–0 D</td><td>90</td><td>0</td><td>0</td><td>7</td><td>78%</td><td>7.2</td></tr>
+          <tr><td>27 Jul 2025</td><td>Primera Div</td><td>Sportivo Luqueño</td><td>1–0 W</td><td>90</td><td>0</td><td>0</td><td>6</td><td>76%</td><td>7.0</td></tr>
+          <tr><td>20 Jul 2025</td><td>Primera Div</td><td>Guaraní</td><td>2–1 W</td><td>85</td><td>0</td><td>0</td><td>8</td><td>74%</td><td>7.3</td></tr>
+          <tr><td>13 Jul 2025</td><td>Primera Div</td><td>General Díaz</td><td>1–1 D</td><td>90</td><td>0</td><td>1</td><td>7</td><td>75%</td><td>7.4</td></tr>
+        </tbody>
+      </table>
+      <div class="sub">*Ratings based on defensive actions, passing accuracy, and overall contribution. Source: Sofascore & FotMob averages.</div>
+    </section>
+    <section class="section" aria-labelledby="tactical-philosophies-title">
+      <h2 id="tactical-philosophies-title">Tactical Philosophies & DNA</h2>
+      <table aria-describedby="Tactical philosophy and DNA scores">
+        <thead>
+          <tr style="background-color: var(--accent);"><th>Philosophy</th><th>Score (0-10)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>South American Grit (Menotti/Bilardo)</td><td>8.1</td></tr>
+          <tr><td>Defensive Structure (Sacchi/Mourinho)</td><td>7.9</td></tr>
+          <tr><td>Pressing Game (Bielsa)</td><td>7.3</td></tr>
+          <tr><td>Possession Control (Guardiola)</td><td>6.8</td></tr>
+          <tr><td>Box-to-Box (Heynckes)</td><td>6.5</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="section" aria-labelledby="player-comparison-title">
+      <h2 id="player-comparison-title">Player Comparison (Radar Chart)</h2>
+      <canvas id="comparisonRadarChart" class="radar-chart" aria-label="Radar chart comparing Wílder Viera and peers" role="img"></canvas>
+    </section>
+    <section class="section" aria-labelledby="visualizations-title">
+      <h2 id="visualizations-title">Visualizations</h2>
+      <canvas id="radarChart" class="radar-chart" aria-label="Radar chart of player strengths" role="img"></canvas>
+      <div id="heatmapChart" class="heatmap" aria-label="Heatmap of positional influence"></div>
+    </section>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+  // Radar chart for Viera's main metrics
+  const ctxRadar = document.getElementById('radarChart').getContext('2d');
+  new Chart(ctxRadar, {
+    type: 'radar',
+    data: {
+      labels: ['Tackling','Interception','Positioning','Passing','Stamina','Decision Making','Composure','Character'],
+      datasets: [{
+        label: 'Wílder Viera',
+        data: [7.8,7.9,7.7,6.7,7.8,7.4,6.9,7.6],
+        backgroundColor: 'rgba(124,58,237,0.4)',
+        borderColor: '#7c3aed',
+        borderWidth: 2,
+        pointBackgroundColor: '#7c3aed'
+      }]
+    },
+    options: {
+      scale: {
+        ticks: { beginAtZero: true, max: 10 },
+        pointLabels: { color: '#cbd5e1' }
+      },
+      responsive: true,
+      plugins: { legend: { labels: {color: '#cbd5e1'} } }
+    }
+  });
+  // Player comparison radar example
+  const ctxCompRadar = document.getElementById('comparisonRadarChart').getContext('2d');
+  new Chart(ctxCompRadar, {
+    type: 'radar',
+    data: {
+      labels: ['Defense','Tackling','Passing','Stamina','Positioning','Leadership','Discipline','Physicality'],
+      datasets: [
+        {label:'Wílder Viera',data:[7.9,7.8,6.7,7.8,7.7,7.6,6.5,7.5],backgroundColor:'rgba(124,58,237,0.4)',borderColor:'#7c3aed',borderWidth:2,pointBackgroundColor:'#7c3aed'},
+        {label:'Elite CDM Peer',data:[8.2,8.1,7.8,8.0,8.3,7.8,7.5,7.9],backgroundColor:'rgba(255,99,132,0.3)',borderColor:'rgb(255,99,132)',borderWidth:2,pointBackgroundColor:'rgb(255,99,132)'},
+        {label:'CONMEBOL Average CDM',data:[7.3,7.2,6.9,7.4,7.1,7.0,6.8,7.2],backgroundColor:'rgba(54,162,235,0.3)',borderColor:'rgb(54,162,235)',borderWidth:2,pointBackgroundColor:'rgb(54,162,235)'}
+      ]
+    },
+    options: {
+      scale: {
+        ticks: { beginAtZero: true, max: 10 },
+        pointLabels: { color: '#cbd5e1' }
+      },
+      responsive: true,
+      plugins: { legend: { labels: {color: '#cbd5e1'} } }
+    }
+  });
+  // Heatmap positional influence (CDM focused)
+  const heatmapOptions = {
+    chart: { height: 250, type: 'heatmap', toolbar: {show: false}, background: 'transparent' },
+    plotOptions: {
+      heatmap: {
+        radius: 6,
+        enableShades: true,
+        shadeIntensity: 0.5,
+        colorScale: {
+          ranges: [{from: 0,to:2,color:'#7c3aed',name:'Low'},{from:3,to:6,color:'#00d1ff',name:'Medium'},{from:7,to:10,color:'#7c3aed',name:'High'}]
+        }
+      }
+    },
+    dataLabels: { enabled: false },
+    series: [
+      { name: 'Defensive Third', data: [{x: 'Left', y: 6},{x: 'Center', y: 8},{x: 'Right', y: 5}] },
+      { name: 'Middle Third', data: [{x: 'Left', y: 5},{x: 'Center', y: 9},{x: 'Right', y: 5}] },
+      { name: 'Attacking Third', data: [{x: 'Left', y: 2},{x: 'Center', y: 3},{x: 'Right', y: 2}] }
+    ],
+    xaxis: { type: 'category' },
+    yaxis: { labels: { style: { colors: '#cbd5e1' } } }
+  };
+  const heatmapChart = new ApexCharts(document.querySelector("#heatmapChart"), heatmapOptions);
+  heatmapChart.render();
+</script>
+</body>
+</html>

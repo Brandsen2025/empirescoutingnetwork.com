@@ -1,0 +1,464 @@
+import React, { useState } from 'react';
+import { Search, Filter, BookOpen, Users, Target, TrendingUp, Award, Eye, ChevronRight, Star, Shield, Zap } from 'lucide-react';
+
+export default function PhilosophyFrameworkExplorer() {
+  const [selectedSchool, setSelectedSchool] = useState('all');
+  const [selectedPhilosophy, setSelectedPhilosophy] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // 60 Philosophy Framework Database
+  const philosophies = [
+    // Dutch School (6)
+    { id: 1, name: 'Cruyff Total Football', coach: 'Johan Cruyff', school: 'Dutch', era: '1970s-1990s', weight: 1.45, icon: '🇳🇱', color: 'orange', description: 'Revolutionary total football with positional fluidity, pressing, and technical excellence', keyPrinciples: ['Positional interchange', 'High pressing', 'Technical mastery', 'Space creation'], examplePlayers: ['Johan Cruyff', 'Pep Guardiola', 'Xavi Hernández'], formations: ['4-3-3', '3-4-3'], attacking: 9.5, passing: 9.8, defensive: 8.5, physical: 7.5 },
+    { id: 2, name: 'Michels Total Football', coach: 'Rinus Michels', school: 'Dutch', era: '1960s-1980s', weight: 1.40, icon: '🇳🇱', color: 'orange', description: 'Original architect of total football emphasizing versatility and collective responsibility', keyPrinciples: ['Universal player', 'Collective pressing', 'Fluid positions', 'Attacking football'], examplePlayers: ['Johan Neeskens', 'Ruud Krol', 'Johnny Rep'], formations: ['4-3-3', '3-4-3'], attacking: 9.3, passing: 9.5, defensive: 8.7, physical: 8.2 },
+    { id: 3, name: 'Van Gaal Structured Possession', coach: 'Louis van Gaal', school: 'Dutch', era: '1990s-2010s', weight: 1.35, icon: '🇳🇱', color: 'orange', description: 'Disciplined possession football with strict positional play and tactical intelligence', keyPrinciples: ['Positional discipline', 'Ball retention', 'Vertical passing', 'Structured build-up'], examplePlayers: ['Clarence Seedorf', 'Edgar Davids', 'Patrick Kluivert'], formations: ['4-3-3', '3-5-2'], attacking: 8.8, passing: 9.6, defensive: 8.9, physical: 7.8 },
+    { id: 4, name: 'Kovács Technical Revolution', coach: 'Stefan Kovács', school: 'Dutch', era: '1970s', weight: 1.25, icon: '🇳🇱', color: 'orange', description: 'Ajax technical revolution emphasizing youth development and skillful play', keyPrinciples: ['Youth development', 'Technical skills', 'Attacking intent', 'Collective play'], examplePlayers: ['Johan Cruyff', 'Piet Keizer', 'Gerrie Mühren'], formations: ['4-3-3'], attacking: 9.2, passing: 9.3, defensive: 7.9, physical: 7.5 },
+    { id: 5, name: 'Hiddink Pragmatic Attack', coach: 'Guus Hiddink', school: 'Dutch', era: '1990s-2010s', weight: 1.20, icon: '🇳🇱', color: 'orange', description: 'Pragmatic attacking football balancing defensive solidity with offensive threat', keyPrinciples: ['Tactical flexibility', 'Counter-attacks', 'Defensive organization', 'Efficient pressing'], examplePlayers: ['Ruud van Nistelrooy', 'Rafael van der Vaart', 'Arjen Robben'], formations: ['4-4-2', '4-2-3-1'], attacking: 8.7, passing: 8.5, defensive: 8.8, physical: 8.5 },
+    { id: 6, name: 'Beenhakker Possession Pragmatism', coach: 'Leo Beenhakker', school: 'Dutch', era: '1980s-1990s', weight: 1.15, icon: '🇳🇱', color: 'orange', description: 'Possession-based pragmatism with emphasis on results and tactical adaptation', keyPrinciples: ['Ball possession', 'Result-oriented', 'Tactical adaptation', 'Wing play'], examplePlayers: ['Emilio Butragueño', 'Hugo Sánchez', 'Michel'], formations: ['4-4-2', '4-3-3'], attacking: 8.9, passing: 8.8, defensive: 8.3, physical: 8.0 },
+
+    // Spanish School (7)
+    { id: 7, name: 'Guardiola Tiki-Taka', coach: 'Pep Guardiola', school: 'Spanish', era: '2008-Present', weight: 1.45, icon: '🇪🇸', color: 'red', description: 'Ultimate possession football with short passing, positional play, and defensive pressing', keyPrinciples: ['Tiki-taka passing', 'Positional superiority', 'High pressing', 'Ball dominance'], examplePlayers: ['Xavi', 'Andrés Iniesta', 'Sergio Busquets'], formations: ['4-3-3', '3-4-3'], attacking: 9.7, passing: 10.0, defensive: 8.8, physical: 7.3 },
+    { id: 8, name: 'Carniglia Attacking Verve', coach: 'Luis Carniglia', school: 'Spanish', era: '1950s-1960s', weight: 1.20, icon: '🇪🇸', color: 'red', description: 'Real Madrid attacking philosophy with emphasis on wing play and counter-attacks', keyPrinciples: ['Wing play', 'Fast transitions', 'Direct football', 'Individual brilliance'], examplePlayers: ['Alfredo Di Stéfano', 'Ferenc Puskás', 'Francisco Gento'], formations: ['4-2-4', '3-2-5'], attacking: 9.5, passing: 8.7, defensive: 7.5, physical: 8.3 },
+    { id: 9, name: 'Muñoz European Dominance', coach: 'Miguel Muñoz', school: 'Spanish', era: '1960s-1970s', weight: 1.30, icon: '🇪🇸', color: 'red', description: 'Real Madrid European dominance through balance and tactical sophistication', keyPrinciples: ['Tactical balance', 'European experience', 'Star integration', 'Winning mentality'], examplePlayers: ['Amancio Amaro', 'Ignacio Zoco', 'Pirri'], formations: ['4-4-2', '4-3-3'], attacking: 9.0, passing: 8.8, defensive: 8.6, physical: 8.4 },
+    { id: 10, name: 'Aragonés Spanish Evolution', coach: 'Luis Aragonés', school: 'Spanish', era: '2000s', weight: 1.25, icon: '🇪🇸', color: 'red', description: 'Foundation of modern Spanish football with possession and technical quality', keyPrinciples: ['Ball possession', 'Technical football', 'Collective strength', 'Pressing game'], examplePlayers: ['Xavi', 'Iniesta', 'David Villa'], formations: ['4-4-2', '4-5-1'], attacking: 8.9, passing: 9.4, defensive: 8.5, physical: 7.8 },
+    { id: 11, name: 'Villalonga Classic Madrid', coach: 'José Villalonga', school: 'Spanish', era: '1950s', weight: 1.15, icon: '🇪🇸', color: 'red', description: 'Classic Real Madrid style with attacking flair and individual genius', keyPrinciples: ['Attacking intent', 'Individual quality', 'Wing dominance', 'Direct play'], examplePlayers: ['Di Stéfano', 'Rial', 'Kopa'], formations: ['3-2-5', '4-2-4'], attacking: 9.4, passing: 8.5, defensive: 7.3, physical: 8.0 },
+    { id: 12, name: 'Emery Tactical Versatility', coach: 'Unai Emery', school: 'Spanish', era: '2010s-Present', weight: 1.10, icon: '🇪🇸', color: 'red', description: 'Tactical flexibility with emphasis on pressing, transitions, and set pieces', keyPrinciples: ['Tactical adaptation', 'High pressing', 'Set piece mastery', 'Counter-pressing'], examplePlayers: ['Carlos Bacca', 'Ivan Rakitić', 'Éver Banega'], formations: ['4-4-2', '4-2-3-1'], attacking: 8.6, passing: 8.7, defensive: 9.0, physical: 8.6 },
+    { id: 13, name: 'Pellegrini Balanced Attack', coach: 'Manuel Pellegrini', school: 'Spanish', era: '2000s-Present', weight: 1.12, icon: '🇪🇸', color: 'red', description: 'Balanced attacking football with tactical discipline and offensive freedom', keyPrinciples: ['Attacking balance', 'Wing play', 'Midfield control', 'Defensive stability'], examplePlayers: ['Sergio Agüero', 'David Silva', 'Yaya Touré'], formations: ['4-2-3-1', '4-4-2'], attacking: 9.1, passing: 8.9, defensive: 8.4, physical: 8.2 },
+
+    // Italian School (8)
+    { id: 14, name: 'Herrera Catenaccio', coach: 'Helenio Herrera', school: 'Italian', era: '1960s', weight: 1.35, icon: '🇮🇹', color: 'blue', description: 'Revolutionary defensive system with sweeper, tight marking, and lethal counter-attacks', keyPrinciples: ['Defensive solidity', 'Sweeper system', 'Counter-attacks', 'Psychological warfare'], examplePlayers: ['Giacinto Facchetti', 'Sandro Mazzola', 'Luis Suárez'], formations: ['5-3-2', '1-4-3-2'], attacking: 7.8, passing: 8.2, defensive: 9.8, physical: 8.7 },
+    { id: 15, name: 'Rocco Total Defense', coach: 'Nereo Rocco', school: 'Italian', era: '1960s-1970s', weight: 1.30, icon: '🇮🇹', color: 'blue', description: 'Tactical mastery with emphasis on defensive organization and quick transitions', keyPrinciples: ['Defensive organization', 'Man-marking', 'Quick breaks', 'Physical strength'], examplePlayers: ['Gianni Rivera', 'Giovanni Trapattoni', 'Cesare Maldini'], formations: ['5-3-2', '4-4-2'], attacking: 7.5, passing: 8.0, defensive: 9.6, physical: 9.0 },
+    { id: 16, name: 'Bearzot Defensive Pragmatism', coach: 'Enzo Bearzot', school: 'Italian', era: '1970s-1980s', weight: 1.25, icon: '🇮🇹', color: 'blue', description: 'Pragmatic defensive football with emphasis on collective strength and discipline', keyPrinciples: ['Team unity', 'Defensive discipline', 'Counter-attacks', 'Mental strength'], examplePlayers: ['Paolo Rossi', 'Marco Tardelli', 'Gaetano Scirea'], formations: ['4-4-2', '5-3-2'], attacking: 7.9, passing: 8.3, defensive: 9.4, physical: 8.8 },
+    { id: 17, name: 'Lippi Tactical Brilliance', coach: 'Marcello Lippi', school: 'Italian', era: '1990s-2000s', weight: 1.28, icon: '🇮🇹', color: 'blue', description: 'Tactical sophistication with defensive excellence and efficient attacking', keyPrinciples: ['Tactical intelligence', 'Defensive mastery', 'Set pieces', 'Experience'], examplePlayers: ['Alessandro Del Piero', 'Zinedine Zidane', 'Fabio Cannavaro'], formations: ['4-4-2', '3-5-2'], attacking: 8.4, passing: 8.6, defensive: 9.5, physical: 8.9 },
+    { id: 18, name: 'Sacchi Pressing Revolution', coach: 'Arrigo Sacchi', school: 'Italian', era: '1980s-1990s', weight: 1.40, icon: '🇮🇹', color: 'blue', description: 'Revolutionary high pressing and zonal marking transforming Italian football', keyPrinciples: ['High pressing', 'Zonal marking', 'Collective movement', 'Defensive line'], examplePlayers: ['Marco van Basten', 'Ruud Gullit', 'Franco Baresi'], formations: ['4-4-2'], attacking: 9.2, passing: 9.0, defensive: 9.3, physical: 8.8 },
+    { id: 19, name: 'Trapattoni Defensive Mastery', coach: 'Giovanni Trapattoni', school: 'Italian', era: '1970s-2000s', weight: 1.32, icon: '🇮🇹', color: 'blue', description: 'Defensive perfectionism with tactical discipline and result-oriented approach', keyPrinciples: ['Defensive perfection', 'Tactical discipline', 'Counter-attacks', 'Mental toughness'], examplePlayers: ['Paolo Maldini', 'Alessandro Costacurta', 'Roberto Baggio'], formations: ['5-3-2', '4-4-2'], attacking: 7.7, passing: 8.4, defensive: 9.7, physical: 9.1 },
+    { id: 20, name: 'Carcano Classic Italian', coach: 'Vittorio Pozzo', school: 'Italian', era: '1930s-1940s', weight: 1.20, icon: '🇮🇹', color: 'blue', description: 'Foundation of Italian tactical football with organized defense and team spirit', keyPrinciples: ['Team organization', 'Defensive structure', 'National pride', 'Tactical discipline'], examplePlayers: ['Giuseppe Meazza', 'Silvio Piola', 'Giovanni Ferrari'], formations: ['2-3-5', '3-2-2-3'], attacking: 8.2, passing: 7.8, defensive: 8.9, physical: 8.5 },
+    { id: 21, name: 'Cesarini Attacking Italian', coach: 'Renato Cesarini', school: 'Italian', era: '1930s-1950s', weight: 1.18, icon: '🇮🇹', color: 'blue', description: 'Attacking variation of Italian football with creative flair', keyPrinciples: ['Attacking mindset', 'Creative play', 'Technical quality', 'Late goals'], examplePlayers: ['Giuseppe Meazza', 'Raimundo Orsi'], formations: ['2-3-5', '3-2-5'], attacking: 8.8, passing: 8.5, defensive: 7.9, physical: 8.0 },
+
+    // English School (8)
+    { id: 22, name: 'Ferguson Winning Mentality', coach: 'Alex Ferguson', school: 'English', era: '1980s-2013', weight: 1.42, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Relentless attacking football with mental strength and never-give-up attitude', keyPrinciples: ['Winning mentality', 'Wing play', 'Youth development', 'Fergie time'], examplePlayers: ['Cristiano Ronaldo', 'Roy Keane', 'Ryan Giggs'], formations: ['4-4-2', '4-4-1-1'], attacking: 9.3, passing: 8.7, defensive: 8.6, physical: 9.2 },
+    { id: 23, name: 'Busby Babes Philosophy', coach: 'Matt Busby', school: 'English', era: '1940s-1960s', weight: 1.35, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Youth-focused attacking football with emphasis on entertainment and skill', keyPrinciples: ['Youth development', 'Attacking football', 'Entertainment', 'Technical skill'], examplePlayers: ['Bobby Charlton', 'George Best', 'Denis Law'], formations: ['4-2-4', '4-3-3'], attacking: 9.5, passing: 8.8, defensive: 7.8, physical: 8.3 },
+    { id: 24, name: 'Robson Battling Spirit', coach: 'Bobby Robson', school: 'English', era: '1980s-2000s', weight: 1.22, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Passionate football with tactical intelligence and fighting spirit', keyPrinciples: ['Fighting spirit', 'Tactical awareness', 'Team unity', 'Versatility'], examplePlayers: ['Gary Lineker', 'Bryan Robson', 'Paul Gascoigne'], formations: ['4-4-2', '3-5-2'], attacking: 8.8, passing: 8.5, defensive: 8.7, physical: 9.0 },
+    { id: 25, name: 'Venables Technical English', coach: 'Terry Venables', school: 'English', era: '1980s-1990s', weight: 1.18, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Technical approach to English football with continental influences', keyPrinciples: ['Technical football', 'Tactical flexibility', 'Continental style', 'Possession play'], examplePlayers: ['Paul Gascoigne', 'Alan Shearer', 'Teddy Sheringham'], formations: ['3-5-2', '4-5-1'], attacking: 8.6, passing: 8.9, defensive: 8.4, physical: 8.5 },
+    { id: 26, name: 'Winterbottom Foundation', coach: 'Walter Winterbottom', school: 'English', era: '1940s-1960s', weight: 1.15, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Foundation of modern English football with tactical education', keyPrinciples: ['Tactical education', 'Technical development', 'Team organization', 'Physical preparation'], examplePlayers: ['Stanley Matthews', 'Tom Finney', 'Billy Wright'], formations: ['2-3-5', '4-2-4'], attacking: 8.5, passing: 8.2, defensive: 7.9, physical: 8.4 },
+    { id: 27, name: 'Shankly Liverpool Way', coach: 'Bill Shankly', school: 'English', era: '1950s-1970s', weight: 1.38, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Liverpool philosophy with passing football, work ethic, and socialism', keyPrinciples: ['Passing game', 'Work ethic', 'Team unity', 'Attacking intent'], examplePlayers: ['Kevin Keegan', 'Ian Callaghan', 'Roger Hunt'], formations: ['4-3-3', '4-4-2'], attacking: 9.0, passing: 8.9, defensive: 8.5, physical: 8.9 },
+    { id: 28, name: 'Clough Psychological Mastery', coach: 'Brian Clough', school: 'English', era: '1960s-1990s', weight: 1.30, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Psychological leadership with simple football philosophy and discipline', keyPrinciples: ['Psychological leadership', 'Simple football', 'Discipline', 'Counter-attacks'], examplePlayers: ['John Robertson', 'Trevor Francis', 'Tony Woodcock'], formations: ['4-4-2'], attacking: 8.7, passing: 8.6, defensive: 8.9, physical: 8.7 },
+    { id: 29, name: 'Paisley Liverpool Dynasty', coach: 'Bob Paisley', school: 'English', era: '1970s-1980s', weight: 1.37, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', color: 'red', description: 'Liverpool dynasty with European mastery and passing excellence', keyPrinciples: ['European success', 'Passing excellence', 'Team balance', 'Winning culture'], examplePlayers: ['Kenny Dalglish', 'Graeme Souness', 'Alan Hansen'], formations: ['4-4-2', '4-3-3'], attacking: 9.1, passing: 9.2, defensive: 8.8, physical: 8.8 },
+
+    // German School (6)
+    { id: 30, name: 'Heynckes Clinical Efficiency', coach: 'Jupp Heynckes', school: 'German', era: '1980s-2010s', weight: 1.32, icon: '🇩🇪', color: 'yellow', description: 'German efficiency with tactical discipline and clinical finishing', keyPrinciples: ['Tactical discipline', 'Clinical finishing', 'Team harmony', 'Experience'], examplePlayers: ['Arjen Robben', 'Franck Ribéry', 'Bastian Schweinsteiger'], formations: ['4-2-3-1', '4-1-4-1'], attacking: 9.2, passing: 9.0, defensive: 9.1, physical: 8.7 },
+    { id: 31, name: 'Cramer Youth Development', coach: 'Dettmar Cramer', school: 'German', era: '1960s-1980s', weight: 1.20, icon: '🇩🇪', color: 'yellow', description: 'Foundation of German youth development and tactical education', keyPrinciples: ['Youth development', 'Tactical education', 'Technical training', 'Systematic approach'], examplePlayers: ['Franz Beckenbauer', 'Gerd Müller'], formations: ['4-2-4', '4-3-3'], attacking: 8.7, passing: 8.6, defensive: 8.5, physical: 8.6 },
+    { id: 32, name: 'Beckenbauer Libero System', coach: 'Franz Beckenbauer', school: 'German', era: '1980s-1990s', weight: 1.38, icon: '🇩🇪', color: 'yellow', description: 'Sweeper system with elegant build-up play and tactical intelligence', keyPrinciples: ['Libero system', 'Build-up play', 'Tactical intelligence', 'Elegance'], examplePlayers: ['Lothar Matthäus', 'Jürgen Klinsmann', 'Rudi Völler'], formations: ['5-3-2', '3-5-2'], attacking: 8.9, passing: 9.1, defensive: 9.3, physical: 8.5 },
+    { id: 33, name: 'Happel Austrian-German', coach: 'Ernst Happel', school: 'German', era: '1960s-1980s', weight: 1.28, icon: '🇩🇪', color: 'yellow', description: 'Austrian-German tactical brilliance with defensive solidity', keyPrinciples: ['Tactical brilliance', 'Defensive organization', 'Counter-attacks', 'Versatility'], examplePlayers: ['Ruud Krol', 'Johan Neeskens', 'Rob Rensenbrink'], formations: ['4-3-3', '5-3-2'], attacking: 8.6, passing: 8.7, defensive: 9.2, physical: 8.8 },
+    { id: 34, name: 'Herberger German Tradition', coach: 'Sepp Herberger', school: 'German', era: '1930s-1960s', weight: 1.25, icon: '🇩🇪', color: 'yellow', description: 'Foundation of German football tradition with discipline and organization', keyPrinciples: ['German discipline', 'Team organization', 'Physical strength', 'Mental toughness'], examplePlayers: ['Fritz Walter', 'Helmut Rahn', 'Horst Eckel'], formations: ['3-2-5', '4-2-4'], attacking: 8.5, passing: 8.3, defensive: 8.8, physical: 9.0 },
+    { id: 35, name: 'Hitzfeld Champions League Master', coach: 'Ottmar Hitzfeld', school: 'German', era: '1990s-2000s', weight: 1.34, icon: '🇩🇪', color: 'yellow', description: 'European mastery with tactical flexibility and winning mentality', keyPrinciples: ['European success', 'Tactical flexibility', 'Squad rotation', 'Big game mentality'], examplePlayers: ['Karl-Heinz Riedle', 'Matthias Sammer', 'Jürgen Kohler'], formations: ['4-4-2', '3-5-2'], attacking: 8.8, passing: 8.8, defensive: 9.0, physical: 8.9 },
+
+    // French School (5)
+    { id: 36, name: 'Wenger Beautiful Football', coach: 'Arsène Wenger', school: 'French', era: '1980s-2010s', weight: 1.36, icon: '🇫🇷', color: 'blue', description: 'Beautiful attacking football with technical excellence and youth development', keyPrinciples: ['Technical excellence', 'Youth development', 'Attacking football', 'Scientific approach'], examplePlayers: ['Thierry Henry', 'Patrick Vieira', 'Dennis Bergkamp'], formations: ['4-4-2', '4-2-3-1'], attacking: 9.6, passing: 9.4, defensive: 8.3, physical: 8.0 },
+    { id: 37, name: 'Suaudeau Nantes School', coach: 'Jean-Claude Suaudeau', school: 'French', era: '1980s-1990s', weight: 1.18, icon: '🇫🇷', color: 'blue', description: 'French technical school with emphasis on youth and collective play', keyPrinciples: ['Youth academy', 'Technical play', 'Collective football', 'Possession'], examplePlayers: ['Didier Deschamps', 'Marcel Desailly', 'Christian Karembeu'], formations: ['4-3-3', '4-4-2'], attacking: 8.7, passing: 9.0, defensive: 8.4, physical: 8.2 },
+    { id: 38, name: 'Platini Creative Genius', coach: 'Michel Platini', school: 'French', era: '1980s-1990s', weight: 1.30, icon: '🇫🇷', color: 'blue', description: 'Creative football philosophy emphasizing individual brilliance and flair', keyPrinciples: ['Creative freedom', 'Individual brilliance', 'Attacking flair', 'Technical mastery'], examplePlayers: ['Michel Platini', 'Jean Tigana', 'Alain Giresse'], formations: ['4-4-2', '4-3-3'], attacking: 9.4, passing: 9.3, defensive: 7.9, physical: 7.8 },
+    { id: 39, name: 'Fontaine Goal Machine', coach: 'Just Fontaine', school: 'French', era: '1950s-1960s', weight: 1.15, icon: '🇫🇷', color: 'blue', description: 'Goal-scoring philosophy with emphasis on attacking football', keyPrinciples: ['Goal-scoring', 'Attacking intent', 'Direct football', 'Clinical finishing'], examplePlayers: ['Just Fontaine', 'Raymond Kopa', 'Roger Piantoni'], formations: ['4-2-4', '3-2-5'], attacking: 9.5, passing: 8.4, defensive: 7.5, physical: 8.3 },
+    { id: 40, name: 'Deschamps Pragmatic Success', coach: 'Didier Deschamps', school: 'French', era: '2010s-Present', weight: 1.28, icon: '🇫🇷', color: 'blue', description: 'Pragmatic approach balancing defensive solidity with attacking talent', keyPrinciples: ['Defensive solidity', 'Counter-attacks', 'Star management', 'Tournament success'], examplePlayers: ['Kylian Mbappé', 'N\'Golo Kanté', 'Antoine Griezmann'], formations: ['4-2-3-1', '4-3-3'], attacking: 9.0, passing: 8.7, defensive: 9.1, physical: 8.9 },
+
+    // South American School (7)
+    { id: 41, name: 'Santana Brazilian Flair', coach: 'Telê Santana', school: 'South American', era: '1970s-1990s', weight: 1.40, icon: '🇧🇷', color: 'yellow', description: 'Beautiful Brazilian football with samba style and attacking artistry', keyPrinciples: ['Samba football', 'Attacking art', 'Individual skill', 'Joga Bonito'], examplePlayers: ['Zico', 'Sócrates', 'Falcão'], formations: ['4-2-2-2', '4-3-3'], attacking: 9.8, passing: 9.5, defensive: 7.8, physical: 7.9 },
+    { id: 42, name: 'Zagallo Winning Culture', coach: 'Mário Zagallo', school: 'South American', era: '1970s-1990s', weight: 1.33, icon: '🇧🇷', color: 'yellow', description: 'Brazilian winning mentality with tactical discipline and team unity', keyPrinciples: ['Winning culture', 'Team unity', 'Tactical discipline', 'Experience'], examplePlayers: ['Jairzinho', 'Rivellino', 'Tostão'], formations: ['4-3-3', '4-2-2-2'], attacking: 9.3, passing: 9.0, defensive: 8.5, physical: 8.6 },
+    { id: 43, name: 'Feola 1958 Revolution', coach: 'Vicente Feola', school: 'South American', era: '1950s-1960s', weight: 1.28, icon: '🇧🇷', color: 'yellow', description: 'Foundation of Brazilian World Cup success with attacking brilliance', keyPrinciples: ['Attacking brilliance', 'Star integration', 'Tactical innovation', 'World Cup success'], examplePlayers: ['Pelé', 'Garrincha', 'Didi'], formations: ['4-2-4'], attacking: 9.7, passing: 9.2, defensive: 7.9, physical: 8.4 },
+    { id: 44, name: 'Menotti La Nuestra', coach: 'César Menotti', school: 'South American', era: '1970s-1980s', weight: 1.38, icon: '🇦🇷', color: 'blue', description: 'Argentine romantic football emphasizing creativity, beauty, and collective play', keyPrinciples: ['Beautiful football', 'Creative freedom', 'Collective play', 'La Nuestra'], examplePlayers: ['Mario Kempes', 'Osvaldo Ardiles', 'Daniel Passarella'], formations: ['4-3-3', '4-2-3-1'], attacking: 9.5, passing: 9.4, defensive: 8.2, physical: 8.1 },
+    { id: 45, name: 'Bilardo Pragmatic Argentina', coach: 'Carlos Bilardo', school: 'South American', era: '1980s-1990s', weight: 1.32, icon: '🇦🇷', color: 'blue', description: 'Pragmatic winning football with tactical discipline and results focus', keyPrinciples: ['Winning mentality', 'Tactical discipline', 'Pragmatism', 'Maradona factor'], examplePlayers: ['Diego Maradona', 'Jorge Valdano', 'Jorge Burruchaga'], formations: ['3-5-2', '5-3-2'], attacking: 8.9, passing: 8.7, defensive: 9.0, physical: 8.9 },
+    { id: 46, name: 'Bielsa El Loco', coach: 'Marcelo Bielsa', school: 'South American', era: '1990s-Present', weight: 1.35, icon: '🇦🇷', color: 'blue', description: 'Intense pressing football with high energy, man-marking, and attacking aggression', keyPrinciples: ['High pressing', 'Man-marking', 'High intensity', 'Attacking aggression'], examplePlayers: ['Carlos Tevez', 'Javier Saviola', 'Juan Román Riquelme'], formations: ['3-3-3-1', '3-3-1-3'], attacking: 9.4, passing: 8.8, defensive: 8.7, physical: 9.5 },
+    { id: 47, name: 'Simeone Cholismo', coach: 'Diego Simeone', school: 'South American', era: '2010s-Present', weight: 1.30, icon: '🇦🇷', color: 'blue', description: 'Warrior mentality with defensive solidity, counter-attacks, and fighting spirit', keyPrinciples: ['Warrior mentality', 'Defensive solidity', 'Counter-attacks', 'Team sacrifice'], examplePlayers: ['Diego Godín', 'Koke', 'Antoine Griezmann'], formations: ['4-4-2', '4-4-1-1'], attacking: 8.3, passing: 8.4, defensive: 9.6, physical: 9.4 },
+
+    // Eastern European School (4)
+    { id: 48, name: 'Lobanovskyi Scientific Football', coach: 'Valeriy Lobanovskyi', school: 'Eastern European', era: '1970s-2000s', weight: 1.40, icon: '🇺🇦', color: 'blue', description: 'Revolutionary scientific approach with data analysis and physical conditioning', keyPrinciples: ['Scientific approach', 'Data analysis', 'Physical conditioning', 'Collective pressing'], examplePlayers: ['Oleg Blokhin', 'Andriy Shevchenko', 'Serhiy Rebrov'], formations: ['4-4-2', '4-2-3-1'], attacking: 9.3, passing: 9.1, defensive: 9.0, physical: 9.3 },
+    { id: 49, name: 'Sebes Hungarian Revolution', coach: 'Gusztáv Sebes', school: 'Eastern European', era: '1950s', weight: 1.35, icon: '🇭🇺', color: 'red', description: 'Revolutionary Hungarian football with fluid positions and technical brilliance', keyPrinciples: ['Fluid positions', 'Technical brilliance', 'Deep-lying forward', 'Tactical innovation'], examplePlayers: ['Ferenc Puskás', 'Nándor Hidegkuti', 'Sándor Kocsis'], formations: ['3-2-3-2', '4-2-4'], attacking: 9.7, passing: 9.4, defensive: 8.3, physical: 8.5 },
+    { id: 50, name: 'Guttmann Father of Modern Football', coach: 'Béla Guttmann', school: 'Eastern European', era: '1950s-1960s', weight: 1.32, icon: '🇭🇺', color: 'red', description: 'Tactical pioneer with flexible systems and psychological insight', keyPrinciples: ['Tactical flexibility', 'Psychological warfare', 'European success', 'Pressing game'], examplePlayers: ['Eusébio', 'Mário Coluna', 'José Águas'], formations: ['4-2-4', '3-3-4'], attacking: 9.4, passing: 9.0, defensive: 8.5, physical: 8.7 },
+    { id: 51, name: 'Gorski Polish School', coach: 'Kazimierz Górski', school: 'Eastern European', era: '1970s', weight: 1.20, icon: '🇵🇱', color: 'red', description: 'Polish technical football with counter-attacking brilliance', keyPrinciples: ['Technical football', 'Counter-attacks', 'Wing play', 'Physical strength'], examplePlayers: ['Grzegorz Lato', 'Robert Gadocha', 'Kazimierz Deyna'], formations: ['4-2-4', '4-3-3'], attacking: 9.0, passing: 8.8, defensive: 8.4, physical: 8.8 },
+
+    // Modern Masters (9)
+    { id: 52, name: 'Mourinho The Special One', coach: 'José Mourinho', school: 'Modern Masters', era: '2000s-Present', weight: 1.43, icon: '🌍', color: 'purple', description: 'Defensive solidity with counter-attacking brilliance and psychological mastery', keyPrinciples: ['Defensive organization', 'Counter-attacks', 'Psychological warfare', 'Winning mentality'], examplePlayers: ['Didier Drogba', 'Frank Lampard', 'John Terry'], formations: ['4-3-3', '4-2-3-1'], attacking: 8.7, passing: 8.6, defensive: 9.7, physical: 9.2 },
+    { id: 53, name: 'Klopp Gegenpressing', coach: 'Jürgen Klopp', school: 'Modern Masters', era: '2000s-Present', weight: 1.41, icon: '🌍', color: 'purple', description: 'High-intensity gegenpressing with emotional leadership and heavy metal football', keyPrinciples: ['Gegenpressing', 'High intensity', 'Emotional leadership', 'Quick transitions'], examplePlayers: ['Mohamed Salah', 'Virgil van Dijk', 'Roberto Firmino'], formations: ['4-3-3'], attacking: 9.6, passing: 9.0, defensive: 9.2, physical: 9.7 },
+    { id: 54, name: 'Ancelotti Balanced Maestro', coach: 'Carlo Ancelotti', school: 'Modern Masters', era: '2000s-Present', weight: 1.38, icon: '🌍', color: 'purple', description: 'Balanced approach with tactical flexibility and man-management excellence', keyPrinciples: ['Balance', 'Flexibility', 'Man-management', 'Champions League success'], examplePlayers: ['Kaká', 'Luka Modrić', 'Cristiano Ronaldo'], formations: ['4-3-3', '4-4-2'], attacking: 9.2, passing: 9.1, defensive: 8.9, physical: 8.6 },
+    { id: 55, name: 'Conte 3-5-2 Revolution', coach: 'Antonio Conte', school: 'Modern Masters', era: '2010s-Present', weight: 1.34, icon: '🌍', color: 'purple', description: 'Modern 3-5-2 system with intense training and tactical discipline', keyPrinciples: ['3-5-2 system', 'Intense training', 'Wing-backs', 'Tactical discipline'], examplePlayers: ['Andrea Pirlo', 'Arturo Vidal', 'Diego Costa'], formations: ['3-5-2', '3-4-3'], attacking: 9.0, passing: 8.8, defensive: 9.3, physical: 9.4 },
+    { id: 56, name: 'Tuchel Tactical Genius', coach: 'Thomas Tuchel', school: 'Modern Masters', era: '2010s-Present', weight: 1.36, icon: '🌍', color: 'purple', description: 'Tactical brilliance with flexible systems and defensive excellence', keyPrinciples: ['Tactical flexibility', 'Defensive structure', 'Build-up play', 'Positional play'], examplePlayers: ['Thiago Silva', 'N\'Golo Kanté', 'Mason Mount'], formations: ['3-4-2-1', '4-2-3-1'], attacking: 8.8, passing: 9.2, defensive: 9.5, physical: 8.7 },
+    { id: 57, name: 'Pochettino High Press', coach: 'Mauricio Pochettino', school: 'Modern Masters', era: '2010s-Present', weight: 1.29, icon: '🌍', color: 'purple', description: 'High pressing with youth development and attacking football', keyPrinciples: ['High pressing', 'Youth development', 'Attacking intent', 'Physical fitness'], examplePlayers: ['Harry Kane', 'Dele Alli', 'Son Heung-min'], formations: ['4-2-3-1', '4-4-2'], attacking: 9.1, passing: 8.7, defensive: 8.8, physical: 9.3 },
+    { id: 58, name: 'Nagelsmann Young Genius', coach: 'Julian Nagelsmann', school: 'Modern Masters', era: '2010s-Present', weight: 1.32, icon: '🌍', color: 'purple', description: 'Modern tactical innovation with data-driven approach and flexible systems', keyPrinciples: ['Tactical innovation', 'Data analysis', 'Positional flexibility', 'Youth development'], examplePlayers: ['Joshua Kimmich', 'Serge Gnabry', 'Thomas Müller'], formations: ['3-4-2-1', '4-2-3-1'], attacking: 9.3, passing: 9.3, defensive: 8.9, physical: 8.8 },
+    { id: 59, name: 'Flick High Line Dominance', coach: 'Hansi Flick', school: 'Modern Masters', era: '2010s-Present', weight: 1.35, icon: '🌍', color: 'purple', description: 'High defensive line with intense pressing and attacking dominance', keyPrinciples: ['High defensive line', 'Intense pressing', 'Attacking dominance', 'Positional play'], examplePlayers: ['Robert Lewandowski', 'Thomas Müller', 'Alphonso Davies'], formations: ['4-2-3-1'], attacking: 9.7, passing: 9.4, defensive: 9.1, physical: 9.2 },
+    { id: 60, name: 'DeVisser Scouting Philosophy', coach: 'Piet de Visser', school: 'Modern Masters', era: '1980s-Present', weight: 1.25, icon: '🌍', color: 'purple', description: 'Revolutionary scouting approach discovering hidden talent worldwide', keyPrinciples: ['Talent identification', 'Global scouting', 'Youth potential', 'Hidden gems'], examplePlayers: ['Romário', 'Ronaldo', 'Zlatan Ibrahimović'], formations: ['Various'], attacking: 8.9, passing: 8.7, defensive: 8.3, physical: 8.5 },
+  ];
+
+  const schools = [
+    { id: 'all', name: 'All Schools', count: 60, icon: '🌍' },
+    { id: 'Dutch', name: 'Dutch School', count: 6, icon: '🇳🇱' },
+    { id: 'Spanish', name: 'Spanish School', count: 7, icon: '🇪🇸' },
+    { id: 'Italian', name: 'Italian School', count: 8, icon: '🇮🇹' },
+    { id: 'English', name: 'English School', count: 8, icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+    { id: 'German', name: 'German School', count: 6, icon: '🇩🇪' },
+    { id: 'French', name: 'French School', count: 5, icon: '🇫🇷' },
+    { id: 'South American', name: 'South American School', count: 7, icon: '🌎' },
+    { id: 'Eastern European', name: 'Eastern European School', count: 4, icon: '🇪🇺' },
+    { id: 'Modern Masters', name: 'Modern Masters', count: 9, icon: '🎯' },
+  ];
+
+  const filteredPhilosophies = philosophies.filter(p => {
+    const matchesSchool = selectedSchool === 'all' || p.school === selectedSchool;
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         p.coach.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSchool && matchesSearch;
+  });
+
+  const stats = {
+    totalPhilosophies: philosophies.length,
+    avgWeight: (philosophies.reduce((sum, p) => sum + p.weight, 0) / philosophies.length).toFixed(2),
+    topWeighted: philosophies.reduce((max, p) => p.weight > max.weight ? p : max, philosophies[0]),
+    schoolsCount: schools.length - 1
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white">
+      {/* Header */}
+      <div className="bg-slate-950/90 backdrop-blur-md border-b border-purple-500/20 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <img 
+                src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806" 
+                alt="Empire Scouting Network" 
+                className="h-10 w-auto"
+              />
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  60-Philosophy Framework Explorer
+                </h1>
+                <p className="text-xs text-slate-400">Tactical DNA Mapping System</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Full Documentation
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-slate-900/50 border border-purple-500/20 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <Target className="w-8 h-8 text-purple-400" />
+              <BookOpen className="w-5 h-5 text-pink-400" />
+            </div>
+            <div className="text-3xl font-bold text-purple-400 mb-1">{stats.totalPhilosophies}</div>
+            <div className="text-sm text-slate-400">Total Philosophies</div>
+          </div>
+
+          <div className="bg-slate-900/50 border border-purple-500/20 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <Users className="w-8 h-8 text-cyan-400" />
+              <Star className="w-5 h-5 text-yellow-400" />
+            </div>
+            <div className="text-3xl font-bold text-cyan-400 mb-1">{stats.schoolsCount}</div>
+            <div className="text-sm text-slate-400">Tactical Schools</div>
+          </div>
+
+          <div className="bg-slate-900/50 border border-purple-500/20 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-8 h-8 text-green-400" />
+            </div>
+            <div className="text-3xl font-bold text-green-400 mb-1">{stats.avgWeight}</div>
+            <div className="text-sm text-slate-400">Average Weight</div>
+          </div>
+
+          <div className="bg-slate-900/50 border border-purple-500/20 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <Award className="w-8 h-8 text-yellow-400" />
+              <div className="text-xs text-yellow-400 font-semibold">TOP</div>
+            </div>
+            <div className="text-lg font-bold text-yellow-400 mb-1">{stats.topWeighted.coach.split(' ')[0]}</div>
+            <div className="text-sm text-slate-400">Weight {stats.topWeighted.weight}</div>
+          </div>
+        </div>
+
+        {/* School Filter Tabs */}
+        <div className="bg-slate-900/50 border border-purple-500/20 rounded-xl p-6 mb-8">
+          <div className="flex items-center space-x-2 mb-4">
+            <Filter className="w-5 h-5 text-purple-400" />
+            <h3 className="text-lg font-bold">Filter by Tactical School</h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {schools.map(school => (
+              <button
+                key={school.id}
+                onClick={() => setSelectedSchool(school.id)}
+                className={`p-4 rounded-lg text-sm font-semibold transition border ${
+                  selectedSchool === school.id
+                    ? 'bg-purple-600 border-purple-400 text-white'
+                    : 'bg-slate-800/50 border-purple-500/20 text-slate-300 hover:border-purple-500/40'
+                }`}
+              >
+                <div className="text-2xl mb-2">{school.icon}</div>
+                <div>{school.name}</div>
+                <div className="text-xs text-slate-400 mt-1">{school.count} philosophies</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="bg-slate-900/50 border border-purple-500/20 rounded-xl p-6 mb-8">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by philosophy name or coach..."
+              className="w-full bg-slate-800 border border-purple-500/30 rounded-lg pl-12 pr-4 py-3 text-white placeholder-slate-500"
+            />
+          </div>
+          <div className="mt-3 text-sm text-slate-400">
+            Showing <span className="text-purple-400 font-semibold">{filteredPhilosophies.length}</span> of {stats.totalPhilosophies} philosophies
+          </div>
+        </div>
+
+        {/* Philosophy Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPhilosophies.map(philosophy => (
+            <div
+              key={philosophy.id}
+              className="bg-slate-900/50 border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/50 transition cursor-pointer group"
+              onClick={() => setSelectedPhilosophy(philosophy)}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-4xl">{philosophy.icon}</div>
+                <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg px-3 py-1">
+                  <div className="text-xs text-purple-400 font-semibold">Weight</div>
+                  <div className="text-lg font-bold text-purple-300">{philosophy.weight}</div>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold mb-2 group-hover:text-purple-400 transition">{philosophy.name}</h3>
+              <div className="text-sm text-slate-400 mb-3">{philosophy.coach} • {philosophy.era}</div>
+              
+              <p className="text-sm text-slate-300 mb-4 line-clamp-2">{philosophy.description}</p>
+
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-red-500/10 border border-red-500/30 rounded p-2 text-center">
+                  <div className="text-xs text-red-400">ATK</div>
+                  <div className="text-sm font-bold text-red-300">{philosophy.attacking}</div>
+                </div>
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded p-2 text-center">
+                  <div className="text-xs text-blue-400">PAS</div>
+                  <div className="text-sm font-bold text-blue-300">{philosophy.passing}</div>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded p-2 text-center">
+                  <div className="text-xs text-green-400">DEF</div>
+                  <div className="text-sm font-bold text-green-300">{philosophy.defensive}</div>
+                </div>
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2 text-center">
+                  <div className="text-xs text-yellow-400">PHY</div>
+                  <div className="text-sm font-bold text-yellow-300">{philosophy.physical}</div>
+                </div>
+              </div>
+
+              <button className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center group-hover:scale-105">
+                <Eye className="w-4 h-4 mr-2" />
+                View Full Details
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Philosophy Detail Modal */}
+        {selectedPhilosophy && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedPhilosophy(null)}>
+            <div className="bg-slate-900 border border-purple-500/30 rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="p-8">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-6xl">{selectedPhilosophy.icon}</div>
+                    <div>
+                      <h2 className="text-3xl font-bold mb-2">{selectedPhilosophy.name}</h2>
+                      <div className="flex items-center space-x-3 text-slate-400">
+                        <span>{selectedPhilosophy.coach}</span>
+                        <span>•</span>
+                        <span>{selectedPhilosophy.school} School</span>
+                        <span>•</span>
+                        <span>{selectedPhilosophy.era}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => setSelectedPhilosophy(null)} className="text-slate-400 hover:text-white">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="bg-purple-600/10 border border-purple-500/30 rounded-xl p-6 mb-6">
+                  <p className="text-slate-300 leading-relaxed">{selectedPhilosophy.description}</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  <div className="bg-slate-800/50 rounded-xl p-6">
+                    <h3 className="text-lg font-bold mb-4 text-purple-400 flex items-center">
+                      <Target className="w-5 h-5 mr-2" />
+                      Key Principles
+                    </h3>
+                    <ul className="space-y-2">
+                      {selectedPhilosophy.keyPrinciples.map((principle, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <ChevronRight className="w-5 h-5 text-purple-400 mr-2 flex-shrink-0 mt-0.5" />
+                          <span className="text-slate-300">{principle}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="bg-slate-800/50 rounded-xl p-6">
+                    <h3 className="text-lg font-bold mb-4 text-cyan-400 flex items-center">
+                      <Users className="w-5 h-5 mr-2" />
+                      Example Players
+                    </h3>
+                    <div className="space-y-3">
+                      {selectedPhilosophy.examplePlayers.map((player, idx) => (
+                        <div key={idx} className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3">
+                          <div className="font-semibold text-cyan-300">{player}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-6 mb-6">
+                  <h3 className="text-lg font-bold mb-4 text-yellow-400 flex items-center">
+                    <Shield className="w-5 h-5 mr-2" />
+                    Preferred Formations
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedPhilosophy.formations.map((formation, idx) => (
+                      <div key={idx} className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-4 py-2">
+                        <div className="font-semibold text-yellow-300">{formation}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-6">
+                  <h3 className="text-lg font-bold mb-4 text-green-400 flex items-center">
+                    <BarChart3 className="w-5 h-5 mr-2" />
+                    Tactical Attributes
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-slate-400">Attacking</span>
+                        <span className="text-sm font-bold text-red-400">{selectedPhilosophy.attacking}/10</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-red-500 to-red-400 h-2 rounded-full"
+                          style={{ width: `${selectedPhilosophy.attacking * 10}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-slate-400">Passing</span>
+                        <span className="text-sm font-bold text-blue-400">{selectedPhilosophy.passing}/10</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full"
+                          style={{ width: `${selectedPhilosophy.passing * 10}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-slate-400">Defensive</span>
+                        <span className="text-sm font-bold text-green-400">{selectedPhilosophy.defensive}/10</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full"
+                          style={{ width: `${selectedPhilosophy.defensive * 10}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-slate-400">Physical</span>
+                        <span className="text-sm font-bold text-yellow-400">{selectedPhilosophy.physical}/10</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-yellow-500 to-yellow-400 h-2 rounded-full"
+                          style={{ width: `${selectedPhilosophy.physical * 10}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-xl p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-purple-500 rounded-lg p-3">
+                      <Award className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg mb-2">Empire FGA Weighting</h4>
+                      <p className="text-slate-300 text-sm leading-relaxed">
+                        This philosophy has a weight of <span className="font-bold text-purple-400">{selectedPhilosophy.weight}</span> in the Empire FGA system, 
+                        placing it among the {selectedPhilosophy.weight >= 1.40 ? 'most influential' : selectedPhilosophy.weight >= 1.30 ? 'highly significant' : 'important'} tactical 
+                        frameworks in football history. Players who align with this philosophy receive enhanced ratings when demonstrating mastery of its key principles.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex space-x-4">
+                  <button className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-semibold transition flex items-center justify-center">
+                    <Download className="w-5 h-5 mr-2" />
+                    Download Philosophy Guide
+                  </button>
+                  <button className="flex-1 bg-slate-800 hover:bg-slate-700 py-3 rounded-lg font-semibold transition border border-purple-500/30">
+                    Find Compatible Players
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="bg-slate-950 border-t border-purple-500/20 py-6 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <img 
+                src="https://1drv.ms/i/c/9e7ccff2a96af6d9/Edn2aqnyz3wggJ5OTA4AAAAB5IKWQ3jHeblDrfbY9_bnCA?e=Czvwh1" 
+                alt="Empire FGA" 
+                className="h-8 w-auto"
+              />
+              <div className="text-sm text-slate-400">
+                <div className="font-semibold text-slate-300">60-Philosophy Framework</div>
+                <div className="text-xs">Complete Tactical DNA Mapping • Historical Accuracy</div>
+              </div>
+            </div>
+            <div className="text-sm text-slate-400">
+              © 2025 Empire Scouting Network. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
