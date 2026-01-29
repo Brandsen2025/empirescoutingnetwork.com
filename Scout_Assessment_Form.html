@@ -1,0 +1,463 @@
+<!-- TIER_3_SCOUT_FORM.html - Standalone Component -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empire FGA - Tier 3+ Assessment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; }
+        .metric-slider { -webkit-appearance: none; width: 100%; height: 8px; background: #1e293b; border-radius: 4px; outline: none; }
+        .metric-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: #3b82f6; border-radius: 50%; cursor: pointer; border: 3px solid #60a5fa; }
+        .rating-display { font-variant-numeric: tabular-nums; }
+        .sonic-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .competitive-badge { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .mental-badge { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .transition-badge { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .metric-group { transition: all 0.2s ease; }
+        .metric-group:hover { transform: translateX(2px); }
+        .category-header { 
+            background: linear-gradient(90deg, rgba(59,130,246,0.1) 0%, rgba(59,130,246,0) 100%);
+            border-left: 4px solid #3b82f6;
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }
+        /* Logo styling */
+        .empire-logo {
+            filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(180deg);
+            width: 24px;
+            height: 24px;
+        }
+        .empire-logo-header {
+            filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(180deg);
+            width: 28px;
+            height: 28px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-md mx-auto bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
+        <!-- Header with Logo -->
+        <div class="bg-gradient-to-r from-blue-900 to-slate-900 p-6 border-b border-slate-700">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" 
+                         alt="Empire FGA Logo" 
+                         class="empire-logo-header">
+                    <h1 class="text-xl font-bold text-blue-400">Tier 3+ Assessment</h1>
+                </div>
+                <span class="text-xs bg-blue-600 px-2 py-1 rounded">LIVE</span>
+            </div>
+            <p class="text-slate-400 text-sm">Match Context: <span id="matchContext" class="text-white font-semibold">League Game</span></p>
+            <p class="text-xs text-slate-500 mt-1" id="timestamp"></p>
+        </div>
+
+        <!-- Player Selector -->
+        <div class="p-6 border-b border-slate-800">
+            <label class="block text-sm font-bold text-slate-300 mb-2">Player Assessment</label>
+            <div class="relative">
+                <input type="text" id="playerSearch" placeholder="Search player..." 
+                       class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
+                       onkeyup="filterPlayers(this.value)">
+                <i class="fas fa-search absolute right-3 top-3.5 text-slate-500"></i>
+            </div>
+            <div id="playerResults" class="mt-2 max-h-40 overflow-y-auto hidden bg-slate-800 rounded-lg border border-slate-700"></div>
+            <div id="selectedPlayer" class="mt-3 flex items-center gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-500/30 hidden">
+                <img id="playerImg" src="" class="w-12 h-12 rounded-full object-cover border-2 border-blue-400">
+                <div>
+                    <div id="playerName" class="font-bold text-white"></div>
+                    <div id="playerMeta" class="text-xs text-blue-300"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier 3+ Metrics (17 Total) -->
+        <div class="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+            <!-- Core 6 Metrics -->
+            <div class="mb-4">
+                <div class="category-header px-3 py-2 mb-3">
+                    <h3 class="font-bold text-blue-300 text-sm"><i class="fas fa-star mr-2"></i>CORE METRICS</h3>
+                </div>
+                <div class="space-y-4">
+                    <!-- Speed -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">Rapidez (Speed/Acceleration)</label>
+                            <span class="text-blue-400 font-bold rating-display" id="val-rapidez">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('rapidez', this.value)">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>Static</span><span>Explosive</span>
+                        </div>
+                    </div>
+
+                    <!-- Stamina -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">Resistencia (Stamina)</label>
+                            <span class="text-blue-400 font-bold rating-display" id="val-resistencia">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('resistencia', this.value)">
+                    </div>
+
+                    <!-- Marking -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">Marcaje (Defensive Marking)</label>
+                            <span class="text-blue-400 font-bold rating-display" id="val-marcaje">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('marcaje', this.value)">
+                    </div>
+
+                    <!-- Technique -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">Técnica (Ball Control)</label>
+                            <span class="text-blue-400 font-bold rating-display" id="val-tecnica">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('tecnica', this.value)">
+                    </div>
+
+                    <!-- Delivery -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">Entrega (Work Rate)</label>
+                            <span class="text-blue-400 font-bold rating-display" id="val-entrega">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('entrega', this.value)">
+                    </div>
+
+                    <!-- Leadership -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">Liderazgo (Leadership)</label>
+                            <span class="text-blue-400 font-bold rating-display" id="val-liderazgo">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('liderazgo', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW MENTAL/COGNITIVE METRICS -->
+            <div class="mb-4">
+                <div class="category-header px-3 py-2 mb-3">
+                    <h3 class="font-bold text-green-300 text-sm"><i class="fas fa-brain mr-2"></i>MENTAL/COGNITIVE</h3>
+                </div>
+                <div class="space-y-4">
+                    <!-- DMA (Decision Making) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">DMA (Decision Making)</label>
+                            <span class="text-green-400 font-bold rating-display" id="val-dma">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('dma', this.value)">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>Reactive</span><span>Anticipative</span>
+                        </div>
+                    </div>
+
+                    <!-- CHR (Character) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">CHR (Character)</label>
+                            <span class="text-green-400 font-bold rating-display" id="val-chr">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('chr', this.value)">
+                    </div>
+
+                    <!-- MCS (Mental Competence Score) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">MCS (Mental Competence Score)</label>
+                            <span class="text-green-400 font-bold rating-display" id="val-mcs">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('mcs', this.value)">
+                    </div>
+
+                    <!-- CLM (Calmness) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">CLM (Calmness)</label>
+                            <span class="text-green-400 font-bold rating-display" id="val-clm">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('clm', this.value)">
+                    </div>
+
+                    <!-- CRS (Clutch Response Score) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">CRS (Clutch Response Score)</label>
+                            <span class="text-green-400 font-bold rating-display" id="val-crs">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('crs', this.value)">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>Low Pressure</span><span>High Pressure</span>
+                        </div>
+                    </div>
+
+                    <!-- CRK (Creative Risk Taking) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">CRK (Creative Risk Taking)</label>
+                            <span class="text-green-400 font-bold rating-display" id="val-crk">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('crk', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW PHYSICAL/PERFORMANCE METRICS -->
+            <div class="mb-4">
+                <div class="category-header px-3 py-2 mb-3">
+                    <h3 class="font-bold text-purple-300 text-sm"><i class="fas fa-running mr-2"></i>PHYSICAL/PERFORMANCE</h3>
+                </div>
+                <div class="space-y-4">
+                    <!-- SOA (Speed on Action) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">SOA (Speed on Action)</label>
+                            <span class="text-purple-400 font-bold rating-display" id="val-soa">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('soa', this.value)">
+                    </div>
+
+                    <!-- SPR (Sprint Performance) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">SPR (Sprint Performance)</label>
+                            <span class="text-purple-400 font-bold rating-display" id="val-spr">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('spr', this.value)">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>Sustained</span><span>Explosive</span>
+                        </div>
+                    </div>
+
+                    <!-- DYN (Dynamism) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">DYN (Dynamism)</label>
+                            <span class="text-purple-400 font-bold rating-display" id="val-dyn">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('dyn', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW TACTICAL/TECHNICAL METRICS -->
+            <div class="mb-4">
+                <div class="category-header px-3 py-2 mb-3">
+                    <h3 class="font-bold text-yellow-300 text-sm"><i class="fas fa-chess-board mr-2"></i>TACTICAL/TECHNICAL</h3>
+                </div>
+                <div class="space-y-4">
+                    <!-- SPI (Spatial Performance Index) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">SPI (Spatial Performance Index)</label>
+                            <span class="text-yellow-400 font-bold rating-display" id="val-spi">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('spi', this.value)">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>Limited</span><span>Expansive</span>
+                        </div>
+                    </div>
+
+                    <!-- OMS (Omschakeling - Transition) -->
+                    <div class="metric-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-semibold text-slate-300">OMS (Transition Intelligence)</label>
+                            <span class="text-yellow-400 font-bold rating-display" id="val-oms">5.0</span>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.1" value="5.0" class="metric-slider" 
+                               oninput="updateRating('oms', this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculated Overall -->
+        <div class="bg-slate-800 p-6 border-t border-slate-700">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-slate-900 p-4 rounded-lg">
+                    <div class="text-xs text-slate-400 mb-1">Tier 3+ Average</div>
+                    <div class="text-3xl font-bold text-white rating-display" id="tier3-average">5.0</div>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-lg">
+                    <div class="text-xs text-slate-400 mb-1">Total Metrics</div>
+                    <div class="text-3xl font-bold text-blue-400">17</div>
+                </div>
+            </div>
+            
+            <!-- Scoring Domains -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="sonic-badge p-3 rounded-lg text-center">
+                    <div class="text-xs text-white/80">Sonic Domains</div>
+                    <div class="text-lg font-bold text-white" id="sonic-score">3.2</div>
+                </div>
+                <div class="competitive-badge p-3 rounded-lg text-center">
+                    <div class="text-xs text-white/80">Competitive</div>
+                    <div class="text-lg font-bold text-white" id="competitive-score">4.1</div>
+                </div>
+            </div>
+
+            <!-- New Domain Scores -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="mental-badge p-3 rounded-lg text-center">
+                    <div class="text-xs text-white/80">Mental/Cognitive</div>
+                    <div class="text-lg font-bold text-white" id="mental-score">5.0</div>
+                </div>
+                <div class="transition-badge p-3 rounded-lg text-center">
+                    <div class="text-xs text-white/80">Transition IQ</div>
+                    <div class="text-lg font-bold text-white" id="transition-score">5.0</div>
+                </div>
+            </div>
+
+            <!-- Submit Button with Empire FGA branding -->
+            <button onclick="submitAssessment()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 rounded-lg transition flex items-center justify-center gap-2 shadow-lg group">
+                <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" 
+                     alt="Empire FGA Logo" 
+                     class="empire-logo group-hover:scale-110 transition-transform">
+                <span>Submit to Empire FGA</span>
+            </button>
+            
+            <p class="text-xs text-slate-500 mt-3 text-center">
+                <i class="fas fa-info-circle mr-1"></i>17 metrics calculated in real-time
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Mobile-optimized player database (subset for offline capability)
+        const playerDB = [
+            {name: "Lionel Messi", pos: "FW", club: "Inter Miami", img: "messi.jpg"},
+            {name: "Jorge Otero", pos: "DF", club: "Celta/Valencia", img: "otero.webp"},
+            {name: "Donato", pos: "MF", club: "Deportivo", img: "donato.jpg"}
+        ];
+
+        // Initialize all 17 metrics
+        let currentRatings = {
+            rapidez: 5.0, resistencia: 5.0, marcaje: 5.0, tecnica: 5.0, entrega: 5.0, liderazgo: 5.0,
+            dma: 5.0, chr: 5.0, mcs: 5.0, soa: 5.0, spi: 5.0, clm: 5.0, crs: 5.0, oms: 5.0, spr: 5.0, dyn: 5.0, crk: 5.0
+        };
+        
+        let selectedPlayer = null;
+
+        function updateRating(metric, value) {
+            currentRatings[metric] = parseFloat(value);
+            document.getElementById(`val-${metric}`).textContent = parseFloat(value).toFixed(1);
+            calculateAllScores();
+        }
+
+        function calculateAllScores() {
+            const values = Object.values(currentRatings);
+            const avg = values.reduce((a,b) => a+b, 0) / values.length;
+            document.getElementById('tier3-average').textContent = avg.toFixed(1);
+            
+            // Domain-specific calculations
+            const sonic = (currentRatings.rapidez + currentRatings.tecnica + currentRatings.soa + currentRatings.spr) / 4;
+            const competitive = (currentRatings.marcaje + currentRatings.entrega + currentRatings.liderazgo + currentRatings.crs) / 4;
+            const mental = (currentRatings.dma + currentRatings.chr + currentRatings.mcs + currentRatings.clm + currentRatings.crk) / 5;
+            const transition = (currentRatings.oms + currentRatings.spi + currentRatings.dyn) / 3;
+            
+            document.getElementById('sonic-score').textContent = sonic.toFixed(1);
+            document.getElementById('competitive-score').textContent = competitive.toFixed(1);
+            document.getElementById('mental-score').textContent = mental.toFixed(1);
+            document.getElementById('transition-score').textContent = transition.toFixed(1);
+        }
+
+        function filterPlayers(query) {
+            const results = document.getElementById('playerResults');
+            if (!query) { results.classList.add('hidden'); return; }
+            
+            const matches = playerDB.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+            results.innerHTML = matches.map(p => `
+                <div onclick="selectPlayer('${p.name}')" class="p-3 hover:bg-slate-700 cursor-pointer flex items-center gap-3 border-b border-slate-700 last:border-0">
+                    <div class="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center text-xs font-bold">${p.name[0]}</div>
+                    <div><div class="font-semibold text-sm">${p.name}</div><div class="text-xs text-slate-400">${p.pos} • ${p.club}</div></div>
+                </div>
+            `).join('');
+            results.classList.remove('hidden');
+        }
+
+        function selectPlayer(name) {
+            selectedPlayer = playerDB.find(p => p.name === name);
+            document.getElementById('playerName').textContent = selectedPlayer.name;
+            document.getElementById('playerMeta').textContent = `${selectedPlayer.pos} • ${selectedPlayer.club}`;
+            document.getElementById('selectedPlayer').classList.remove('hidden');
+            document.getElementById('playerResults').classList.add('hidden');
+            document.getElementById('playerSearch').value = name;
+        }
+
+        function submitAssessment() {
+            if (!selectedPlayer) {
+                alert("Please select a player first!");
+                return;
+            }
+            
+            const payload = {
+                player: selectedPlayer,
+                ratings: currentRatings,
+                average: document.getElementById('tier3-average').textContent,
+                domain_scores: {
+                    sonic: document.getElementById('sonic-score').textContent,
+                    competitive: document.getElementById('competitive-score').textContent,
+                    mental: document.getElementById('mental-score').textContent,
+                    transition: document.getElementById('transition-score').textContent
+                },
+                timestamp: new Date().toISOString(),
+                scout_id: "SCOUT_001",
+                match_context: document.getElementById('matchContext').textContent,
+                metrics_count: 17
+            };
+            
+            // Airtable integration point
+            console.log("Submitting to Empire FGA:", payload);
+            
+            // Generate assessment summary
+            const summary = `
+                Assessment Submitted to Empire FGA!
+                
+                Player: ${selectedPlayer.name}
+                Overall: ${payload.average}/10
+                
+                Domain Scores:
+                • Sonic: ${payload.domain_scores.sonic}/10
+                • Competitive: ${payload.domain_scores.competitive}/10  
+                • Mental: ${payload.domain_scores.mental}/10
+                • Transition: ${payload.domain_scores.transition}/10
+                
+                Ready for Airtable sync.
+            `;
+            
+            alert(summary);
+        }
+
+        // Initialize timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Calculate initial scores
+        calculateAllScores();
+    </script>
+</body>
+</html>
