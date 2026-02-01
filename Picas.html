@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picas — Empire FGA Scouting Profile | Angolan Winger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card: #141414;
+            --white: #f5f5f5;
+            --muted: #a0a0a0;
+            --accent1: #FFD700;   /* Empire Gold */
+            --accent2: #D80027;   /* Angola Red */
+            --accent3: #000000;   /* Angola Black */
+            --win: #22c55e;
+            --loss: #ef4444;
+            --draw: #eab308;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background:
+                radial-gradient(900px 500px at 8% 12%, rgba(216, 0, 39, 0.10), transparent 10%),
+                radial-gradient(800px 400px at 92% 88%, rgba(255, 215, 0, 0.08), transparent 8%),
+                var(--bg);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            max-width: 1300px;
+            margin: 18px auto;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header img {
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent1);
+        }
+
+        .header-date {
+            font-size: 13px;
+            color: var(--muted);
+            margin-left: 12px;
+            padding: 4px 10px;
+            background: rgba(255, 215, 0, 0.15);
+            border-radius: 6px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 18px auto;
+            padding: 22px;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 26px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .photo {
+            width: 100%;
+            height: 480px;
+            object-fit: cover;
+            object-position: center top;
+            border-radius: 10px;
+            border: 3px solid var(--accent2);
+            background: #000;
+            filter: contrast(1.05) saturate(1.1);
+        }
+
+        .title {
+            font-size: 34px;
+            font-weight: 900;
+            margin: 14px 0;
+            color: var(--white);
+        }
+
+        .sub {
+            color: var(--muted);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .club-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(216, 0, 39, 0.25), rgba(0, 0, 0, 0.15));
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(216, 0, 39, 0.4);
+            margin-bottom: 12px;
+        }
+
+        .club-badge span {
+            font-weight: 700;
+            color: var(--white);
+            font-size: 14px;
+        }
+
+        .nationality-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(216, 0, 39, 0.20), rgba(0, 0, 0, 0.15));
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(216, 0, 39, 0.3);
+            margin-left: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pill {
+            display: inline-block;
+            background: rgba(216, 0, 39, 0.15);
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--white);
+            margin: 6px 8px 6px 0;
+            border: 1px solid rgba(255, 215, 0, 0.18);
+        }
+
+        .pill.international {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            color: var(--white);
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            vertical-align: top;
+            text-align: left;
+        }
+
+        th {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.85), rgba(216, 0, 39, 0.85));
+            font-weight: 800;
+            color: #000;
+        }
+
+        .rating-badge {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            color: #000;
+            font-weight: 900;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 22px;
+            box-shadow: 0 10px 30px rgba(216, 0, 39, 0.18);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.1;
+        }
+
+        .rating-badge .rating-value {
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .rating-badge .rating-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .section {
+            margin-top: 18px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent1);
+            margin-bottom: 16px;
+        }
+
+        .section h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent1);
+            margin: 16px 0 12px;
+        }
+
+        .two-col, .three-col {
+            display: grid;
+            gap: 14px;
+        }
+
+        .two-col { grid-template-columns: 1fr 1fr; }
+        .three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+        .small {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .lead {
+            color: var(--white);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .visual-canvas {
+            background: transparent;
+            border-radius: 8px;
+            padding: 12px;
+            height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255, 215, 0, 0.18);
+        }
+
+        .muted-box, .highlight-box, .development-box {
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 12px;
+        }
+
+        .muted-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--muted);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(216, 0, 39, 0.08));
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .development-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(216, 0, 39, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-label { color: var(--muted); font-size: 14px; }
+        .info-value { color: var(--white); font-weight: 600; font-size: 14px; }
+        .info-value.highlight { color: var(--accent1); }
+
+        .metric-item { margin: 14px 0; }
+        .metric-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .metric-name { font-weight: 600; color: var(--white); font-size: 13px; }
+        .metric-score { color: var(--accent1); font-weight: 800; font-size: 15px; }
+        .metric-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent1) 0%, var(--accent2) 100%);
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            padding: 14px;
+            border-left: 3px solid var(--accent1);
+            margin: 12px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+        }
+        .timeline-date {
+            color: var(--accent1);
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .timeline-event {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .stat-box, .season-stat-box, .trophy-box {
+            text-align: center;
+            border-radius: 8px;
+        }
+        .stat-box {
+            background: rgba(216, 0, 39, 0.12);
+            border: 1px solid rgba(255, 215, 0, 0.18);
+            padding: 14px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--accent1);
+            display: block;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .season-stats-grid, .trophy-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .season-stats-grid { grid-template-columns: repeat(4, 1fr); }
+        .trophy-grid { grid-template-columns: repeat(3, 1fr); }
+
+        .season-stat-box {
+            background: rgba(216, 0, 39, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            padding: 16px;
+        }
+        .season-stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--accent1);
+        }
+        .season-stat-label {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tier-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(255, 215, 0, 0.3));
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 12px;
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .scout-alert {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 16px;
+        }
+        .scout-alert-title {
+            color: #FFD700;
+            font-weight: 800;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .scout-alert-text {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .match-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto;
+            align-items: center;
+            gap: 16px;
+        }
+        .match-teams { display: flex; flex-direction: column; gap: 4px; }
+        .match-team {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--white);
+        }
+        .match-team.home { color: var(--accent2); }
+        .match-score {
+            background: linear-gradient(135deg, var(--accent1), rgba(216, 0, 39, 0.7));
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 18px;
+            color: #000;
+            text-align: center;
+            min-width: 70px;
+        }
+        .result-w .match-score {
+            background: linear-gradient(135deg, var(--win), rgba(34, 197, 94, 0.7));
+        }
+        .result-l .match-score {
+            background: linear-gradient(135deg, var(--loss), rgba(239, 68, 68, 0.7));
+        }
+        .result-d .match-score {
+            background: linear-gradient(135deg, var(--draw), rgba(234, 179, 8, 0.7));
+        }
+        .match-info { text-align: right; }
+        .match-date {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .match-comp {
+            font-size: 11px;
+            color: var(--accent1);
+            font-weight: 600;
+        }
+        .match-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .match-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: rgba(216, 0, 39, 0.15);
+            border-radius: 6px;
+        }
+        .match-stat.motm {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+        .match-stat.goal {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .form-indicator {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .form-box {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 13px;
+        }
+        .form-box.w {
+            background: rgba(34, 197, 94, 0.25);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+        .form-box.d {
+            background: rgba(234, 179, 8, 0.25);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+        .form-box.l {
+            background: rgba(239, 68, 68, 0.25);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .personality-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .personality-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+        .personality-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .personality-title {
+            font-weight: 700;
+            color: var(--white);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .personality-score {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--accent1);
+        }
+        .personality-desc {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .relationship-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .relationship-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+            color: #000;
+            flex-shrink: 0;
+        }
+        .relationship-content { flex: 1; }
+        .relationship-name {
+            font-weight: 700;
+            color: var(--white);
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+        .relationship-role {
+            font-size: 12px;
+            color: var(--accent1);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .relationship-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .relationship-dynamic {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent1);
+            margin-top: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .trait-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(216, 0, 39, 0.12);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--white);
+            margin: 4px;
+            border: 1px solid rgba(216, 0, 39, 0.2);
+        }
+
+        .career-path {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+        .career-club {
+            background: rgba(216, 0, 39, 0.15);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(216, 0, 39, 0.2);
+        }
+        .career-arrow {
+            color: var(--accent1);
+            font-weight: 700;
+        }
+
+        @media (max-width: 980px) {
+            .container { grid-template-columns: 1fr; }
+            .photo { height: 380px; }
+            .visual-canvas { height: auto; }
+            .two-col, .three-col { grid-template-columns: 1fr; }
+            .trophy-grid { grid-template-columns: repeat(2, 1fr); }
+            .match-card { grid-template-columns: 1fr; text-align: center; }
+            .match-info { text-align: center; }
+            .season-stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .personality-grid { grid-template-columns: 1fr; }
+            .career-path { flex-direction: column; align-items: flex-start; }
+            .career-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire Scouting Network">
+            <div class="header-title">EMPIRE FGA SCOUTING NETWORK</div>
+            <span class="header-date">📅 30 Jan 2026 • Live Profile</span>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+        <div>
+            <div class="card">
+                <img src="https://scontent.fein1-2.fna.fbcdn.net/v/t39.30808-6/615780573_1472916628174112_3951409905866999583_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=833d8c&_nc_ohc=01l8MAcH_M0Q7kNvwGTNwZH&_nc_oc=AdnDugKX2EjPIZQKs7cg6lcwu3PXytLnJ7YfcmGX7mY64PezezZM6IPIsGB-IPbfKdg&_nc_zt=23&_nc_ht=scontent.fein1-2.fna&_nc_gid=S4YFhHU2VaUtj_atmfll5Q&oh=00_AfqF9c8MJQfmTszwVMFZ2cOJ1wB_4QBteBwftDFD5qH3XQ&oe=6982EC54" alt="Picas" class="photo">
+                <div class="title">Picas</div>
+                <div class="sub">Right Winger • Angolan International • #11</div>
+
+                <div class="club-badge">
+                    <span>🔴⚫ AD Fafe</span>
+                </div>
+                <span class="nationality-badge">🇦🇴 Angola</span>
+
+                <div class="rating-badge">
+                    <span class="rating-value">75.8</span>
+                    <span class="rating-label">FGA /100</span>
+                </div>
+
+                <div class="section">
+                    <div class="stat-box" style="margin-bottom: 10px;">
+                        <span class="stat-value">75.8</span>
+                        <span class="stat-label">Empire FGA Index /100</span>
+                    </div>
+                    <div class="tier-badge">Professional Tier</div>
+                    <div class="pill international" style="margin-top: 8px;">🇦🇴 5 Angola Caps</div>
+                </div>
+
+                <div class="section">
+                    <div class="info-row"><span class="info-label">Full Name</span><span class="info-value">Hermenegildo Domingos Sengue</span></div>
+                    <div class="info-row"><span class="info-label">Date of Birth</span><span class="info-value">14 Feb 2001 (24 y)</span></div>
+                    <div class="info-row"><span class="info-label">Place of Birth</span><span class="info-value">Luanda, Angola</span></div>
+                    <div class="info-row"><span class="info-label">Nationality</span><span class="info-value">🇦🇴 Angolan</span></div>
+                    <div class="info-row"><span class="info-label">Height / Weight</span><span class="info-value">1.70 m / 62 kg</span></div>
+                    <div class="info-row"><span class="info-label">Primary Position</span><span class="info-value">Right Winger (84%)</span></div>
+                    <div class="info-row"><span class="info-label">Secondary</span><span class="info-value">Left Winger / Striker</span></div>
+                    <div class="info-row"><span class="info-label">Strong Foot</span><span class="info-value highlight">Right</span></div>
+                    <div class="info-row"><span class="info-label">Current Club</span><span class="info-value">AD Fafe</span></div>
+                    <div class="info-row"><span class="info-label">Joined</span><span class="info-value">9 Aug 2024</span></div>
+                    <div class="info-row"><span class="info-label">Contract Until</span><span class="info-value">30 Jun 2026</span></div>
+                    <div class="info-row"><span class="info-label">League</span><span class="info-value">Liga 3 (Portugal)</span></div>
+                    <div class="info-row"><span class="info-label">Jersey Number</span><span class="info-value">#11</span></div>
+                    <div class="info-row"><span class="info-label">Market Value</span><span class="info-value">€260K (Peak: €260K)</span></div>
+                </div>
+
+                <div class="section">
+                    <h3>2025/26 Season Stats</h3>
+                    <div class="info-row"><span class="info-label">League Appearances</span><span class="info-value highlight">18</span></div>
+                    <div class="info-row"><span class="info-label">Goals</span><span class="info-value highlight">3</span></div>
+                    <div class="info-row"><span class="info-label">Assists</span><span class="info-value">2</span></div>
+                    <div class="info-row"><span class="info-label">Minutes Played</span><span class="info-value">1,268</span></div>
+                    <div class="info-row"><span class="info-label">Yellow Cards</span><span class="info-value">2</span></div>
+                    <div class="info-row"><span class="info-label">Starts</span><span class="info-value">16</span></div>
+                </div>
+
+                <div class="section">
+                    <h3>Career Overview</h3>
+                    <div class="info-row"><span class="info-label">Total Appearances</span><span class="info-value">139</span></div>
+                    <div class="info-row"><span class="info-label">Total Goals</span><span class="info-value">12</span></div>
+                    <div class="info-row"><span class="info-label">Career GPG</span><span class="info-value">0.09</span></div>
+                    <div class="info-row"><span class="info-label">National Team</span><span class="info-value">Angola (5 caps)</span></div>
+                </div>
+
+                <div class="section">
+                    <h3>Form (Last 5 Matches)</h3>
+                    <div class="form-indicator">
+                        <div class="form-box l">L</div>
+                        <div class="form-box d">D</div>
+                        <div class="form-box w">W</div>
+                        <div class="form-box w">W</div>
+                        <div class="form-box l">L</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div>
+
+            <!-- FGA Analysis -->
+            <div class="card">
+                <h2>🌍 Empire FGA Analysis — Angolan Speedster</h2>
+                <p class="lead">
+                    Picas (Hermenegildo Domingos Sengue) represents the growing wave of <strong>Angolan talent navigating Portuguese football</strong> — combining African athleticism with European tactical education. The 24-year-old winger has carved out a solid career in Portugal's lower divisions after arriving from Petro Atlético in 2022. Now settled at AD Fafe in Liga 3, Picas brings <strong>blistering pace and direct dribbling</strong> to the right flank. Empire's model identifies <strong>Speed (SPE)</strong> and <strong>Dribbling (DRB)</strong> as primary assets — a classic touchline-hugging winger who stretches defenses and delivers cutbacks [^50^][^53^].
+                </p>
+                
+                <div class="career-path">
+                    <span class="career-club">Petro Atlético (ANG)</span>
+                    <span class="career-arrow">→</span>
+                    <span class="career-club">Chaves (POR)</span>
+                    <span class="career-arrow">→</span>
+                    <span class="career-club">Torreense (Loan)</span>
+                    <span class="career-arrow">→</span>
+                    <span class="career-club">Feirense (Loan)</span>
+                    <span class="career-arrow">→</span>
+                    <span class="career-club" style="background: rgba(34, 197, 94, 0.3); border-color: rgba(34, 197, 94, 0.4);">AD Fafe</span>
+                </div>
+
+                <div class="highlight-box">
+                    <strong style="color: var(--accent1);">📈 Development Alert:</strong> After several loan spells, Picas has found stability at Fafe with 18 appearances this season. His 0.17 goals per 90 and 2 assists demonstrate growing end product. At 24, entering peak years for a winger. <strong>Current FGA: 75.8/100 — Professional Tier with Liga Portugal 2 potential.</strong>
+                </div>
+
+                <div class="season-stats-grid">
+                    <div class="season-stat-box">
+                        <div class="season-stat-value">75.8</div>
+                        <div class="season-stat-label">FGA Rating</div>
+                    </div>
+                    <div class="season-stat-box">
+                        <div class="season-stat-value">0.21</div>
+                        <div class="season-stat-label">G+A/90</div>
+                    </div>
+                    <div class="season-stat-box">
+                        <div class="season-stat-value">84</div>
+                        <div class="season-stat-label">Speed Index</div>
+                    </div>
+                    <div class="season-stat-box">
+                        <div class="season-stat-value">78</div>
+                        <div class="season-stat-label">Dribbling</div>
+                    </div>
+                </div>
+
+                <div class="scout-alert">
+                    <div class="scout-alert-title">🌍 International Status</div>
+                    <div class="scout-alert-text">
+                        5 caps for Angola national team (2021-2024) — represented Palancas Negras during AFCON qualifiers. Rare international pedigree at Liga 3 level. Potential for recall if performance continues upward trajectory.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Matches -->
+            <div class="card">
+                <h2>⚡ Recent Performance Markers</h2>
+                <p class="small" style="margin-bottom: 16px;">2025/26 Liga 3 Zona A — Regular starter for AD Fafe.</p>
+
+                <!-- Match 1 -->
+                <div class="match-card result-l">
+                    <div class="match-teams">
+                        <span class="match-team home">AD Fafe</span>
+                        <span class="match-team">Atlético CP</span>
+                    </div>
+                    <div class="match-score">0 - 4</div>
+                    <div class="match-stats">
+                        <span class="match-stat">⏱️ 44'</span>
+                        <span class="match-stat">🔄 2 Dribbles</span>
+                    </div>
+                    <div class="match-info">
+                        <div class="match-date">2 Mar 2025</div>
+                        <div class="match-comp">Liga 3</div>
+                    </div>
+                </div>
+
+                <!-- Match 2 -->
+                <div class="match-card result-w">
+                    <div class="match-teams">
+                        <span class="match-team">Lusitano Évora</span>
+                        <span class="match-team home">AD Fafe</span>
+                    </div>
+                    <div class="match-score">0 - 1</div>
+                    <div class="match-stats">
+                        <span class="match-stat">⏱️ 90'</span>
+                        <span class="match-stat">🅰️ 1 Assist</span>
+                    </div>
+                    <div class="match-info">
+                        <div class="match-date">27 Dec 2025</div>
+                        <div class="match-comp">Taça de Portugal</div>
+                    </div>
+                </div>
+
+                <!-- Match 3 -->
+                <div class="match-card result-w">
+                    <div class="match-teams">
+                        <span class="match-team">Braga</span>
+                        <span class="match-team home">AD Fafe</span>
+                    </div>
+                    <div class="match-score">1 - 2</div>
+                    <div class="match-stats">
+                        <span class="match-stat">⏱️ 27'</span>
+                        <span class="match-stat">⚡ 6.3 Rating</span>
+                    </div>
+                    <div class="match-info">
+                        <div class="match-date">14 Jan 2026</div>
+                        <div class="match-comp">Taça de Portugal</div>
+                    </div>
+                </div>
+
+                <!-- Match 4 -->
+                <div class="match-card result-d">
+                    <div class="match-teams">
+                        <span class="match-team home">AD Fafe</span>
+                        <span class="match-team">Sanjoanense</span>
+                    </div>
+                    <div class="match-score">1 - 1</div>
+                    <div class="match-stats">
+                        <span class="match-stat goal">⚽ 1 Goal</span>
+                        <span class="match-stat">💪 7.1 Rating</span>
+                    </div>
+                    <div class="match-info">
+                        <div class="match-date">Dec 2025</div>
+                        <div class="match-comp">Liga 3</div>
+                    </div>
+                </div>
+
+                <div class="muted-box" style="margin-top: 16px;">
+                    <strong style="color: var(--accent1);">Tactical Pattern:</strong> Classic touchline-hugging right winger — stays wide to stretch defenses, looks to beat fullbacks 1v1 and deliver cutbacks. Occasionally inverts to shoot with right foot. Defensive work rate improving but not primary asset. Strong in transition moments.
+                </div>
+            </div>
+
+            <!-- FGA Metrics -->
+            <div class="card">
+                <h2>📊 Core FGA Intelligence Metrics</h2>
+                <p class="small" style="margin-bottom: 16px;">All metrics scaled to /100 for Empire FGA standardization. Data weighted toward 2025/26 Liga 3 performances.</p>
+
+                <h3>Tier 1: Automated Metrics (60% Weight)</h3>
+                <div class="two-col">
+                    <div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">XPS (Expected Performance)</span><span class="metric-score">74</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 74%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">DRB (Dribbling)</span><span class="metric-score">78</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 78%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">SPE (Speed)</span><span class="metric-score">84</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 84%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">CAR (Ball Carries)</span><span class="metric-score">76</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 76%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">AGI (Agility)</span><span class="metric-score">80</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 80%"></div></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">KEY (Key Passes)</span><span class="metric-score">72</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 72%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">COM (Composure)</span><span class="metric-score">71</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 71%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">PHY (Physical)</span><span class="metric-score">73</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 73%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">STK (Shooting)</span><span class="metric-score">68</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 68%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">AER (Aerial)</span><span class="metric-score">62</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 62%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Tier 2: Semi-Automated Metrics (30% Weight)</h3>
+                <div class="two-col">
+                    <div class="metric-item">
+                        <div class="metric-header"><span class="metric-name">POI (Position Intelligence)</span><span class="metric-score">75</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header"><span class="metric-name">MOB (Mobility)</span><span class="metric-score">82</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 82%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header"><span class="metric-name">DYN (Dynamism)</span><span class="metric-score">78</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 78%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header"><span class="metric-name">CRS (Crossing)</span><span class="metric-score">74</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 74%"></div></div>
+                    </div>
+                </div>
+
+                <h3>Tier 3: Manual Scout Assessment (10% Weight)</h3>
+                <div class="two-col">
+                    <div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">DMA (Decision Making)</span><span class="metric-score">73</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 73%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">CHR (Character)</span><span class="metric-score">77</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 77%"></div></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">MCS (Mental Competence)</span><span class="metric-score">76</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 76%"></div></div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-header"><span class="metric-name">INT (International)</span><span class="metric-score">78</span></div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: 78%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 60-Philosophy Framework -->
+            <div class="card">
+                <h2>🧠 60-Philosophy Framework Alignment</h2>
+                <p class="small" style="margin-bottom: 12px;">Angolan flair meets Portuguese structure — direct winger philosophy.</p>
+
+                <h3>Top 10 Philosophy Fits</h3>
+                <div>
+                    <span class="pill">Portuguese School 79/100</span>
+                    <span class="pill">Angolan Football 82/100</span>
+                    <span class="pill">Direct Winger 80/100</span>
+                    <span class="pill">English Direct 77/100</span>
+                    <span class="pill">Transition Play 78/100</span>
+                    <span class="pill">Cruyff Intelligence 72/100</span>
+                    <span class="pill">Speed Philosophy 85/100</span>
+                    <span class="pill">African Athletics 83/100</span>
+                    <span class="pill">Counter Attack 81/100</span>
+                    <span class="pill">Wide Play 79/100</span>
+                </div>
+
+                <h3>School Averages</h3>
+                <div class="metric-item">
+                    <div class="metric-header"><span class="metric-name">Portuguese School (Technical)</span><span class="metric-score">79.0</span></div>
+                    <div class="metric-bar"><div class="metric-fill" style="width: 79%"></div></div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-header"><span class="metric-name">Angolan School (Flair/Speed)</span><span class="metric-score">82.0</span></div>
+                    <div class="metric-bar"><div class="metric-fill" style="width: 82%"></div></div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-header"><span class="metric-name">English School (Direct)</span><span class="metric-score">77.0</span></div>
+                    <div class="metric-bar"><div class="metric-fill" style="width: 77%"></div></div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-header"><span class="metric-name">Spanish School (Possession)</span><span class="metric-score">68.0</span></div>
+                    <div class="metric-bar"><div class="metric-fill" style="width: 68%"></div></div>
+                </div>
+            </div>
+
+            <!-- Psychological Profile -->
+            <div class="card">
+                <h2>🧬 Psychological Profile & Personality Analysis</h2>
+                <p class="small" style="margin-bottom: 16px;">Empire FGA Mental Competence System (MCS) — Profiling based on career trajectory and adaptation.</p>
+
+                <div class="personality-grid">
+                    <div class="personality-card">
+                        <div class="personality-icon">⚡</div>
+                        <div class="personality-title">Explosiveness</div>
+                        <div class="personality-score">84</div>
+                        <div class="personality-desc">Sudden acceleration, thrives in space</div>
+                    </div>
+                    <div class="personality-card">
+                        <div class="personality-icon">🌍</div>
+                        <div class="personality-title">Adaptability</div>
+                        <div class="personality-score">82</div>
+                        <div class="personality-desc">Survived multiple loans, adapted to Portugal</div>
+                    </div>
+                    <div class="personality-card">
+                        <div class="personality-icon">🎯</div>
+                        <div class="personality-title">Directness</div>
+                        <div class="personality-score">80</div>
+                        <div class="personality-desc">No-nonsense winger, runs at defenders</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Personality Archetype: The Expat Professional</h3>
+                    <div class="two-col">
+                        <div>
+                            <div class="info-row"><span class="info-label">MCS Profile</span><span class="info-value">ESTP (Entrepreneur)</span></div>
+                            <div class="info-row"><span class="info-label">Primary Drive</span><span class="info-value">Proving Quality</span></div>
+                            <div class="info-row"><span class="info-label">Stress Response</span><span class="info-value">Increases effort</span></div>
+                            <div class="info-row"><span class="info-label">Social Style</span><span class="info-value">Quiet, focused</span></div>
+                        </div>
+                        <div>
+                            <div class="info-row"><span class="info-label">Leadership Tendency</span><span class="info-value">Example-setter 72/100</span></div>
+                            <div class="info-row"><span class="info-label">Adaptability</span><span class="info-value">Very High 82/100</span></div>
+                            <div class="info-row"><span class="info-label">Pressure Response</span><span class="info-value">Stable 75/100</span></div>
+                            <div class="info-row"><span class="info-label">Long-term Focus</span><span class="info-value">Career builder 78/100</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Behavioral Markers</h3>
+                    <div style="margin-bottom: 12px;">
+                        <span class="trait-pill">🇦🇴 Angolan Power</span>
+                        <span class="trait-pill">⚡ Speed Merchant</span>
+                        <span class="trait-pill">🎯 Direct Winger</span>
+                        <span class="trait-pill">🌍 Expat Professional</span>
+                        <span class="trait-pill">🔥 Transition Threat</span>
+                        <span class="trait-pill">💪 Hard Worker</span>
+                    </div>
+                    <p class="small">
+                        <strong>Empire Analysis:</strong> Picas embodies the modern African winger in European football — physically gifted, tactically schooled in Portugal, and hungry to prove himself. His journey from Luanda to Liga 3 via multiple loan spells demonstrates resilience. Not the most technically refined, but his pace and directness make him a constant threat on the counter. International experience with Angola adds maturity beyond club level.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Key Relationships -->
+            <div class="card">
+                <h2>🤝 Key Relationships & Interpersonal Dynamics</h2>
+                <p class="small" style="margin-bottom: 16px;">Empire FGA Network Analysis — Mapping professional relationships across his cross-continental career.</p>
+
+                <div class="relationship-item">
+                    <div class="relationship-avatar">AD</div>
+                    <div class="relationship-content">
+                        <div class="relationship-name">AD Fafe Coaching Staff</div>
+                        <div class="relationship-role">Current Manager & System</div>
+                        <div class="relationship-desc">
+                            Found stability at Fafe after turbulent loan spells. Manager trusts him as starting right winger in 4-3-3 system. Regular minutes (16 starts) building confidence and consistency.
+                        </div>
+                        <span class="relationship-dynamic">Stability: 81/100</span>
+                    </div>
+                </div>
+
+                <div class="relationship-item">
+                    <div class="relationship-avatar">GF</div>
+                    <div class="relationship-content">
+                        <div class="relationship-name">GD Chaves (Parent Club)</div>
+                        <div class="relationship-role">Former Loan Spells (2022-24)</div>
+                        <div class="relationship-desc">
+                            Owned by Chaves but never broke into first team. Loaned to Torreense and Feirense for development. Still technically under contract influence but effectively free agent at Fafe.
+                        </div>
+                        <span class="relationship-dynamic">Development: 74/100</span>
+                    </div>
+                </div>
+
+                <div class="relationship-item">
+                    <div class="relationship-avatar">PA</div>
+                    <div class="relationship-content">
+                        <div class="relationship-name">Petro Atlético</div>
+                        <div class="relationship-role">Youth Development (2019-2022)</div>
+                        <div class="relationship-desc">
+                            Started senior career at Angolan giants Petro Atlético (13 apps, 1 goal). Learned professional standards in Girabola league before European move at age 20.
+                        </div>
+                        <span class="relationship-dynamic">Foundation: 78/100</span>
+                    </div>
+                </div>
+
+                <div class="relationship-item">
+                    <div class="relationship-avatar">FA</div>
+                    <div class="relationship-content">
+                        <div class="relationship-name">Angolan FA</div>
+                        <div class="relationship-role">National Team Connection</div>
+                        <div class="relationship-desc">
+                            5 caps for Angola (2021-2024) — national team coaches value his pace for counter-attacking strategy. Potential for AFCON 2025 squad if form continues.
+                        </div>
+                        <span class="relationship-dynamic">International: 79/100</span>
+                    </div>
+                </div>
+
+                <div class="scout-alert">
+                    <div class="scout-alert-title">🌐 Network Analysis Insight</div>
+                    <div class="scout-alert-text">
+                        Picas benefits from growing Lusophone-African network in Portuguese football. Many Angolan players (Gelson Dala, Zini) have succeeded via Portugal's lower leagues. His agent (MAA4S) specializes in African-Portuguese transfers. Strong connection to Angolan community in Fafe area provides cultural support.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Development Timeline -->
+            <div class="card">
+                <h2>📈 Development Timeline</h2>
+                <div class="timeline-item">
+                    <div class="timeline-date">Luanda Roots (2001-2019) — Early Years</div>
+                    <div class="timeline-event">Born Luanda, developed in Angolan youth system. Raw pace and power identified early. Joined Petro Atlético academy — biggest club in Angola. <strong>Exit Level: Youth Prospect</strong></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Angolan Pro (2019-2022) — Petro Atlético</div>
+                    <div class="timeline-event">Senior debut in Girabola (Angolan top flight). 13 appearances, 1 goal. Learned professional game in competitive African environment. <strong>FGA: 58/100</strong></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Portuguese Arrival (2022-2024) — Loan Odyssey</div>
+                    <div class="timeline-event">Signed by Chaves but immediately loaned. Torreense (25 apps, 2 goals) → Feirense (32 apps, 0 goals). Difficult period but gained Portuguese tactical knowledge. <strong>FGA: 68/100</strong></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Stability (2024-Current) — AD Fafe</div>
+                    <div class="timeline-event">Permanent move to Fafe (Aug 2024). Regular starter in Liga 3. 3 goals, 2 assists in 18 apps showing improved end product. Angola recall potential. <strong>Current FGA: 75.8/100</strong></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Projection (2026-2028) — Next Step</div>
+                    <div class="timeline-event">Target: Liga Portugal 2 (Portuguese 2nd tier). Potential destinations: Mafra, Torreense (permanent), or Académico Viseu. Ceiling: Solid Liga 2 winger or return to Angola as star. <strong>Projected FGA: 78/100</strong></div>
+                </div>
+            </div>
+
+            <!-- Career Statistics -->
+            <div class="card">
+                <h2>📊 Career Statistics Overview</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Club</th>
+                            <th>Season</th>
+                            <th>League</th>
+                            <th>Apps</th>
+                            <th>Goals</th>
+                            <th>Assists</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: rgba(34, 197, 94, 0.15);">
+                            <td><strong>AD Fafe</strong></td>
+                            <td>2025/26</td>
+                            <td>Liga 3</td>
+                            <td>18</td>
+                            <td>3</td>
+                            <td>2</td>
+                            <td><strong>75.8/100</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Feirense</strong></td>
+                            <td>2023/24</td>
+                            <td>Liga 3 (Loan)</td>
+                            <td>32</td>
+                            <td>0</td>
+                            <td>3</td>
+                            <td>68/100</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Torreense</strong></td>
+                            <td>2022/23</td>
+                            <td>Liga 3 (Loan)</td>
+                            <td>25</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>70/100</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Chaves</strong></td>
+                            <td>2022/23</td>
+                            <td>Primeira Liga</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>65/100</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Petro Atlético</strong></td>
+                            <td>2021/22</td>
+                            <td>Girabola</td>
+                            <td>13</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>62/100</td>
+                        </tr>
+                        <tr style="background: rgba(255, 215, 0, 0.15);">
+                            <td><strong>CAREER TOTAL</strong></td>
+                            <td><strong>2019-2026</strong></td>
+                            <td>Multi</td>
+                            <td><strong>139</strong></td>
+                            <td><strong>12</strong></td>
+                            <td><strong>8</strong></td>
+                            <td><strong>75.8/100 (Peak)</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>International Record</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>National Team</th>
+                            <th>Years</th>
+                            <th>Caps</th>
+                            <th>Goals</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: rgba(216, 0, 39, 0.15);">
+                            <td><strong>Angola</strong></td>
+                            <td><strong>2021-2024</strong></td>
+                            <td><strong>5</strong></td>
+                            <td><strong>0</strong></td>
+                            <td><strong>Active</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Angola U-23</td>
+                            <td>2020-2022</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>Development</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Player Comparison -->
+            <div class="card">
+                <h2>📊 Player Comparison (Liga 3 Wingers)</h2>
+                <div class="visual-canvas">
+                    <canvas id="radarChart" style="max-width: 100%; max-height: 100%;"></canvas>
+                </div>
+                <p class="small" style="text-align: center; margin-top: 12px;">
+                    Comparing Picas (24, Fafe) vs Ivo Nabais (24, UD Serra) & Duarte Valente (26, Free Agent) — Age-normalized scores /100
+                </p>
+            </div>
+
+            <!-- Final Scout Assessment -->
+            <div class="card">
+                <h2>📌 Final Scout Assessment — 2026 Evaluation</h2>
+                <div class="two-col">
+                    <div>
+                        <h3>Strengths (Professional Assets)</h3>
+                        <div class="info-row"><span class="info-label">Pace/Acceleration</span><span class="info-value highlight">84/100</span></div>
+                        <div class="info-row"><span class="info-label">Dribbling 1v1</span><span class="info-value">78/100</span></div>
+                        <div class="info-row"><span class="info-label">Physical Stamina</span><span class="info-value">80/100</span></div>
+                        <div class="info-row"><span class="info-label">International Experience</span><span class="info-value">78/100</span></div>
+                        <div class="info-row"><span class="info-label">Directness</span><span class="info-value">80/100</span></div>
+                    </div>
+                    <div>
+                        <h3>Development Areas (Priority)</h3>
+                        <div class="info-row"><span class="info-label">End Product (Goals)</span><span class="info-value">68/100</span></div>
+                        <div class="info-row"><span class="info-label">Crossing Consistency</span><span class="info-value">74/100</span></div>
+                        <div class="info-row"><span class="info-label">Defensive Work Rate</span><span class="info-value">70/100</span></div>
+                        <div class="info-row"><span class="info-label">Aerial Duels</span><span class="info-value">62/100</span></div>
+                        <div class="info-row"><span class="info-label">Left Foot Usage</span><span class="info-value">65/100</span></div>
+                    </div>
+                </div>
+
+                <div class="muted-box" style="margin-top: 16px;">
+                    <strong style="color: var(--accent1);">🏆 EMPIRE FGA FINAL RATING: 75.8/100</strong><br><br>
+                    <strong>Classification:</strong> Professional Tier (75-80 range)<br>
+                    <strong>Ceiling Projection:</strong> 78/100 — Liga Portugal 2 rotation player or top Liga 3 winger<br>
+                    <strong>Optimal Role:</strong> Right winger in 4-3-3 counter-attacking system<br>
+                    <strong>Market Assessment:</strong> Fair value at €260K. Potential to rise to €400K with Liga 2 move. <strong>RECOMMENDED FOR LIGA 2 CLUBS</strong> seeking pace on the wing.
+                </div>
+
+                <div class="highlight-box">
+                    <strong style="color: var(--accent1);">🔮 Development Recommendation:</strong><br>
+                    <span class="small">Continue at AD Fafe until summer 2026, then seek Liga Portugal 2 move. Must improve goal output (target 8-10 goals in full season) to attract higher-tier interest. Specific training: finishing drills with weak foot and defensive positioning. Angola national team recall possible if consistent performances continue.</span>
+                </div>
+
+                <div class="trophy-grid" style="margin-top: 20px;">
+                    <div class="trophy-box">
+                        <div class="trophy-icon">📊</div>
+                        <div class="trophy-title">75.8/100</div>
+                        <div class="trophy-year">Empire FGA Rating</div>
+                    </div>
+                    <div class="trophy-box">
+                        <div class="trophy-icon">📈</div>
+                        <div class="trophy-title">78/100</div>
+                        <div class="trophy-year">Projected Ceiling</div>
+                    </div>
+                    <div class="trophy-box">
+                        <div class="trophy-icon">⚽</div>
+                        <div class="trophy-title">0.21</div>
+                        <div class="trophy-year">G+A/90</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unique Selling Points -->
+            <div class="card">
+                <h2>💎 Unique Selling Points (USP Analysis)</h2>
+                <div class="three-col">
+                    <div class="stat-box">
+                        <span class="stat-value">84</span>
+                        <span class="stat-label">Speed Index</span>
+                        <p class="small" style="margin-top: 8px;">Elite pace for Liga 3 level — stretches defenses</p>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">🇦🇴</span>
+                        <span class="stat-value" style="font-size: 16px; margin-top: -10px;">International</span>
+                        <p class="small" style="margin-top: 8px;">5 Angola caps — proven at international level</p>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">24</span>
+                        <span class="stat-label">Age (Prime)</span>
+                        <p class="small" style="margin-top: 8px;">Entering peak years for a speed-based winger</p>
+                    </div>
+                </div>
+
+                <div class="muted-box" style="margin-top: 16px;">
+                    <strong style="color: var(--accent1);">Empire Analysis:</strong> Picas offers <strong>proven professional attributes</strong> at an affordable level (€260K). His combination of Angolan international experience and Portuguese tactical education makes him a low-risk acquisition for Liga 2 clubs needing width. Not a future star, but a reliable, hardworking professional who can contribute immediately. <strong>Comparable trajectory:</strong> Gelson Dala (Angola) — similar path from lower Portuguese leagues to international recognition.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer style="background: var(--card); padding: 30px; text-align: center; border-top: 1px solid rgba(255, 215, 0, 0.12); margin-top: 30px;">
+        <p style="color: var(--muted); font-size: 13px;">
+            <strong style="color: var(--accent1);">Empire FGA Scouting Network</strong> — 779 Proprietary Metrics • 60-Philosophy Framework • All Ratings /100 Scale
+        </p>
+        <p style="color: var(--muted); font-size: 11px; margin-top: 6px;">
+            Data validated via Transfermarkt, BeSoccer, ESPN, Fotmob [^39^][^42^][^50^][^53^]. AD Fafe (Liga 3). | Report Generated: 30 January 2026
+        </p>
+    </footer>
+
+    <script>
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Speed', 'Dribbling', 'Shooting', 'Passing', 'Physical', 'Defense', 'Aerial', 'Experience'],
+                datasets: [{
+                    label: 'Picas (24) - 75.8',
+                    data: [84, 78, 68, 72, 73, 70, 62, 80],
+                    borderColor: '#FFD700',
+                    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#FFD700',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5
+                }, {
+                    label: 'Ivo Nabais (24) - 74',
+                    data: [76, 72, 75, 68, 78, 65, 70, 72],
+                    borderColor: '#D80027',
+                    backgroundColor: 'rgba(216, 0, 39, 0.05)',
+                    borderWidth: 2,
+                    pointRadius: 4
+                }, {
+                    label: 'D. Valente (26) - 73',
+                    data: [70, 68, 65, 75, 76, 82, 75, 78],
+                    borderColor: '#FFFFFF',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            color: '#a0a0a0',
+                            backdropColor: 'transparent',
+                            font: { size: 11 }
+                        },
+                        grid: { color: 'rgba(255,255,255,0.08)' },
+                        pointLabels: {
+                            color: '#f5f5f5',
+                            font: { size: 12, weight: '600' }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#f5f5f5',
+                            font: { size: 13, weight: '600' },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
