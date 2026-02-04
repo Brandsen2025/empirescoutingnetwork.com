@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empire FGA - Metrics Glossary (Corrected) | 779 Metrics + 68 Philosophies</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .metric-card { transition: all 0.2s ease; }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); }
+        .gradient-text { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .philosophy-new { position: relative; overflow: hidden; }
+        .philosophy-new::after { 
+            content: "NEW"; 
+            position: absolute; 
+            top: 0; 
+            right: 0; 
+            background: #ef4444; 
+            color: white; 
+            font-size: 0.6rem; 
+            padding: 2px 6px; 
+            border-bottom-left-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+        
+        const EmpireLogo = () => (
+            <div class="header-left">
+            <div className="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ">Empire Scouting Network</div>
+                <div className="flex flex-col">
+                    <span className="text-sm font-bold tracking-widest text-amber-400">EMPIRE FGA</span>
+                    <span className="text-xs text-slate-400">Field Global Analysis</span>
+                </div>
+            </div>
+        );
+
+        // CORRECTED Metrics Data with proper definitions
+        const metricsData = {
+            tier1: [
+                {
+                    category: "Attacking Metrics",
+                    description: "Core offensive performance indicators - Fully automated from FBref/Sofascore",
+                    metrics: [
+                        { code: "XPS", name: "Enhanced XPS Rating", formula: "([Shots]×0.3)+([ShotsOnTarget]×0.5)+([Goals]×2)", desc: "Comprehensive attacking threat score combining shot volume, accuracy, and goal conversion", scale: "0-10 (10=Elite finisher like Haaland)" },
+                        { code: "STK", name: "Steekpass (Through Pass)", formula: "([ThroughBalls]×1.0)+([AssistsFromThroughBalls]×1.5)", desc: "Dutch concept for vertical penetrative passes that break defensive lines (Steekpass)", scale: "0-10 (10=Master of verticality like De Bruyne)" },
+                        { code: "RDS", name: "Renard des Surfaces (Poacher)", formula: "([GoalsInsideBox]×0.8)+([TouchesInBox]×0.2)+([ConversionRateInBox]×0.5)", desc: "French concept for 'Fox of the Surfaces' - predatory instinct in penalty area", scale: "0-10 (10=Box fox like Inzaghi)" },
+                        { code: "KEY", name: "Key Pass Index", formula: "([KeyPasses]×0.7)+([Assists]×1.5)", desc: "Chance creation frequency weighted by assists", scale: "0-10 (10=Creative master)" },
+                        { code: "xG", name: "Expected Goals", formula: "Sum of xG values for all shots", desc: "Total expected goals based on shot quality and position", scale: "0-10 (normalized per 90)" },
+                        { code: "xA", name: "Expected Assists", formula: "Sum of xA values for all shot assists", desc: "Expected assists based on pass quality and recipient position", scale: "0-10 (normalized per 90)" },
+                        { code: "GPM", name: "Goal Participation Matrix", formula: "([Goals]+[Assists])/[Minutes]×90", desc: "Direct goal involvement per 90 minutes", scale: "0-10 (10=Goal machine)" },
+                        { code: "BOX", name: "Box Presence", formula: "([TouchesInBox]×0.3)+([ShotsInBox]×0.7)", desc: "Frequency and quality of actions inside penalty area", scale: "0-10 (10=Box dominator)" }
+                    ]
+                },
+                {
+                    category: "Passing Metrics",
+                    description: "Distribution quality and progression - Automated data collection",
+                    metrics: [
+                        { code: "LGP", name: "Long Pass Precision", formula: "([AccurateLongPasses]/[TotalLongPasses])×([ProgressiveLongPasses]×0.5)", desc: "Accuracy and effectiveness of long-range distribution", scale: "0-10 (10=Quarterback passer)" },
+                        { code: "VRP", name: "Vertical Risk Passing", formula: "([ProgressivePasses]×0.6)+([ThroughBalls]×1.2)", desc: "Forward passing ambition that breaks lines", scale: "0-10 (10=Vertical threat)" },
+                        { code: "HZP", name: "Horizontal Pass", formula: "([SidewaysPasses]×0.4)+([SwitchOfPlay]×0.8)", desc: "Lateral circulation to shift opposition and maintain possession width", scale: "0-10 (10=Field switcher)" },
+                        { code: "UNP", name: "Under Pressure Passing", formula: "[PassesUnderPressure]/[TotalPasses]×[PassAccuracyUnderPressure]", desc: "Ball retention quality when pressed by opponents", scale: "0-10 (10=Pressure-proof)" },
+                        { code: "DGP", name: "Diagonal Pass Score", formula: "[DiagonalPasses]×[DiagonalPassAccuracy]×0.8", desc: "Field-switching passes that stretch defenses", scale: "0-10 (10=Field stretcher)" },
+                        { code: "TBP", name: "Third Ball Progression", formula: "([PassesToFinalThird]×0.4)+([ProgressivePasses]×0.6)", desc: "Efficiency in advancing ball to final third", scale: "0-10 (10=Progression master)" },
+                        { code: "CPA", name: "Chance Creation Passes", formula: "[KeyPasses]+([BigChancesCreated]×2)", desc: "Direct goal-scoring opportunity creation", scale: "0-10 (10=Chance machine)" }
+                    ]
+                },
+                {
+                    category: "Defensive Metrics",
+                    description: "Defensive actions and positioning - Automated from event data",
+                    metrics: [
+                        { code: "MRK", name: "Marking Efficiency", formula: "([DefensiveDuelsWon]×0.6)+([Interceptions]×0.4)", desc: "1v1 defensive success and anticipation", scale: "0-10 (10=Shadow defender)" },
+                        { code: "TAC", name: "Tackle Success Rate", formula: "([TacklesWon]/[TacklesAttempted])×([TacklesInFinalThird]×0.5)", desc: "Tackle quality weighted by field position", scale: "0-10 (10=Tackle artist)" },
+                        { code: "INT", name: "Interception Index", formula: "[Interceptions]×[OpponentPassDisruption%]", desc: "Ball recovery through reading the game", scale: "0-10 (10=Anticipation master)" },
+                        { code: "CLE", name: "Clearance Command", formula: "([Clearances]×0.5)+([ClearancesUnderPressure]×1.0)", desc: "Defensive emergency response quality", scale: "0-10 (10=Last-ditch defender)" },
+                        { code: "BLO", name: "Block Efficiency", formula: "([ShotsBlocked]+[PassesBlocked])×[BlockSuccessRate]", desc: "Shot and pass prevention through positioning", scale: "0-10 (10=Human wall)" },
+                        { code: "REC", name: "Recovery Speed", formula: "[BallRecoveries]/[Minutes]×90×[RecoveryInOpponentHalf%]", desc: "Speed of regaining possession", scale: "0-10 (10=Ball hawk)" },
+                        { code: "POS", name: "Positional Discipline", formula: "([SuccessfulDefensiveActions]/[DefensiveErrors])×10", desc: "Reliability in defensive positioning", scale: "0-10 (10=Disciplined defender)" }
+                    ]
+                },
+                {
+                    category: "Possession Metrics",
+                    description: "Ball control and retention - Automated tracking data",
+                    metrics: [
+                        { code: "CAR", name: "Carrying Efficiency", formula: "([ProgressiveCarries]×0.7)+([CarriesIntoFinalThird]×1.0)", desc: "Ball advancement through running with ball", scale: "0-10 (10=Progressive carrier)" },
+                        { code: "DRB", name: "Dribble Success", formula: "([SuccessfulDribbles]/[DribbleAttempts])×[DribblesPastOpponent]", desc: "1v1 ball retention and beat opponent rate", scale: "0-10 (10=Dribble wizard)" },
+                        { code: "RET", name: "Retention Under Pressure", formula: "([PassesUnderPressure]+[DribblesUnderPressure])/[TotalTouchesUnderPressure]", desc: "Ball security when challenged", scale: "0-10 (10=Pressure resistant)" },
+                        { code: "PRO", name: "Progression Index", formula: "([ProgressivePasses]+[ProgressiveCarries])/[TotalTouches]×100", desc: "Forward movement frequency", scale: "0-10 (10=Always forward)" },
+                        { code: "CTRL", name: "Control Score", formula: "([FirstTouchSuccess]×0.6)+([BallControlUnderPressure]×0.4)", desc: "First touch quality and ball mastery", scale: "0-10 (10=Silky touch)" }
+                    ]
+                },
+                {
+                    category: "Goalkeeper Metrics",
+                    description: "Shot stopping and distribution - Automated GK data",
+                    metrics: [
+                        { code: "SAV", name: "Save Percentage Plus", formula: "([Saves]/[ShotsOnTargetAgainst])×([xGAgainst]-[GoalsAgainst])", desc: "Shot stopping relative to shot difficulty", scale: "0-10 (10=Shot stopper)" },
+                        { code: "DSW", name: "Amazing Saves (Wonder Saves)", formula: "([HighxGShotsSaved]×1.5)+([OneOnOneSaves]×1.2)+([ReflexSaves]×1.0)", desc: "Spectacular/impossible saves that defy xG models ( Dutch 'Duikelingen')", scale: "0-10 (10=Wonder keeper like Gigi Buffon)" },
+                        { code: "POS", name: "Positioning Score", formula: "([ClaimsCrosses]/[CrossesIntoBox])×([SavesInsideBox]/[ShotsInsideBox])", desc: "Command of penalty area and positioning", scale: "0-10 (10=Area commander)" },
+                        { code: "ONE", name: "One-on-One Index", formula: "([OneOnOneSaves]/[OneOnOneAttempts])×[ReactionTime]", desc: "Performance in 1v1 situations", scale: "0-10 (10=1v1 specialist)" },
+                        { code: "KIC", name: "Kicking Distance", formula: "[AverageKickDistance]×[KickAccuracy]×0.1", desc: "Range and accuracy of goal kicks", scale: "0-10 (10=Distance kicker)" },
+                        { code: "COM", name: "Command Presence", formula: "([HighClaims]+[Punches])/[CrossesFaced]×[CommunicationEffectiveness]", desc: "Aerial dominance and box command", scale: "0-10 (10=Box boss)" }
+                    ]
+                }
+            ],
+            tier2: [
+                {
+                    category: "Semi-Automated Intelligence",
+                    description: "Hybrid metrics requiring data processing + algorithmic analysis",
+                    metrics: [
+                        { code: "POI", name: "Position Intelligence", formula: "Algorithmic: [HeatMapDensity]×[PositionRotation]×[SpaceOccupation]", desc: "Tactical awareness and spatial positioning intelligence", scale: "0-10 (10=Chess master positioning)" },
+                        { code: "CPX", name: "Composure Index", formula: "([PassAccuracyUnderHighPressure]×0.4)+([DecisionTime]×0.3)+([ErrorRateUnderPressure]×0.3)", desc: "Mental stability and decision quality under pressure", scale: "0-10 (10=Ice veins)" },
+                        { code: "MOB", name: "Mobility Score", formula: "([DistanceCovered]×0.3)+([HighIntensityRuns]×0.4)+([MaxSpeed]×0.3)", desc: "Physical capacity for movement and coverage", scale: "0-10 (10=Engine)" },
+                        { code: "PVI", name: "Pass Variety Index", formula: "Entropy calculation of [PassTypes]×[PassDirections]×[PassLengths]", desc: "Diversity in passing repertoire", scale: "0-10 (10=Passing encyclopedia)" },
+                        { code: "CPI", name: "Creative Player Index", formula: "([xA]×0.3)+([KeyPasses]×0.2)+([ThroughBalls]×0.3)+([ChancesCreated]×0.2)", desc: "Holistic creativity measurement", scale: "0-10 (10=Creative genius)" },
+                        { code: "GKI", name: "Goalkeeper Index", formula: "([SAV]×0.4)+([POS]×0.3)+([DSW]×0.2)+([ONE]×0.1)", desc: "Overall goalkeeper quality composite", scale: "0-10 (10=World class GK)" },
+                        { code: "DEF", name: "Defensive Work Rate", formula: "([DefensiveActions]×0.5)+([PressingActions]×0.5)/[Minutes]×90", desc: "Volume and intensity of defensive contributions", scale: "0-10 (10=Workhorse)" },
+                        { code: "OFF", name: "Offensive Work Rate", formula: "([AttackingThirdPressures]×0.4)+([CounterPressures]×0.6)", desc: "Pressing and harassment in opponent half", scale: "0-10 (10=Pressing monster)" }
+                    ]
+                }
+            ],
+            tier3: [
+                {
+                    category: "Manual Scout Assessment",
+                    description: "Expert observation required - Input via Airtable scout forms",
+                    metrics: [
+                        { code: "DMA", name: "Decision Making", formula: "Scout Rating: [CorrectDecisions]/[TotalDecisionOpportunities]×10", desc: "Quality of choices with and without ball", scale: "0-10 (10=Perfect decisions)" },
+                        { code: "CHR", name: "Character Rating", formula: "Weighted average of [Leadership]+[WorkEthic]+[Teamwork]+[Discipline]", desc: "Psychological and personality assessment", scale: "0-10 (10=Captain material)" },
+                        { code: "MCS", name: "Mental Competence", formula: "[Concentration]×[Consistency]×[BigGamePerformance]", desc: "Psychological resilience and focus", scale: "0-10 (10=Mental giant)" },
+                        { code: "SOA", name: "Speed on Action", formula: "Timed: [DecisionToExecution] in milliseconds/seconds", desc: "Reaction time from perception to action", scale: "0-10 (10=Lightning reactions)" },
+                        { code: "SPI", name: "Spatial Performance", formula: "Scout assessment of [360Awareness]×[BlindSideChecking]×[SpaceCreation]", desc: "Awareness of surroundings and space manipulation", scale: "0-10 (10=Eyes in back of head)" },
+                        { code: "CLM", name: "Calmness", formula: "Observed: [BodyLanguageUnderPressure]×[BreathingControl]×[PanicIndex]", desc: "Emotional regulation in high-stakes moments", scale: "0-10 (10=Unflappable)" },
+                        { code: "CRS", name: "Clutch Response", formula: "[PerformanceLast15Min]×[DecisiveActionInDrawnGames]×2", desc: "Performance in critical game moments", scale: "0-10 (10=Big game player)" },
+                        { code: "OMS", name: "Omschakeling (Transition)", formula: "Scout timed: [TransitionSpeedAttackToDefense] + [DefenseToAttack]", desc: "Speed of tactical transition between phases", scale: "0-10 (10=Transition master)" },
+                        { code: "SPR", name: "Sprint Performance", formula: "Measured: [MaxSprintSpeed]×[SprintEndurance]×[SprintTechnique]", desc: "Maximum velocity and sustained sprint quality", scale: "0-10 (10=Speed demon)" },
+                        { code: "DYN", name: "Dynamism", formula: "[Acceleration]×[Deceleration]×[ChangeOfDirection]", desc: "Explosive movement and agility", scale: "0-10 (10=Explosive athlete)" },
+                        { code: "CRK", name: "Creative Risk Taking", formula: "Scout count: [AttemptedDifficultPasses]×[SuccessRate] - [SafePassOptionDeclined]", desc: "Willingness to attempt high-reward plays", scale: "0-10 (10=Risk taker)" },
+                        { code: "ANT", name: "Anticipation", formula: "[InterceptionsBasedOnReading]×[PositioningBeforePass]", desc: "Reading the game and preemptive movement", scale: "0-10 (10=Game reader)" }
+                    ]
+                }
+            ],
+            philosophy: [
+                {
+                    category: "Dutch School (6 Philosophies)",
+                    description: "Total Football heritage - Weighted 1.0-1.3",
+                    metrics: [
+                        { code: "CRU", name: "Cruyffian Vision", formula: "([VRP]×1.2)+([POI]×1.3)+([SPI]×1.1)+([CRK]×1.0)", desc: "Positional interchange, space exploitation, creative freedom", scale: "0-10" },
+                        { code: "MIC", name: "Michels Pressing", formula: "([OFF]×1.3)+([MOB]×1.2)+([OMS]×1.1)+([DEF]×1.0)", desc: "Collective pressing, physical dominance, transitions", scale: "0-10" },
+                        { code: "VGA", name: "Van Gaal Structure", formula: "([POI]×1.3)+([TBP]×1.2)+([DMA]×1.1)+([MRK]×1.0)", desc: "Positional discipline, tactical flexibility, systematic approach", scale: "0-10" },
+                        { code: "KOV", name: "Kovacs Fluidity", formula: "([PVI]×1.2)+([DRB]×1.1)+([SPI]×1.2)+([CPX]×1.0)", desc: "Technical mastery, fluid movement, attacking mindset", scale: "0-10" },
+                        { code: "HID", name: "Hiddink Balance", formula: "([DEF]×1.1)+([OFF]×1.1)+([CLM]×1.2)+([MCS]×1.1)", desc: "Organized defense, counter-attacking, mental strength", scale: "0-10" },
+                        { code: "BEE", name: "Beenhakker Technique", formula: "([CTRL]×1.2)+([PVI]×1.2)+([CPX]×1.1)+([CPI]×1.0)", desc: "Technical excellence, possession, patient buildup", scale: "0-10" }
+                    ]
+                },
+                {
+                    category: "French School (6 Philosophies) [+1 New]",
+                    description: "Athleticism and technique - Weighted 1.0-1.35",
+                    metrics: [
+                        { code: "WEN", name: "Wenger Development", formula: "([YOUTH]×1.3)+([CTRL]×1.2)+([DYN]×1.1)+([CPI]×1.0)", desc: "Player development, dietary science, technique", scale: "0-10" },
+                        { code: "SUA", name: "Suaudeau Flair", formula: "([CRK]×1.2)+([DRB]×1.2)+([CPI]×1.1)+([CPX]×1.0)", desc: "Technical flair, creative freedom", scale: "0-10" },
+                        { code: "PLA", name: "Platini Elegance", formula: "([PVI]×1.2)+([CPI]×1.2)+([CPX]×1.1)+([STK]×1.1)", desc: "Midfield elegance, passing range, leadership", scale: "0-10" },
+                        { code: "FON", name: "Fontaine Finishing", formula: "([RDS]×1.3)+([XPS]×1.2)+([BOX]×1.1)+([CRS]×1.0)", desc: "Clinical finishing, attacking positioning", scale: "0-10" },
+                        { code: "DES", name: "Deschamps Pragmatism", formula: "([DEF]×1.2)+([CLM]×1.2)+([CHR]×1.1)+([MCS]×1.0)", desc: "Tactical pragmatism, leadership, balance", scale: "0-10" },
+                        { code: "ROU", name: "Roux Provincial Genius [NEW]", formula: "([YOUTH]×1.35)+([DMA]×1.2)+([CLM]×1.1)+([DEF]×1.0)", desc: "Youth development from provincial roots, long-term club building, fiscal prudence (Auxerre model)", scale: "0-10", new: true }
+                    ]
+                },
+                {
+                    category: "Italian School (9 Philosophies) [+1 New]",
+                    description: "Catenaccio and tactical sophistication - Weighted 1.0-1.45",
+                    metrics: [
+                        { code: "HER", name: "Herrera Catenaccio", formula: "([MRK]×1.4)+([POS]×1.3)+([INT]×1.2)+([TAC]×1.1)", desc: "Defensive rigor, counter-attacking, tactical discipline", scale: "0-10" },
+                        { code: "ROC", name: "Rocco Balance", formula: "([DEF]×1.2)+([STK]×1.2)+([CLM]×1.1)+([MCS]×1.1)", desc: "Defensive solidity, attacking efficiency", scale: "0-10" },
+                        { code: "BEA", name: "Bearzot Man-Marking", formula: "([MRK]×1.3)+([ANT]×1.2)+([TAC]×1.2)+([CHR]×1.0)", desc: "Man-marking, team spirit, tactical flexibility", scale: "0-10" },
+                        { code: "LIP", name: "Lippi Organization", formula: "([POS]×1.3)+([DMA]×1.2)+([POI]×1.2)+([MCS]×1.1)", desc: "Defensive organization, collective play", scale: "0-10" },
+                        { code: "SAC", name: "Sacchi pressing", formula: "([OFF]×1.3)+([OMS]×1.3)+([MRK]×1.2)+([SPI]×1.1)", desc: "High press, defensive line, team coordination", scale: "0-10" },
+                        { code: "TRA", name: "Trapattoni Winning", formula: "([CRS]×1.3)+([CHR]×1.2)+([STK]×1.1)+([CLM]×1.1)", desc: "Winning mentality, tactical pragmatism", scale: "0-10" },
+                        { code: "CRC", name: "Carcano System", formula: "([POI]×1.2)+([TBP]×1.2)+([DMA]×1.1)+([PRO]×1.0)", desc: "Systematic approach, WM formation heritage", scale: "0-10" },
+                        { code: "CES", name: "Cesarini Forward", formula: "([XPS]×1.2)+([CRS]×1.3)+([STK]×1.1)+([BOX]×1.1)", desc: "Attacking until the end, forward momentum", scale: "0-10" },
+                        { code: "LIE", name: "Liedholm Swedish Italian [NEW]", formula: "([CPX]×1.3)+([PVI]×1.2)+([SPI]×1.2)+([CTRL]×1.1)", desc: "Zonal marking pioneer, technical intelligence, calm authority, player autonomy (Il Barone)", scale: "0-10", new: true }
+                    ]
+                },
+                {
+                    category: "Belgian Excellence [NEW School]",
+                    description: "Scientific pragmatism - Weighted 1.2-1.4",
+                    metrics: [
+                        { code: "GOE", name: "Goethals Belgian Excellence [NEW]", formula: "([POS]×1.4)+([ANT]×1.3)+([MRK]×1.2)+([CLM]×1.1)", desc: "Zonal marking, offside trap, video analysis pioneer, pragmatic adaptation (Raymond la Science)", scale: "0-10", new: true }
+                    ]
+                },
+                {
+                    category: "Eastern European School (8 Philosophies) [+4 New]",
+                    description: "Systematic and scientific - Weighted 1.0-1.35",
+                    metrics: [
+                        { code: "LOB", name: "Lobanovskyi Science", formula: "([MOB]×1.3)+([SPR]×1.2)+([DYN]×1.2)+([SOA]×1.1)", desc: "Scientific approach, physical preparation", scale: "0-10" },
+                        { code: "SEB", name: "Sebes Fluidity", formula: "([PVI]×1.2)+([PRO]×1.2)+([DYN]×1.1)+([CPI]×1.0)", desc: "Magical Magyars, positional rotation", scale: "0-10" },
+                        { code: "GUT", name: "Guttmann Psychology", formula: "([MCS]×1.3)+([CRS]×1.2)+([CHR]×1.1)+([CLM]×1.1)", desc: "Psychological manipulation, third-year curse", scale: "0-10" },
+                        { code: "GOR", name: "Gorski Elegance", formula: "([CTRL]×1.2)+([PVI]×1.2)+([CPX]×1.1)+([CPI]×1.0)", desc: "Elegant football, technical mastery", scale: "0-10" },
+                        { code: "PEN", name: "Penev Revolution [NEW]", formula: "([CRS]×1.3)+([CHR]×1.2)+([ATT]×1.2)+([DYN]×1.1)", desc: "Attacking revolution, freedom within structure, 1994 Bulgaria flair (Stoichkov generation)", scale: "0-10", new: true },
+                        { code: "PET", name: "Petru Technical [NEW]", formula: "([CTRL]×1.3)+([PVI]×1.2)+([CPX]×1.2)+([DMA]×1.1)", desc: "Romanian technical school, possession mastery, intelligent buildup, Carpathian elegance", scale: "0-10", new: true },
+                        { code: "OSI", name: "Osim Intelligence [NEW]", formula: "([DMA]×1.3)+([POI]×1.2)+([SPI]×1.2)+([CLM]×1.1)", desc: "Yugoslav tactical intelligence, player empathy, short passing philosophy, mental preparation", scale: "0-10", new: true },
+                        { code: "CZE", name: "Czeizler Method [NEW]", formula: "([TBP]×1.3)+([CTRL]×1.2)+([DMA]×1.2)+([POS]×1.1)", desc: "Hungarian systematic methodology, tactical periodization pioneer, scientific training (Lajos Czeizler)", scale: "0-10", new: true }
+                    ]
+                },
+                {
+                    category: "South American School (8 Philosophies) [+1 New]",
+                    description: "Flair and tactical innovation - Weighted 1.0-1.4",
+                    metrics: [
+                        { code: "SAN", name: "Santana Art", formula: "([CPI]×1.3)+([CRK]×1.2)+([DRB]×1.2)+([CPX]×1.1)", desc: "Beautiful football, attacking artistry", scale: "0-10" },
+                        { code: "ZAG", name: "Zagallo Adaptation", formula: "([POI]×1.2)+([DMA]×1.2)+([DYN]×1.1)+([OMS]×1.1)", desc: "Tactical flexibility, adaptation", scale: "0-10" },
+                        { code: "FEO", name: "Feola Psychology", formula: "([MCS]×1.3)+([CLM]×1.2)+([CHR]×1.2)+([CRS]×1.1)", desc: "Sports psychology, mental preparation", scale: "0-10" },
+                        { code: "MEN", name: "Menotti Idealism", formula: "([CPI]×1.3)+([CRK]×1.2)+([ATT]×1.2)+([CTRL]×1.1)", desc: "Left-wing ideology, attacking football", scale: "0-10" },
+                        { code: "BIL", name: "Bilardo Pragmatism", formula: "([DEF]×1.2)+([DMA]×1.2)+([CLM]×1.2)+([CRS]×1.2)", desc: "Result-oriented, tactical pragmatism", scale: "0-10" },
+                        { code: "BIE", name: "Bielsa Intensity", formula: "([OFF]×1.3)+([MOB]×1.3)+([OMS]×1.2)+([SPI]×1.2)", desc: "High intensity, tactical innovation, pressing", scale: "0-10" },
+                        { code: "SIM", name: "Simeone Cholismo", formula: "([DEF]×1.3)+([CHR]×1.2)+([TAC]×1.2)+([CRS]×1.1)", desc: "Combative spirit, defensive organization", scale: "0-10" },
+                        { code: "BIA", name: "Bianchi Passion", formula: "([RDS]×1.3)+([CRS]×1.3)+([CHR]×1.2)+([CLM]×1.1)", desc: "Emotional leadership, winning mentality, vertical football, South American passion (Boca Juniors glory years)", scale: "0-10", new: true }
+                    ]
+                },
+                {
+                    category: "English School (8 Philosophies)",
+                    description: "Physicality and tempo control - Weighted 1.0-1.35",
+                    metrics: [
+                        { code: "FER", name: "Ferguson Drive", formula: "([CRS]×1.3)+([CHR]×1.2)+([SPR]×1.1)+([XPS]×1.1)", desc: "Never-say-die attitude, tempo management", scale: "0-10" },
+                        { code: "BUS", name: "Busby Babes", formula: "([DYN]×1.2)+([YOUTH]×1.3)+([ATT]×1.1)+([CPI]×1.0)", desc: "Youth development, attacking football", scale: "0-10" },
+                        { code: "ROB", name: "Robson Passion", formula: "([CHR]×1.3)+([MOB]×1.2)+([TAC]×1.1)+([OFF]×1.1)", desc: "Work rate, passion, box-to-box energy", scale: "0-10" },
+                        { code: "VEN", name: "Venables Technique", formula: "([CTRL]×1.2)+([PVI]×1.2)+([CPX]×1.1)+([SPI]×1.1)", desc: "Technical skill, tactical innovation", scale: "0-10" },
+                        { code: "WIN", name: "Winterbottom Foundation", formula: "([DMA]×1.2)+([POI]×1.2)+([MCS]×1.1)+([CHR]×1.0)", desc: "Coaching methodology, fundamental skills", scale: "0-10" },
+                        { code: "SHA", name: "Shankly Passion", formula: "([CHR]×1.3)+([OFF]×1.2)+([MOB]×1.1)+([CRS]×1.1)", desc: "Emotional leadership, heavy metal football", scale: "0-10" },
+                        { code: "CLO", name: "Clough Psychology", formula: "([MCS]×1.3)+([CHR]×1.3)+([CLM]×1.1)+([CRS]×1.0)", desc: "Psychological warfare, confidence", scale: "0-10" },
+                        { code: "PAI", name: "Paisley Efficiency", formula: "([STK]×1.2)+([DEF]×1.2)+([CLM]×1.1)+([DMA]×1.1)", desc: "Quiet efficiency, tactical intelligence", scale: "0-10" }
+                    ]
+                },
+                {
+                    category: "German School (6 Philosophies)",
+                    description: "Efficiency and pressing - Weighted 1.0-1.3",
+                    metrics: [
+                        { code: "HEY", name: "Heynckes Complete", formula: "([XPS]×1.2)+([DEF]×1.1)+([CPI]×1.1)+([CHR]×1.1)", desc: "Complete football, attacking efficiency", scale: "0-10" },
+                        { code: "CRA", name: "Cramer Methodology", formula: "([DMA]×1.2)+([MCS]×1.2)+([POI]×1.1)+([TBP]×1.0)", desc: "Systematic training, tactical preparation", scale: "0-10" },
+                        { code: "BEC", name: "Beckenbauer Libero", formula: "([LGP]×1.2)+([PRO]×1.2)+([SPI]×1.1)+([CAR]×1.1)", desc: "Defensive leadership, attacking from back", scale: "0-10" },
+                        { code: "HAP", name: "Happel Organization", formula: "([POS]×1.3)+([MRK]×1.2)+([DMA]×1.1)+([INT]×1.0)", desc: "Zonal marking, defensive organization", scale: "0-10" },
+                        { code: "HER", name: "Herberger Team", formula: "([CHR]×1.2)+([MCS]×1.2)+([CLM]×1.1)+([CRS]×1.1)", desc: "Team spirit, tournament mentality", scale: "0-10" },
+                        { code: "HIT", name: "Hitzfeld Adaptation", formula: "([POI]×1.2)+([DMA]×1.2)+([CLM]×1.1)+([CRS]×1.1)", desc: "Tactical adaptation, mental strength", scale: "0-10" }
+                    ]
+                },
+                {
+                    category: "Modern Masters (9 Philosophies)",
+                    description: "Contemporary tactical innovation - Weighted 1.1-1.45",
+                    metrics: [
+                        { code: "MOU", name: "Mourinho Control", formula: "([DEF]×1.4)+([CLM]×1.3)+([DMA]×1.2)+([MCS]×1.1)", desc: "Game management, defensive solidity, psychology", scale: "0-10" },
+                        { code: "KLO", name: "Klopp Heavy Metal", formula: "([OFF]×1.3)+([Gegenpressing]×1.3)+([MOB]×1.2)+([CHR]×1.1)", desc: "Gegenpressing, verticality, emotional energy", scale: "0-10" },
+                        { code: "ANC", name: "Ancelotti Adaptability", formula: "([POI]×1.3)+([CPX]×1.2)+([CLM]×1.2)+([DMA]×1.1)", desc: "Man-management, tactical flexibility, calmness", scale: "0-10" },
+                        { code: "CON", name: "Conte Intensity", formula: "([DEF]×1.3)+([OFF]×1.2)+([MOB]×1.2)+([OMS]×1.2)", desc: "3-at-back, intensity, tactical work", scale: "0-10" },
+                        { code: "TUC", name: "Tuchel Structure", formula: "([POI]×1.3)+([SPI]×1.3)+([MRK]×1.2)+([DMA]×1.1)", desc: "Positional play, build-up structure", scale: "0-10" },
+                        { code: "POC", name: "Pochettino Fitness", formula: "([MOB]×1.3)+([OFF]×1.2)+([SPR]×1.2)+([DYN]×1.1)", desc: "Physical fitness, pressing, youth development", scale: "0-10" },
+                        { code: "NAG", name: "Nagelsmann Innovation", formula: "([POI]×1.3)+([DMA]×1.3)+([SOA]×1.2)+([SPI]×1.1)", desc: "Tactical innovation, formations, adaptability", scale: "0-10" },
+                        { code: "FLI", name: "Flick Tempo", formula: "([VRP]×1.2)+([OFF]×1.2)+([PRO]×1.2)+([CHR]×1.1)", desc: "High tempo, positional play, team ethic", scale: "0-10" },
+                        { code: "DEV", name: "DeVisser Scouting", formula: "([YOUTH]×1.3)+([POTENTIAL]×1.3)+([DMA]×1.1)+([CHR]×1.0)", desc: "Youth identification, potential recognition", scale: "0-10" }
+                    ]
+                },
+                {
+                    category: "Spanish School (7 Philosophies)",
+                    description: "Tiki-taka and possession mastery - Weighted 1.1-1.4",
+                    metrics: [
+                        { code: "GUA", name: "Guardiola Positional", formula: "([HZP]×1.3)+([POI]×1.3)+([TBP]×1.2)+([UNP]×1.2)", desc: "Positional play, possession dominance, pressing", scale: "0-10" },
+                        { code: "CAR", name: "Carniglia Control", formula: "([RET]×1.2)+([CPX]×1.2)+([CLM]×1.1)+([CTRL]×1.1)", desc: "Ball control, patience, tactical intelligence", scale: "0-10" },
+                        { code: "MUN", name: "Munoz Leadership", formula: "([CHR]×1.3)+([MCS]×1.2)+([DMA]×1.1)+([POI]×1.1)", desc: "Charismatic leadership, winning mentality", scale: "0-10" },
+                        { code: "ARA", name: "Aragones Directness", formula: "([VRP]×1.2)+([XPS]×1.2)+([CRS]×1.1)+([STK]×1.1)", desc: "Direct attacking, efficiency, competitive spirit", scale: "0-10" },
+                        { code: "VIL", name: "Villalonga Tactics", formula: "([MRK]×1.2)+([TAC]×1.1)+([DMA]×1.2)+([INT]×1.0)", desc: "Tactical innovation, defensive organization", scale: "0-10" },
+                        { code: "EME", name: "Emery Detail", formula: "([POI]×1.3)+([SOA]×1.2)+([OMS]×1.2)+([ANT]×1.1)", desc: "Meticulous preparation, set-piece excellence", scale: "0-10" },
+                        { code: "PEL", name: "Pellegrini Elegance", formula: "([PVI]×1.2)+([CPX]×1.2)+([CPI]×1.1)+([CAR]×1.1)", desc: "Attacking football, technical quality, balance", scale: "0-10" }
+                    ]
+                }
+            ]
+        };
+
+        const MetricCard = ({ metric, tier }) => {
+            const [expanded, setExpanded] = useState(false);
+            
+            const tierColors = {
+                tier1: "border-emerald-500/50 bg-emerald-950/20",
+                tier2: "border-amber-500/50 bg-amber-950/20",
+                tier3: "border-rose-500/50 bg-rose-950/20",
+                philosophy: metric.new ? "border-red-500/50 bg-red-950/20 philosophy-new" : "border-purple-500/50 bg-purple-950/20"
+            };
+
+            return (
+                <div className={`metric-card rounded-xl border p-4 ${tierColors[tier]} backdrop-blur-sm`}>
+                    <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                            <span className="mono text-lg font-bold text-amber-400">{metric.code}</span>
+                            <h3 className="font-semibold text-slate-100">{metric.name}</h3>
+                        </div>
+                        <button 
+                            onClick={() => setExpanded(!expanded)}
+                            className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                            {expanded ? 
+                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg> : 
+                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            }
+                        </button>
+                    </div>
+                    
+                    <p className="text-sm text-slate-300 mb-2">{metric.desc}</p>
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            tier === 'tier1' ? 'bg-emerald-500/20 text-emerald-300' :
+                            tier === 'tier2' ? 'bg-amber-500/20 text-amber-300' :
+                            tier === 'tier3' ? 'bg-rose-500/20 text-rose-300' :
+                            metric.new ? 'bg-red-500/20 text-red-300' :
+                            'bg-purple-500/20 text-purple-300'
+                        }`}>
+                            {tier === 'tier1' ? 'Automated' : 
+                             tier === 'tier2' ? 'Semi-Auto' : 
+                             tier === 'tier3' ? 'Manual Scout' : 
+                             metric.new ? 'NEW Philosophy' : 'Philosophy'}
+                        </span>
+                        <span className="text-xs text-slate-500">{metric.scale}</span>
+                    </div>
+
+                    {expanded && (
+                        <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+                            <div>
+                                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Formula</span>
+                                <code className="block mt-1 p-2 bg-slate-900 rounded-lg text-xs text-emerald-300 mono">
+                                    {metric.formula}
+                                </code>
+                            </div>
+                            <div>
+                                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Interpretation</span>
+                                <p className="text-sm text-slate-300 mt-1">
+                                    {metric.scale.includes("10=") ? 
+                                        `Elite score (8-10): ${metric.scale.split("10=")[1]}. Average (5-7): Professional standard. Below average (0-4): Development needed.` :
+                                        "Higher values indicate better performance in this specific metric."
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const GlossaryApp = () => {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [activeTab, setActiveTab] = useState("all");
+            const [selectedCategory, setSelectedCategory] = useState("all");
+
+            const tabs = [
+                { id: "all", label: "All Metrics", count: 779 },
+                { id: "tier1", label: "Tier 1: Automated", count: 364 },
+                { id: "tier2", label: "Tier 2: Semi-Auto", count: 75 },
+                { id: "tier3", label: "Tier 3: Manual", count: 100 },
+                { id: "philosophy", label: "68 Philosophies", count: 268 }
+            ];
+
+            const filteredData = useMemo(() => {
+                let results = [];
+                
+                Object.entries(metricsData).forEach(([tier, categories]) => {
+                    categories.forEach(cat => {
+                        cat.metrics.forEach(metric => {
+                            if ((activeTab === "all" || activeTab === tier) &&
+                                (selectedCategory === "all" || selectedCategory === cat.category)) {
+                                if (searchTerm === "" || 
+                                    metric.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    metric.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    metric.desc.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                    results.push({ ...metric, tier, category: cat.category });
+                                }
+                            }
+                        });
+                    });
+                });
+                
+                return results;
+            }, [searchTerm, activeTab, selectedCategory]);
+
+            const allCategories = useMemo(() => {
+                const cats = new Set();
+                Object.values(metricsData).forEach(tier => {
+                    tier.forEach(cat => cats.add(cat.category));
+                });
+                return Array.from(cats);
+            }, []);
+
+            return (
+                <div className="min-h-screen bg-slate-950">
+                    {/* Header */}
+                    <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <EmpireLogo />
+                                    <div className="h-8 w-px bg-slate-700"></div>
+                                    <div>
+                                        <h1 className="text-xl font-bold text-white">Metrics Glossary</h1>
+                                        <p className="text-xs text-slate-400">Corrected Definitions + 68 Philosophies</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="relative max-w-md w-full">
+                                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                    <input
+                                        type="text"
+                                        placeholder="Search metrics (e.g., STK, Roux, Bianchi)..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        {/* Correction Notice */}
+                        <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                            <h3 className="text-amber-400 font-semibold mb-1">✓ Corrections Applied</h3>
+                            <p className="text-sm text-slate-300">
+                            </p>
+                        </div>
+
+                        {/* Stats Overview */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                                <div className="text-2xl font-bold gradient-text">779</div>
+                                <div className="text-sm text-slate-400">Total Metrics</div>
+                            </div>
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                                <div className="text-2xl font-bold text-emerald-400">364</div>
+                                <div className="text-sm text-slate-400">Automated (Tier 1)</div>
+                            </div>
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                                <div className="text-2xl font-bold text-purple-400">68</div>
+                                <div className="text-sm text-slate-400">Philosophy DNA</div>
+                            </div>
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                                <div className="text-2xl font-bold text-red-400">8</div>
+                                <div className="text-sm text-slate-400">New Additions</div>
+                            </div>
+                        </div>
+
+                        {/* Filter Tabs */}
+                        <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
+                            {tabs.map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
+                                        activeTab === tab.id
+                                            ? "bg-amber-500 text-slate-900"
+                                            : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                                    }`}
+                                >
+                                    {tab.label}
+                                    <span className="ml-2 text-xs opacity-75">({tab.count})</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Results Grid */}
+                        <div className="mb-6 text-slate-400 text-sm">
+                            Showing {filteredData.length} metrics
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {filteredData.map((metric, idx) => (
+                                <MetricCard key={`${metric.code}-${idx}`} metric={metric} tier={metric.tier} />
+                            ))}
+                        </div>
+
+                        {filteredData.length === 0 && (
+                            <div className="text-center py-16 text-slate-500">
+                                <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <p>No metrics found matching your criteria</p>
+                            </div>
+                        )}
+
+                        {/* New Philosophies Summary */}
+                        <div className="mt-12 p-6 bg-slate-900 border border-slate-800 rounded-xl">
+                            <h3 className="text-lg font-semibold text-white mb-4">New Philosophy Additions (8)</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Roux</div>
+                                    <div className="text-slate-400 text-xs">French School</div>
+                                    <div className="text-slate-300 mt-1">Provincial Genius - Auxerre youth model</div>
+                                </div>
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Liedholm</div>
+                                    <div className="text-slate-400 text-xs">Italian School</div>
+                                    <div className="text-slate-300 mt-1">Swedish Italian - Il Barone elegance</div>
+                                </div>
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Goethals</div>
+                                    <div className="text-slate-400 text-xs">Belgian School</div>
+                                    <div className="text-slate-300 mt-1">Belgian Excellence - Raymond la Science</div>
+                                </div>
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Penev</div>
+                                    <div className="text-slate-400 text-xs">Eastern European</div>
+                                    <div className="text-slate-300 mt-1">Revolution - 1994 Bulgaria flair</div>
+                                </div>
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Petru</div>
+                                    <div className="text-slate-400 text-xs">Eastern European</div>
+                                    <div className="text-slate-300 mt-1">Technical - Romanian school</div>
+                                </div>
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Osim</div>
+                                    <div className="text-slate-400 text-xs">Eastern European</div>
+                                    <div className="text-slate-300 mt-1">Intelligence - Yugoslav tactical mind</div>
+                                </div>
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Czeizler</div>
+                                    <div className="text-slate-400 text-xs">Eastern European</div>
+                                    <div className="text-slate-300 mt-1">Method - Hungarian system</div>
+                                </div>
+                                <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-lg">
+                                    <div className="font-bold text-red-400">Bianchi</div>
+                                    <div className="text-slate-400 text-xs">South American</div>
+                                    <div className="text-slate-300 mt-1">Passion - Boca Juniors glory</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GlossaryApp />);
+    </script>
+</body>
+</html>
