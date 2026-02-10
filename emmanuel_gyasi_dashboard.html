@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emmanuel Gyasi - Destiny Sports Management | Empire FGA Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .section-content {
+            display: none;
+        }
+        
+        .section-content.active {
+            display: block;
+        }
+        
+        .nav-button {
+            background: none;
+            border: none;
+            color: #cbd5e0;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+        
+        .nav-button:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+        }
+        
+        .nav-button.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #0f172a;
+            font-weight: 600;
+        }
+        
+        .player-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .player-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .contract-expiring {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+        
+        .contract-safe {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: #22c55e;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-gold { background: rgba(255, 215, 0, 0.2); color: #FFD700; }
+        .badge-blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .badge-green { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge-red { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-purple { background: rgba(147, 51, 234, 0.2); color: #a78bfa; }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.4), rgba(30, 64, 175, 0.2));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .league-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+            color: #cbd5e0;
+        }
+        
+        .league-tab:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: #FFD700;
+        }
+        
+        .league-tab.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #0f172a;
+            border-color: #FFD700;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-slate-950/95 backdrop-blur-md z-50 border-b border-blue-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" 
+                         alt="Empire Scouting Network" 
+                         class="h-10 w-auto">
+                    <div>
+                        <span class="text-xl font-bold gradient-text">Destiny Sports Management</span>
+                        <div class="text-xs text-slate-400">Powered by Empire FGA</div>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex space-x-2 items-center">
+                    <button onclick="showSection('dashboard')" class="nav-button active" id="nav-dashboard">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </button>
+                    <button onclick="showSection('roster')" class="nav-button" id="nav-roster">
+                        <i class="fas fa-users mr-2"></i>My Players (12)
+                    </button>
+                    <button onclick="showSection('3liga')" class="nav-button" id="nav-3liga">
+                        <i class="fas fa-futbol mr-2"></i>3.Liga Database
+                    </button>
+                    <button onclick="showSection('market')" class="nav-button" id="nav-market">
+                        <i class="fas fa-chart-line mr-2"></i>Market Intel
+                    </button>
+                    <span class="text-sm text-slate-400 ml-4">|</span>
+                    <span class="text-sm font-semibold text-blue-400">Emmanuel Gyasi, CEO</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <!-- DASHBOARD SECTION -->
+        <div id="dashboard-section" class="section-content active">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold gradient-text mb-2">Welcome Back, Emmanuel</h1>
+                <p class="text-slate-400">Destiny Sports Management Dashboard - Powered by Empire FGA 779 Metrics</p>
+            </div>
+
+            <!-- Key Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-users text-3xl text-blue-400"></i>
+                        <span class="badge badge-gold">Active</span>
+                    </div>
+                    <div class="text-3xl font-bold gradient-text">12</div>
+                    <div class="text-sm text-slate-400">Players Under Management</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-euro-sign text-3xl text-green-400"></i>
+                        <span class="badge badge-green">Total</span>
+                    </div>
+                    <div class="text-3xl font-bold text-green-400">€910K</div>
+                    <div class="text-sm text-slate-400">Combined Market Value</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-file-contract text-3xl text-yellow-400"></i>
+                        <span class="badge badge-red">Urgent</span>
+                    </div>
+                    <div class="text-3xl font-bold text-yellow-400">4</div>
+                    <div class="text-sm text-slate-400">Contracts Expiring 2025-26</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-trophy text-3xl text-purple-400"></i>
+                        <span class="badge badge-purple">FGA</span>
+                    </div>
+                    <div class="text-3xl font-bold text-purple-400">6.8</div>
+                    <div class="text-sm text-slate-400">Average FGA Rating</div>
+                </div>
+            </div>
+
+            <!-- Priority Players -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-star text-yellow-400 mr-3"></i>
+                    Priority Players This Month
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Tony Lesueur -->
+                    <div class="player-card contract-safe">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Tony Lesueur</h3>
+                                <p class="text-sm text-blue-400">🇫🇷 France | 25 years</p>
+                            </div>
+                            <span class="badge badge-green">Contract 2027</span>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Position:</span>
+                                <span class="font-semibold">Left-Back</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Club:</span>
+                                <span class="font-semibold">VfL Osnabrück</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Market Value:</span>
+                                <span class="font-semibold text-green-400">€175K</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">FGA Rating:</span>
+                                <span class="font-semibold text-yellow-400">7.2</span>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-blue-500/30">
+                            <span class="text-xs text-slate-400">Status: </span>
+                            <span class="text-xs font-semibold text-green-400">Strong 3.Liga Performance</span>
+                        </div>
+                    </div>
+
+                    <!-- Jordan Amissah -->
+                    <div class="player-card">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Jordan Amissah</h3>
+                                <p class="text-sm text-blue-400">🇬🇭 Ghana | 24 years</p>
+                            </div>
+                            <span class="badge badge-green">Contract 2027</span>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Position:</span>
+                                <span class="font-semibold">Goalkeeper</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Club:</span>
+                                <span class="font-semibold">Burton Albion</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Market Value:</span>
+                                <span class="font-semibold text-green-400">€200K</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">FGA Rating:</span>
+                                <span class="font-semibold text-yellow-400">7.5</span>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-blue-500/30">
+                            <span class="text-xs text-slate-400">Status: </span>
+                            <span class="text-xs font-semibold text-blue-400">League One Starter</span>
+                        </div>
+                    </div>
+
+                    <!-- Linus Kurtz -->
+                    <div class="player-card">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Linus Kurtz</h3>
+                                <p class="text-sm text-blue-400">🇩🇪 Germany | 19 years</p>
+                            </div>
+                            <span class="badge badge-red">Contract 2026</span>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Position:</span>
+                                <span class="font-semibold">Centre-Forward</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Club:</span>
+                                <span class="font-semibold">Pafos FC U19</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">Market Value:</span>
+                                <span class="font-semibold text-yellow-400">€10K</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">FGA Rating:</span>
+                                <span class="font-semibold text-yellow-400">6.3</span>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-blue-500/30">
+                            <span class="text-xs text-slate-400">Status: </span>
+                            <span class="text-xs font-semibold text-purple-400">High Potential Prospect</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-blue-500/30">
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-bell text-yellow-400 mr-3"></i>
+                        Contract Alerts
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-red-500/10 rounded-lg">
+                            <span class="text-sm">Raymond Owusu - 6 months</span>
+                            <span class="badge badge-red">Urgent</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-red-500/10 rounded-lg">
+                            <span class="text-sm">Hassan Ali - 11 months</span>
+                            <span class="badge badge-red">Urgent</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-yellow-500/10 rounded-lg">
+                            <span class="text-sm">Linus Kurtz - 1.5 years</span>
+                            <span class="badge badge-gold">Monitor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-blue-500/30">
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-chart-line text-green-400 mr-3"></i>
+                        Market Opportunities
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-green-500/10 rounded-lg">
+                            <span class="text-sm">3.Liga clubs scouting LBs</span>
+                            <span class="badge badge-green">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-blue-500/10 rounded-lg">
+                            <span class="text-sm">Championship GK demand high</span>
+                            <span class="badge badge-blue">Rising</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-purple-500/10 rounded-lg">
+                            <span class="text-sm">Youth prospects to Bundesliga 2</span>
+                            <span class="badge badge-purple">Hot</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MY PLAYERS SECTION -->
+        <div id="roster-section" class="section-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold gradient-text mb-2">My Player Roster</h1>
+                <p class="text-slate-400">Complete overview of all 12 players under Destiny Sports Management</p>
+            </div>
+
+            <!-- Players Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Jordan Amissah -->
+                <div class="player-card">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Jordan Amissah</h3>
+                            <p class="text-sm text-blue-400">🇬🇭 Ghana | 24</p>
+                        </div>
+                        <span class="badge badge-green">2027</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">GK</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">Burton Albion</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-green-400">€200K</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">7.5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raymond Owusu -->
+                <div class="player-card contract-expiring">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Raymond Owusu</h3>
+                            <p class="text-sm text-blue-400">🇬🇭 Ghana | 23</p>
+                        </div>
+                        <span class="badge badge-red">2026</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">CF</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">FC Kudrivka</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-green-400">€200K</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">7.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tony Lesueur -->
+                <div class="player-card contract-safe">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Tony Lesueur</h3>
+                            <p class="text-sm text-blue-400">🇫🇷 France | 25</p>
+                        </div>
+                        <span class="badge badge-green">2027</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">LB</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">VfL Osnabrück</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-green-400">€175K</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">7.2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valdemar Sadrifar -->
+                <div class="player-card">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Valdemar Sadrifar</h3>
+                            <p class="text-sm text-blue-400">🇩🇰 Denmark | 24</p>
+                        </div>
+                        <span class="badge badge-green">2027</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">LM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">BFC Dynamo</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-yellow-400">€75K</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Christen Mensah -->
+                <div class="player-card">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Christen Mensah</h3>
+                            <p class="text-sm text-blue-400">🇩🇪 Germany | 19</p>
+                        </div>
+                        <span class="badge badge-green">2027</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">CM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">1.FC Phönix Lübeck</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-yellow-400">€25K</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Linus Kurtz -->
+                <div class="player-card">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Linus Kurtz</h3>
+                            <p class="text-sm text-blue-400">🇩🇪 Germany | 19</p>
+                        </div>
+                        <span class="badge badge-red">2026</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">CF</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">Pafos FC U19</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-yellow-400">€10K</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reagy Ofosu -->
+                <div class="player-card contract-expiring">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Reagy Ofosu</h3>
+                            <p class="text-sm text-blue-400">🇩🇪 Germany | 34</p>
+                        </div>
+                        <span class="badge badge-red">Free Agent</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">LW</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">Without Club</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-slate-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mohamed Aidara -->
+                <div class="player-card contract-expiring">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Mohamed Aidara</h3>
+                            <p class="text-sm text-blue-400">🇸🇳 Senegal | 36</p>
+                        </div>
+                        <span class="badge badge-red">Free Agent</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">DM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">Without Club</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-slate-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Michael Kobert -->
+                <div class="player-card">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Michael Kobert</h3>
+                            <p class="text-sm text-blue-400">🇩🇪 Germany | 29</p>
+                        </div>
+                        <span class="badge badge-red">2026</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">CF</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">TuS Dassendorf</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-slate-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Michael Gyasi -->
+                <div class="player-card contract-expiring">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Michael Gyasi</h3>
+                            <p class="text-sm text-blue-400">🇩🇪 Germany | 26</p>
+                        </div>
+                        <span class="badge badge-red">Free Agent</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">CF</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">King's Lynn Town</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-slate-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hassan Ali -->
+                <div class="player-card contract-expiring">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Hassan Ali</h3>
+                            <p class="text-sm text-blue-400">🇩🇪 Germany | 20</p>
+                        </div>
+                        <span class="badge badge-red">2025</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">RM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">SpVg Frechen 20</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-slate-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yasin Rusani -->
+                <div class="player-card">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold">Yasin Rusani</h3>
+                            <p class="text-sm text-blue-400">🇲🇰 Macedonia | 18</p>
+                        </div>
+                        <span class="badge badge-red">2026</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Position:</span>
+                            <span class="font-semibold">RW</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold">Hamburger SV U19</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value:</span>
+                            <span class="font-semibold text-slate-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA:</span>
+                            <span class="font-semibold text-yellow-400">6.1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.LIGA DATABASE SECTION -->
+        <div id="3liga-section" class="section-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold gradient-text mb-2">3.Liga Database</h1>
+                <p class="text-slate-400">Complete player database from German 3.Liga - 2024/25 Season</p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="mb-6 space-y-4">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="liga-search" placeholder="Search 3.Liga players..." 
+                        class="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                        oninput="filterLigaPlayers()">
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="setPositionFilter('all')" class="league-tab active" id="pos-all">All Positions</button>
+                    <button onclick="setPositionFilter('FW')" class="league-tab" id="pos-fw">Forwards</button>
+                    <button onclick="setPositionFilter('MF')" class="league-tab" id="pos-mf">Midfielders</button>
+                    <button onclick="setPositionFilter('DF')" class="league-tab" id="pos-df">Defenders</button>
+                    <button onclick="setPositionFilter('GK')" class="league-tab" id="pos-gk">Goalkeepers</button>
+                </div>
+            </div>
+
+            <!-- Players Count -->
+            <div class="mb-4 text-slate-400 text-sm">
+                Showing <span id="liga-count">20</span> players from 3.Liga
+            </div>
+
+            <!-- Players Grid -->
+            <div id="liga-players-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Players will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <!-- MARKET INTELLIGENCE SECTION -->
+        <div id="market-section" class="section-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold gradient-text mb-2">Market Intelligence</h1>
+                <p class="text-slate-400">Real-time market trends and opportunities for your players</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Hot Markets -->
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-green-500/30">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-fire text-orange-400 mr-3"></i>
+                        Hot Markets Right Now
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-green-500/10 p-4 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-white">Left-Backs to 3.Liga</h4>
+                                    <p class="text-sm text-slate-400">5 clubs actively searching</p>
+                                </div>
+                                <span class="badge badge-green">HOT</span>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-2">VfL Osnabrück, SC Verl, Rot-Weiss Essen seeking defensive reinforcements</p>
+                            <div class="text-xs text-green-400 font-semibold">
+                                Opportunity: Tony Lesueur
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-500/10 p-4 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-white">Championship GKs</h4>
+                                    <p class="text-sm text-slate-400">Transfer window opening</p>
+                                </div>
+                                <span class="badge badge-blue">ACTIVE</span>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-2">Several Championship clubs need backup/rotation goalkeepers</p>
+                            <div class="text-xs text-blue-400 font-semibold">
+                                Opportunity: Jordan Amissah
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-500/10 p-4 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-white">Youth to Bundesliga 2</h4>
+                                    <p class="text-sm text-slate-400">Development pathway strong</p>
+                                </div>
+                                <span class="badge badge-purple">EMERGING</span>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-2">Bundesliga 2 clubs actively scouting youth prospects</p>
+                            <div class="text-xs text-purple-400 font-semibold">
+                                Opportunity: Linus Kurtz, Christen Mensah
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Value Trends -->
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-blue-500/30">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-chart-line text-blue-400 mr-3"></i>
+                        Value Trends
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-800/50 rounded-lg">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-semibold">Jordan Amissah</span>
+                                <span class="text-green-400 font-bold">↑ 15%</span>
+                            </div>
+                            <div class="text-sm text-slate-400 mb-2">€200K → €230K (projected)</div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-400" style="width: 75%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Strong League One performances</p>
+                        </div>
+
+                        <div class="p-4 bg-slate-800/50 rounded-lg">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-semibold">Tony Lesueur</span>
+                                <span class="text-green-400 font-bold">↑ 12%</span>
+                            </div>
+                            <div class="text-sm text-slate-400 mb-2">€175K → €195K (projected)</div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-400" style="width: 68%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Consistent 3.Liga starter</p>
+                        </div>
+
+                        <div class="p-4 bg-slate-800/50 rounded-lg">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-semibold">Linus Kurtz</span>
+                                <span class="text-yellow-400 font-bold">↔ 0%</span>
+                            </div>
+                            <div class="text-sm text-slate-400 mb-2">€10K (stable)</div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-yellow-400" style="width: 45%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">U19 development phase</p>
+                        </div>
+
+                        <div class="p-4 bg-slate-800/50 rounded-lg">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-semibold">Raymond Owusu</span>
+                                <span class="text-blue-400 font-bold">↑ 8%</span>
+                            </div>
+                            <div class="text-sm text-slate-400 mb-2">€200K → €215K (projected)</div>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-400" style="width: 62%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Regular scoring record</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transfer Recommendations -->
+            <div class="mt-6 bg-slate-900/50 rounded-xl p-6 border border-yellow-500/30">
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-lightbulb text-yellow-400 mr-3"></i>
+                    Recommended Actions
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-green-500/10 p-4 rounded-lg border border-green-500/30">
+                        <div class="text-green-400 font-bold mb-2">✓ RENEW NOW</div>
+                        <p class="text-sm text-slate-300 mb-2">Tony Lesueur - Strong position, extend before 2026</p>
+                        <span class="text-xs text-slate-400">Priority: HIGH</span>
+                    </div>
+                    <div class="bg-yellow-500/10 p-4 rounded-lg border border-yellow-500/30">
+                        <div class="text-yellow-400 font-bold mb-2">⚠ MONITOR</div>
+                        <p class="text-sm text-slate-300 mb-2">Raymond Owusu - Contract ends 2026, assess options</p>
+                        <span class="text-xs text-slate-400">Priority: MEDIUM</span>
+                    </div>
+                    <div class="bg-blue-500/10 p-4 rounded-lg border border-blue-500/30">
+                        <div class="text-blue-400 font-bold mb-2">📈 DEVELOP</div>
+                        <p class="text-sm text-slate-300 mb-2">Linus Kurtz - Focus on first team exposure</p>
+                        <span class="text-xs text-slate-400">Priority: LONG-TERM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 3.Liga Players Database
+        const ligaPlayers = [
+            { name: "Dickson Abiama", nation: "NGA", pos: "FW", squad: "Rot-Weiss Essen", age: "27", gls: "2", ast: "0", fga: "7.8" },
+            { name: "Samuel Abifade", nation: "GER", pos: "DF,MF", squad: "Mannheim", age: "26", gls: "1", ast: "1", fga: "6.5" },
+            { name: "Nikolas Agrafiotis", nation: "NED", pos: "FW", squad: "Wehen Wiesbaden", age: "25", gls: "7", ast: "0", fga: "7.4" },
+            { name: "Jonas Arweiler", nation: "GER", pos: "FW,MF", squad: "SC Verl", age: "28", gls: "9", ast: "3", fga: "7.9" },
+            { name: "Kushtrim Asallari", nation: "ALB", pos: "MF", squad: "Mannheim", age: "22", gls: "2", ast: "0", fga: "6.8" },
+            { name: "Ismail Badje", nation: "GER", pos: "MF,FW", squad: "Osnabrück", age: "20", gls: "4", ast: "0", fga: "7.1" },
+            { name: "Marcel Bär", nation: "GER", pos: "FW", squad: "Erzgebirge Aue", age: "33", gls: "1", ast: "0", fga: "6.4" },
+            { name: "Benedikt Bauer", nation: "GER", pos: "MF,DF", squad: "Jahn Regensburg", age: "22", gls: "3", ast: "2", fga: "7.0" },
+            { name: "Dominic Baumann", nation: "GER", pos: "FW", squad: "Saarbrücken", age: "30", gls: "1", ast: "0", fga: "6.6" },
+            { name: "André Becker", nation: "GER", pos: "FW", squad: "Ulm", age: "29", gls: "3", ast: "2", fga: "7.2" },
+            { name: "Phil Beckhoff", nation: "GER", pos: "MF,FW", squad: "Jahn Regensburg", age: "25", gls: "2", ast: "2", fga: "6.9" },
+            { name: "Alessio Besio", nation: "SUI", pos: "FW,MF", squad: "SC Verl", age: "21", gls: "8", ast: "6", fga: "8.1" },
+            { name: "Max Besuschkow", nation: "GER", pos: "MF", squad: "Ingolstadt", age: "28", gls: "3", ast: "5", fga: "7.3" },
+            { name: "Terrence Boyd", nation: "USA", pos: "FW", squad: "Mannheim", age: "34", gls: "7", ast: "0", fga: "7.5" },
+            { name: "Kai Brünker", nation: "GER", pos: "FW", squad: "Saarbrücken", age: "31", gls: "7", ast: "0", fga: "7.6" },
+            { name: "Tim Civeja", nation: "ALB", pos: "MF,FW", squad: "Saarbrücken", age: "24", gls: "1", ast: "6", fga: "7.2" },
+            { name: "Mika Clausen", nation: "GER", pos: "MF", squad: "Erzgebirge Aue", age: "23", gls: "1", ast: "3", fga: "6.7" },
+            { name: "Dennis Chessa", nation: "GER", pos: "MF,FW", squad: "Ulm", age: "33", gls: "3", ast: "2", fga: "7.0" },
+            { name: "Frederik Carlsen", nation: "DEN", pos: "MF", squad: "Ingolstadt", age: "24", gls: "4", ast: "4", fga: "7.4" },
+            { name: "Florian Carstens", nation: "GER", pos: "DF", squad: "Hansa Rostock", age: "27", gls: "2", ast: "0", fga: "6.8" }
+        ];
+
+        let currentPositionFilter = 'all';
+
+        // Navigation
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(s => {
+                s.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(section + '-section').classList.add('active');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('nav-' + section).classList.add('active');
+            
+            // Load 3.Liga players if that section is shown
+            if (section === '3liga') {
+                renderLigaPlayers();
+            }
+        }
+
+        // Position Filter
+        function setPositionFilter(pos) {
+            currentPositionFilter = pos;
+            
+            // Update tab styles
+            document.querySelectorAll('.league-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById('pos-' + pos).classList.add('active');
+            
+            renderLigaPlayers();
+        }
+
+        // Render 3.Liga Players
+        function renderLigaPlayers() {
+            const search = document.getElementById('liga-search').value.toLowerCase();
+            const grid = document.getElementById('liga-players-grid');
+            
+            let filtered = ligaPlayers.filter(p => {
+                // Position filter
+                if (currentPositionFilter !== 'all' && !p.pos.includes(currentPositionFilter)) {
+                    return false;
+                }
+                
+                // Search filter
+                if (search && !p.name.toLowerCase().includes(search) && 
+                    !p.squad.toLowerCase().includes(search)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            document.getElementById('liga-count').textContent = filtered.length;
+            
+            grid.innerHTML = '';
+            
+            filtered.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-lg font-bold">${player.name}</h3>
+                            <p class="text-xs text-blue-400">${player.nation} | ${player.age}</p>
+                        </div>
+                        <span class="badge badge-blue">${player.pos}</span>
+                    </div>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Club:</span>
+                            <span class="font-semibold text-xs">${player.squad}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Goals:</span>
+                            <span class="font-semibold">${player.gls}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Assists:</span>
+                            <span class="font-semibold">${player.ast}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">FGA Rating:</span>
+                            <span class="font-semibold text-yellow-400">${player.fga}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16 text-slate-500">
+                        <i class="fas fa-search text-4xl mb-4 opacity-50"></i>
+                        <p>No players found matching your criteria</p>
+                    </div>
+                `;
+            }
+        }
+
+        function filterLigaPlayers() {
+            renderLigaPlayers();
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            renderLigaPlayers();
+        });
+    </script>
+</body>
+</html>
