@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alessandro Pezzoli - Fisher Sport | Israeli Football Intelligence Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+*{font-family:'Inter',sans-serif}
+.gradient-text{background:linear-gradient(to right,#FFD700,#FFA500);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-content{display:none}
+.section-content.active{display:block}
+.roster-table th,.roster-table td{padding:10px 12px;border-bottom:1px solid rgba(59,130,246,0.2);font-size:0.875rem}
+.roster-table th{background-color:rgba(30,58,138,0.3);color:#93c5fd;font-weight:600;text-align:center}
+.roster-table tbody tr:hover{background-color:rgba(59,130,246,0.1)}
+.nav-button{background:none;border:none;color:#cbd5e0;padding:0.5rem 1rem;cursor:pointer;transition:all 0.3s}
+.nav-button:hover{color:#FFD700}
+.nav-button.active{color:#FFD700;font-weight:600;border-bottom:2px solid #FFD700}
+.badge{background:linear-gradient(135deg,#10b981,#059669);color:white;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-left:8px}
+.stat-card{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(147,197,253,0.05))}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:#1e293b}
+::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#FFD700}
+.btn-add{background:linear-gradient(135deg,#10b981,#059669);color:white;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.3s}
+.btn-add:hover{transform:scale(1.05);box-shadow:0 0 10px rgba(16,185,129,0.4)}
+.btn-remove{background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.3s}
+.btn-remove:hover{transform:scale(1.05)}
+.player-link{color:#60a5fa;text-decoration:none;font-weight:600;transition:all 0.3s}
+.player-link:hover{color:#FFD700;text-decoration:underline}
+.metric-badge{font-size:0.65rem;padding:2px 5px;border-radius:4px;background:rgba(255,215,0,0.2);color:#FFD700;border:1px solid rgba(255,215,0,0.3)}
+.player-card{transition:all 0.3s;border:1px solid rgba(59,130,246,0.2)}
+.player-card:hover{border-color:rgba(255,215,0,0.5);transform:translateY(-2px)}
+</style>
+</head>
+<body class="bg-slate-950 text-white overflow-x-hidden">
+
+<nav class="fixed top-0 w-full bg-slate-950/95 backdrop-blur-md z-50 border-b border-amber-500/20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<div class="flex items-center space-x-3">
+<img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire" class="h-10 w-auto">
+<div>
+<span class="text-xl font-bold gradient-text">Empire Scouting Network</span>
+<p class="text-xs text-slate-400">Israeli Football Pro Intelligence</p>
+</div>
+</div>
+<div class="flex space-x-6 items-center">
+<button data-section="dashboard" class="nav-button active"><i class="fas fa-home mr-2"></i>Dashboard</button>
+<button data-section="players" class="nav-button"><i class="fas fa-users mr-2"></i>Players <span class="badge">50</span></button>
+<button data-section="metrics" class="nav-button"><i class="fas fa-chart-line mr-2"></i>Metrics <span class="badge">779</span></button>
+<button data-section="targets" class="nav-button"><i class="fas fa-bullseye mr-2"></i>Targets <span id="badge-count" class="badge">0</span></button>
+<div class="ml-4 border-l border-slate-700 pl-4">
+<p class="text-sm font-semibold text-white">Alessandro Pezzoli</p>
+<p class="text-xs text-slate-400">Fisher Sport Agent</p>
+</div>
+</div>
+</div>
+
+<!-- FILTER BAR - ROW 1 -->
+<div class="border-t border-slate-800 py-2 flex flex-wrap gap-2 items-center text-sm">
+<div class="flex items-center space-x-2 mr-2">
+<i class="fas fa-filter text-amber-400"></i>
+<span class="text-slate-400 font-semibold uppercase text-xs">Filters:</span>
+</div>
+<select id="filter-league" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-cyan-500 outline-none transition-all text-xs" onchange="applyFilters()">
+<option value="all">🇮🇱 All Leagues (50)</option>
+<option value="Israeli Premier League">⭐ Premier (25)</option>
+<option value="Leumit League">💎 Leumit (25)</option>
+</select>
+<select id="filter-position" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-amber-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">⚽ All Positions</option>
+<option value="GK">🧤 GK</option>
+<option value="DEF">🛡️ DEF</option>
+<option value="MID">⭐ MID</option>
+<option value="FWD">⚡ FWD</option>
+</select>
+<select id="filter-age" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-amber-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">📅 All Ages</option>
+<option value="16-22">🌱 U23 (16-22)</option>
+<option value="23-26">💪 Prime (23-26)</option>
+<option value="27-30">🏆 Peak (27-30)</option>
+<option value="31+">🎖️ Vets (31+)</option>
+</select>
+<select id="filter-nationality" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-amber-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">🌍 All Nations</option>
+<option value="Israel">🇮🇱 Israeli</option>
+<option value="Foreign">🌎 Foreign</option>
+</select>
+<select id="filter-fga100" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-amber-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">📊 FGA /100</option>
+<option value="70+">🔥 Elite 70+</option>
+<option value="60-69">💎 Excellent 60-69</option>
+<option value="50-59">✨ Very Good 50-59</option>
+<option value="40-49">💫 Good 40-49</option>
+<option value="0-39">📈 Development -39</option>
+</select>
+<select id="filter-log" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-amber-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">🎯 LOG Rating</option>
+<option value="12+">👑 Elite 12+</option>
+<option value="10-11.9">⭐ Excellent 10-12</option>
+<option value="8-9.9">💪 Very Good 8-10</option>
+<option value="6-7.9">✅ Good 6-8</option>
+<option value="0-5.9">📊 Standard -6</option>
+</select>
+</div>
+
+<!-- FILTER BAR - ROW 2: CORE METRICS -->
+<div class="border-t border-slate-800 py-2 flex flex-wrap gap-2 items-center text-sm">
+<div class="flex items-center space-x-2 mr-2">
+<i class="fas fa-chart-bar text-cyan-400"></i>
+<span class="text-slate-400 font-semibold uppercase text-xs">Core Metrics:</span>
+</div>
+<select id="filter-cpx" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-purple-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">🧠 CPX (Composure)</option>
+<option value="7+">🔥 Elite 7.0+</option>
+<option value="5-6.9">💎 Good 5.0-7.0</option>
+<option value="0-4.9">📊 Dev -5.0</option>
+</select>
+<select id="filter-poi" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-blue-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">🎯 POI (Position Intel)</option>
+<option value="8+">🔥 Elite 8.0+</option>
+<option value="6-7.9">💎 Good 6.0-8.0</option>
+<option value="0-5.9">📊 Dev -6.0</option>
+</select>
+<select id="filter-mob" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-green-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">⚡ MOB (Mobility)</option>
+<option value="8+">🔥 Elite 8.0+</option>
+<option value="6-7.9">💎 Good 6.0-8.0</option>
+<option value="0-5.9">📊 Dev -6.0</option>
+</select>
+<select id="filter-pvi" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-cyan-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">🎨 PVI (Pass Variety)</option>
+<option value="8+">🔥 Elite 8.0+</option>
+<option value="6-7.9">💎 Good 6.0-8.0</option>
+<option value="0-5.9">📊 Dev -6.0</option>
+</select>
+<select id="filter-cpi" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-amber-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">✨ CPI (Creative)</option>
+<option value="8+">🔥 Elite 8.0+</option>
+<option value="6-7.9">💎 Good 6.0-8.0</option>
+<option value="0-5.9">📊 Dev -6.0</option>
+</select>
+<select id="filter-gki" class="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-red-500 outline-none text-xs" onchange="applyFilters()">
+<option value="all">🧤 GKI (GK Index)</option>
+<option value="4+">🔥 Elite 4.0+</option>
+<option value="3-3.9">💎 Good 3.0-4.0</option>
+<option value="0-2.9">📊 Dev -3.0</option>
+</select>
+<button id="reset-filters" class="px-3 py-1.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg text-white font-semibold transition-all text-xs" onclick="resetFilters()">
+<i class="fas fa-redo text-xs mr-1"></i>Reset
+</button>
+<button id="sort-toggle" class="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 rounded-lg text-white font-semibold transition-all text-xs" onclick="toggleSort()">
+<i class="fas fa-sort-amount-down text-xs mr-1"></i><span id="sort-label">FGA ⬇️</span>
+</button>
+<div class="ml-auto flex items-center space-x-2 bg-slate-800/50 rounded-lg px-3 py-1.5 border border-amber-500/30">
+<i class="fas fa-users text-amber-400 text-xs"></i>
+<span class="text-xs text-slate-400">Results:</span>
+<span id="filtered-count" class="text-lg font-bold text-amber-400">50</span>
+</div>
+</div>
+</div>
+</nav>
+
+<div class="pt-48 px-4 max-w-7xl mx-auto pb-12">
+
+<!-- DASHBOARD SECTION -->
+<div id="dashboard-section" class="section-content active">
+<div class="text-center mb-12 mt-8">
+<h1 class="text-5xl font-extrabold gradient-text mb-2">Alessandro Pezzoli</h1>
+<p class="text-slate-400 text-lg">Fisher Sport Agent | Israeli Football Market Specialist</p>
+<p class="text-slate-500 text-sm mt-1">Empire FGA Pro Intelligence | Corrected FGA Ratings</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
+<div class="stat-card rounded-xl p-6 border border-blue-500/30">
+<div class="text-blue-400 text-sm font-semibold mb-2 uppercase tracking-wider">Total Database</div>
+<div class="text-5xl font-bold text-white mb-1">50</div>
+<div class="text-slate-400 text-xs">Israeli players</div>
+</div>
+<div class="stat-card rounded-xl p-6 border border-amber-500/30">
+<div class="text-amber-400 text-sm font-semibold mb-2 uppercase tracking-wider">Premier League</div>
+<div class="text-5xl font-bold text-white mb-1">25</div>
+<div class="text-slate-400 text-xs">Top division</div>
+</div>
+<div class="stat-card rounded-xl p-6 border border-green-500/30">
+<div class="text-green-400 text-sm font-semibold mb-2 uppercase tracking-wider">Leumit League</div>
+<div class="text-5xl font-bold text-white mb-1">25</div>
+<div class="text-slate-400 text-xs">Second division</div>
+</div>
+<div class="stat-card rounded-xl p-6 border border-purple-500/30">
+<div class="text-purple-400 text-sm font-semibold mb-2 uppercase tracking-wider">Avg FGA /100</div>
+<div class="text-5xl font-bold text-white mb-1">56.2</div>
+<div class="text-slate-400 text-xs">Market quality</div>
+</div>
+<div class="stat-card rounded-xl p-6 border border-cyan-500/30">
+<div class="text-cyan-400 text-sm font-semibold mb-2 uppercase tracking-wider">Targets</div>
+<div class="text-5xl font-bold text-white mb-1" id="stat-count">0</div>
+<div class="text-slate-400 text-xs">Monitored</div>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+<h3 class="text-xl font-bold text-white mb-4 flex items-center">
+<i class="fas fa-chart-bar text-cyan-400 mr-2"></i>
+Core Metrics Overview
+</h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-purple-500/10 rounded-lg p-3">
+<p class="text-xs text-slate-400 mb-1">CPX (Composure)</p>
+<p class="text-2xl font-bold text-purple-400">2.3-8.1</p>
+</div>
+<div class="bg-blue-500/10 rounded-lg p-3">
+<p class="text-xs text-slate-400 mb-1">POI (Position)</p>
+<p class="text-2xl font-bold text-blue-400">4.9-10.0</p>
+</div>
+<div class="bg-green-500/10 rounded-lg p-3">
+<p class="text-xs text-slate-400 mb-1">MOB (Mobility)</p>
+<p class="text-2xl font-bold text-green-400">2.8-10.0</p>
+</div>
+<div class="bg-cyan-500/10 rounded-lg p-3">
+<p class="text-xs text-slate-400 mb-1">PVI (Pass Variety)</p>
+<p class="text-2xl font-bold text-cyan-400">3.8-10.0</p>
+</div>
+<div class="bg-amber-500/10 rounded-lg p-3">
+<p class="text-xs text-slate-400 mb-1">CPI (Creative)</p>
+<p class="text-2xl font-bold text-amber-400">3.1-10.0</p>
+</div>
+<div class="bg-red-500/10 rounded-lg p-3">
+<p class="text-xs text-slate-400 mb-1">GKI (GK Index)</p>
+<p class="text-2xl font-bold text-red-400">1.9-5.3</p>
+</div>
+</div>
+</div>
+
+<div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+<h3 class="text-xl font-bold text-white mb-4 flex items-center">
+<i class="fas fa-star text-cyan-400 mr-2"></i>
+Top 5 FGA Ratings (/100)
+</h3>
+<div class="space-y-3" id="top5-list">
+<!-- Populated by JavaScript -->
+</div>
+</div>
+</div>
+</div>
+
+<!-- PLAYERS SECTION -->
+<div id="players-section" class="section-content">
+<div class="mb-8">
+<h2 class="text-3xl font-bold gradient-text mb-4">Israeli Football Database</h2>
+<p class="text-slate-400">50 Players | Complete Empire FGA Pro Analysis with Core Metrics</p>
+</div>
+<div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+<div class="overflow-x-auto">
+<table class="w-full roster-table">
+<thead>
+<tr>
+<th class="text-left">Player</th>
+<th>Pos</th>
+<th>Age</th>
+<th>Nation</th>
+<th class="text-left">Club</th>
+<th>League</th>
+<th>MP</th>
+<th>G+A</th>
+<th>FGA/100</th>
+<th>LOG</th>
+<th>CPX</th>
+<th>POI</th>
+<th>MOB</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="table-players"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- METRICS SECTION -->
+<div id="metrics-section" class="section-content">
+<div class="mb-8">
+<h2 class="text-3xl font-bold gradient-text mb-4">Empire FGA Pro Metrics System</h2>
+<p class="text-slate-400">779 Proprietary Metrics + Core Intelligence Framework</p>
+</div>
+<div class="bg-slate-900/50 rounded-xl p-8 border border-slate-800">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<div class="bg-blue-500/10 rounded-xl p-6 border border-blue-500/30">
+<h3 class="text-xl font-bold text-blue-400 mb-3">FGA Rating /100</h3>
+<p class="text-slate-400 text-sm mb-3">FGA_Rating_Base scaled to 100</p>
+<div class="text-4xl font-bold text-white">18.5 - 78.7</div>
+<p class="text-xs text-slate-500 mt-2">Israeli market range</p>
+</div>
+<div class="bg-purple-500/10 rounded-xl p-6 border border-purple-500/30">
+<h3 class="text-xl font-bold text-purple-400 mb-3">LOG Rating</h3>
+<p class="text-slate-400 text-sm mb-3">Level of Game adjusted</p>
+<div class="text-4xl font-bold text-white">1.7 - 14.5</div>
+<p class="text-xs text-slate-500 mt-2">Opposition quality adjusted</p>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-purple-500/10 rounded-xl p-6 border border-purple-500/30">
+<h3 class="text-lg font-bold text-purple-400 mb-3">🧠 CPX - Composure</h3>
+<p class="text-slate-400 text-sm">Mental calmness under pressure, decision quality in tight situations</p>
+</div>
+<div class="bg-blue-500/10 rounded-xl p-6 border border-blue-500/30">
+<h3 class="text-lg font-bold text-blue-400 mb-3">🎯 POI - Position Intelligence</h3>
+<p class="text-slate-400 text-sm">Spatial awareness, tactical positioning, game reading ability</p>
+</div>
+<div class="bg-green-500/10 rounded-xl p-6 border border-green-500/30">
+<h3 class="text-lg font-bold text-green-400 mb-3">⚡ MOB - Mobility</h3>
+<p class="text-slate-400 text-sm">Movement quality, athleticism, coverage area effectiveness</p>
+</div>
+<div class="bg-cyan-500/10 rounded-xl p-6 border border-cyan-500/30">
+<h3 class="text-lg font-bold text-cyan-400 mb-3">🎨 PVI - Pass Variety Index</h3>
+<p class="text-slate-400 text-sm">Range of passing types, distribution versatility</p>
+</div>
+<div class="bg-amber-500/10 rounded-xl p-6 border border-amber-500/30">
+<h3 class="text-lg font-bold text-amber-400 mb-3">✨ CPI - Creative Player Index</h3>
+<p class="text-slate-400 text-sm">Creativity, unpredictability, chance creation</p>
+</div>
+<div class="bg-red-500/10 rounded-xl p-6 border border-red-500/30">
+<h3 class="text-lg font-bold text-red-400 mb-3">🧤 GKI - Goalkeeper Index</h3>
+<p class="text-slate-400 text-sm">Comprehensive GK performance</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- TARGETS SECTION -->
+<div id="targets-section" class="section-content">
+<div class="mb-8">
+<h2 class="text-3xl font-bold gradient-text mb-4">Transfer Targets</h2>
+<p class="text-slate-400">Your Monitored Players for Client Opportunities</p>
+</div>
+<div id="list"></div>
+</div>
+
+</div>
+
+<script>
+const israeliPlayers = [
+{
+"name": "Dan Biton",
+"club": "Hapoel Be'er Sheva",
+"position": "MID",
+"nationality": "Israel",
+"age": 28,
+"league": "Israeli Premier League",
+"matches": 22,
+"minutes": 1980,
+"goals": 15,
+"assists": 4,
+"yellowCards": 6,
+"redCards": 0,
+"fotmobRating": 7.65,
+"shotsTotal": 68,
+"shotsOnTarget": 28,
+"keyPasses": 56,
+"xg": 12.5,
+"npxg": 10.5,
+"passAccuracy": 87.0,
+"tackles": 32,
+"interceptions": 24,
+"fga": 7.78,
+"fga100": 77.8,
+"logRating": 14.08,
+"tier": "⚡ IMMORTAL",
+"cpx": 7.87,
+"poi": 7.66,
+"mob": 8.2,
+"pvi": 10.0,
+"cpi": 10.0,
+"gki": 0.0,
+"xps": 7.6,
+"stk": 3.16,
+"key": 9.05,
+"mrk": 4.18,
+"tac": 6.0,
+"profileHtml": "Dan_Biton_IPL.html"
+},
+{
+"name": "Stav Turiel",
+"club": "Hapoel Tel Aviv",
+"position": "FWD",
+"nationality": "Israel",
+"age": 26,
+"league": "Israeli Premier League",
+"matches": 13,
+"minutes": 1170,
+"goals": 11,
+"assists": 2,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 7.82,
+"shotsTotal": 52,
+"shotsOnTarget": 25,
+"keyPasses": 34,
+"xg": 8.2,
+"npxg": 7.2,
+"passAccuracy": 84.0,
+"tackles": 18,
+"interceptions": 12,
+"fga": 7.05,
+"fga100": 70.5,
+"logRating": 14.47,
+"tier": "⚡ IMMORTAL",
+"cpx": 7.86,
+"poi": 6.98,
+"mob": 8.43,
+"pvi": 7.03,
+"cpi": 5.58,
+"gki": 0.0,
+"xps": 10.0,
+"stk": 3.46,
+"key": 9.3,
+"mrk": 3.79,
+"tac": 6.0,
+"profileHtml": "Stav_Turiel_IPL.html"
+},
+{
+"name": "Yarden Shua",
+"club": "Beitar Jerusalem",
+"position": "FWD",
+"nationality": "Israel",
+"age": 29,
+"league": "Israeli Premier League",
+"matches": 14,
+"minutes": 1260,
+"goals": 10,
+"assists": 3,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 7.42,
+"shotsTotal": 51,
+"shotsOnTarget": 19,
+"keyPasses": 28,
+"xg": 9.8,
+"npxg": 8.8,
+"passAccuracy": 82.0,
+"tackles": 22,
+"interceptions": 15,
+"fga": 6.38,
+"fga100": 63.8,
+"logRating": 13.32,
+"tier": "⚡ IMMORTAL",
+"cpx": 7.59,
+"poi": 6.05,
+"mob": 8.29,
+"pvi": 6.55,
+"cpi": 5.07,
+"gki": 0.0,
+"xps": 8.3,
+"stk": 2.84,
+"key": 7.11,
+"mrk": 4.34,
+"tac": 6.0,
+"profileHtml": "Yarden_Shua_IPL.html"
+},
+{
+"name": "Adrián Ugarriza",
+"club": "Ironi Kiryat Shmona",
+"position": "FWD",
+"nationality": "Peru",
+"age": 30,
+"league": "Israeli Premier League",
+"matches": 17,
+"minutes": 1530,
+"goals": 10,
+"assists": 2,
+"yellowCards": 5,
+"redCards": 0,
+"fotmobRating": 7.15,
+"shotsTotal": 54,
+"shotsOnTarget": 22,
+"keyPasses": 38,
+"xg": 7.5,
+"npxg": 6.5,
+"passAccuracy": 79.0,
+"tackles": 28,
+"interceptions": 18,
+"fga": 6.18,
+"fga100": 61.8,
+"logRating": 9.03,
+"tier": "⭐ ELITE",
+"cpx": 7.24,
+"poi": 5.51,
+"mob": 8.06,
+"pvi": 6.68,
+"cpi": 5.62,
+"gki": 0.0,
+"xps": 7.2,
+"stk": 2.96,
+"key": 7.95,
+"mrk": 4.44,
+"tac": 6.0,
+"profileHtml": "Adrián_Ugarriza_IPL.html"
+},
+{
+"name": "Dor Peretz",
+"club": "Maccabi Tel Aviv",
+"position": "MID",
+"nationality": "Israel",
+"age": 29,
+"league": "Israeli Premier League",
+"matches": 20,
+"minutes": 1800,
+"goals": 10,
+"assists": 1,
+"yellowCards": 7,
+"redCards": 0,
+"fotmobRating": 7.28,
+"shotsTotal": 62,
+"shotsOnTarget": 24,
+"keyPasses": 44,
+"xg": 11.2,
+"npxg": 10.2,
+"passAccuracy": 86.0,
+"tackles": 35,
+"interceptions": 28,
+"fga": 7.04,
+"fga100": 70.4,
+"logRating": 10.92,
+"tier": "🔥 LEGENDARY",
+"cpx": 7.73,
+"poi": 7.38,
+"mob": 8.22,
+"pvi": 8.88,
+"cpi": 7.74,
+"gki": 0.0,
+"xps": 6.56,
+"stk": 2.74,
+"key": 7.82,
+"mrk": 5.17,
+"tac": 6.0,
+"profileHtml": "Dor_Peretz_IPL.html"
+},
+{
+"name": "Ido Shahar",
+"club": "Maccabi Tel Aviv",
+"position": "MID",
+"nationality": "Israel",
+"age": 24,
+"league": "Israeli Premier League",
+"matches": 15,
+"minutes": 1350,
+"goals": 9,
+"assists": 3,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 7.15,
+"shotsTotal": 48,
+"shotsOnTarget": 20,
+"keyPasses": 42,
+"xg": 8.8,
+"npxg": 7.8,
+"passAccuracy": 88.0,
+"tackles": 25,
+"interceptions": 20,
+"fga": 7.34,
+"fga100": 73.4,
+"logRating": 13.4,
+"tier": "⚡ IMMORTAL",
+"cpx": 8.09,
+"poi": 8.57,
+"mob": 8.38,
+"pvi": 8.49,
+"cpi": 7.51,
+"gki": 0.0,
+"xps": 7.33,
+"stk": 3.02,
+"key": 9.96,
+"mrk": 4.92,
+"tac": 6.0,
+"profileHtml": "Ido_Shahar_IPL.html"
+},
+{
+"name": "Javon East",
+"club": "Hapoel Haifa",
+"position": "FWD",
+"nationality": "Jamaica",
+"age": 27,
+"league": "Israeli Premier League",
+"matches": 15,
+"minutes": 1350,
+"goals": 9,
+"assists": 1,
+"yellowCards": 8,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 47,
+"shotsOnTarget": 18,
+"keyPasses": 31,
+"xg": 6.8,
+"npxg": 5.8,
+"passAccuracy": 77.0,
+"tackles": 30,
+"interceptions": 22,
+"fga": 6.02,
+"fga100": 60.199999999999996,
+"logRating": 9.57,
+"tier": "⭐ ELITE",
+"cpx": 7.34,
+"poi": 5.85,
+"mob": 8.16,
+"pvi": 6.16,
+"cpi": 4.65,
+"gki": 0.0,
+"xps": 7.11,
+"stk": 2.87,
+"key": 7.35,
+"mrk": 5.69,
+"tac": 6.0,
+"profileHtml": "Javon_East_IPL.html"
+},
+{
+"name": "Trivante Stewart",
+"club": "Maccabi Haifa",
+"position": "FWD",
+"nationality": "Jamaica",
+"age": 25,
+"league": "Israeli Premier League",
+"matches": 15,
+"minutes": 1350,
+"goals": 9,
+"assists": 3,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 7.05,
+"shotsTotal": 49,
+"shotsOnTarget": 21,
+"keyPasses": 33,
+"xg": 7.2,
+"npxg": 6.2,
+"passAccuracy": 80.0,
+"tackles": 24,
+"interceptions": 16,
+"fga": 6.3,
+"fga100": 63.0,
+"logRating": 12.21,
+"tier": "⚡ IMMORTAL",
+"cpx": 7.52,
+"poi": 5.98,
+"mob": 7.95,
+"pvi": 6.64,
+"cpi": 5.48,
+"gki": 0.0,
+"xps": 7.47,
+"stk": 3.06,
+"key": 7.82,
+"mrk": 4.37,
+"tac": 6.0,
+"profileHtml": "Trivante_Stewart_IPL.html"
+},
+{
+"name": "Omer Atzili",
+"club": "Beitar Jerusalem",
+"position": "MID",
+"nationality": "Israel",
+"age": 31,
+"league": "Israeli Premier League",
+"matches": 19,
+"minutes": 1710,
+"goals": 8,
+"assists": 5,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 7.25,
+"shotsTotal": 58,
+"shotsOnTarget": 24,
+"keyPasses": 48,
+"xg": 9.5,
+"npxg": 8.5,
+"passAccuracy": 85.0,
+"tackles": 20,
+"interceptions": 14,
+"fga": 7.12,
+"fga100": 71.2,
+"logRating": 11.77,
+"tier": "👑 GOAT TIER",
+"cpx": 8.05,
+"poi": 7.03,
+"mob": 8.31,
+"pvi": 8.84,
+"cpi": 8.66,
+"gki": 0.0,
+"xps": 6.2,
+"stk": 2.76,
+"key": 8.98,
+"mrk": 2.94,
+"tac": 6.0,
+"profileHtml": "Omer_Atzili_IPL.html"
+},
+{
+"name": "Márk Koszta",
+"club": "Hapoel Petah Tikva",
+"position": "FWD",
+"nationality": "Hungary",
+"age": 32,
+"league": "Israeli Premier League",
+"matches": 17,
+"minutes": 1530,
+"goals": 8,
+"assists": 0,
+"yellowCards": 6,
+"redCards": 0,
+"fotmobRating": 6.85,
+"shotsTotal": 55,
+"shotsOnTarget": 20,
+"keyPasses": 29,
+"xg": 7.8,
+"npxg": 6.8,
+"passAccuracy": 78.0,
+"tackles": 35,
+"interceptions": 25,
+"fga": 5.62,
+"fga100": 56.2,
+"logRating": 7.09,
+"tier": "✅ HIGH QUALITY",
+"cpx": 6.74,
+"poi": 5.28,
+"mob": 7.77,
+"pvi": 6.16,
+"cpi": 4.33,
+"gki": 0.0,
+"xps": 6.49,
+"stk": 2.55,
+"key": 6.07,
+"mrk": 5.79,
+"tac": 6.0,
+"profileHtml": "Márk_Koszta_IPL.html"
+},
+{
+"name": "Igor Zlatanović",
+"club": "Hapoel Be'er Sheva",
+"position": "FWD",
+"nationality": "Montenegro",
+"age": 29,
+"league": "Israeli Premier League",
+"matches": 17,
+"minutes": 1530,
+"goals": 8,
+"assists": 0,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 7.05,
+"shotsTotal": 52,
+"shotsOnTarget": 19,
+"keyPasses": 32,
+"xg": 8.5,
+"npxg": 6.5,
+"passAccuracy": 81.0,
+"tackles": 18,
+"interceptions": 12,
+"fga": 5.67,
+"fga100": 56.7,
+"logRating": 9.54,
+"tier": "⭐ ELITE",
+"cpx": 7.15,
+"poi": 4.87,
+"mob": 7.49,
+"pvi": 6.55,
+"cpi": 4.75,
+"gki": 0.0,
+"xps": 6.27,
+"stk": 2.6,
+"key": 6.69,
+"mrk": 2.89,
+"tac": 6.0,
+"profileHtml": "Igor_Zlatanović_IPL.html"
+},
+{
+"name": "Kings Kangwa",
+"club": "Hapoel Be'er Sheva",
+"position": "MID",
+"nationality": "Zambia",
+"age": 26,
+"league": "Israeli Premier League",
+"matches": 21,
+"minutes": 1890,
+"goals": 5,
+"assists": 5,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 7.22,
+"shotsTotal": 42,
+"shotsOnTarget": 16,
+"keyPasses": 44,
+"xg": 6.2,
+"npxg": 5.2,
+"passAccuracy": 84.0,
+"tackles": 58,
+"interceptions": 45,
+"fga": 6.56,
+"fga100": 65.6,
+"logRating": 10.04,
+"tier": "🔥 LEGENDARY",
+"cpx": 7.45,
+"poi": 7.41,
+"mob": 8.29,
+"pvi": 8.41,
+"cpi": 8.06,
+"gki": 0.0,
+"xps": 3.78,
+"stk": 2.5,
+"key": 7.45,
+"mrk": 8.05,
+"tac": 6.0,
+"profileHtml": "Kings_Kangwa_IPL.html"
+},
+{
+"name": "Tyrese Asante",
+"club": "Maccabi Tel Aviv",
+"position": "DEF",
+"nationality": "Netherlands",
+"age": 24,
+"league": "Israeli Premier League",
+"matches": 19,
+"minutes": 1624,
+"goals": 2,
+"assists": 2,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 7.34,
+"shotsTotal": 28,
+"shotsOnTarget": 12,
+"keyPasses": 44,
+"xg": 2.1,
+"npxg": 1.8,
+"passAccuracy": 89.0,
+"tackles": 62,
+"interceptions": 48,
+"fga": 7.3,
+"fga100": 73.0,
+"logRating": 8.33,
+"tier": "💎 WORLD CLASS",
+"cpx": 7.83,
+"poi": 10.0,
+"mob": 10.0,
+"pvi": 9.57,
+"cpi": 8.53,
+"gki": 0.0,
+"xps": 2.65,
+"stk": 2.5,
+"key": 8.67,
+"mrk": 10.0,
+"tac": 6.0,
+"profileHtml": "Tyrese_Asante_IPL.html"
+},
+{
+"name": "Roy Revivo",
+"club": "Maccabi Tel Aviv",
+"position": "DEF",
+"nationality": "Israel",
+"age": 23,
+"league": "Israeli Premier League",
+"matches": 22,
+"minutes": 1580,
+"goals": 1,
+"assists": 5,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 7.18,
+"shotsTotal": 32,
+"shotsOnTarget": 14,
+"keyPasses": 38,
+"xg": 1.8,
+"npxg": 1.5,
+"passAccuracy": 86.0,
+"tackles": 55,
+"interceptions": 42,
+"fga": 6.6,
+"fga100": 66.0,
+"logRating": 8.97,
+"tier": "💎 WORLD CLASS",
+"cpx": 7.7,
+"poi": 8.23,
+"mob": 9.64,
+"pvi": 8.15,
+"cpi": 7.42,
+"gki": 0.0,
+"xps": 2.75,
+"stk": 2.34,
+"key": 7.7,
+"mrk": 9.06,
+"tac": 6.0,
+"profileHtml": "Roy_Revivo_IPL.html"
+},
+{
+"name": "Kenji Gorré",
+"club": "Maccabi Haifa",
+"position": "MID",
+"nationality": "Curaçao",
+"age": 29,
+"league": "Israeli Premier League",
+"matches": 16,
+"minutes": 1440,
+"goals": 3,
+"assists": 5,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 7.05,
+"shotsTotal": 45,
+"shotsOnTarget": 18,
+"keyPasses": 45,
+"xg": 5.5,
+"npxg": 4.5,
+"passAccuracy": 83.0,
+"tackles": 25,
+"interceptions": 18,
+"fga": 6.73,
+"fga100": 67.30000000000001,
+"logRating": 10.19,
+"tier": "🔥 LEGENDARY",
+"cpx": 8.0,
+"poi": 7.54,
+"mob": 8.86,
+"pvi": 8.02,
+"cpi": 7.74,
+"gki": 0.0,
+"xps": 4.62,
+"stk": 2.33,
+"key": 10.0,
+"mrk": 4.41,
+"tac": 6.0,
+"profileHtml": "Kenji_Gorré_IPL.html"
+},
+{
+"name": "Timothy Muzie",
+"club": "Beitar Jerusalem",
+"position": "DEF",
+"nationality": "Israel",
+"age": 24,
+"league": "Israeli Premier League",
+"matches": 20,
+"minutes": 1800,
+"goals": 1,
+"assists": 5,
+"yellowCards": 6,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 35,
+"shotsOnTarget": 15,
+"keyPasses": 42,
+"xg": 1.2,
+"npxg": 0.9,
+"passAccuracy": 84.0,
+"tackles": 48,
+"interceptions": 38,
+"fga": 6.19,
+"fga100": 61.900000000000006,
+"logRating": 8.02,
+"tier": "💎 WORLD CLASS",
+"cpx": 7.42,
+"poi": 7.08,
+"mob": 8.22,
+"pvi": 8.1,
+"cpi": 7.65,
+"gki": 0.0,
+"xps": 2.59,
+"stk": 2.29,
+"key": 7.47,
+"mrk": 7.05,
+"tac": 6.0,
+"profileHtml": "Timothy_Muzie_IPL.html"
+},
+{
+"name": "Miguel Vítor",
+"club": "Hapoel Be'er Sheva",
+"position": "DEF",
+"nationality": "Portugal",
+"age": 34,
+"league": "Israeli Premier League",
+"matches": 18,
+"minutes": 1620,
+"goals": 0,
+"assists": 1,
+"yellowCards": 5,
+"redCards": 0,
+"fotmobRating": 7.12,
+"shotsTotal": 22,
+"shotsOnTarget": 8,
+"keyPasses": 28,
+"xg": 0.8,
+"npxg": 0.5,
+"passAccuracy": 85.0,
+"tackles": 42,
+"interceptions": 35,
+"fga": 5.25,
+"fga100": 52.5,
+"logRating": 5.77,
+"tier": "⚪ STANDARD",
+"cpx": 7.14,
+"poi": 6.15,
+"mob": 8.23,
+"pvi": 6.94,
+"cpi": 4.98,
+"gki": 0.0,
+"xps": 1.53,
+"stk": 1.82,
+"key": 5.53,
+"mrk": 7.02,
+"tac": 6.0,
+"profileHtml": "Miguel_Vítor_IPL.html"
+},
+{
+"name": "Eugene Ansah",
+"club": "F.C. Ashdod",
+"position": "FWD",
+"nationality": "Ghana",
+"age": 28,
+"league": "Israeli Premier League",
+"matches": 17,
+"minutes": 1530,
+"goals": 4,
+"assists": 5,
+"yellowCards": 7,
+"redCards": 0,
+"fotmobRating": 6.75,
+"shotsTotal": 48,
+"shotsOnTarget": 19,
+"keyPasses": 38,
+"xg": 5.8,
+"npxg": 4.8,
+"passAccuracy": 79.0,
+"tackles": 32,
+"interceptions": 24,
+"fga": 5.99,
+"fga100": 59.900000000000006,
+"logRating": 8.18,
+"tier": "💎 WORLD CLASS",
+"cpx": 7.31,
+"poi": 6.1,
+"mob": 8.06,
+"pvi": 6.85,
+"cpi": 6.36,
+"gki": 0.0,
+"xps": 4.87,
+"stk": 2.4,
+"key": 7.95,
+"mrk": 5.4,
+"tac": 6.0,
+"profileHtml": "Eugene_Ansah_IPL.html"
+},
+{
+"name": "Hélder Lopes",
+"club": "Hapoel Be'er Sheva",
+"position": "DEF",
+"nationality": "Portugal",
+"age": 31,
+"league": "Israeli Premier League",
+"matches": 19,
+"minutes": 1550,
+"goals": 0,
+"assists": 2,
+"yellowCards": 6,
+"redCards": 0,
+"fotmobRating": 7.05,
+"shotsTotal": 25,
+"shotsOnTarget": 10,
+"keyPasses": 35,
+"xg": 0.5,
+"npxg": 0.3,
+"passAccuracy": 86.0,
+"tackles": 38,
+"interceptions": 30,
+"fga": 5.92,
+"fga100": 59.2,
+"logRating": 6.7,
+"tier": "📈 PROFESSIONAL",
+"cpx": 7.44,
+"poi": 7.35,
+"mob": 8.42,
+"pvi": 7.89,
+"cpi": 6.45,
+"gki": 0.0,
+"xps": 1.88,
+"stk": 2.0,
+"key": 7.23,
+"mrk": 6.48,
+"tac": 6.0,
+"profileHtml": "Hélder_Lopes_IPL.html"
+},
+{
+"name": "Omri Glazer",
+"club": "Hapoel Be'er Sheva",
+"position": "GK",
+"nationality": "Israel",
+"age": 30,
+"league": "Israeli Premier League",
+"matches": 22,
+"minutes": 1980,
+"goals": 0,
+"assists": 0,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 7.25,
+"shotsTotal": 0,
+"shotsOnTarget": 0,
+"keyPasses": 0,
+"xg": 0.0,
+"npxg": 0.0,
+"passAccuracy": 0.0,
+"tackles": 0,
+"interceptions": 0,
+"fga": 5.34,
+"fga100": 53.4,
+"logRating": 8.513485714285714,
+"tier": "👑 GOAT TIER",
+"cpx": 2.42,
+"poi": 0.0,
+"mob": 3.81,
+"pvi": 0.0,
+"cpi": 0.0,
+"gki": 5.34,
+"xps": 0.0,
+"stk": 0.0,
+"key": 0.0,
+"mrk": 0.0,
+"tac": 0.0,
+"profileHtml": "Omri_Glazer_IPL.html"
+},
+{
+"name": "Georgiy Yermakov",
+"club": "Maccabi Haifa",
+"position": "GK",
+"nationality": "Russia",
+"age": 28,
+"league": "Israeli Premier League",
+"matches": 22,
+"minutes": 1980,
+"goals": 0,
+"assists": 0,
+"yellowCards": 1,
+"redCards": 0,
+"fotmobRating": 7.08,
+"shotsTotal": 0,
+"shotsOnTarget": 0,
+"keyPasses": 0,
+"xg": 0.0,
+"npxg": 0.0,
+"passAccuracy": 0.0,
+"tackles": 0,
+"interceptions": 0,
+"fga": 4.98,
+"fga100": 49.800000000000004,
+"logRating": 7.619400000000001,
+"tier": "🔥 LEGENDARY",
+"cpx": 2.36,
+"poi": 0.0,
+"mob": 3.52,
+"pvi": 0.0,
+"cpi": 0.0,
+"gki": 4.98,
+"xps": 0.0,
+"stk": 0.0,
+"key": 0.0,
+"mrk": 0.0,
+"tac": 0.0,
+"profileHtml": "Georgiy_Yermakov_IPL.html"
+},
+{
+"name": "Roy Mishpati",
+"club": "Maccabi Tel Aviv",
+"position": "GK",
+"nationality": "Israel",
+"age": 26,
+"league": "Israeli Premier League",
+"matches": 20,
+"minutes": 1800,
+"goals": 0,
+"assists": 0,
+"yellowCards": 0,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 0,
+"shotsOnTarget": 0,
+"keyPasses": 0,
+"xg": 0.0,
+"npxg": 0.0,
+"passAccuracy": 0.0,
+"tackles": 0,
+"interceptions": 0,
+"fga": 4.35,
+"fga100": 43.5,
+"logRating": 6.935142857142857,
+"tier": "⭐ ELITE",
+"cpx": 2.32,
+"poi": 0.0,
+"mob": 3.63,
+"pvi": 0.0,
+"cpi": 0.0,
+"gki": 4.35,
+"xps": 0.0,
+"stk": 0.0,
+"key": 0.0,
+"mrk": 0.0,
+"tac": 0.0,
+"profileHtml": "Roy_Mishpati_IPL.html"
+},
+{
+"name": "Daniel Tenenbaum",
+"club": "Ironi Kiryat Shmona",
+"position": "GK",
+"nationality": "Israel",
+"age": 29,
+"league": "Israeli Premier League",
+"matches": 22,
+"minutes": 1980,
+"goals": 0,
+"assists": 0,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 6.82,
+"shotsTotal": 0,
+"shotsOnTarget": 0,
+"keyPasses": 0,
+"xg": 0.0,
+"npxg": 0.0,
+"passAccuracy": 0.0,
+"tackles": 0,
+"interceptions": 0,
+"fga": 1.85,
+"fga100": 18.5,
+"logRating": 2.2437857142857145,
+"tier": "⚪ STANDARD",
+"cpx": 2.27,
+"poi": 0.0,
+"mob": 2.78,
+"pvi": 0.0,
+"cpi": 0.0,
+"gki": 1.85,
+"xps": 0.0,
+"stk": 0.0,
+"key": 0.0,
+"mrk": 0.0,
+"tac": 0.0,
+"profileHtml": "Daniel_Tenenbaum_IPL.html"
+},
+{
+"name": "Usman Muhammed",
+"club": "Hapoel Be'er Sheva",
+"position": "MID",
+"nationality": "Nigeria",
+"age": 31,
+"league": "Israeli Premier League",
+"matches": 21,
+"minutes": 1890,
+"goals": 1,
+"assists": 2,
+"yellowCards": 10,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 28,
+"shotsOnTarget": 11,
+"keyPasses": 32,
+"xg": 2.5,
+"npxg": 1.8,
+"passAccuracy": 82.0,
+"tackles": 45,
+"interceptions": 38,
+"fga": 5.29,
+"fga100": 52.9,
+"logRating": 6.49,
+"tier": "📈 PROFESSIONAL",
+"cpx": 7.27,
+"poi": 5.6,
+"mob": 7.52,
+"pvi": 6.98,
+"cpi": 5.53,
+"gki": 0.0,
+"xps": 1.96,
+"stk": 2.14,
+"key": 5.42,
+"mrk": 6.48,
+"tac": 6.0,
+"profileHtml": "Usman_Muhammed_IPL.html"
+},
+{
+"name": "Aziz Ouattara Mohammed",
+"club": "Maccabi Netanya",
+"position": "MID",
+"nationality": "Ivory Coast",
+"age": 25,
+"league": "Israeli Premier League",
+"matches": 20,
+"minutes": 1800,
+"goals": 4,
+"assists": 3,
+"yellowCards": 10,
+"redCards": 1,
+"fotmobRating": 6.85,
+"shotsTotal": 42,
+"shotsOnTarget": 17,
+"keyPasses": 35,
+"xg": 4.8,
+"npxg": 3.8,
+"passAccuracy": 80.0,
+"tackles": 38,
+"interceptions": 32,
+"fga": 5.56,
+"fga100": 55.599999999999994,
+"logRating": 7.39,
+"tier": "✅ HIGH QUALITY",
+"cpx": 7.32,
+"poi": 5.43,
+"mob": 7.41,
+"pvi": 6.77,
+"cpi": 5.71,
+"gki": 0.0,
+"xps": 3.78,
+"stk": 2.5,
+"key": 6.22,
+"mrk": 5.74,
+"tac": 6.0,
+"profileHtml": "Aziz_Ouattara_Mohammed_IPL.html"
+},
+{
+"name": "José Cortés",
+"club": "Maccabi Petah Tikva",
+"position": "FWD",
+"nationality": "Colombia",
+"age": 26,
+"league": "Leumit League",
+"matches": 23,
+"minutes": 2070,
+"goals": 11,
+"assists": 3,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 7.45,
+"shotsTotal": 52,
+"shotsOnTarget": 25,
+"keyPasses": 35,
+"xg": 9.5,
+"npxg": 8.5,
+"passAccuracy": 78.0,
+"tackles": 18,
+"interceptions": 12,
+"fga": 7.73,
+"fga100": 77.30000000000001,
+"logRating": 8.29,
+"tier": "💎 WORLD CLASS",
+"cpx": 7.51,
+"poi": 7.26,
+"mob": 8.5,
+"pvi": 9.01,
+"cpi": 8.38,
+"gki": 0.0,
+"xps": 10.0,
+"stk": 3.46,
+"key": 7.61,
+"mrk": 3.39,
+"tac": 6.0,
+"profileHtml": "José_Cortés_Leumit.html"
+},
+{
+"name": "Julio César",
+"club": "Hapoel Kfar Saba",
+"position": "FWD",
+"nationality": "Brazil",
+"age": 28,
+"league": "Leumit League",
+"matches": 22,
+"minutes": 1980,
+"goals": 9,
+"assists": 2,
+"yellowCards": 5,
+"redCards": 0,
+"fotmobRating": 7.25,
+"shotsTotal": 48,
+"shotsOnTarget": 22,
+"keyPasses": 32,
+"xg": 8.2,
+"npxg": 7.2,
+"passAccuracy": 76.0,
+"tackles": 22,
+"interceptions": 15,
+"fga": 7.34,
+"fga100": 73.4,
+"logRating": 6.87,
+"tier": "📈 PROFESSIONAL",
+"cpx": 7.32,
+"poi": 7.24,
+"mob": 8.64,
+"pvi": 8.49,
+"cpi": 7.43,
+"gki": 0.0,
+"xps": 9.06,
+"stk": 3.23,
+"key": 7.27,
+"mrk": 4.37,
+"tac": 6.0,
+"profileHtml": "Julio_César_Leumit.html"
+},
+{
+"name": "Yaniv Mizrahi",
+"club": "Hapoel Afula",
+"position": "FWD",
+"nationality": "Israel",
+"age": 29,
+"league": "Leumit League",
+"matches": 21,
+"minutes": 1890,
+"goals": 8,
+"assists": 2,
+"yellowCards": 6,
+"redCards": 1,
+"fotmobRating": 7.15,
+"shotsTotal": 45,
+"shotsOnTarget": 20,
+"keyPasses": 28,
+"xg": 7.8,
+"npxg": 7.0,
+"passAccuracy": 74.0,
+"tackles": 25,
+"interceptions": 18,
+"fga": 7.07,
+"fga100": 70.7,
+"logRating": 6.41,
+"tier": "📈 PROFESSIONAL",
+"cpx": 7.18,
+"poi": 7.23,
+"mob": 8.69,
+"pvi": 7.97,
+"cpi": 6.69,
+"gki": 0.0,
+"xps": 8.64,
+"stk": 3.11,
+"key": 6.67,
+"mrk": 5.32,
+"tac": 6.0,
+"profileHtml": "Yaniv_Mizrahi_Leumit.html"
+},
+{
+"name": "Osama Khalaila",
+"club": "Hapoel Acre",
+"position": "FWD",
+"nationality": "Israel",
+"age": 27,
+"league": "Leumit League",
+"matches": 22,
+"minutes": 1980,
+"goals": 6,
+"assists": 1,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 38,
+"shotsOnTarget": 18,
+"keyPasses": 25,
+"xg": 6.5,
+"npxg": 5.8,
+"passAccuracy": 72.0,
+"tackles": 28,
+"interceptions": 20,
+"fga": 6.39,
+"fga100": 63.9,
+"logRating": 5.08,
+"tier": "⚪ STANDARD",
+"cpx": 6.91,
+"poi": 6.56,
+"mob": 8.04,
+"pvi": 7.5,
+"cpi": 5.81,
+"gki": 0.0,
+"xps": 6.76,
+"stk": 3.16,
+"key": 5.68,
+"mrk": 5.67,
+"tac": 6.0,
+"profileHtml": "Osama_Khalaila_Leumit.html"
+},
+{
+"name": "Anas Dabour",
+"club": "F.C. Kafr Qasim",
+"position": "FWD",
+"nationality": "Israel",
+"age": 25,
+"league": "Leumit League",
+"matches": 20,
+"minutes": 1800,
+"goals": 6,
+"assists": 3,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 7.05,
+"shotsTotal": 42,
+"shotsOnTarget": 19,
+"keyPasses": 30,
+"xg": 7.2,
+"npxg": 6.5,
+"passAccuracy": 77.0,
+"tackles": 20,
+"interceptions": 14,
+"fga": 7.17,
+"fga100": 71.7,
+"logRating": 6.16,
+"tier": "📈 PROFESSIONAL",
+"cpx": 7.29,
+"poi": 7.69,
+"mob": 8.57,
+"pvi": 8.43,
+"cpi": 7.43,
+"gki": 0.0,
+"xps": 7.83,
+"stk": 2.98,
+"key": 7.5,
+"mrk": 4.42,
+"tac": 6.0,
+"profileHtml": "Anas_Dabour_Leumit.html"
+},
+{
+"name": "Guy Sivilia",
+"club": "Hapoel Kfar Shalem",
+"position": "MID",
+"nationality": "Israel",
+"age": 28,
+"league": "Leumit League",
+"matches": 21,
+"minutes": 1890,
+"goals": 6,
+"assists": 2,
+"yellowCards": 7,
+"redCards": 0,
+"fotmobRating": 6.85,
+"shotsTotal": 40,
+"shotsOnTarget": 18,
+"keyPasses": 26,
+"xg": 6.8,
+"npxg": 6.2,
+"passAccuracy": 75.0,
+"tackles": 32,
+"interceptions": 22,
+"fga": 6.79,
+"fga100": 67.9,
+"logRating": 5.35,
+"tier": "⚪ STANDARD",
+"cpx": 7.12,
+"poi": 7.32,
+"mob": 8.69,
+"pvi": 7.85,
+"cpi": 6.35,
+"gki": 0.0,
+"xps": 7.21,
+"stk": 3.0,
+"key": 6.19,
+"mrk": 6.68,
+"tac": 6.0,
+"profileHtml": "Guy_Sivilia_Leumit.html"
+},
+{
+"name": "Gil Itzhak",
+"club": "Maccabi Jaffa",
+"position": "FWD",
+"nationality": "Israel",
+"age": 24,
+"league": "Leumit League",
+"matches": 22,
+"minutes": 1980,
+"goals": 5,
+"assists": 2,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 6.75,
+"shotsTotal": 38,
+"shotsOnTarget": 16,
+"keyPasses": 24,
+"xg": 6.2,
+"npxg": 5.8,
+"passAccuracy": 73.0,
+"tackles": 18,
+"interceptions": 12,
+"fga": 6.1,
+"fga100": 61.0,
+"logRating": 4.86,
+"tier": "⚪ STANDARD",
+"cpx": 6.96,
+"poi": 5.62,
+"mob": 8.04,
+"pvi": 7.38,
+"cpi": 5.81,
+"gki": 0.0,
+"xps": 6.14,
+"stk": 2.76,
+"key": 5.45,
+"mrk": 3.54,
+"tac": 6.0,
+"profileHtml": "Gil_Itzhak_Leumit.html"
+},
+{
+"name": "Wilinton Aponzá",
+"club": "Maccabi Herzliya",
+"position": "FWD",
+"nationality": "Colombia",
+"age": 30,
+"league": "Leumit League",
+"matches": 21,
+"minutes": 1890,
+"goals": 6,
+"assists": 1,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 42,
+"shotsOnTarget": 19,
+"keyPasses": 28,
+"xg": 7.0,
+"npxg": 6.5,
+"passAccuracy": 76.0,
+"tackles": 22,
+"interceptions": 15,
+"fga": 6.79,
+"fga100": 67.9,
+"logRating": 5.59,
+"tier": "⚪ STANDARD",
+"cpx": 7.23,
+"poi": 7.05,
+"mob": 8.16,
+"pvi": 8.14,
+"cpi": 6.49,
+"gki": 0.0,
+"xps": 7.45,
+"stk": 2.98,
+"key": 6.67,
+"mrk": 4.58,
+"tac": 6.0,
+"profileHtml": "Wilinton_Aponzá_Leumit.html"
+},
+{
+"name": "Nwaf Baziaa",
+"club": "F.C. Kafr Qasim",
+"position": "MID",
+"nationality": "Israel",
+"age": 23,
+"league": "Leumit League",
+"matches": 20,
+"minutes": 1800,
+"goals": 5,
+"assists": 2,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 6.65,
+"shotsTotal": 35,
+"shotsOnTarget": 15,
+"keyPasses": 22,
+"xg": 5.8,
+"npxg": 5.2,
+"passAccuracy": 74.0,
+"tackles": 25,
+"interceptions": 18,
+"fga": 6.21,
+"fga100": 62.1,
+"logRating": 5.13,
+"tier": "⚪ STANDARD",
+"cpx": 6.97,
+"poi": 6.38,
+"mob": 8.2,
+"pvi": 7.21,
+"cpi": 5.41,
+"gki": 0.0,
+"xps": 6.43,
+"stk": 2.86,
+"key": 5.5,
+"mrk": 5.58,
+"tac": 6.0,
+"profileHtml": "Nwaf_Baziaa_Leumit.html"
+},
+{
+"name": "Raz Twizer",
+"club": "Hapoel Acre",
+"position": "DEF",
+"nationality": "Israel",
+"age": 26,
+"league": "Leumit League",
+"matches": 19,
+"minutes": 1710,
+"goals": 4,
+"assists": 1,
+"yellowCards": 5,
+"redCards": 0,
+"fotmobRating": 6.55,
+"shotsTotal": 32,
+"shotsOnTarget": 14,
+"keyPasses": 20,
+"xg": 5.2,
+"npxg": 4.8,
+"passAccuracy": 72.0,
+"tackles": 30,
+"interceptions": 22,
+"fga": 6.04,
+"fga100": 60.4,
+"logRating": 4.56,
+"tier": "⚪ STANDARD",
+"cpx": 6.88,
+"poi": 6.71,
+"mob": 8.33,
+"pvi": 6.86,
+"cpi": 4.73,
+"gki": 0.0,
+"xps": 5.94,
+"stk": 2.81,
+"key": 5.26,
+"mrk": 7.11,
+"tac": 6.0,
+"profileHtml": "Raz_Twizer_Leumit.html"
+},
+{
+"name": "Niv Yehoshua",
+"club": "Maccabi Petah Tikva",
+"position": "MID",
+"nationality": "Israel",
+"age": 22,
+"league": "Leumit League",
+"matches": 22,
+"minutes": 1980,
+"goals": 4,
+"assists": 4,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 7.35,
+"shotsTotal": 38,
+"shotsOnTarget": 18,
+"keyPasses": 42,
+"xg": 5.5,
+"npxg": 5.0,
+"passAccuracy": 82.0,
+"tackles": 28,
+"interceptions": 20,
+"fga": 7.87,
+"fga100": 78.7,
+"logRating": 6.54,
+"tier": "📈 PROFESSIONAL",
+"cpx": 7.72,
+"poi": 9.38,
+"mob": 9.14,
+"pvi": 10.0,
+"cpi": 10.0,
+"gki": 0.0,
+"xps": 5.93,
+"stk": 2.89,
+"key": 9.55,
+"mrk": 5.67,
+"tac": 6.0,
+"profileHtml": "Niv_Yehoshua_Leumit.html"
+},
+{
+"name": "Eligijus Jankauskas",
+"club": "Maccabi Herzliya",
+"position": "FWD",
+"nationality": "Lithuania",
+"age": 27,
+"league": "Leumit League",
+"matches": 20,
+"minutes": 1800,
+"goals": 5,
+"assists": 2,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 6.85,
+"shotsTotal": 42,
+"shotsOnTarget": 19,
+"keyPasses": 28,
+"xg": 6.8,
+"npxg": 6.2,
+"passAccuracy": 75.0,
+"tackles": 22,
+"interceptions": 15,
+"fga": 6.89,
+"fga100": 68.89999999999999,
+"logRating": 5.72,
+"tier": "⚪ STANDARD",
+"cpx": 7.16,
+"poi": 7.41,
+"mob": 8.57,
+"pvi": 8.08,
+"cpi": 6.76,
+"gki": 0.0,
+"xps": 7.37,
+"stk": 2.86,
+"key": 7.0,
+"mrk": 4.81,
+"tac": 6.0,
+"profileHtml": "Eligijus_Jankauskas_Leumit.html"
+},
+{
+"name": "Ido Cohen",
+"club": "Hapoel Ramat Gan",
+"position": "DEF",
+"nationality": "Israel",
+"age": 26,
+"league": "Leumit League",
+"matches": 21,
+"minutes": 1890,
+"goals": 2,
+"assists": 1,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 7.15,
+"shotsTotal": 28,
+"shotsOnTarget": 12,
+"keyPasses": 35,
+"xg": 3.5,
+"npxg": 3.2,
+"passAccuracy": 80.0,
+"tackles": 45,
+"interceptions": 35,
+"fga": 7.17,
+"fga100": 71.7,
+"logRating": 4.38,
+"tier": "⚪ STANDARD",
+"cpx": 7.42,
+"poi": 10.0,
+"mob": 9.31,
+"pvi": 9.13,
+"cpi": 7.84,
+"gki": 0.0,
+"xps": 4.02,
+"stk": 2.5,
+"key": 8.33,
+"mrk": 9.89,
+"tac": 6.0,
+"profileHtml": "Ido_Cohen_Leumit.html"
+},
+{
+"name": "Shlomi Azulay",
+"club": "Hapoel Ramat Gan",
+"position": "MID",
+"nationality": "Israel",
+"age": 31,
+"league": "Leumit League",
+"matches": 20,
+"minutes": 1800,
+"goals": 3,
+"assists": 2,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 35,
+"shotsOnTarget": 15,
+"keyPasses": 32,
+"xg": 4.8,
+"npxg": 4.5,
+"passAccuracy": 78.0,
+"tackles": 35,
+"interceptions": 28,
+"fga": 7.1,
+"fga100": 71.0,
+"logRating": 5.1,
+"tier": "⚪ STANDARD",
+"cpx": 7.25,
+"poi": 9.19,
+"mob": 9.13,
+"pvi": 8.6,
+"cpi": 7.43,
+"gki": 0.0,
+"xps": 5.51,
+"stk": 2.57,
+"key": 8.0,
+"mrk": 8.18,
+"tac": 6.0,
+"profileHtml": "Shlomi_Azulay_Leumit.html"
+},
+{
+"name": "Tomer Ben Haim",
+"club": "Maccabi Petah Tikva",
+"position": "MID",
+"nationality": "Israel",
+"age": 25,
+"league": "Leumit League",
+"matches": 19,
+"minutes": 1710,
+"goals": 2,
+"assists": 3,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 7.25,
+"shotsTotal": 32,
+"shotsOnTarget": 14,
+"keyPasses": 38,
+"xg": 4.2,
+"npxg": 3.8,
+"passAccuracy": 81.0,
+"tackles": 25,
+"interceptions": 18,
+"fga": 7.64,
+"fga100": 76.39999999999999,
+"logRating": 5.72,
+"tier": "⚪ STANDARD",
+"cpx": 7.55,
+"poi": 9.97,
+"mob": 10.0,
+"pvi": 9.53,
+"cpi": 8.99,
+"gki": 0.0,
+"xps": 4.98,
+"stk": 2.5,
+"key": 10.0,
+"mrk": 5.88,
+"tac": 6.0,
+"profileHtml": "Tomer_Ben_Haim_Leumit.html"
+},
+{
+"name": "Baruch Dego",
+"club": "Bnei Yehuda",
+"position": "MID",
+"nationality": "Israel",
+"age": 33,
+"league": "Leumit League",
+"matches": 20,
+"minutes": 1800,
+"goals": 1,
+"assists": 2,
+"yellowCards": 6,
+"redCards": 0,
+"fotmobRating": 6.75,
+"shotsTotal": 28,
+"shotsOnTarget": 11,
+"keyPasses": 26,
+"xg": 2.8,
+"npxg": 2.5,
+"passAccuracy": 74.0,
+"tackles": 30,
+"interceptions": 22,
+"fga": 6.11,
+"fga100": 61.1,
+"logRating": 3.69,
+"tier": "⚪ STANDARD",
+"cpx": 7.0,
+"poi": 7.5,
+"mob": 8.57,
+"pvi": 7.67,
+"cpi": 6.22,
+"gki": 0.0,
+"xps": 3.65,
+"stk": 2.14,
+"key": 6.5,
+"mrk": 6.75,
+"tac": 6.0,
+"profileHtml": "Baruch_Dego_Leumit.html"
+},
+{
+"name": "Dele Aiyenugba",
+"club": "Hapoel Hadera",
+"position": "GK",
+"nationality": "Nigeria",
+"age": 29,
+"league": "Leumit League",
+"matches": 22,
+"minutes": 1980,
+"goals": 0,
+"assists": 0,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 7.05,
+"shotsTotal": 0,
+"shotsOnTarget": 0,
+"keyPasses": 0,
+"xg": 0.0,
+"npxg": 0.0,
+"passAccuracy": 65.0,
+"tackles": 0,
+"interceptions": 0,
+"fga": 2.89,
+"fga100": 28.900000000000002,
+"logRating": 1.66,
+"tier": "⚪ STANDARD",
+"cpx": 4.52,
+"poi": 0.0,
+"mob": 4.06,
+"pvi": 3.78,
+"cpi": 0.0,
+"gki": 5.0,
+"xps": 0.0,
+"stk": 0.0,
+"key": 0.0,
+"mrk": 0.0,
+"tac": 6.0,
+"profileHtml": "Dele_Aiyenugba_Leumit.html"
+},
+{
+"name": "Assi Baldout",
+"club": "Hapoel Rishon",
+"position": "MID",
+"nationality": "Israel",
+"age": 28,
+"league": "Leumit League",
+"matches": 21,
+"minutes": 1890,
+"goals": 2,
+"assists": 1,
+"yellowCards": 5,
+"redCards": 0,
+"fotmobRating": 6.95,
+"shotsTotal": 30,
+"shotsOnTarget": 13,
+"keyPasses": 28,
+"xg": 3.8,
+"npxg": 3.5,
+"passAccuracy": 76.0,
+"tackles": 35,
+"interceptions": 28,
+"fga": 6.42,
+"fga100": 64.2,
+"logRating": 3.66,
+"tier": "⚪ STANDARD",
+"cpx": 7.13,
+"poi": 8.12,
+"mob": 8.43,
+"pvi": 8.08,
+"cpi": 6.42,
+"gki": 0.0,
+"xps": 4.26,
+"stk": 2.5,
+"key": 6.67,
+"mrk": 7.79,
+"tac": 6.0,
+"profileHtml": "Assi_Baldout_Leumit.html"
+},
+{
+"name": "Ido Shahar",
+"club": "Ironi Modiin",
+"position": "DEF",
+"nationality": "Israel",
+"age": 24,
+"league": "Leumit League",
+"matches": 20,
+"minutes": 1800,
+"goals": 1,
+"assists": 1,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 6.85,
+"shotsTotal": 25,
+"shotsOnTarget": 10,
+"keyPasses": 24,
+"xg": 2.5,
+"npxg": 2.2,
+"passAccuracy": 79.0,
+"tackles": 42,
+"interceptions": 35,
+"fga": 6.13,
+"fga100": 61.3,
+"logRating": 3.26,
+"tier": "⚪ STANDARD",
+"cpx": 7.21,
+"poi": 8.34,
+"mob": 8.57,
+"pvi": 7.73,
+"cpi": 5.54,
+"gki": 0.0,
+"xps": 3.33,
+"stk": 2.2,
+"key": 6.0,
+"mrk": 10.0,
+"tac": 6.0,
+"profileHtml": "Ido_Shahar_Leumit.html"
+},
+{
+"name": "Liran Hazan",
+"club": "Hapoel Kfar Saba",
+"position": "DEF",
+"nationality": "Israel",
+"age": 26,
+"league": "Leumit League",
+"matches": 21,
+"minutes": 1890,
+"goals": 0,
+"assists": 2,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 6.75,
+"shotsTotal": 22,
+"shotsOnTarget": 9,
+"keyPasses": 22,
+"xg": 1.8,
+"npxg": 1.5,
+"passAccuracy": 77.0,
+"tackles": 38,
+"interceptions": 30,
+"fga": 5.61,
+"fga100": 56.1,
+"logRating": 3.43,
+"tier": "⚪ STANDARD",
+"cpx": 7.04,
+"poi": 7.14,
+"mob": 7.81,
+"pvi": 7.38,
+"cpi": 5.41,
+"gki": 0.0,
+"xps": 2.43,
+"stk": 2.05,
+"key": 5.24,
+"mrk": 8.41,
+"tac": 6.0,
+"profileHtml": "Liran_Hazan_Leumit.html"
+},
+{
+"name": "Emmanuel Mamatah",
+"club": "Hapoel Afula",
+"position": "FWD",
+"nationality": "Israel",
+"age": 25,
+"league": "Leumit League",
+"matches": 18,
+"minutes": 1620,
+"goals": 5,
+"assists": 0,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 6.65,
+"shotsTotal": 35,
+"shotsOnTarget": 15,
+"keyPasses": 20,
+"xg": 6.2,
+"npxg": 5.8,
+"passAccuracy": 72.0,
+"tackles": 20,
+"interceptions": 15,
+"fga": 6.17,
+"fga100": 61.7,
+"logRating": 4.71,
+"tier": "⚪ STANDARD",
+"cpx": 6.84,
+"poi": 6.25,
+"mob": 8.9,
+"pvi": 6.8,
+"cpi": 4.39,
+"gki": 0.0,
+"xps": 7.14,
+"stk": 2.86,
+"key": 5.56,
+"mrk": 5.05,
+"tac": 6.0,
+"profileHtml": "Emmanuel_Mamatah_Leumit.html"
+},
+{
+"name": "Yossi Machluf",
+"club": "Bnei Yehuda",
+"position": "MID",
+"nationality": "Israel",
+"age": 27,
+"league": "Leumit League",
+"matches": 19,
+"minutes": 1710,
+"goals": 3,
+"assists": 1,
+"yellowCards": 4,
+"redCards": 0,
+"fotmobRating": 6.55,
+"shotsTotal": 28,
+"shotsOnTarget": 12,
+"keyPasses": 18,
+"xg": 4.5,
+"npxg": 4.2,
+"passAccuracy": 74.0,
+"tackles": 25,
+"interceptions": 18,
+"fga": 5.62,
+"fga100": 56.2,
+"logRating": 3.9,
+"tier": "⚪ STANDARD",
+"cpx": 6.96,
+"poi": 5.72,
+"mob": 8.24,
+"pvi": 6.63,
+"cpi": 4.19,
+"gki": 0.0,
+"xps": 4.93,
+"stk": 2.68,
+"key": 4.74,
+"mrk": 5.88,
+"tac": 6.0,
+"profileHtml": "Yossi_Machluf_Leumit.html"
+},
+{
+"name": "Daniel Shimon",
+"club": "Maccabi Jaffa",
+"position": "MID",
+"nationality": "Israel",
+"age": 22,
+"league": "Leumit League",
+"matches": 17,
+"minutes": 1530,
+"goals": 2,
+"assists": 1,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 6.45,
+"shotsTotal": 25,
+"shotsOnTarget": 10,
+"keyPasses": 16,
+"xg": 3.8,
+"npxg": 3.5,
+"passAccuracy": 76.0,
+"tackles": 22,
+"interceptions": 16,
+"fga": 5.54,
+"fga100": 55.4,
+"logRating": 3.71,
+"tier": "⚪ STANDARD",
+"cpx": 6.91,
+"poi": 5.74,
+"mob": 8.99,
+"pvi": 6.51,
+"cpi": 3.78,
+"gki": 0.0,
+"xps": 4.46,
+"stk": 2.4,
+"key": 4.71,
+"mrk": 5.81,
+"tac": 6.0,
+"profileHtml": "Daniel_Shimon_Leumit.html"
+},
+{
+"name": "Ilya Putkin",
+"club": "Hapoel Nof HaGalil",
+"position": "DEF",
+"nationality": "Israel",
+"age": 24,
+"league": "Leumit League",
+"matches": 18,
+"minutes": 1620,
+"goals": 1,
+"assists": 0,
+"yellowCards": 3,
+"redCards": 0,
+"fotmobRating": 6.35,
+"shotsTotal": 22,
+"shotsOnTarget": 9,
+"keyPasses": 14,
+"xg": 2.2,
+"npxg": 2.0,
+"passAccuracy": 78.0,
+"tackles": 35,
+"interceptions": 28,
+"fga": 5.24,
+"fga100": 52.400000000000006,
+"logRating": 2.63,
+"tier": "⚪ STANDARD",
+"cpx": 7.05,
+"poi": 6.25,
+"mob": 8.28,
+"pvi": 6.4,
+"cpi": 3.11,
+"gki": 0.0,
+"xps": 3.34,
+"stk": 2.27,
+"key": 3.89,
+"mrk": 9.09,
+"tac": 6.0,
+"profileHtml": "Ilya_Putkin_Leumit.html"
+},
+{
+"name": "Sahar Dabah",
+"club": "F.C. Kafr Qasim",
+"position": "MID",
+"nationality": "Israel",
+"age": 26,
+"league": "Leumit League",
+"matches": 16,
+"minutes": 1440,
+"goals": 3,
+"assists": 1,
+"yellowCards": 2,
+"redCards": 0,
+"fotmobRating": 6.55,
+"shotsTotal": 28,
+"shotsOnTarget": 12,
+"keyPasses": 18,
+"xg": 4.5,
+"npxg": 4.2,
+"passAccuracy": 73.0,
+"tackles": 20,
+"interceptions": 15,
+"fga": 6.06,
+"fga100": 60.599999999999994,
+"logRating": 4.4,
+"tier": "⚪ STANDARD",
+"cpx": 6.92,
+"poi": 6.45,
+"mob": 9.78,
+"pvi": 6.57,
+"cpi": 4.19,
+"gki": 0.0,
+"xps": 5.85,
+"stk": 2.68,
+"key": 5.62,
+"mrk": 5.68,
+"tac": 6.0,
+"profileHtml": "Sahar_Dabah_Leumit.html"
+}
+];
+let allPlayers = israeliPlayers;
+let filtered = allPlayers;
+let targets = [];
+let sortDir = -1;
+
+// Navigation
+document.querySelectorAll('.nav-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const section = btn.dataset.section;
+        switchSection(section);
+    });
+});
+
+function switchSection(sectionName) {
+    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+    
+    document.querySelectorAll('.section-content').forEach(section => section.classList.remove('active'));
+    document.getElementById(sectionName + '-section').classList.add('active');
+    
+    if (sectionName === 'players') renderPlayers();
+    if (sectionName === 'targets') renderTargets();
+}
+
+function applyFilters() {
+    const leagueFilter = document.getElementById('filter-league').value;
+    const posFilter = document.getElementById('filter-position').value;
+    const ageFilter = document.getElementById('filter-age').value;
+    const natFilter = document.getElementById('filter-nationality').value;
+    const fga100Filter = document.getElementById('filter-fga100').value;
+    const logFilter = document.getElementById('filter-log').value;
+    
+    // Core metrics filters
+    const cpxFilter = document.getElementById('filter-cpx').value;
+    const poiFilter = document.getElementById('filter-poi').value;
+    const mobFilter = document.getElementById('filter-mob').value;
+    const pviFilter = document.getElementById('filter-pvi').value;
+    const cpiFilter = document.getElementById('filter-cpi').value;
+    const gkiFilter = document.getElementById('filter-gki').value;
+    
+    filtered = allPlayers.filter(p => {
+        // Basic filters
+        if (leagueFilter !== 'all' && p.league !== leagueFilter) return false;
+        if (posFilter !== 'all' && p.position !== posFilter) return false;
+        if (ageFilter !== 'all') {
+            if (ageFilter === '16-22' && (p.age < 16 || p.age > 22)) return false;
+            if (ageFilter === '23-26' && (p.age < 23 || p.age > 26)) return false;
+            if (ageFilter === '27-30' && (p.age < 27 || p.age > 30)) return false;
+            if (ageFilter === '31+' && p.age < 31) return false;
+        }
+        if (natFilter === 'Israel' && p.nationality !== 'Israel') return false;
+        if (natFilter === 'Foreign' && p.nationality === 'Israel') return false;
+        
+        // FGA /100 filter (CORRECTED ranges: 18.5 - 78.7)
+        if (fga100Filter !== 'all') {
+            if (fga100Filter === '70+' && p.fga100 < 70) return false;
+            if (fga100Filter === '60-69' && (p.fga100 < 60 || p.fga100 >= 70)) return false;
+            if (fga100Filter === '50-59' && (p.fga100 < 50 || p.fga100 >= 60)) return false;
+            if (fga100Filter === '40-49' && (p.fga100 < 40 || p.fga100 >= 50)) return false;
+            if (fga100Filter === '0-39' && p.fga100 >= 40) return false;
+        }
+        
+        // LOG rating filter
+        if (logFilter !== 'all') {
+            if (logFilter === '12+' && p.logRating < 12) return false;
+            if (logFilter === '10-11.9' && (p.logRating < 10 || p.logRating >= 12)) return false;
+            if (logFilter === '8-9.9' && (p.logRating < 8 || p.logRating >= 10)) return false;
+            if (logFilter === '6-7.9' && (p.logRating < 6 || p.logRating >= 8)) return false;
+            if (logFilter === '0-5.9' && p.logRating >= 6) return false;
+        }
+        
+        // Core metrics filters
+        if (cpxFilter !== 'all') {
+            if (cpxFilter === '7+' && p.cpx < 7) return false;
+            if (cpxFilter === '5-6.9' && (p.cpx < 5 || p.cpx >= 7)) return false;
+            if (cpxFilter === '0-4.9' && p.cpx >= 5) return false;
+        }
+        if (poiFilter !== 'all') {
+            if (poiFilter === '8+' && p.poi < 8) return false;
+            if (poiFilter === '6-7.9' && (p.poi < 6 || p.poi >= 8)) return false;
+            if (poiFilter === '0-5.9' && p.poi >= 6) return false;
+        }
+        if (mobFilter !== 'all') {
+            if (mobFilter === '8+' && p.mob < 8) return false;
+            if (mobFilter === '6-7.9' && (p.mob < 6 || p.mob >= 8)) return false;
+            if (mobFilter === '0-5.9' && p.mob >= 6) return false;
+        }
+        if (pviFilter !== 'all') {
+            if (pviFilter === '8+' && p.pvi < 8) return false;
+            if (pviFilter === '6-7.9' && (p.pvi < 6 || p.pvi >= 8)) return false;
+            if (pviFilter === '0-5.9' && p.pvi >= 6) return false;
+        }
+        if (cpiFilter !== 'all') {
+            if (cpiFilter === '8+' && p.cpi < 8) return false;
+            if (cpiFilter === '6-7.9' && (p.cpi < 6 || p.cpi >= 8)) return false;
+            if (cpiFilter === '0-5.9' && p.cpi >= 6) return false;
+        }
+        if (gkiFilter !== 'all') {
+            if (gkiFilter === '4+' && p.gki < 4) return false;
+            if (gkiFilter === '3-3.9' && (p.gki < 3 || p.gki >= 4)) return false;
+            if (gkiFilter === '0-2.9' && p.gki >= 3) return false;
+        }
+        
+        return true;
+    });
+    
+    filtered.sort((a, b) => (b.fga100 - a.fga100) * sortDir);
+    document.getElementById('filtered-count').textContent = filtered.length;
+    
+    const activeSection = document.querySelector('.nav-button.active').dataset.section;
+    if (activeSection === 'players') renderPlayers();
+}
+
+function renderPlayers() {
+    const tbody = document.getElementById('table-players');
+    tbody.innerHTML = '';
+    
+    filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/50 transition-colors';
+        
+        const isTarget = targets.some(t => t.name === p.name);
+        
+        tr.innerHTML = `
+            <td class="font-medium text-left">
+                <a href="${p.profileHtml}" target="_blank" rel="noopener noreferrer" class="player-link" title="View profile: ${p.name}">
+                    ${p.name} <i class="fas fa-external-link-alt text-xs opacity-50 ml-1"></i>
+                </a>
+            </td>
+            <td><span class="px-2 py-1 bg-slate-700 rounded text-xs">${p.position}</span></td>
+            <td class="text-slate-400">${p.age}</td>
+            <td class="text-slate-400 text-xs">${p.nationality}</td>
+            <td class="text-slate-300 text-left">${p.club}</td>
+            <td><span class="px-2 py-1 ${p.league.includes('Premier') ? 'bg-amber-500/20 text-amber-300' : 'bg-green-500/20 text-green-300'} rounded text-xs">${p.league === 'Israeli Premier League' ? 'IPL' : 'Leumit'}</span></td>
+            <td class="text-slate-400">${p.matches}</td>
+            <td class="text-amber-400 font-semibold">${p.goals + p.assists}</td>
+            <td class="font-bold text-amber-400">${p.fga100.toFixed(1)}</td>
+            <td class="font-bold text-cyan-400">${p.logRating.toFixed(2)}</td>
+            <td><span class="metric-badge">CPX:${p.cpx.toFixed(1)}</span></td>
+            <td><span class="metric-badge">POI:${p.poi.toFixed(1)}</span></td>
+            <td><span class="metric-badge">MOB:${p.mob.toFixed(1)}</span></td>
+            <td>
+                ${isTarget ? 
+                    `<button onclick="removeTarget('${p.name.replace(/'/g, "\\'")}')" class="btn-remove"><i class="fas fa-minus mr-1"></i>Remove</button>` : 
+                    `<button onclick="addTarget('${p.name.replace(/'/g, "\\'")}')" class="btn-add"><i class="fas fa-plus mr-1"></i>Add</button>`
+                }
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function addTarget(playerName) {
+    const player = allPlayers.find(p => p.name === playerName);
+    if (player && !targets.some(p => p.name === playerName)) {
+        targets.push(player);
+        updateTargetsUI();
+        renderPlayers();
+    }
+}
+
+function removeTarget(playerName) {
+    targets = targets.filter(p => p.name !== playerName);
+    updateTargetsUI();
+    renderPlayers();
+}
+
+function updateTargetsUI() {
+    document.getElementById('badge-count').textContent = targets.length;
+    document.getElementById('stat-count').textContent = targets.length;
+    renderTargets();
+}
+
+function renderTargets() {
+    const container = document.getElementById('list');
+    
+    if (targets.length === 0) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center min-h-[400px] text-slate-500">
+                <i class="fas fa-bullseye text-6xl mb-4 opacity-30"></i>
+                <p class="text-lg">No transfer targets added</p>
+                <p class="text-sm mt-2">Add players from "Players" section to monitor them</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    targets.forEach(p => {
+        html += `
+            <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800 player-card">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white">${p.name}</h3>
+                        <p class="text-sm text-slate-400">${p.club}</p>
+                    </div>
+                    <span class="px-2 py-1 bg-blue-500/20 rounded text-xs">${p.position}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <p class="text-xs text-slate-400">FGA /100</p>
+                        <p class="font-bold text-amber-400 text-xl">${p.fga100.toFixed(1)}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">LOG Rating</p>
+                        <p class="font-bold text-cyan-400 text-xl">${p.logRating.toFixed(2)}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Goals</p>
+                        <p class="font-bold text-white">${p.goals}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Assists</p>
+                        <p class="font-bold text-white">${p.assists}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="bg-purple-500/10 rounded p-2">
+                        <p class="text-xs text-slate-400">CPX</p>
+                        <p class="font-bold text-purple-400">${p.cpx.toFixed(1)}</p>
+                    </div>
+                    <div class="bg-blue-500/10 rounded p-2">
+                        <p class="text-xs text-slate-400">POI</p>
+                        <p class="font-bold text-blue-400">${p.poi.toFixed(1)}</p>
+                    </div>
+                    <div class="bg-green-500/10 rounded p-2">
+                        <p class="text-xs text-slate-400">MOB</p>
+                        <p class="font-bold text-green-400">${p.mob.toFixed(1)}</p>
+                    </div>
+                </div>
+                <button onclick="removeTarget('${p.name.replace(/'/g, "\\'")}')" class="btn-remove w-full">
+                    <i class="fas fa-times mr-1"></i>Remove from Targets
+                </button>
+            </div>
+        `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function renderTop5() {
+    const top5 = [...allPlayers].sort((a, b) => b.fga100 - a.fga100).slice(0, 5);
+    const container = document.getElementById('top5-list');
+    let html = '';
+    
+    top5.forEach((p, i) => {
+        html += `
+            <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl font-bold text-slate-600">${i + 1}</span>
+                    <div>
+                        <p class="font-bold text-white">${p.name}</p>
+                        <p class="text-xs text-slate-400">${p.club} | ${p.position}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-xl font-bold text-amber-400">${p.fga100.toFixed(1)}</p>
+                    <p class="text-xs text-cyan-400">LOG: ${p.logRating.toFixed(2)}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function resetFilters() {
+    document.getElementById('filter-league').value = 'all';
+    document.getElementById('filter-position').value = 'all';
+    document.getElementById('filter-age').value = 'all';
+    document.getElementById('filter-nationality').value = 'all';
+    document.getElementById('filter-fga100').value = 'all';
+    document.getElementById('filter-log').value = 'all';
+    document.getElementById('filter-cpx').value = 'all';
+    document.getElementById('filter-poi').value = 'all';
+    document.getElementById('filter-mob').value = 'all';
+    document.getElementById('filter-pvi').value = 'all';
+    document.getElementById('filter-cpi').value = 'all';
+    document.getElementById('filter-gki').value = 'all';
+    applyFilters();
+}
+
+function toggleSort() {
+    sortDir *= -1;
+    document.getElementById('sort-label').textContent = 'FGA ' + (sortDir === -1 ? '⬇️' : '⬆️');
+    applyFilters();
+}
+
+// Initialize
+applyFilters();
+renderPlayers();
+renderTop5();
+</script>
+</body>
+</html>
