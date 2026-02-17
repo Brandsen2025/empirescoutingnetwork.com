@@ -3,338 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Login - Empire Scouting Network</title>
+    <title>Client Portal Login | Empire FGA Scouting Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         * { font-family: 'Inter', sans-serif; }
-        
-        :root {
-            --brand-gold: #FFD700;
-            --brand-amber: #FFA500;
-            --bg-dark: #0b0e14;
-        }
-
-        body { 
-            background: radial-gradient(900px 500px at 50% 50%, rgba(255, 215, 0, 0.12), transparent 40%),
-                        var(--bg-dark);
-            color: #f0f6fc;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-container {
-            background: rgba(21, 25, 33, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 16px;
-            padding: 48px;
-            max-width: 480px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.2);
-        }
-
         .gradient-text {
-            background: linear-gradient(to right, #FFD700, #FFA500);
+            background: linear-gradient(to right, #60a5fa, #22d3ee, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-
+        .login-container {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 100px rgba(59, 130, 246, 0.1);
+        }
         .input-field {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 14px 20px;
-            border-radius: 8px;
-            width: 100%;
-            transition: all 0.3s;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
             outline: none;
-            border-color: #FFD700;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(15, 23, 42, 0.95);
         }
-
-        .login-button {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #0b0e14;
-            padding: 14px 32px;
-            border-radius: 8px;
-            width: 100%;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
+        .bg-pattern {
+            background-color: #0f172a;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 2px, transparent 2px);
+            background-size: 50px 50px;
         }
-        .login-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        .glow-orb {
+            filter: blur(100px);
+            opacity: 0.3;
         }
-        .login-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
         }
-        .error-message.active {
-            display: block;
-            animation: shake 0.5s;
-        }
-
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
         }
-
-        .success-message {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #86efac;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        .success-message.active {
-            display: block;
-        }
-
-        .back-button {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-        }
-        .back-button:hover {
-            color: #FFD700;
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
         }
     </style>
 </head>
-<body>
-    <div class="login-container">
-        <!-- Logo -->
-        <div class="text-center mb-8">
-            <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" 
-                 class="h-16 w-16 mx-auto object-contain rounded-lg mb-4" 
-                 alt="Empire Scouting Network Logo">
-            <h1 class="text-2xl font-bold gradient-text mb-2">CLIENT LOGIN</h1>
-            <p class="text-gray-400 text-sm">Empire Scouting Network Intelligence Platform</p>
-        </div>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center bg-pattern relative overflow-hidden">
 
-        <!-- Messages -->
-        <div id="errorMessage" class="error-message">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <span id="errorText">Invalid credentials</span>
-        </div>
-        <div id="successMessage" class="success-message">
-            <i class="fas fa-check-circle mr-2"></i>
-            <span>Login successful! Redirecting...</span>
-        </div>
+    <!-- Decorative Top Bar -->
+    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 shadow-lg shadow-blue-500/50"></div>
 
-        <!-- Login Form -->
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="mb-6">
-                <label class="block text-gray-300 text-sm font-semibold mb-2">
-                    <i class="fas fa-user mr-2"></i>Username
-                </label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    class="input-field" 
-                    placeholder="Enter your username"
-                    required
-                    autocomplete="username"
-                >
+    <!-- Animated Background Orbs -->
+    <div class="absolute top-20 left-20 w-96 h-96 bg-blue-500 rounded-full glow-orb"></div>
+    <div class="absolute bottom-20 right-20 w-80 h-80 bg-cyan-500 rounded-full glow-orb"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500 rounded-full glow-orb"></div>
+
+    <!-- Login Container -->
+    <div class="w-full max-w-md p-6 relative z-10">
+        <div class="login-container rounded-3xl p-10 float-animation">
+            
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" 
+                     alt="Empire FGA Scouting Network" 
+                     class="h-20 w-auto mx-auto mb-6 drop-shadow-[0_0_25px_rgba(59,130,246,0.6)]">
+                <h1 class="text-3xl font-black gradient-text mb-3">Client Portal</h1>
+                <p class="text-slate-400 text-sm leading-relaxed">
+                    Secure access to your personalized<br>Empire FGA Scouting Dashboard
+                </p>
             </div>
 
-            <div class="mb-6">
-                <label class="block text-gray-300 text-sm font-semibold mb-2">
-                    <i class="fas fa-lock mr-2"></i>Password
-                </label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    class="input-field" 
-                    placeholder="Enter your password"
-                    required
-                    autocomplete="current-password"
-                >
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-6">
+                
+                <!-- Username Field -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+                        <i class="fas fa-id-badge text-blue-400"></i>
+                        Client ID
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-slate-500 text-lg"></i>
+                        </div>
+                        <input type="text" 
+                               id="username" 
+                               class="input-field w-full pl-12 pr-4 py-4 rounded-xl text-white placeholder-slate-500 text-lg font-medium" 
+                               placeholder="Enter your username"
+                               required 
+                               autofocus
+                               autocomplete="username">
+                    </div>
+                    <p class="mt-2 text-xs text-slate-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Case-insensitive (e.g., pitsoumuteba or pedrohenriques)
+                    </p>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+                        <i class="fas fa-shield-halved text-blue-400"></i>
+                        Access Code
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-slate-500 text-lg"></i>
+                        </div>
+                        <input type="password" 
+                               id="password" 
+                               class="input-field w-full pl-12 pr-12 py-4 rounded-xl text-white placeholder-slate-500 text-lg font-medium" 
+                               placeholder="••••••••••"
+                               required
+                               autocomplete="current-password">
+                        <button type="button" 
+                                onclick="togglePassword()" 
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white transition">
+                            <i id="eyeIcon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="hidden">
+                    <div class="p-4 bg-red-500/10 border-2 border-red-500/30 rounded-xl text-red-400 text-sm text-center font-semibold">
+                        <i class="fas fa-circle-exclamation mr-2"></i>
+                        Invalid credentials. Please check your Client ID and Access Code.
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="hidden">
+                    <div class="p-4 bg-green-500/10 border-2 border-green-500/30 rounded-xl text-green-400 text-sm text-center font-semibold">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span id="successText">Access Granted! Redirecting...</span>
+                    </div>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" 
+                        id="loginBtn" 
+                        class="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 text-white font-black py-4 px-6 rounded-xl shadow-2xl shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-blue-500/60">
+                    <span id="btnText" class="text-lg">
+                        <i id="btnIcon" class="fas fa-sign-in-alt mr-2"></i>
+                        Access Dashboard
+                    </span>
+                </button>
+
+            </form>
+
+            <!-- Footer -->
+            <div class="mt-10 pt-8 border-t border-slate-700/50">
+                <div class="text-center space-y-3">
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        <i class="fas fa-shield-check mr-1 text-blue-400"></i>
+                        Protected by Empire FGA 779-Metric Encryption<br>
+                        Your data is secure and confidential
+                    </p>
+                    <div class="flex justify-center gap-4 text-xs">
+                        <a href="#" class="text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+                            <i class="fas fa-key"></i>
+                            Forgot Code?
+                        </a>
+                        <span class="text-slate-600">•</span>
+                        <a href="mailto:support@empirescoutingnetwork.com" class="text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+                            <i class="fas fa-envelope"></i>
+                            Support
+                        </a>
+                    </div>
+                </div>
             </div>
 
-            <button type="submit" id="loginButton" class="login-button">
-                <i class="fas fa-sign-in-alt mr-2"></i>
-                LOGIN
-            </button>
-        </form>
+        </div>
 
-        <!-- Back to Home -->
-        <div class="text-center mt-6">
-            <a href="index.html" class="back-button">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Home
-            </a>
+        <!-- Quick Access Hint (Development Only - Remove in Production) -->
+        <div class="mt-6 p-4 bg-slate-900/50 border border-slate-700/50 rounded-xl text-xs text-slate-400 text-center">
+            <div class="font-semibold text-slate-300 mb-2">
+                <i class="fas fa-lightbulb text-yellow-400 mr-1"></i>
+                Demo Credentials
+            </div>
+            <div class="space-y-1">
+                <div><strong class="text-blue-400">Pitshou Muteba:</strong> pitsoumuteba / elior2025</div>
+                <div><strong class="text-green-400">Pedro Henriques:</strong> pedrohenriques / atletico2025</div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Client credentials database (CONFIDENTIAL)
-        const clients = {
-            'alessandro.pezzoli': {
-                password: 'FisherSport2025',
-                name: 'Alessandro Pezzoli',
-                role: 'Football Agent',
-                club: 'Fisher Sport',
-                dashboard: 'Alessandro_Pezzoli_Dashboard.html'
+        // ═══════════════════════════════════════════════════════════════
+        // CLIENT CREDENTIALS DATABASE
+        // ═══════════════════════════════════════════════════════════════
+        const CLIENT_CREDENTIALS = {
+            
+            // PITSHOU MUTEBA - Father of Elior Muteba (US Torcy U16)
+            'pitsoumuteba': {
+                password: 'elior2025',
+                dashboard: 'pitshou_muteba_dashboard.html',
+                name: 'Pitshou Muteba',
+                role: 'Parent - Player Development',
+                player: 'Elior Muteba (US Torcy U16)'
             },
-            'jim.totime': {
-                password: 'BrandsenCEO2025',
-                name: 'Jim Totime',
-                role: 'CEO & Founder',
-                club: 'Brandsen Sports',
-                dashboard: 'Jim_Totime_Final_Dashboard.html'
+
+            // PEDRO HENRIQUES - Atlético Clube de Portugal
+            'pedrohenriques': {
+                password: 'atletico2025',
+                dashboard: 'pedro_henriques_dashboard.html',
+                name: 'Pedro Henriques',
+                role: 'Diretor Desportivo',
+                club: 'Atlético Clube de Portugal'
             },
-            'mantas.radavicius': {
-                password: 'FCGintra2025',
-                name: 'Mantas Radavicius',
-                role: 'Sporting Director',
-                club: 'FC Gintra',
-                dashboard: 'Mantas_Radavicius_A_Lyga_REAL_Dashboard.html'
+
+            // Alternative username for Pedro (atletico)
+            'atletico': {
+                password: 'atletico2025',
+                dashboard: 'PEDRO_COMPLETE_READY.html',
+                name: 'Pedro Henriques',
+                role: 'Diretor Desportivo',
+                club: 'Atlético Clube de Portugal'
+            },
+
+            // Alternative username for Pitshou (pitshou)
+            'pitshou': {
+                password: 'elior2025',
+                dashboard: 'pitshou_muteba_dashboard.html',
+                name: 'Pitshou Muteba',
+                role: 'Parent - Player Development',
+                player: 'Elior Muteba (US Torcy U16)'
+            },
+
+            // DEMO ACCESS
+            'demo': {
+                password: 'demo2025',
+                dashboard: 'platform.html',
+                name: 'Demo User',
+                role: 'Trial Access'
+            },
+
+    // LYNDON TOMLINSON
+            'lyndon': {
+                password: 'empire2025',
+                dashboard: 'Lyndon_Tomlinson_Dashboard.html',
+                name: 'Lyndon Tomlinson',
+                role: 'Trial Access'
             }
-'lyndon': {
-                pass: 'empire2025',
-                redirect: 'Lyndon_Tomlinson_Dashboard.html',
-                name: 'Lyndon Tomlinson - Tabor Sežana'
-            },
-
-            // BRANDSEN SPORTS AGENCY
-            'brandsen': {
-                pass: 'brandsen2025',
-                redirect: 'brandsen_dashboard.html',
-                name: 'Brandsen Sports Agency'
-            },
-
-            // Stefani Miglioranzi (First Wave Sports)
-            'firstwave': {
-                pass: 'stefani2025',
-                redirect: 'stefani_miglioranzi_dashboard.html',
-                name: 'First Wave Sports'
-            },
-            
-            // Kevin Weinress (Prosport Management)
-            'prosport': {
-                pass: 'kevin2025',
-                redirect: 'kevin_weinress_dashboard.html',
-                name: 'Prosport Management'
-            },
-
-            // Kamel Bengougam (BKS Consulting)
-            'bks': {
-                pass: 'kamel2025',
-                redirect: 'platform.html',
-                name: 'BKS Consulting'
-            },
-
-            // Guillaume Rippert (MYG Invest)
-            'myg': {
-                pass: 'guillaume2025',
-                redirect: 'guillaume_rippert_dashboard.html',
-                name: 'MYG Invest'
-            },
-
-            // Standard Club Access
-            'newcastle': { pass: 'magpies2025', redirect: 'platform.html', name: 'Newcastle United' },
-            'brighton': { pass: 'seagulls2025', redirect: 'platform.html', name: 'Brighton & Hove Albion' },
-            'ajax': { pass: 'amsterdam2025', redirect: 'platform.html', name: 'AFC Ajax' },
-            'psv': { pass: 'eindhoven2025', redirect: 'platform.html', name: 'PSV Eindhoven' },
-            
-            // Testing & Admin Access
-            'demo': { pass: 'demo2025', redirect: 'platform.html', name: 'Demo User' },
-            'admin': { pass: 'admin123', redirect: 'platform.html', name: 'Administrator' },
-            'scout': { pass: 'scout2025', redirect: 'platform.html', name: 'Scout Access' }
         };
 
+        // ═══════════════════════════════════════════════════════════════
+        // LOGIN HANDLER
+        // ═══════════════════════════════════════════════════════════════
         function handleLogin(event) {
             event.preventDefault();
             
-            const username = document.getElementById('username').value.trim();
+            const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMessage');
             const successMsg = document.getElementById('successMessage');
-            const loginButton = document.getElementById('loginButton');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+
+            // Reset messages
+            errorMsg.classList.add('hidden');
+            successMsg.classList.add('hidden');
             
-            // Hide previous messages
-            errorMsg.classList.remove('active');
-            successMsg.classList.remove('active');
-            
-            // Disable button
-            loginButton.disabled = true;
-            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Authenticating...';
-            
-            // Simulate authentication delay
+            // Set loading state
+            loginBtn.disabled = true;
+            loginBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            btnText.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Verifying Credentials...';
+
+            // Simulate authentication delay (realistic UX)
             setTimeout(() => {
-                const client = clients[username];
                 
-                if (client && client.password === password) {
-                    // Success
-                    successMsg.classList.add('active');
-                    successMsg.querySelector('span').textContent = `Welcome, ${client.name}! Redirecting...`;
+                // Check credentials
+                if (CLIENT_CREDENTIALS[username] && CLIENT_CREDENTIALS[username].password === password) {
+                    
+                    // ✅ SUCCESS - Valid credentials
+                    const clientData = CLIENT_CREDENTIALS[username];
                     
                     // Store session
-                    sessionStorage.setItem('empire_client', JSON.stringify({
+                    localStorage.setItem('empire_client', JSON.stringify({
                         username: username,
-                        name: client.name,
-                        role: client.role,
-                        club: client.club
+                        name: clientData.name,
+                        role: clientData.role,
+                        club: clientData.club || null,
+                        player: clientData.player || null,
+                        loginTime: new Date().toISOString(),
+                        dashboard: clientData.dashboard
                     }));
+
+                    // Show success
+                    successMsg.classList.remove('hidden');
+                    document.getElementById('successText').textContent = `Welcome ${clientData.name}! Redirecting...`;
                     
+                    // Update button
+                    loginBtn.classList.remove('from-blue-600', 'via-blue-500', 'to-cyan-500');
+                    loginBtn.classList.add('from-green-600', 'via-green-500', 'to-emerald-500');
+                    btnText.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Access Granted';
+
                     // Redirect to dashboard
                     setTimeout(() => {
-                        window.location.href = client.dashboard;
-                    }, 1500);
-                    
+                        window.location.href = clientData.dashboard;
+                    }, 1200);
+
                 } else {
-                    // Error
-                    errorMsg.classList.add('active');
-                    document.getElementById('errorText').textContent = 'Invalid username or password';
                     
-                    // Re-enable button
-                    loginButton.disabled = false;
-                    loginButton.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>LOGIN';
-                    
-                    // Clear password field
+                    // ❌ FAILURE - Invalid credentials
+                    errorMsg.classList.remove('hidden');
                     document.getElementById('password').value = '';
+                    document.getElementById('password').focus();
+                    
+                    // Reset button
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    btnText.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Access Dashboard';
+
+                    // Shake animation
+                    errorMsg.classList.add('animate-shake');
+                    setTimeout(() => errorMsg.classList.remove('animate-shake'), 500);
                 }
-            }, 800);
+                
+            }, 1000);
         }
 
-        // Check if already logged in
-        window.addEventListener('load', () => {
-            const session = sessionStorage.getItem('empire_client');
-            if (session) {
-                const client = JSON.parse(session);
-                document.getElementById('successMessage').classList.add('active');
-                document.getElementById('successMessage').querySelector('span').textContent = 
-                    `Welcome back, ${client.name}! Redirecting...`;
-                
-                const username = client.username;
-                if (clients[username]) {
-                    setTimeout(() => {
-                        window.location.href = clients[username].dashboard;
-                    }, 1000);
-                }
+        // ═══════════════════════════════════════════════════════════════
+        // TOGGLE PASSWORD VISIBILITY
+        // ═══════════════════════════════════════════════════════════════
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // KEYBOARD SHORTCUTS
+        // ═══════════════════════════════════════════════════════════════
+        document.addEventListener('keydown', function(event) {
+            // Ctrl + L = Focus username
+            if (event.ctrlKey && event.key === 'l') {
+                event.preventDefault();
+                document.getElementById('username').focus();
             }
         });
+
+        console.log('🔐 Empire FGA Client Portal - Loaded');
+        console.log('📊 Active Clients:', Object.keys(CLIENT_CREDENTIALS).length);
     </script>
+
 </body>
 </html>
