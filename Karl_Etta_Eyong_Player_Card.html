@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karl Etta Eyong | Empire FGA Player Intelligence Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%); color: #e0e0e0; padding: 40px 20px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .empire-logo { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: #00d4ff; letter-spacing: 2px; margin-bottom: 10px; }
+        .subtitle { color: #7b8a99; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .player-card { background: rgba(26, 31, 58, 0.95); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 212, 255, 0.1); }
+        .player-header { background: linear-gradient(135deg, #1e2642 0%, #2a3152 100%); padding: 40px; display: grid; grid-template-columns: 200px 1fr; gap: 40px; align-items: start; border-bottom: 2px solid rgba(0, 212, 255, 0.2); }
+        .player-photo { width: 200px; height: 250px; border-radius: 15px; object-fit: cover; border: 3px solid rgba(0, 212, 255, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); background: linear-gradient(135deg, #1e2642, #2a3152); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 72px; font-weight: 700; color: rgba(0, 212, 255, 0.3); }
+        .player-info { display: flex; flex-direction: column; gap: 20px; }
+        .player-name { font-family: 'Rajdhani', sans-serif; font-size: 48px; font-weight: 700; color: #ffffff; line-height: 1; margin-bottom: 5px; }
+        .player-position { color: #00d4ff; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .player-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px; }
+        .meta-item { display: flex; flex-direction: column; gap: 5px; }
+        .meta-label { font-size: 11px; color: #7b8a99; text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta-value { font-size: 16px; font-weight: 600; color: #ffffff; }
+        .tabs { display: flex; background: rgba(30, 38, 66, 0.7); border-bottom: 1px solid rgba(0, 212, 255, 0.1); }
+        .tab { flex: 1; padding: 20px; background: none; border: none; color: #7b8a99; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.3s; border-bottom: 3px solid transparent; }
+        .tab:hover { color: #00d4ff; background: rgba(0, 212, 255, 0.05); }
+        .tab.active { color: #00d4ff; border-bottom-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+        .tab-content { display: none; padding: 40px; }
+        .tab-content.active { display: block; }
+        .score-showcase { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-bottom: 40px; }
+        .score-card { background: linear-gradient(135deg, #2a3152 0%, #1e2642 100%); border-radius: 15px; padding: 30px; border: 1px solid rgba(0, 212, 255, 0.2); }
+        .score-title { font-size: 12px; color: #7b8a99; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        .score-value { font-family: 'Rajdhani', sans-serif; font-size: 64px; font-weight: 700; color: #00d4ff; line-height: 1; }
+        .score-suffix { font-size: 32px; color: #7b8a99; margin-left: 5px; }
+        .score-description { margin-top: 15px; font-size: 13px; color: #9ba8b5; line-height: 1.6; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .metric-card { background: rgba(30, 38, 66, 0.5); border-radius: 12px; padding: 20px; border: 1px solid rgba(0, 212, 255, 0.1); transition: all 0.3s; }
+        .metric-card:hover { border-color: rgba(0, 212, 255, 0.3); background: rgba(30, 38, 66, 0.7); transform: translateY(-2px); }
+        .metric-name { font-size: 11px; color: #7b8a99; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .metric-value { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700; color: #ffffff; }
+        .metric-bar { width: 100%; height: 6px; background: rgba(0, 212, 255, 0.1); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+        .metric-fill { height: 100%; background: linear-gradient(90deg, #00d4ff 0%, #0088ff 100%); border-radius: 3px; transition: width 0.6s ease; }
+        .philosophy-list { display: flex; flex-direction: column; gap: 15px; }
+        .philosophy-item { background: rgba(30, 38, 66, 0.5); border-radius: 12px; padding: 20px; display: grid; grid-template-columns: 1fr 100px 80px; gap: 20px; align-items: center; border: 1px solid rgba(0, 212, 255, 0.1); transition: all 0.3s; }
+        .philosophy-item:hover { border-color: rgba(0, 212, 255, 0.3); background: rgba(30, 38, 66, 0.7); }
+        .philosophy-name { font-size: 18px; font-weight: 700; color: #ffffff; }
+        .philosophy-school { font-size: 12px; color: #7b8a99; text-transform: uppercase; }
+        .philosophy-weight { text-align: center; font-size: 12px; color: #7b8a99; }
+        .philosophy-score { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; color: #00d4ff; text-align: right; }
+        .stats-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        .stats-table th { text-align: left; font-size: 11px; color: #7b8a99; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 15px; }
+        .stats-table td { padding: 15px; background: rgba(30, 38, 66, 0.5); font-size: 15px; color: #ffffff; }
+        .stats-table tr td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; font-weight: 600; }
+        .stats-table tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: #00d4ff; }
+        .badge { display: inline-block; padding: 6px 12px; background: rgba(0, 212, 255, 0.15); color: #00d4ff; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px; }
+        .badge.demo { background: rgba(156, 39, 176, 0.15); color: #9c27b0; }
+        .badge.value { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
+        .footer { text-align: center; padding: 30px; color: #7b8a99; font-size: 12px; }
+        .alert-box { margin-bottom: 30px; padding: 20px; background: rgba(156, 39, 176, 0.1); border-left: 4px solid #9c27b0; border-radius: 8px; }
+        .alert-title { color: #9c27b0; font-weight: 700; font-size: 13px; text-transform: uppercase; margin-bottom: 8px; }
+        .alert-text { color: #e0e0e0; font-size: 13px; line-height: 1.6; }
+        .highlight-box { margin-top: 40px; padding: 25px; background: rgba(0, 212, 255, 0.05); border-radius: 12px; border-left: 4px solid #00d4ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="empire-logo">EMPIRE SCOUTING NETWORK</div>
+            <div class="subtitle">Player Intelligence Card • FGA v3.0 System</div>
+        </div>
+
+<div class="player-card">
+            <!-- Player Header -->
+            <div class="player-header">
+                <img src="https://www.playmakerstats.com/wimg/n974671b/1381215-etta-eyong-cameroon-s-new-star-shining-in-spain.jpg" 
+                     alt="Karl Etta Eyong" 
+                     class="player-photo"
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22250%22%3E%3Crect fill=%22%231e2642%22 width=%22200%22 height=%22250%22/%3E%3Ctext x=%22100%22 y=%22125%22 font-family=%22Arial%22 font-size=%2220%22 fill=%22%237b8a99%22 text-anchor=%22middle%22%3ESL%3C/text%3E%3C/svg%3E'">
+
+      
+                
+                <div class="player-info">
+                    <div>
+                        <div class="player-name">KARL ETTA EYONG</div>
+                        <div class="player-position">Forward</div>
+                    </div>
+                    
+                    <div class="player-meta">
+                        <div class="meta-item"><div class="meta-label">Club</div><div class="meta-value">Levante UD</div></div>
+                        <div class="meta-item"><div class="meta-label">League</div><div class="meta-value">La Liga 2</div></div>
+                        <div class="meta-item"><div class="meta-label">Age</div><div class="meta-value">22 years</div></div>
+                        <div class="meta-item"><div class="meta-label">Height</div><div class="meta-value">185 cm</div></div>
+                        <div class="meta-item"><div class="meta-label">Foot</div><div class="meta-value">Right</div></div>
+                        <div class="meta-item"><div class="meta-label">Nationality</div><div class="meta-value">Cameroon</div></div>
+                        <div class="meta-item"><div class="meta-label">Market Value</div><div class="meta-value">€800K</div></div>
+                        <div class="meta-item"><div class="meta-label">Season</div><div class="meta-value">2025-2026</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">Overview</button>
+                <button class="tab" onclick="showTab('tier3')">Tier 3 Profile</button>
+                <button class="tab" onclick="showTab('dna')">Tactical DNA</button>
+                <button class="tab" onclick="showTab('stats')">Statistics</button>
+                <button class="tab" onclick="showTab('value')">Market Value</button>
+            </div>
+
+            <div id="overview" class="tab-content active">
+                <div class="alert-box">
+                    <div class="alert-title">🎯 Demo Profile Notice</div>
+                    <div class="alert-text">
+                        Tier 3 metrics are demo composite based on statistical output and age/experience level.
+                        For actual scouting, Empire FGA conducts direct video observation with timestamp verification.
+                    </div>
+                </div>
+
+                <div class="score-showcase">
+                    <div class="score-card">
+                        <div class="score-title">FGA v3 Final Score</div>
+                        <div class="score-value">7.6<span class="score-suffix">/10</span></div>
+                        <div class="score-description">
+                            Strong rating for 22-year-old forward in La Liga 2. Clinical finisher (5 goals in 7 games) 
+                            with excellent clutch performance metrics. Physical profile (185cm) suits aerial game.
+                        </div>
+                    </div>
+                    
+                    <div class="score-card">
+                        <div class="score-title">Trophy Magnet Factor</div>
+                        <div class="score-value">6.85<span class="score-suffix">/10</span></div>
+                        <div class="score-description">
+                            Best fit: high-intensity pressing systems (Bielsa 7.5, Klopp 7.3). Strong mental resilience 
+                            for young player. Needs development in technical areas but compensates with work rate.
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: #00d4ff; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                    <span class="badge value">Value</span> Key Performance Indicators
+                </h3>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-name">Goals This Season</div>
+                        <div class="metric-value">5</div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 90%"></div></div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-name">Appearances (Starts)</div>
+                        <div class="metric-value">7 (7)</div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 100%"></div></div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-name">Goal Contribution</div>
+                        <div class="metric-value">6</div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 85%"></div></div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-name">Goals per Shot</div>
+                        <div class="metric-value">0.29</div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 80%"></div></div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-name">Goals Above xG</div>
+                        <div class="metric-value">+0.7</div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-name">Aerial Win Rate</div>
+                        <div class="metric-value">37.5<span style="font-size: 18px; color: #7b8a99;">%</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 37%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tier3" class="tab-content">
+                <h3 style="color: #00d4ff; margin-bottom: 10px; font-size: 14px; text-transform: uppercase;">
+                    <span class="badge demo">Demo</span> Tier 3 Cognitive Profile
+                </h3>
+                <p style="color: #9ba8b5; font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
+                    Profile Completeness: <strong style="color: #00d4ff;">12/12 metrics</strong>
+                </p>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-name">CRS - Clutch Response</div>
+                        <div class="metric-value">8.0<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 80%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">OBI_P - Positional Anticipation</div>
+                        <div class="metric-value">7.5<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">SII_A - Explosive Acceleration</div>
+                        <div class="metric-value">7.5<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">SOA - Speed on Action</div>
+                        <div class="metric-value">7.5<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">CHR - Character</div>
+                        <div class="metric-value">7.5<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">MCS - Mental Competence</div>
+                        <div class="metric-value">7.5<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">DYN - Dynamism</div>
+                        <div class="metric-value">7.5<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">OMS - Transition Speed</div>
+                        <div class="metric-value">7.5<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">OBI_T - Run Timing</div>
+                        <div class="metric-value">7.0<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 70%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">SPI - Spatial Intelligence</div>
+                        <div class="metric-value">7.0<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 70%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">DMA - Decision Making</div>
+                        <div class="metric-value">7.0<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 70%"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-name">CLM - Calmness</div>
+                        <div class="metric-value">7.0<span style="font-size: 18px; color: #7b8a99;">/10</span></div>
+                        <div class="metric-bar"><div class="metric-fill" style="width: 70%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dna" class="tab-content">
+                <h3 style="color: #00d4ff; margin-bottom: 10px; font-size: 14px; text-transform: uppercase;">Top 5 Philosophical Fits</h3>
+                <p style="color: #9ba8b5; font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
+                    Eyong excels in high-intensity systems requiring work rate, pressing, and direct play. 
+                    Physical profile (185cm) suits target forward role in vertical attacks.
+                </p>
+
+                <div class="philosophy-list">
+                    <div class="philosophy-item">
+                        <div><div class="philosophy-name">Marcelo Bielsa</div><div class="philosophy-school">South American</div></div>
+                        <div class="philosophy-weight">Weight: 1.35</div>
+                        <div class="philosophy-score">7.5</div>
+                    </div>
+                    <div class="philosophy-item">
+                        <div><div class="philosophy-name">Jürgen Klopp</div><div class="philosophy-school">Modern Masters</div></div>
+                        <div class="philosophy-weight">Weight: 1.35</div>
+                        <div class="philosophy-score">7.3</div>
+                    </div>
+                    <div class="philosophy-item">
+                        <div><div class="philosophy-name">Diego Simeone</div><div class="philosophy-school">South American</div></div>
+                        <div class="philosophy-weight">Weight: 1.40</div>
+                        <div class="philosophy-score">7.0</div>
+                    </div>
+                    <div class="philosophy-item">
+                        <div><div class="philosophy-name">Julian Nagelsmann</div><div class="philosophy-school">Modern Masters</div></div>
+                        <div class="philosophy-weight">Weight: 1.30</div>
+                        <div class="philosophy-score">6.8</div>
+                    </div>
+                    <div class="philosophy-item">
+                        <div><div class="philosophy-name">Pep Guardiola</div><div class="philosophy-school">Spanish School</div></div>
+                        <div class="philosophy-weight">Weight: 1.40</div>
+                        <div class="philosophy-score">6.5</div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4 style="color: #00d4ff; margin-bottom: 10px; font-size: 13px; text-transform: uppercase;">Profile Summary</h4>
+                    <p style="color: #e0e0e0; font-size: 14px; line-height: 1.7;">
+                        Eyong is a <strong>physical, direct forward</strong> best suited to vertical systems with high pressing intensity. 
+                        At 22, still developing technical aspects (pass completion 67.4%, dribble success 12.5%) but compensates with 
+                        <strong>clinical finishing</strong> (5 goals, beats xG by +0.7). Aerial presence (185cm) and work rate make him 
+                        ideal for Bielsa/Klopp pressing systems. <strong>Value opportunity</strong> at €800K with clear path to €1.5-2M 
+                        within 12 months if goal-scoring continues.
+                    </p>
+                </div>
+            </div>
+
+            <div id="stats" class="tab-content">
+                <h3 style="color: #00d4ff; margin-bottom: 20px; font-size: 14px; text-transform: uppercase;">Season Statistics • La Liga 2 • 2025-2026</h3>
+
+                <table class="stats-table">
+                    <thead><tr><th>Category</th><th style="text-align: right;">Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Appearances (Starts)</td><td>7 (7)</td></tr>
+                        <tr><td>Minutes Played</td><td>544</td></tr>
+                        <tr><td>Goals / Assists</td><td>5 / 1</td></tr>
+                        <tr><td>Goal Contributions (G+A)</td><td>6</td></tr>
+                        <tr><td>Expected Goals (xG)</td><td>4.3</td></tr>
+                        <tr><td>Goals Above xG</td><td>+0.7</td></tr>
+                        <tr><td>Shots / Shots on Target</td><td>17 / 8</td></tr>
+                        <tr><td>Shot Accuracy</td><td>47.1%</td></tr>
+                        <tr><td>Goals per Shot</td><td>0.29</td></tr>
+                        <tr><td>Goals per Shot on Target</td><td>0.63</td></tr>
+                        <tr><td>Shots per 90</td><td>2.81</td></tr>
+                        <tr><td>Pass Completion</td><td>60 / 89 (67.4%)</td></tr>
+                        <tr><td>Key Passes</td><td>5</td></tr>
+                        <tr><td>Shot-Creating Actions per 90</td><td>1.65</td></tr>
+                        <tr><td>Goal-Creating Actions per 90</td><td>0.50</td></tr>
+                        <tr><td>Touches in Attacking 3rd</td><td>82</td></tr>
+                        <tr><td>Touches in Penalty Area</td><td>23</td></tr>
+                        <tr><td>Successful Dribbles</td><td>8 / 64 (12.5%)</td></tr>
+                        <tr><td>Progressive Receptions</td><td>31</td></tr>
+                        <tr><td>Fouls Drawn</td><td>10</td></tr>
+                        <tr><td>Aerials Won / Lost</td><td>12 / 20</td></tr>
+                        <tr><td>Aerial Win Percentage</td><td>37.5%</td></tr>
+                        <tr><td>Yellow / Red Cards</td><td>2 / 0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="value" class="tab-content">
+                <h3 style="color: #00d4ff; margin-bottom: 10px; font-size: 14px; text-transform: uppercase;">
+                    <span class="badge value">Value Opportunity</span> Market Intelligence
+                </h3>
+                <p style="color: #9ba8b5; font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
+                    22-year-old Cameroonian forward at La Liga 2 level with proven goal-scoring ability. 
+                    Classic value profile for Portuguese/Belgian market.
+                </p>
+
+                <div class="score-showcase" style="grid-template-columns: 1fr;">
+                    <div class="score-card">
+                        <div class="score-title">Current Market Value</div>
+                        <div class="score-value" style="font-size: 48px;">€800,000</div>
+                        <div class="score-description" style="margin-top: 20px;">
+                            <strong style="color: #00d4ff;">VALUE OPPORTUNITY:</strong><br><br>
+                            
+                            <strong>Current trajectory (5 goals in 7 apps):</strong><br>
+                            • If maintains 0.83 goals/90 → projects to 20+ goals this season<br>
+                            • La Liga 2 top scorers typically valued €1.5-3M<br>
+                            • €800K → €1.5-2M appreciation within 12 months realistic<br><br>
+                            
+                            <strong>Target market:</strong><br>
+                            • Portuguese clubs (Braga, Vitória, Rio Ave): €1-2M range<br>
+                            • Belgian Pro League: €1.5-2.5M for proven scorers<br>
+                            • Traditional African talent pipeline to these markets<br><br>
+                            
+                            <strong>Risk assessment: MEDIUM</strong><br>
+                            • Upside: Young, proven scorer, physical profile<br>
+                            • Development areas: Technical consistency, dribbling<br>
+                            • Age profile: 22 = peak development phase<br><br>
+                            
+                            <strong>Ideal buyer profile:</strong><br>
+                            • Portuguese mid-tier clubs seeking striker<br>
+                            • Belgian clubs with African scouting networks<br>
+                            • Teams playing direct, vertical football<br><br>
+                            
+                            <strong>Empire FGA recommendation:</strong><br>
+                            <span style="color: #4caf50;">⭐ STRONG BUY at €800K</span> — Clinical finishing + work rate + resale value. 
+                            Technical development needed but goal output validates price. 12-month flip potential to €1.5-2M.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4 style="color: #00d4ff; margin-bottom: 10px; font-size: 13px; text-transform: uppercase;">Comparable Transfers</h4>
+                    <p style="color: #e0e0e0; font-size: 14px; line-height: 1.7;">
+                        Similar profiles (African forwards, La Liga 2 → Portuguese/Belgian leagues, 22-24 years, goal-scoring record):<br><br>
+                        
+                        • <strong>Pathways:</strong> Villarreal B → Levante (current) → Portuguese/Belgian move typical<br>
+                        • <strong>Value appreciation:</strong> €800K (La Liga 2) → €1.5-2M (Portuguese Liga) within 18 months common<br>
+                        • <strong>Key factor:</strong> Maintaining 0.6+ goals per 90 = exponential value increase
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p style="margin-bottom: 8px;"><strong style="color: #00d4ff;">Empire FGA System v3.0</strong> • 779 Metrics • 60 Philosophies • LOG Enhancement</p>
+                <p style="font-size: 11px;">Analysis Date: March 31, 2026 • Data: La Liga 2 2025-2026 • Demo Profile</p>
+                <p style="font-size: 11px; margin-top: 15px; color: #5a6470;">© 2026 Empire Scouting Network • Demo Material</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
