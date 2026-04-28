@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antoine Livemont — Empire FGA Intelligence Card v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#05080f;--bg2:#090d18;--card:#0f1525;--card2:#131b2e;
+  --border:rgba(255,255,255,.07);--border2:rgba(212,168,67,.2);
+  --red:#c8102e;--gold:#d4a843;--gold3:#8a6820;
+  --teal:#00afc8;--green:#22a85a;--amber:#e07820;--muted:#6a7a94;--lite:#b8c8de;--white:#e8f0fa;
+  --accent:#7c3aed;--accentL:#a78bfa;--accentFade:rgba(124,58,237,.12);
+  --attr-elite:#1a7a3a;--attr-great:#2ecc71;--attr-good:#98d44a;
+  --attr-avg:#d4a843;--attr-below:#e07820;--attr-weak:#c8102e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 240px;min-height:240px;overflow:hidden;border-bottom:2px solid rgba(124,58,237,.35);}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(124,58,237,.12) 0%,transparent 50%,rgba(212,168,67,.06) 100%);}
+.hero-photo{position:relative;overflow:hidden;background:linear-gradient(180deg,#0c1525 0%,#05080f 100%);}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:contrast(1.1) saturate(1.08);mask-image:linear-gradient(to right,#000 70%,transparent 100%);-webkit-mask-image:linear-gradient(to right,#000 70%,transparent 100%);}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Rajdhani',sans-serif;font-size:9rem;font-weight:700;color:rgba(255,255,255,.04);line-height:1;pointer-events:none;user-select:none;}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.4rem;}
+.losc-badge{position:absolute;top:12px;right:12px;font-family:'Rajdhani',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(124,58,237,.9);color:#fff;text-transform:uppercase;backdrop-filter:blur(4px);}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(9,13,24,.8) 20%,rgba(9,13,24,.95) 100%);}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px;}
+.hero-name{font-family:'Rajdhani',sans-serif;font-size:3.4rem;font-weight:700;line-height:.95;text-transform:uppercase;color:var(--white);}
+.hero-name em{color:var(--gold);font-style:normal}
+.hero-pos-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase;}
+.pos-primary{background:var(--accent);color:#fff}
+.pos-sec{background:rgba(124,58,237,.2);color:var(--accentL);border:1px solid rgba(124,58,237,.4)}
+.pos-league{background:rgba(212,168,67,.1);color:var(--gold);border:1px solid rgba(212,168,67,.25)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:20px;margin-top:16px;}
+.hmi-val{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.68rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:12px}
+.htag{font-size:.65rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase;}
+.htag-ok{background:rgba(34,168,90,.15);color:var(--green);border:1px solid rgba(34,168,90,.25)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-crit{background:rgba(200,16,46,.12);color:var(--red);border:1px solid rgba(200,16,46,.25)}
+.htag-info{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(124,58,237,.3)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(9,13,24,.96);border-left:1px solid rgba(124,58,237,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:12px;}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0;}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.fga-score-num{font-family:'Rajdhani',sans-serif;font-size:2.4rem;font-weight:700;line-height:1;color:var(--gold);}
+.fga-score-lbl{font-size:.6rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.68rem;padding:4px 8px;border-radius:2px;}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.78rem;margin-left:auto}
+.ftr1{background:rgba(0,175,200,.08);border:1px solid rgba(0,175,200,.15)}
+.ftr2{background:rgba(34,168,90,.08);border:1px solid rgba(34,168,90,.15)}
+.ftr3{background:var(--accentFade);border:1px solid rgba(124,58,237,.2)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(124,58,237,.3);border-radius:2px;width:100%;}
+.ca-val{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--accentL)}
+.ca-info{font-size:.65rem;color:var(--muted);letter-spacing:.04em}
+.ca-pa{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:600;color:var(--lite);margin-left:auto}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(5,8,15,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0;}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center;}
+.logo-bar img{height:32px;width:auto;object-fit:contain;}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 16px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;letter-spacing:.06em;color:var(--muted);}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+
+/* ── CARDS ── */
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+.c-sub{font-size:.68rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ── STATS ── */
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden;}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.sh-purple::before{background:var(--accent)}.sh-gold::before{background:var(--gold)}.sh-teal::before{background:var(--teal)}
+.sh-val{font-family:'Rajdhani',sans-serif;font-size:1.7rem;font-weight:700;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.63rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.65rem;margin-top:2px}
+.dpos{color:var(--green)}.dneg{color:var(--red)}.dneu{color:var(--muted)}
+
+/* ── ATTRS ── */
+.attr-section-title{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:6px 0;margin-bottom:6px;border-bottom:1px solid var(--border);}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.025);}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff;transition:transform .15s;}
+.attr-circle:hover{transform:scale(1.15)}
+.attr-name{flex:1;font-size:.78rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
+.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#2a3045}
+
+/* ── METRICS ── */
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.76rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:32px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:32px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(34,168,90,.15);color:var(--green)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(200,16,46,.12);color:var(--red)}
+
+/* ── COMPOSITES ── */
+.composite-block{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px}
+.cb-header{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.cb-code{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)}
+.cb-name{font-size:.78rem;color:var(--muted)}
+.cb-score{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;margin-left:auto}
+.cb-formula{font-size:.65rem;color:var(--muted);margin-bottom:6px;font-family:'Rajdhani',sans-serif;letter-spacing:.04em}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+
+/* ── LOG ── */
+.log-ring{display:flex;align-items:center;gap:14px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:2px;margin-bottom:8px}
+.log-val{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1}
+.log-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.log-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(212,168,67,.15);color:var(--gold);border:1px solid var(--border2);}
+
+/* ── MISC ── */
+.form-dots{display:flex;gap:4px;align-items:center}
+.fd{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;font-family:'Rajdhani',sans-serif}
+.fd-w{background:var(--green);color:#fff}.fd-d{background:var(--amber);color:#fff}.fd-l{background:var(--red);color:#fff}
+.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.phil-item:last-child{border-bottom:none}
+.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
+.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
+.phi-bar-bg{width:70px;height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.phi-bar-fill{height:100%;border-radius:99px}
+.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(212,168,67,.08);color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid var(--border2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.career-table tr:hover td{background:rgba(255,255,255,.02)}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accentL),var(--gold))}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
+.tl-text{font-size:.78rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.pitch-svg{width:100%;max-width:160px;height:auto;display:block;margin:0 auto}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(124,58,237,.3);}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ov-grid{display:grid;grid-template-columns:160px 1fr 200px;gap:14px;margin-bottom:14px}
+/* KEY MOMENT highlight */
+.key-moment{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-radius:2px;padding:10px 12px;margin-bottom:10px}
+.km-head{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.psych-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px;margin-bottom:8px}
+.psych-title{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(212,168,67,.1);color:var(--gold);border:1px solid rgba(212,168,67,.2)}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 200px}.g3{grid-template-columns:1fr 1fr}.ov-grid{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.hero-fga{flex-direction:row;justify-content:space-around}.g3,.ov-grid,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('video')" style="color:var(--accentL)">▶ Highlights</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--green)"></span>Protocol ✅</span>
+    <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>T3 Partial · 4/12 ✅</span>
+    <span class="status-dot"><span class="dot" style="background:var(--accentL)"></span>19yr · LOSC Prospect</span>
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.75rem;color:var(--muted);letter-spacing:.06em">Apr 2026</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://allezlille-stats.fr/wp-content/uploads/2023/09/livemont-1024x682.jpg" alt="Antoine Livemont" onerror="this.style.background='#0a1020'">
+    <div class="hero-flag">🇫🇷</div>
+    <div class="losc-badge">LOSC Lille B</div>
+    <div class="hero-num">9</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">Centre-Forward · Academy Prospect · Pace Weapon · Clutch Finisher</div>
+      <div class="hero-name"><em>Antoine</em><br>Livemont</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">ST</span>
+        <span class="pos-badge pos-sec">SS</span>
+        <span class="pos-badge pos-league">National 3</span>
+        <span class="pos-badge pos-league">LOSC Lille B</span>
+        <span class="pos-badge pos-league">2025–26</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">19</div><div class="hmi-lbl">Age</div></div>
+      <div><div class="hmi-val">1.79m</div><div class="hmi-lbl">Height</div></div>
+      <div><div class="hmi-val">French</div><div class="hmi-lbl">Nationality</div></div>
+      <div><div class="hmi-val">€50K</div><div class="hmi-lbl">Market Val. est.</div></div>
+      <div><div class="hmi-val">N3</div><div class="hmi-lbl">5th Tier FR</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-info">LOSC Lille · Ligue 1 Academy</span>
+      <span class="htag htag-ok">SII_T 9.0 · Pace Weapon ⚠️2evt</span>
+      <span class="htag htag-ok">SOA 8.5 ✅ · CRK 8.17 ✅</span>
+      <span class="htag htag-ok">OBI_P 8.5 ✅ · OBI_T 7.75 ✅</span>
+      <span class="htag htag-warn">CHR / MCS / CLM / DYN = 0 events</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">FGA v3 Score</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">—</div>
+        <div class="fga-score-lbl">/ 10.0</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--teal)">Tier 1</span><span style="color:var(--muted)">GPS/Data</span><span class="tw" style="color:var(--amber)">N/A</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--green)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">~6.5</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--accentL)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--amber)">4/12 ✅</span></div>
+    </div>
+    <div class="hero-ca">
+      <div>
+        <div class="ca-val">72</div>
+        <div class="ca-info">CA (Empire Equiv.)</div>
+      </div>
+      <div class="ca-pa">PA 155</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- ═══ OVERVIEW ═══ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <!-- Protocol status -->
+  <div style="background:rgba(34,168,90,.06);border:1px solid rgba(34,168,90,.2);border-radius:2px;padding:8px 14px;margin-bottom:14px;font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:10px">
+    <span style="color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem">✅ PROTOCOL VALID</span>
+    <span>Match balance confirmed: 2 top-third (Amiens SC U19 · Metz B) · 2 away · 3 losing/drawing contexts · 5 matches registered. Assessment scores are protocol-compliant.</span>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-purple"><div class="sh-val">6.5*</div><div class="sh-lbl">FGA Provisional</div><div class="sh-delta dpos">↑ T3-Partial (4/12)</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">9.0</div><div class="sh-lbl">SII_T Top Speed</div><div class="sh-delta dpos">↑ Elite signal ⚠️2evt</div></div>
+    <div class="sh-box sh-teal"><div class="sh-val">8.5</div><div class="sh-lbl">SOA Speed/Action</div><div class="sh-delta dpos">↑ ✅ 5 events</div></div>
+    <div class="sh-box sh-purple"><div class="sh-val">8.17</div><div class="sh-lbl">CRK Creative Risk</div><div class="sh-delta dpos">↑ ✅ 3 events</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">9.5</div><div class="sh-lbl">CRS Clutch (Goal)</div><div class="sh-delta dpos">↑ ⚠️ 1 event</div></div>
+    <div class="sh-box sh-teal"><div class="sh-val">4/12</div><div class="sh-lbl">T3 Confirmed</div><div class="sh-delta dneu">→ 8 partial</div></div>
+  </div>
+
+  <!-- Key Moment callout -->
+  <div class="key-moment" style="margin-bottom:14px">
+    <div class="km-head">⚡ Sequence of the Assessment — Match 3 · 142:22–143:46</div>
+    <div style="font-size:.78rem;color:var(--muted);line-height:1.7">
+      Four events in 84 seconds, all scored 9/10: <strong style="color:var(--white)">OBI_P 9</strong> ("good anticipation and start a counter attack") → <strong style="color:var(--white)">OMS 9</strong> (immediate transition trigger) → <strong style="color:var(--white)">SOA 9</strong> (first touch 142:24) → <strong style="color:var(--white)">SII_T 9</strong> ("outpace his opponent down the wing on around 20 metres with 5 metres behind") → <strong style="color:var(--white)">SOA 9</strong> again at 143:46. This is the clearest elite sequence in the entire video sample. Needs replication.
+    </div>
+  </div>
+
+  <div class="ov-grid">
+    <!-- Pitch + form -->
+    <div>
+      <div class="c" style="margin-bottom:10px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Position Map</div></div>
+        <div class="c-body" style="padding:10px">
+          <svg class="pitch-svg" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="150" rx="2" fill="#0a1a10"/>
+            <rect x="5" y="5" width="90" height="140" rx="1" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".8"/>
+            <line x1="5" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+            <circle cx="50" cy="75" r="12" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+            <rect x="30" y="5" width="40" height="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+            <rect x="38" y="5" width="24" height="9" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+            <rect x="30" y="127" width="40" height="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+            <rect x="38" y="136" width="24" height="9" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+            <circle cx="50" cy="22" r="6.5" fill="rgba(124,58,237,.9)" stroke="var(--gold)" stroke-width="1.5"/>
+            <circle cx="30" cy="30" r="3.5" fill="rgba(124,58,237,.3)" stroke="rgba(212,168,67,.4)" stroke-width=".8"/>
+            <text x="50" y="25.5" text-anchor="middle" font-size="5" fill="white" font-family="Rajdhani" font-weight="700">CF</text>
+          </svg>
+          <div style="text-align:center;margin-top:6px"><span style="font-family:'Rajdhani',sans-serif;font-size:.65rem;color:var(--muted);letter-spacing:.08em">CENTRE FORWARD · Counter-Run</span></div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Match Form</div><div class="c-sub">5 Video Matches</div></div>
+        <div class="c-body" style="padding:10px">
+          <div class="form-dots" style="justify-content:center;margin-bottom:6px">
+            <div class="fd fd-l">L</div><div class="fd fd-l">L</div><div class="fd fd-w">W</div><div class="fd fd-l">L</div><div class="fd fd-w">W</div>
+          </div>
+          <div style="font-size:.68rem;color:var(--muted);text-align:center">2W 0D 3L · Losing context well covered</div>
+          <div class="divider"></div>
+          <div style="font-size:.68rem;color:var(--muted)">vs Top-third: <strong style="color:var(--green)">Goal vs Metz B · SOA peak</strong></div>
+          <div style="font-size:.68rem;color:var(--muted);margin-top:4px">Key sequence: <strong style="color:var(--accentL)">M3 142–143 — 4 elite events</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coach summary -->
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Coach Summary</div><div class="c-sub">Video-Observed · Partial</div></div>
+      <div class="c-body">
+        <div class="attr-section-title">Technical</div>
+        <div id="coach-tech"></div>
+        <div class="attr-section-title" style="margin-top:10px">Mental</div>
+        <div id="coach-men"></div>
+        <div class="attr-section-title" style="margin-top:10px">Physical</div>
+        <div id="coach-phy"></div>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div>
+      <div class="c" style="margin-bottom:10px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Player Profile</div></div>
+        <div class="c-body" style="font-size:.76rem">
+          <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">26 Feb 2006 (19)</span></div>
+          <div class="ti-row"><span class="ti-lbl">Birthplace</span><span class="ti-val">Villeneuve-d'Ascq, FR</span></div>
+          <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val">🇫🇷 France</span></div>
+          <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val">1.79m</span></div>
+          <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--accentL)">LOSC Lille B</span></div>
+          <div class="ti-row"><span class="ti-lbl">Academy</span><span class="ti-val" style="color:var(--green)">LOSC Lille (Ligue 1)</span></div>
+          <div class="ti-row"><span class="ti-lbl">Character</span><span class="ti-val" style="color:var(--amber)">CHR = 0 events</span></div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Player Traits</div></div>
+        <div class="c-body">
+          <span class="trait-pill">Elite Pace (pending)</span>
+          <span class="trait-pill">Fast First Touch</span>
+          <span class="trait-pill">Clutch Scorer</span>
+          <span class="trait-pill">Counter-Attack CF</span>
+          <span class="trait-pill">Anticipatory Runner</span>
+          <div class="divider"></div>
+          <div class="section-label">Assessment Gaps</div>
+          <div style="font-size:.73rem;color:var(--muted);line-height:1.6">
+            <strong style="color:var(--amber)">CHR / MCS / CLM / DYN:</strong> Zero events<br>
+            <strong style="color:var(--amber)">SII full pass needed:</strong> All 3 sub-metrics partial<br>
+            <strong style="color:var(--lite)">National 3:</strong> LOG 2.0 — level context essential
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits</div><div class="c-sub">60-Framework</div></div>
+      <div class="c-body" id="ov-phil"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">T3 Radar (Confirmed + Partial)</div><div class="c-sub">4 confirmed · 8 partial</div></div>
+      <div class="c-body"><canvas id="ovRadar" height="180"></canvas></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Scouting Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">Livemont is a <strong>19-year-old LOSC Lille academy striker</strong> — the institutional context alone sets this card apart from every other assessment in this series. This is not a journeyman in Albania; this is a player being developed by one of France's top five clubs, born 500 metres from Lille's training ground.</div>
+        <div class="scout-para">His SII_T 9.0 and the M3 sequence are the most exciting raw signals in a partial assessment. But the assessment is thin — <strong>4 confirmed metrics, 8 partial, 4 at zero</strong>. Everything attractive in this profile needs a full second pass to harden.</div>
+        <div class="verdict-box">
+          <div class="verdict-label">Empire FGA Verdict</div>
+          <div class="verdict-text"><strong>High-Ceiling Development Prospect — Assessment Needs Completion.</strong> At 19 inside LOSC's system, with the physical signals showing, this player deserves a second full assessment block. Prioritise SII (full pass), CHR, MCS, and CLM. The pace data alone — if confirmed at 3+ events — would significantly change the FGA score and the recommendation to any scouting client.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ATTRIBUTES ═══ -->
+<div id="tab-attributes" class="tab-panel">
+  <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
+    ⚠️ <strong style="color:var(--accentL)">Development profile — values are early-stage estimates.</strong> Physical attributes largely based on 2-event SII sample + contextual observation. Mental attributes: SOA, CRK confirmed; CHR, MCS, CLM, DYN have zero events and are marked as unknown. All attributes should be treated as directional indicators only.
+  </div>
+  <div class="g3">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical</div></div>
+      <div class="c-body" id="attr-tech"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div>
+      <div class="c-body" id="attr-men"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Physical</div><div class="c-sub">SII partial · 2evt each</div></div>
+      <div class="c-body" id="attr-phy"></div>
+    </div>
+  </div>
+  <div style="margin-top:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Attribute Radar</div><div class="c-sub">vs LOSC B typical U20 CF · vs comparable national 3 striker</div></div>
+      <div class="c-body" style="height:340px"><canvas id="attrRadar"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FGA ANALYTICS ═══ -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title" style="color:var(--teal)">Tier 1 — GPS/Data</div><div class="c-sub">20% · N/A National 3</div></div>
+      <div class="c-body">
+        <div style="background:rgba(200,16,46,.06);border:1px solid rgba(200,16,46,.18);border-radius:2px;padding:10px 12px;font-size:.8rem;color:var(--muted)">
+          ❌ <strong style="color:var(--red)">No Tier 1 data.</strong><br>
+          <span style="font-size:.73rem">FBref / Sofascore do not index National 3 (France, 5th tier). No automated statistical pipeline. Tier 1 weight (20%) excluded from the provisional FGA score — same context as Foulon (GFC Ajaccio). Score is T3-driven.</span>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:.76rem;color:var(--muted)">
+          <strong style="color:var(--lite)">Note on institutional context:</strong> Unlike other N3 cases, LOSC Lille's B-team will have internal GPS/tracking data available internally. This data is inaccessible externally but suggests the player has been performance-monitored at a professional standard. If a client relationship with LOSC is established, internal T1 data becomes available.
+        </div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 — Composite</div><div class="c-sub">30% · Estimated</div></div>
+      <div class="c-body" id="t2-metrics"></div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:10px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Score Breakdown</div></div>
+        <div class="c-body" style="height:180px"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">LOG Context</div></div>
+        <div class="c-body">
+          <div class="log-ring">
+            <canvas id="logRing" width="60" height="60"></canvas>
+            <div>
+              <div class="log-val">2.0</div>
+              <div class="log-lbl">LOG Score</div>
+              <div style="margin-top:4px"><span class="log-badge">National 3 · FR</span></div>
+            </div>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.7">
+            <strong style="color:var(--lite)">5th tier competition</strong> — significant gap to professional football<br>
+            <strong style="color:var(--accentL)">Institutional offset:</strong> LOSC membership signals professional environment despite 5th-tier fixtures<br>
+            <strong style="color:var(--lite)">LOG is context, not multiplier</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T3 Block -->
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 3 — Scout Observation</div><div class="c-sub">Jim Totime · 5 matches · Balance ✅ · 4/12 Confirmed</div></div>
+    <div class="c-body">
+      <div class="g3">
+        <div>
+          <div class="composite-block">
+            <div class="cb-header"><span class="cb-code">OBI</span><span class="cb-name">Off-Ball Intelligence</span><span class="cb-score" style="color:var(--amber)">8.06⚠️</span></div>
+            <div class="cb-formula">(T×0.35) + (S×0.35) + (P×0.30)</div>
+            <div id="obi-subs"></div>
+          </div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:4px;line-height:1.5">OBI_T ✅ (4 events, 7.75 avg) and OBI_P ✅ (3 events, 8.5 avg — strongest confirmed off-ball metric). OBI_S pending (1 event). OBI_P includes the M3 counter-attack anticipation event (9/10).</div>
+        </div>
+        <div>
+          <div class="composite-block">
+            <div class="cb-header"><span class="cb-code">SII</span><span class="cb-name">Sprint Intensity Index</span><span class="cb-score" style="color:var(--amber)">8.15⚠️</span></div>
+            <div class="cb-formula">(A×0.40) + (T×0.35) + (R×0.25)</div>
+            <div id="sii-subs"></div>
+          </div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:4px;line-height:1.5">SII_T 9.0 is the standout but needs a third confirmed event. The M3 event description — <em>"outpace his opponent down the wing on around 20 metres with 5 metres behind"</em> — is the most specific pace evidence in any assessment to date. Needs replication.</div>
+        </div>
+        <div>
+          <div class="section-label">Video Completeness</div>
+          <div id="vc-mini"></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">All 10 Remaining Metrics</div>
+      <div class="g3" id="t3-rest-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHILOSOPHY DNA ═══ -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top 10 Philosophy Fits</div><div class="c-sub">60-Philosophy Framework</div></div>
+        <div class="c-body" id="phil-full"></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">School Averages</div></div>
+        <div class="c-body" id="school-avgs"></div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px;height:350px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar</div></div>
+        <div class="c-body" style="height:300px"><canvas id="philRadar"></canvas></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype</div></div>
+        <div class="c-body">
+          <div class="scout-para">Livemont's confirmed metrics — OBI_P, SOA, CRK, and the pace-driven SII signals — map most naturally to <strong>counter-attacking and transition systems</strong> that use the CF as a live threat behind the defence. The French school (Deschamps, Suaudeau) is relevant given his LOSC formation context. Guardiola's positional CF variant is an interesting ceiling hypothesis if the decision-making (DMA 9.5 — single event, through pass) holds up under scrutiny.</div>
+          <div class="psych-box">
+            <div class="psych-title">Tactical DNA Tags</div>
+            <span class="trait-pill">Counter-Attack CF</span>
+            <span class="trait-pill">Run In Behind</span>
+            <span class="trait-pill">Anticipatory Mover</span>
+            <span class="trait-pill">Creative Finisher</span>
+            <span class="trait-pill">Pace Weapon</span>
+          </div>
+          <div class="psych-box" style="margin-top:8px">
+            <div class="psych-title">Cannot Yet Assess</div>
+            <span class="trait-pill" style="background:rgba(200,16,46,.1);color:var(--red);border-color:rgba(200,16,46,.2)">CHR Unscored</span>
+            <span class="trait-pill" style="background:rgba(200,16,46,.1);color:var(--red);border-color:rgba(200,16,46,.2)">MCS Unscored</span>
+            <span class="trait-pill" style="background:rgba(200,16,46,.1);color:var(--red);border-color:rgba(200,16,46,.2)">DYN Unscored</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CAREER ═══ -->
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">Born Feb 2006 · Villeneuve-d'Ascq</div><div class="tl-text"><strong>Home-grown.</strong> Born in the commune directly adjacent to LOSC Lille's Luchin training complex. The geography of his development is not coincidental.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Circa 2014–2023 · LOSC Youth Academy</div><div class="tl-text"><strong>Full LOSC Formation</strong> — Entered Lille's academy structure as a child. All foundational football education within a Ligue 1 professional environment.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-date">2023–24 · LOSC U19 · Championnat National U19</div><div class="tl-text"><strong>U19 National Campaign</strong> — Competing in France's elite U19 national competition. Exposure to top-tier youth football before age 18.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">Jul 2025 – Present · LOSC Lille B · National 3</div><div class="tl-text"><strong>First Senior Step</strong> — Promoted to B-team for the 2025–26 season. National 3 is the 5th tier but under LOSC's infrastructure. Subject of this Empire FGA assessment.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">FGA Trajectory (Estimated)</div></div>
+        <div class="c-body" style="height:180px"><canvas id="progressChart"></canvas></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Developmental Context</div></div>
+        <div class="c-body">
+          <div class="tl-wrap">
+            <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">Age 19 at assessment</div><div class="tl-text">Unlike Foulon (23) and Loukili (28), this is a <strong>development arc profile</strong>. FGA scores will improve materially if the player continues on trajectory. PA 155 is a ceiling estimate — not a current value.</div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-date">LOSC pathway = professional track</div><div class="tl-text">Players in LOSC B with confirmed physical and cognitive metrics regularly earn professional contracts. Jonathan David, Edon Zhegrova, and others came through similar French B-team pathways.</div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:var(--amber)"></div><div class="tl-date">Assessment timing matters</div><div class="tl-text">Reassess in 6–12 months. At 19, a further 3–5 watch sessions completing CHR, MCS, SII will produce a materially different and more actionable card.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Statistics</div><div class="c-sub">Youth / B-team level · Limited public data</div></div>
+    <div class="c-body">
+      <table class="career-table">
+        <thead><tr><th>Club</th><th>Season</th><th>Level</th><th>Apps (est.)</th><th>Goals</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>LOSC Lille U19</td><td>2023–24</td><td>Champ. National U19</td><td>~20</td><td>—</td><td>Elite youth competition</td></tr>
+          <tr><td>LOSC Lille U19</td><td>2024–25</td><td>Champ. National U19</td><td>~25</td><td>—</td><td>Pre-B promotion</td></tr>
+          <tr class="hl"><td><strong>LOSC Lille B</strong></td><td><strong>2025–26</strong></td><td><strong>National 3</strong></td><td><strong>~15+</strong></td><td><strong>1+</strong></td><td><strong>Empire FGA Assessed</strong></td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:8px">⚠️ Youth statistics not publicly indexed. Career total limited to senior B-team appearances. LOSC internal data not accessible externally.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCOUTING INTEL ═══ -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Full Scouting Report</div><div class="c-sub">Jim Totime · Empire FGA · Apr 2026 · Protocol ✅</div></div>
+        <div class="c-body">
+          <div class="scout-para">Antoine Livemont is a <strong>19-year-old French centre-forward born in Villeneuve-d'Ascq</strong> — Lille's home suburb — and developed entirely within LOSC's academy. He is currently in his first senior season with LOSC Lille B in National 3. This assessment covers 5 matches across two seasons of footage (protocol-balanced: 2 top-third, 2 away, 3 losing/drawing contexts).</div>
+
+          <div class="scout-para">The defining moment of this file is the <strong>M3 sequence between 142:22 and 143:46</strong> — four events scoring 9/10 in 84 seconds. OBI_P 9 shows anticipation 2+ seconds before the ball as he triggers a counter-attack; OMS 9 confirms the instant transition trigger; SOA 9 confirms the first-touch quality under speed; SII_T 9 confirms he outpaced his opponent on a 20-metre sprint starting 5 metres behind. This is a genuine elite physical-cognitive sequence. It needs replication — but it is exactly the kind of evidence the Empire FGA protocol is designed to surface.</div>
+
+          <div class="scout-para">The <strong>CRS 9.5 goal</strong> in Match 5 against Metz B (top-third) is also significant. A step-over at 103:39 into a finish at 103:41 shows quick feet and composure under pressure in a decisive moment. One event, but high-quality evidence for a striker's most important attribute.</div>
+
+          <div class="scout-para">The assessment gaps are substantial: <strong>CHR, MCS, CLM, and DYN have zero events</strong>. No character evidence at all — we have no idea how he responds to adversity, whether he influences teammates, or whether his composure holds in high-stakes moments. For a 19-year-old prospect, CHR and MCS are arguably the most important metrics to complete before any recruitment recommendation. Talent without character is a liability at Ligue 2 entry level and above.</div>
+
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Final Assessment</div>
+            <div class="verdict-text"><strong>Exciting Development Profile — Incomplete Assessment.</strong> The physical pace signal (SII_T 9.0), the anticipatory off-ball reading (OBI_P 8.5 ✅), and the clutch goal evidence make this one of the most interesting early assessments in the current batch. At 19, inside LOSC's infrastructure, with these initial metrics, the ceiling is genuinely open. <strong>Recommended action:</strong> Complete SII (dedicated full pass), CHR, MCS, CLM, DYN — minimum 2 additional watch sessions. Reassess at 20 for a complete profile. Market value at this stage: <strong>€50K–€100K</strong>. Post-completion potential: <strong>€250K–€500K</strong> if SII and CHR confirm elite indicators.</div>
+          </div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Raw Event Log</div><div class="c-sub">26 events · Protocol ✅</div></div>
+        <div class="c-body" id="event-log-display"></div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Transfer Intelligence</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">Market Value (est.)</span><span class="ti-val">€50,000 – €100,000</span></div>
+          <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--muted)">Youth / Academy terms</span></div>
+          <div class="ti-row"><span class="ti-lbl">Club ownership</span><span class="ti-val" style="color:var(--accentL)">LOSC Lille</span></div>
+          <div class="ti-row"><span class="ti-lbl">Fee if sold now</span><span class="ti-val" style="color:var(--green)">Minimal / development fee</span></div>
+          <div class="ti-row"><span class="ti-lbl">Agent</span><span class="ti-val" style="color:var(--muted)">Unknown / Academy-managed</span></div>
+          <div class="ti-row"><span class="ti-lbl">EU Status</span><span class="ti-val">✅ French citizen — full EU</span></div>
+          <div class="ti-row"><span class="ti-lbl">Recruitment window</span><span class="ti-val" style="color:var(--amber)">Internal LOSC decision — not yet externally accessible</span></div>
+        </div>
+      </div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Comparison Radar</div><div class="c-sub">vs comparable U20 French CF archetype</div></div>
+        <div class="c-body" style="height:260px"><canvas id="compRadar"></canvas></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Match Log</div></div>
+        <div class="c-body" id="match-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VIDEO HIGHLIGHTS ═══ -->
+<div id="tab-video" class="tab-panel">
+
+  <div style="background:var(--accentFade);border:1px solid rgba(124,58,237,.3);border-radius:2px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--accentL);text-transform:uppercase">▶ Video Highlights</span>
+    <span style="font-size:.75rem;color:var(--muted)">Antoine Livemont · LOSC Lille B · Season 2025–26 · Empire FGA Assessment Footage</span>
+    <span style="margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(34,168,90,.15);color:var(--green);border:1px solid rgba(34,168,90,.25)">Protocol ✅</span>
+  </div>
+
+  <!-- Main video player -->
+  <div class="c" style="margin-bottom:14px">
+    <div class="c-head">
+      <div class="c-dot" style="background:var(--accentL)"></div>
+      <div class="c-title" style="color:var(--accentL)">Full Highlights Reel</div>
+      <div class="c-sub">ESN Video Client · Jim Totime · 5-match sample</div>
+    </div>
+    <div class="c-body" style="padding:0">
+      <div style="position:relative;background:#000;border-radius:0 0 2px 2px;overflow:hidden">
+        <video
+          id="mainVideo"
+          controls
+          preload="metadata"
+          style="width:100%;display:block;max-height:540px;background:#000"
+          poster=""
+        >
+          <source src="https://www.dropbox.com/scl/fi/brczjvw1ckcdc0g7a364r/Antoine-Livemont.mp4?rlkey=0s5bj1fc1e43n8bimca15amtp&raw=1" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timestamp markers linked to T3 events -->
+  <div class="g2">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Key Event Markers</div><div class="c-sub">Click to jump to moment</div></div>
+      <div class="c-body" id="video-timestamps"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Assessment Notes</div><div class="c-sub">What to look for</div></div>
+      <div class="c-body">
+        <div style="margin-bottom:12px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accentL);margin-bottom:6px">Priority: Watch for SII_T confirmation</div>
+          <div style="font-size:.78rem;color:var(--muted);line-height:1.6">The M3 sprint event — <em>"outpace his opponent down the wing on around 20 metres with 5 metres behind"</em> — is the highest-value physical evidence in this file. SII_T is still at 2 events. Confirm with a third observation to lock the score at 9.0.</div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-bottom:12px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">CRS Goal · M5 103:39–103:41</div>
+          <div style="font-size:.78rem;color:var(--muted);line-height:1.6">Step-over into finish in under 2 seconds. CRS 9.5. This is the defining moment for the clutch profile. Only one event — watch for similar moments in additional matches.</div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-bottom:12px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:6px">⚠️ CHR — Watch Body Language</div>
+          <div style="font-size:.78rem;color:var(--muted);line-height:1.6">Zero character events logged. When viewing the footage, specifically observe his responses after losing the ball, after a referee decision, and after a teammate error. These are the CHR scoring moments.</div>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accentL);margin-bottom:6px">⭐ M3 Sequence · 142:22–143:46</div>
+          <div style="font-size:.78rem;color:var(--muted);line-height:1.6">Four elite events in 84 seconds. This is the most important passage of play in the entire assessment sample. Note the anticipation timing, the transition response, and the ground covered in the sprint.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+const ATTRS={
+  tech:[
+    {n:"Speed on Action (SOA✅)",v:8.5},{n:"Creative Risk (CRK✅)",v:8.17},{n:"Finishing",v:7.8},
+    {n:"Positional Anticipation (OBI_P✅)",v:8.5},{n:"Run Timing (OBI_T✅)",v:7.75},{n:"Technique (est.)",v:7.2},
+    {n:"Passing / Through Ball",v:7.5},{n:"First Touch (SOA-linked)",v:8.5},{n:"Heading",v:6.5},{n:"Long Shot",v:7.5}
+  ],
+  men:[
+    {n:"Anticipation (OBI_P✅)",v:8.5},{n:"Decisions (DMA 1evt)",v:7.5},{n:"Bravery (est.)",v:7.0},
+    {n:"Determination (est.)",v:7.0},{n:"Composure (CLM 0evt)",v:0},{n:"Character (CHR 0evt)",v:0},
+    {n:"Mental Comp. (MCS 0evt)",v:0},{n:"Work Rate (OMS partial)",v:7.5}
+  ],
+  phy:[
+    {n:"Pace / Top Speed (SII_T~9)",v:9.0},{n:"Acceleration (SII_A~7.5)",v:7.5},
+    {n:"Stamina (SII_R~8)",v:8.0},{n:"Agility (est.)",v:7.8},{n:"Balance (est.)",v:7.2},
+    {n:"Strength (est.)",v:6.5},{n:"Jump Reach (est.)",v:6.8}
+  ]
+};
+const T2=[
+  {c:"POI",n:"Position Intelligence",v:7.8,w:"25%"},{c:"CPX",n:"Composure Index",v:6.5,w:"20%"},
+  {c:"MOB",n:"Mobility (SII partial)",v:8.0,w:"15%"},{c:"AMS",n:"Anticipatory Movement",v:8.2,w:"20%"},
+  {c:"GRI",n:"Ghost Run Index",v:7.8,w:"20%"}
+];
+const OBI=[
+  {c:"OBI_T",n:"Run Timing",v:7.75,w:"35%",ok:true},
+  {c:"OBI_S",n:"Space Architecture",v:8.0,w:"35%",ok:false},
+  {c:"OBI_P",n:"Positional Anticipation",v:8.5,w:"30%",ok:true}
+];
+const SII=[
+  {c:"SII_A",n:"Explosive Accel",v:7.5,w:"40%",ok:false},
+  {c:"SII_T",n:"Top-End Speed",v:9.0,w:"35%",ok:false},
+  {c:"SII_R",n:"Recovery Sprint",v:8.0,w:"25%",ok:false}
+];
+const T3R=[
+  {c:"DMA",n:"Decision Making",v:9.5,conf:false,partial:true},
+  {c:"CHR",n:"Character",v:0,conf:false},
+  {c:"MCS",n:"Mental Competence",v:0,conf:false},
+  {c:"SOA",n:"Speed on Action",v:8.5,conf:true},
+  {c:"SPI",n:"Spatial Performance",v:9.0,conf:false,partial:true},
+  {c:"CLM",n:"Calmness",v:0,conf:false},
+  {c:"CRS",n:"Clutch Response",v:9.5,conf:false,partial:true},
+  {c:"OMS",n:"Omschakeling",v:8.5,conf:false,partial:true},
+  {c:"DYN",n:"Dynamism",v:0,conf:false},
+  {c:"CRK",n:"Creative Risk",v:8.17,conf:true}
+];
+const PHIL=[
+  {r:1,n:"Deschamps Counter / Direct",s:"French School",v:9.0,col:"#2980b9"},
+  {r:2,n:"Klopp Heavy Metal",s:"German School",v:8.8,col:"#3498db"},
+  {r:3,n:"Vertical Transition",s:"Counter-Attack",v:8.8,col:"#e67e22"},
+  {r:4,n:"Rangnick Pressing CF",s:"German School",v:8.5,col:"#3498db"},
+  {r:5,n:"Bielsa Movement",s:"South American",v:8.2,col:"#e07820"},
+  {r:6,n:"Guardiola False 9 / CF",s:"Modern Masters",v:7.5,col:"#6CABDD"},
+  {r:7,n:"Cruyff Forward System",s:"Dutch School",v:7.2,col:"#27ae60"},
+  {r:8,n:"Mourinho Counter-Punch",s:"Modern Masters",v:7.0,col:"#9b59b6"},
+  {r:9,n:"Sacchi High Line",s:"Italian School",v:6.5,col:"#e67e22"},
+  {r:10,n:"Catenaccio Striker",s:"Italian School",v:4.5,col:"#e67e22"}
+];
+const SCHOOL_AVGS=[
+  {n:"French School",v:9.0},{n:"German Intensity",v:8.7},
+  {n:"Counter-Attack",v:8.8},{n:"South American",v:8.2},
+  {n:"Modern Masters",v:7.5},{n:"Italian Tactical",v:5.5}
+];
+const MATCHES=[
+  {m:1,d:"M1",opp:"GFC Ajaccio",ha:"A",res:"L",tier:"T2",rating:7.2},
+  {m:2,d:"M2",opp:"Racing CF U19",ha:"H",res:"L",tier:"T3",rating:8.0},
+  {m:3,d:"M3",opp:"Racing CF U19",ha:"A",res:"W",tier:"T3",rating:9.2},
+  {m:4,d:"M4",opp:"Amiens SC U19",ha:"H",res:"L",tier:"T1",rating:7.5},
+  {m:5,d:"M5",opp:"Metz B",ha:"H",res:"W",tier:"T1",rating:8.8}
+];
+const EVENTS=[
+  {t:"M5 · 85:23","m":"OMS","d":"Transition response — 8/10"},
+  {t:"M5 · 86:34","m":"SII_A","d":"Explosive acceleration — 7/10"},
+  {t:"M5 · 97:44","m":"OBI_T","d":"Run timing — 6/10"},
+  {t:"M5 · 103:34","m":"SII_T","d":"Top-end speed — 9/10"},
+  {t:"M5 · 103:39","m":"SOA + CRK","d":"Step over — SOA 9 + CRK 9"},
+  {t:"M5 · 103:41","m":"CRS ⚽","d":"GOAL scored — 9.5/10"},
+  {t:"M3 · 120:11","m":"OBI_T","d":"Run timing — 8/10"},
+  {t:"M3 · 122:02","m":"SOA","d":"Speed on action — 7.5/10"},
+  {t:"M3 · 122:43","m":"SII_A","d":"Explosive acceleration — 8/10"},
+  {t:"M3 · 124:23","m":"OBI_S","d":"Space architecture — 8/10"},
+  {t:"M3 · 128:12","m":"OBI_P","d":"Positional anticipation — 7.5/10"},
+  {t:"M3 · 137:17","m":"SPI","d":"Spatial performance — 9/10"},
+  {t:"M3 · 142:22","m":"OBI_P ⭐","d":"Good anticipation, starts counter attack — 9/10"},
+  {t:"M3 · 142:22","m":"OMS ⭐","d":"Instant transition trigger — 9/10"},
+  {t:"M3 · 142:24","m":"SOA ⭐","d":"Speed on action — 9/10"},
+  {t:"M3 · 142:26","m":"SII_T ⭐","d":"Outpace opponent 20m sprint, 5m from behind — 9/10"},
+  {t:"M3 · 143:46","m":"SOA","d":"Speed on action — 9/10"},
+  {t:"M2 · 20:18","m":"OBI_T","d":"Run timing — 8/10"},
+  {t:"M2 · 41:14","m":"OBI_P","d":"Positional anticipation — 9/10"},
+  {t:"M2 · 45:08","m":"OBI_T + CRK","d":"Run timing 9 + shot on goal 7"},
+  {t:"M2 · 54:23","m":"SOA","d":"Speed on action — 8/10"},
+  {t:"M2 · 90:23","m":"SII_R","d":"Recovery sprint — 8/10"},
+  {t:"M2 · 94:10","m":"CRK","d":"Shot on goal — 8.5/10"},
+  {t:"M2 · 100:25","m":"DMA","d":"Nice through pass — 9.5/10"}
+];
+
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#6a7a94';
+const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
+const pct=v=>Math.round(v*10);
+const fmt=v=>v>0?(v%1!==0?parseFloat(v.toFixed(2)):v):'—';
+
+function attrCircle(v){return`<div class="attr-circle ${ac(v)}" title="${v}/10">${v>0?Math.round(v*2):'?'}</div>`}
+function renderAttrList(el,arr){
+  el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${pct(a.v)}%;background:${sc(a.v)}"></div></div><span class="attr-val-lbl" style="color:${sc(a.v)}">${a.v>0?a.v:'?'}</span></div>`).join('');
+}
+function renderPhilList(el,arr){
+  el.innerHTML=arr.map(p=>`<div class="phil-item"><span class="phi-rank">${p.r}</span><div><div class="phi-name">${p.n}</div><div class="phi-school">${p.s}</div></div><div class="phi-bar-bg"><div class="phi-bar-fill" style="width:${pct(p.v)}%;background:${p.col}"></div></div><span class="phi-score" style="color:${p.col}">${p.v}</span></div>`).join('');
+}
+function renderSubMetrics(el,arr){
+  el.innerHTML=arr.map(m=>{
+    const col=m.ok?sc(m.v):'var(--amber)';
+    const flag=m.ok?'<span class="mflag f-ok">✅</span>':'<span class="mflag f-w">⚠️</span>';
+    return`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${col}"></div></div><span class="comp-val" style="color:${col}">${fmt(m.v)}</span><span class="comp-wt">${m.w}</span>${flag}</div>`;
+  }).join('');
+}
+function renderCompList(el,arr){
+  el.innerHTML=arr.map(m=>`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span class="comp-val" style="color:${sc(m.v)}">${fmt(m.v)}</span><span class="comp-wt">${m.w||''}</span></div>`).join('');
+}
+
+function init(){
+  renderAttrList(document.getElementById('coach-tech'),[ATTRS.tech[0],ATTRS.tech[3],ATTRS.tech[7],ATTRS.tech[2]]);
+  renderAttrList(document.getElementById('coach-men'),[ATTRS.men[0],ATTRS.men[7],ATTRS.men[1],ATTRS.men[2]]);
+  renderAttrList(document.getElementById('coach-phy'),[ATTRS.phy[0],ATTRS.phy[1],ATTRS.phy[3],ATTRS.phy[2]]);
+  renderAttrList(document.getElementById('attr-tech'),ATTRS.tech);
+  renderAttrList(document.getElementById('attr-men'),ATTRS.men);
+  renderAttrList(document.getElementById('attr-phy'),ATTRS.phy);
+  renderSubMetrics(document.getElementById('obi-subs'),OBI);
+  renderSubMetrics(document.getElementById('sii-subs'),SII);
+  renderCompList(document.getElementById('t2-metrics'),T2);
+  renderPhilList(document.getElementById('ov-phil'),PHIL.slice(0,5));
+  renderPhilList(document.getElementById('phil-full'),PHIL);
+  const saEl=document.getElementById('school-avgs');
+  saEl.innerHTML=SCHOOL_AVGS.map(s=>`<div class="comp-row"><span style="font-size:.74rem;color:var(--lite);flex:1">${s.n}</span><div class="comp-bar-bg" style="width:120px"><div class="comp-bar-fill" style="width:${pct(s.v)}%;background:${sc(s.v)}"></div></div><span class="comp-val" style="color:${sc(s.v)}">${s.v}</span></div>`).join('');
+
+  // T3 rest
+  const restEl=document.getElementById('t3-rest-grid');
+  const chunk=(a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
+  restEl.innerHTML=chunk(T3R,4).map(col=>`<div>${col.map(m=>{
+    const cl=m.conf?sc(m.v):m.partial?'var(--amber)':'#4a5568';
+    const fl=m.conf?'<span class="mflag f-ok">✅</span>':m.partial?'<span class="mflag f-w">⚠️</span>':'<span class="mflag f-p">0evt</span>';
+    return`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:${pct(m.v)}%;background:${cl}"></div></div><span class="mval" style="color:${cl}">${m.v>0?fmt(m.v):'—'}</span>${fl}</div>`;
+  }).join('')}</div>`).join('');
+
+  // VC mini
+  const vcEl=document.getElementById('vc-mini');
+  const all=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM'];
+  const conf=['OBI_T','OBI_P','SOA','CRK'];
+  const part=['OBI_S','SII_A','SII_T','SII_R','DMA','SPI','CRS','OMS'];
+  vcEl.innerHTML=all.map(m=>{
+    const ok=conf.includes(m),pt=part.includes(m);
+    return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem">
+      <span style="width:6px;height:6px;border-radius:50%;background:${ok?'var(--green)':pt?'var(--amber)':'var(--red)'};display:inline-block;flex-shrink:0"></span>
+      <span style="color:var(--muted);width:44px;font-family:'Rajdhani',sans-serif;font-weight:700">${m}</span>
+      <span class="mflag ${ok?'f-ok':pt?'f-w':'f-p'}">${ok?'✅':pt?'<3evt':'0evt'}</span>
+    </div>`;}).join('');
+
+  // Match log
+  document.getElementById('match-log').innerHTML=MATCHES.map(m=>{
+    const rc=m.res==='W'?'var(--green)':m.res==='L'?'var(--red)':'var(--amber)';
+    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.75rem">
+      <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--muted);width:16px">${m.m}</span>
+      <span style="color:var(--muted);width:22px">${m.d}</span>
+      <span style="flex:1;color:var(--lite)">${m.opp}</span>
+      <span style="color:var(--muted);width:14px">${m.ha}</span>
+      <span style="font-weight:700;color:${rc};width:18px">${m.res}</span>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;background:rgba(212,168,67,.1);color:var(--gold);padding:1px 5px;border-radius:2px">${m.tier}</span>
+      <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:${sc(m.rating)};width:28px;text-align:right">${m.rating}</span>
+    </div>`;}).join('');
+
+  // Event log
+  document.getElementById('event-log-display').innerHTML=EVENTS.map(e=>{
+    const isKey=e.t.includes('⭐')||e.m.includes('⭐')||e.m.includes('⚽');
+    const bg=isKey?'rgba(124,58,237,.12)':'transparent';
+    return`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.72rem;background:${bg};border-radius:1px">
+      <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:${isKey?'var(--accentL)':'var(--gold)'};width:76px;flex-shrink:0">${e.t.replace('⭐','')}</span>
+      <span style="background:${isKey?'rgba(124,58,237,.25)':'rgba(212,168,67,.1)'};color:${isKey?'var(--accentL)':'var(--gold)'};padding:1px 5px;border-radius:2px;width:64px;text-align:center;flex-shrink:0;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.62rem">${e.m.replace('⭐','').replace('⚽','')}</span>
+      <span style="color:var(--muted);flex:1">${e.d}</span>
+      ${isKey?'<span style="color:var(--accentL);font-size:.65rem">⭐</span>':''}
+    </div>`;}).join('');
+
+  // ── CHARTS ──
+  const DFT={scales:{r:{min:0,max:10,grid:{color:'rgba(255,255,255,.06)'},angleLines:{color:'rgba(255,255,255,.06)'},ticks:{stepSize:2,color:'#5a6880',backdropColor:'transparent',font:{size:9}},pointLabels:{color:'#8a9bb5',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},plugins:{legend:{labels:{color:'#b8c8de',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},tooltip:{backgroundColor:'#090d18',borderColor:'rgba(212,168,67,.3)',borderWidth:1,titleColor:'#d4a843',bodyColor:'#e8f0fa'}},responsive:true,maintainAspectRatio:false};
+
+  // FGA Dial
+  const dc=document.getElementById('fgaDial');dc.width=120;dc.height=120;
+  const dctx=dc.getContext('2d');const score=6.5;
+  dctx.clearRect(0,0,120,120);
+  dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
+  dctx.strokeStyle='rgba(255,255,255,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+  const grad=dctx.createLinearGradient(14,70,106,70);
+  grad.addColorStop(0,'#7c3aed');grad.addColorStop(1,'#d4a843');
+  dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(score/10)*Math.PI);
+  dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+  document.getElementById('fgaNum').textContent=score.toFixed(1);
+
+  // LOG Ring
+  const lc=document.getElementById('logRing');const lctx=lc.getContext('2d');
+  lctx.clearRect(0,0,60,60);
+  lctx.beginPath();lctx.arc(30,30,22,0,2*Math.PI);lctx.strokeStyle='rgba(255,255,255,.06)';lctx.lineWidth=6;lctx.stroke();
+  lctx.beginPath();lctx.arc(30,30,22,-Math.PI/2,(-Math.PI/2)+(2.0/6.5)*2*Math.PI);
+  lctx.strokeStyle='#b05a10';lctx.lineWidth=6;lctx.lineCap='round';lctx.stroke();
+
+  // FGA Donut
+  new Chart(document.getElementById('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20% (N/A)','Tier 2 · 30% (Est.)','Tier 3 · 50% (4/12 ✅)'],datasets:[{data:[20,30,50],backgroundColor:['rgba(106,122,148,.3)','rgba(34,168,90,.55)','rgba(124,58,237,.65)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#8a9bb5',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},tooltip:{backgroundColor:'#090d18',borderColor:'rgba(212,168,67,.3)',borderWidth:1}}}});
+
+  // Overview Radar
+  new Chart(document.getElementById('ovRadar'),{type:'radar',data:{labels:['OBI_P','OBI_T','SOA','CRK','SII_T⚠️','OBI_S⚠️','OMS⚠️','CRS⚠️'],datasets:[{label:'Livemont (4✅ + 4⚠️)',data:[8.5,7.75,8.5,8.17,9.0,8.0,8.5,9.5],borderColor:'#a78bfa',backgroundColor:'rgba(124,58,237,.12)',borderWidth:2,pointBackgroundColor:'#d4a843',pointRadius:3}]},options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  // Attr Radar
+  new Chart(document.getElementById('attrRadar'),{type:'radar',data:{labels:['Pace/Top Speed','SOA/Touch','Anticipation','Finishing','CRK/Creativity','Stamina','Heading','Technique'],datasets:[{label:'Livemont (est.)',data:[9.0,8.5,8.5,7.8,8.17,8.0,6.5,7.2],borderColor:'#a78bfa',backgroundColor:'rgba(124,58,237,.12)',borderWidth:2.5,pointBackgroundColor:'#d4a843',pointRadius:4},{label:'LOSC B U20 CF avg',data:[7.5,7.5,7.5,7.5,7.0,7.5,7.0,7.5],borderColor:'rgba(255,255,255,.25)',backgroundColor:'rgba(255,255,255,.04)',borderWidth:1.5,pointRadius:3}]},options:{...DFT,maintainAspectRatio:false}});
+
+  // Phil Radar
+  new Chart(document.getElementById('philRadar'),{type:'radar',data:{labels:['French','German','Counter-Atk','S.American','Modern','Italian'],datasets:[{label:'Philosophy Fit',data:[9.0,8.7,8.8,8.2,7.5,5.5],borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,.15)',borderWidth:2,pointBackgroundColor:['#2980b9','#3498db','#e67e22','#e07820','#9b59b6','#e67e22'],pointRadius:5}]},options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  // Comp Radar
+  new Chart(document.getElementById('compRadar'),{type:'radar',data:{labels:['Pace','SOA','Anticipation','Creative','Finishing','Stamina'],datasets:[{label:'Livemont (19)',data:[9.0,8.5,8.5,8.17,7.8,8.0],borderColor:'#a78bfa',backgroundColor:'rgba(124,58,237,.12)',borderWidth:2.5,pointBackgroundColor:'#d4a843',pointRadius:4},{label:'N3 CF avg (est.)',data:[7.0,7.0,7.0,6.5,7.0,7.5],borderColor:'rgba(255,255,255,.25)',backgroundColor:'rgba(255,255,255,.04)',borderWidth:1.5,pointRadius:3}]},options:{...DFT,maintainAspectRatio:false}});
+
+  // Progress
+  new Chart(document.getElementById('progressChart'),{type:'line',data:{labels:['U17','U18','U19','B-team','Proj.20'],datasets:[{label:'FGA Est.',data:[4.5,5.5,6.0,6.5,7.8],borderColor:'#a78bfa',backgroundColor:'rgba(124,58,237,.08)',borderWidth:2,fill:true,tension:.4,pointBackgroundColor:'#d4a843',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a7a94',font:{size:9}}},y:{min:3,max:10,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a7a94',font:{size:9}}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#090d18',borderColor:'rgba(212,168,67,.3)',borderWidth:1,titleColor:'#d4a843'}}}});
+}
+
+  // Video timestamps
+  const VIDEO_MARKS=[
+    {label:"M5 · OMS",desc:"Transition response",score:"8/10",color:"var(--green)"},
+    {label:"M5 · SII_A",desc:"Explosive acceleration",score:"7/10",color:"var(--amber)"},
+    {label:"M5 · SII_T",desc:"Top-end speed event",score:"9/10",color:"var(--green)"},
+    {label:"M5 · CRK",desc:"Step-over creative move",score:"9/10",color:"var(--green)"},
+    {label:"M5 · CRS ⚽",desc:"GOAL — clutch finish",score:"9.5/10",color:"var(--accentL)"},
+    {label:"M3 · OBI_P ⭐",desc:"Anticipation → counter attack",score:"9/10",color:"var(--accentL)"},
+    {label:"M3 · OMS ⭐",desc:"Instant transition trigger",score:"9/10",color:"var(--accentL)"},
+    {label:"M3 · SII_T ⭐",desc:"20m sprint from 5m behind",score:"9/10",color:"var(--accentL)"},
+    {label:"M2 · DMA",desc:"Nice through pass",score:"9.5/10",color:"var(--green)"},
+    {label:"M2 · CRK",desc:"Shot on goal — creative",score:"8.5/10",color:"var(--amber)"},
+  ];
+  const vmEl=document.getElementById('video-timestamps');
+  if(vmEl){
+    vmEl.innerHTML=VIDEO_MARKS.map(m=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+        <span style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:${m.color};width:88px;flex-shrink:0">${m.label.replace('⭐','').replace('⚽','')}</span>
+        <span style="font-size:.75rem;color:var(--lite);flex:1">${m.desc}</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:${m.color}">${m.score}</span>
+        ${m.label.includes('⭐')?'<span style="color:var(--accentL);font-size:.7rem">⭐</span>':m.label.includes('⚽')?'<span style="font-size:.7rem">⚽</span>':''}
+      </div>`).join('');
+  }
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
