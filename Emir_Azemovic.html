@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emir Azemović — Empire FGA Intelligence Card v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#060408;--card:#0e0a10;--card2:#130d16;
+  --border:rgba(200,160,255,.07);
+  /* Albania/Montenegro: red #D40000, black; Eastern European deep palette */
+  --alb-red:#d40000;--alb-black:#111;
+  --accent:#8b3fa8;--accentL:#b070d8;--accentFade:rgba(139,63,168,.1);
+  --gold:#c8a020;--gold2:#e8c040;--gold3:#7a5800;
+  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
+  --red:#d40000;--redL:#f04050;
+  --muted:#4a3858;--lite:#c8b8d8;--white:#f4f0f8;
+  /* Raków/Polish accent for career marker */
+  --rakow:#c0392b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(139,63,168,.6) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 90%,rgba(212,0,0,.3) 0%,transparent 50%)}
+
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:290px 1fr 260px;min-height:275px;overflow:hidden;}
+/* Montenegrin / Albania flag: red border bottom */
+.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--alb-red) 33%,#111 33% 66%,var(--alb-red) 66%);z-index:10}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(139,63,168,.1) 0%,transparent 45%,rgba(212,0,0,.06) 100%)}
+.hero-photo{position:relative;overflow:hidden;background:linear-gradient(180deg,#0e0810 0%,#060408 100%);}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:contrast(1.12) saturate(.95);mask-image:linear-gradient(to right,#000 65%,transparent 100%);-webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%);}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(139,63,168,.05);line-height:1;pointer-events:none;user-select:none;}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.2rem;display:flex;gap:4px;}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
+.bp-elb{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(212,0,0,.85);color:#fff;text-transform:uppercase;}
+.bp-table{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(34,168,90,.75);color:#fff;text-transform:uppercase;}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(8,5,12,.8) 15%,rgba(8,5,12,.97) 100%);}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px;}
+.hero-name{font-family:'Oswald',sans-serif;font-size:3.3rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white);letter-spacing:.02em;}
+.hero-name em{color:var(--gold2);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase;}
+.pos-primary{background:var(--accent);color:#fff}
+.pos-sec{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(139,63,168,.35)}
+.pos-league{background:rgba(200,160,255,.08);color:var(--gold2);border:1px solid rgba(200,160,255,.2)}
+.pos-benfica{background:rgba(212,0,0,.15);color:var(--redL);border:1px solid rgba(212,0,0,.3)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px;}
+.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase;}
+.htag-ok{background:rgba(34,168,90,.15);color:var(--greenL);border:1px solid rgba(34,168,90,.25)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-pur{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(139,63,168,.3)}
+.htag-red{background:rgba(212,0,0,.1);color:var(--redL);border:1px solid rgba(212,0,0,.22)}
+.htag-gold{background:rgba(200,160,64,.1);color:var(--gold2);border:1px solid rgba(200,160,64,.25)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(8,5,12,.97);border-left:1px solid rgba(139,63,168,.2);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px;}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0;}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.fga-score-num{font-family:'Oswald',sans-serif;font-size:2.4rem;font-weight:500;line-height:1;color:var(--gold2);}
+.fga-score-lbl{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px;}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(212,0,0,.08);border:1px solid rgba(212,0,0,.15)}
+.ftr2{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.15)}
+.ftr3{background:rgba(200,160,64,.06);border:1px solid rgba(200,160,64,.14)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(139,63,168,.22);border-radius:2px;width:100%;}
+.ca-val{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:500;color:var(--accentL)}
+.ca-info{font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:'Oswald',sans-serif;font-size:.95rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(6,4,8,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0;}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center;}
+.logo-bar img{height:32px;width:auto;object-fit:contain;}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold2);border-bottom-color:var(--gold2)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted);}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden;}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.sh-pur::before{background:var(--accentL)}.sh-gold::before{background:var(--gold2)}.sh-grn::before{background:var(--green)}.sh-red::before{background:var(--red)}
+.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(200,160,255,.025);}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff;}
+.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(200,160,255,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
+.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#1e1428}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(200,160,255,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(200,160,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(34,168,90,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(212,0,0,.12);color:var(--redL)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(200,160,255,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(200,160,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+.log-ring{display:flex;align-items:center;gap:14px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:2px;margin-bottom:8px}
+.log-val{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:500;color:var(--gold2);line-height:1}
+.log-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(200,160,64,.12);color:var(--gold2);border:1px solid rgba(200,160,64,.2);}
+.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(200,160,255,.03)}
+.phil-item:last-child{border-bottom:none}
+.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
+.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
+.phi-bar-bg{width:70px;height:5px;background:rgba(200,160,255,.06);border-radius:99px;overflow:hidden}
+.phi-bar-fill{height:100%;border-radius:99px}
+.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(139,63,168,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(139,63,168,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(200,160,255,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.career-table tr:hover td{background:rgba(255,255,255,.02)}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accentL),var(--gold2))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold2);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--gold2);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(200,160,255,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(139,63,168,.3);}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ov-grid{display:grid;grid-template-columns:165px 1fr 205px;gap:14px;margin-bottom:14px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(139,63,168,.12);color:var(--accentL);border:1px solid rgba(139,63,168,.22)}
+/* OBI_P centrepiece */
+.obi-box{background:linear-gradient(135deg,rgba(139,63,168,.14),rgba(200,160,64,.1));border:2px solid rgba(139,63,168,.4);border-radius:2px;padding:14px 18px;margin-bottom:14px;}
+.ob-head{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accentL);margin-bottom:6px;}
+/* Leadership sequence */
+.leader-box{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.25);border-radius:2px;padding:12px 16px;margin-bottom:14px;}
+/* Coach events — unique in series */
+.coach-box{background:rgba(200,160,64,.07);border:1px solid rgba(200,160,64,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;}
+/* Pace warning */
+.pace-warn{background:rgba(212,0,0,.07);border:1px solid rgba(212,0,0,.22);border-radius:2px;padding:10px 14px;margin-bottom:14px;}
+/* League position banner */
+.league-banner{background:linear-gradient(135deg,rgba(34,168,90,.12),rgba(212,0,0,.07));border:1px solid rgba(34,168,90,.25);border-radius:2px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+/* Match links */
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s;}
+.video-link-card:hover{border-color:rgba(139,63,168,.4)}
+.vlc-icon{width:36px;height:36px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;color:#fff}
+.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.fd{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.63rem;font-weight:700;font-family:'Rajdhani',sans-serif}
+.fd-w{background:var(--green);color:#fff}.fd-d{background:var(--amber);color:#fff}.fd-l{background:var(--red);color:#fff}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 220px}.g3{grid-template-columns:1fr 1fr}.ov-grid{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.hero-fga{flex-direction:row}.g3,.ov-grid,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--gold2)">▶ Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--green)"></span>AF Elbasani · 1st in table · Final Four ✅</span>
+    <span class="status-dot"><span class="dot" style="background:var(--accentL)"></span>OBI_P 8.27 ✅ · 17evt · Series max</span>
+    <span class="status-dot"><span class="dot" style="background:var(--gold2)"></span>Benfica youth · Raków · Montenegro U21</span>
+    <span class="status-dot"><span class="dot" style="background:var(--redL)"></span>SII_T 6 ⚠️ · Pace structural limit · SOA 6.67 ✅ now confirmed</span>
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.75rem;color:var(--muted)">May 2026</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://www.balkanweb.com/wp-content/uploads/2024/08/d4368b13-c719-4ca1-b101-a263da70d6af.jpg" alt="Emir Azemović" onerror="this.style.background='#0e0810'">
+    <div class="hero-flag">🇲🇪🇷🇸</div>
+    <div class="club-badge">
+      <span class="bp-elb">AF Elbasani · #25</span>
+      <span class="bp-table">🥇 1st · Final Four</span>
+    </div>
+    <div class="hero-num">25</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">Centre-Back · 28yr · 1.90m · Montenegrin · Benfica Youth → Raków → Albania Top</div>
+      <div class="hero-name"><em>Emir</em><br>Azemović</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">CB</span>
+        <span class="pos-badge pos-sec">DF</span>
+        <span class="pos-badge pos-league">Kategoria Superiore · ALB</span>
+        <span class="pos-badge pos-league">AF Elbasani</span>
+        <span class="pos-badge pos-benfica">Benfica Youth</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">28</div><div class="hmi-lbl">Born Jan 6 1997</div></div>
+      <div><div class="hmi-val">OBI_P 8.27</div><div class="hmi-lbl">✅ · 17 events</div></div>
+      <div><div class="hmi-val">CLM 8.5</div><div class="hmi-lbl">✅ · 3 events</div></div>
+      <div><div class="hmi-val">1.90m</div><div class="hmi-lbl">CB · Heading</div></div>
+      <div><div class="hmi-val">5/12</div><div class="hmi-lbl">T3 Confirmed</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-gold">🇲🇪 Montenegro U21 · Serbia U17 · Novi Pazar born</span>
+      <span class="htag htag-ok">OBI_P 8.27 ✅ · 17evt · Series maximum OBI_P</span>
+      <span class="htag htag-ok">Leadership: CHR 9→CRS 9→GOAL (M6 47:36–48:00)</span>
+      <span class="htag htag-pur">COACH_R + COACH_T: tactical intelligence bridge (unique)</span>
+      <span class="htag htag-red">SII_T 6 ⚠️ · Pace structural limit · SOA 6.67 ✅ now confirmed · Structural limit</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">FGA v3 Score</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">—</div>
+        <div class="fga-score-lbl">/ 10.0</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--redL)">Tier 1</span><span style="color:var(--muted)">TM / Sofascore</span><span class="tw" style="color:var(--amber)">Partial</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--greenL)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">~7.6</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--gold2)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--green)">6/12 ✅</span></div>
+    </div>
+    <div class="hero-ca">
+      <div><div class="ca-val">130</div><div class="ca-info">CA (Empire Equiv.)<br>Kat. Superiore ctx</div></div>
+      <div class="ca-pa">PA 138</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+<!-- ═══ OVERVIEW ═══ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <!-- League position banner -->
+  <div class="league-banner">
+    <span style="font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:600;color:var(--greenL);line-height:1">🥇</span>
+    <div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--greenL);letter-spacing:.1em;text-transform:uppercase">AF ELBASANI — 1ST IN KATEGORIA SUPERIORE 2025–26 · FINAL FOUR QUALIFIED</div>
+      <div style="font-size:.74rem;color:var(--muted);margin-top:2px">17W 11D 5L · 62 points after 33 matches. Elbasani ("Tigrat") leads Albania's top division. Opponents in assessed matches include Egnatia (previously Europa League), Vllaznia (historic giant), Teuta, and Vora. Azemović is starting CB at a league-leading club. The context matters for interpreting every metric in this file.</div>
+    </div>
+  </div>
+
+  <!-- OBI_P centrepiece -->
+  <div class="obi-box">
+    <div class="ob-head">🛡️ OBI_P 8.27 ✅ — 17 EVENTS — SERIES MAXIMUM · Includes 10/10 at M6 53:07</div>
+    <div style="font-size:.79rem;color:var(--lite);line-height:1.7">
+      Seventeen confirmed OBI_P events — the highest OBI_P event count across all 17 cards in the ESN assessment series. All 13 positive. Distribution: three events at 9/10, one at 10/10, ceiling consistently above 8. The 10/10 at M6 53:07 — "1v1 def successful. Excellent game reading" — is the peak: positional anticipation so complete it becomes a 10/10 defensive duel win. The broader picture across 17 events describes a CB who is already in the right position before the ball arrives, repeatedly, across multiple matches and different opponent types (including Egnatia T1, Vllaznia T1). OBI_P 8.27 with this event density is the most statistically reliable defensive metric in the series. It is not a single-game peak — it is a consistent pattern across 90-minute assessments.
+    </div>
+  </div>
+
+  <!-- Leadership sequence M6 -->
+  <div class="leader-box">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--greenL);margin-bottom:5px">⚡ M6 · 47:36–48:00 — CHR 9 → CRS 9 → GOAL (24 SECONDS)</div>
+    <div style="font-size:.78rem;color:var(--muted);line-height:1.65">
+      <strong style="color:var(--lite)">47:36 — CHR 9/10:</strong> "Ball carries with authority. Like if he's willing to wake up the team." <strong style="color:var(--lite)">48:00 — CRS 9/10:</strong> "His leadership led to a goal for his team (CHR 47:36)." A CB who carries the ball with authoritative body language at the 48th minute of a defensive match — and 24 seconds later this directly produces a goal — is demonstrating the type of CB leadership that transforms teams. Not talking from the back line. Carrying, waking up teammates, producing output. This is the single most compact leadership event in the series.
+    </div>
+  </div>
+
+  <!-- COACH events — unique -->
+  <div class="coach-box">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:4px">🎙️ COACH_R + COACH_T — TACTICAL INTELLIGENCE BRIDGE · UNIQUE IN SERIES</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">
+      Two events in M6 that fall outside the standard 12-metric rubric: <strong style="color:var(--lite)">COACH_R at 53:01</strong> — "Listening carefully to coach instructions. Seems he has to give a message to his right flank teammate" (8/10). <strong style="color:var(--lite)">COACH_T at 58:52</strong> — "He screams to teammates to play on the right side. Surely a link with coach instructions" (9/10). Eight minutes later, he has relayed the tactical instruction under live match conditions. No other player in this series has generated COACH_R/COACH_T events. This describes a CB who functions as the coach's field proxy — receiving tactical adjustments and transmitting them to the team in real time. At 28, this is the experience dimension of his profile.
+    </div>
+  </div>
+
+  <!-- Pace warning -->
+  <div class="pace-warn">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--redL);margin-bottom:4px">⚠️ SII_T 6/10 — "CLEARLY NOT A FAST PLAYER" — ANALYST OBSERVATION · M2 68:13</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">
+      The event description is explicit: "Clearly not a fast player, he has to tackle the ball due to lack of speed despite 1 meter ahead of his opponent." A CB who cannot outrun an opponent who starts behind him is a structural liability in any football system with high defensive lines or aggressive pressing. Combined with SOA 6.67 ✅ (3 events — now confirmed at functional level, not elite) including the M3 3:14 event ("good positioning but too slow go further") and the M3 63:52 triple-negative event (OBI_T 3 + OBI_S 4 + SPI 4 — "hesitation and lack of conviction" on his outing before a goal against), pace and explosive recovery are the confirmed structural limitations of this profile. SOA 6.67 ✅ (3 events) is now confirmed at a functional level — this modifies the pure "slow" narrative: he is measured, not immobile. The OBI_P 8.27 mitigates this significantly — he compensates with positioning — but clubs operating at higher LOG must evaluate whether his positional intelligence can fully offset his speed deficit.
+    </div>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-pur"><div class="sh-val">8.27</div><div class="sh-lbl">OBI_P ✅ · 17evt</div><div class="sh-delta dpos">↑ Series max OBI_P</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">8.5</div><div class="sh-lbl">CLM ✅ · 3evt</div><div class="sh-delta dpos">↑ Composure</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">7.6</div><div class="sh-lbl">DMA ✅ · 5evt</div><div class="sh-delta dpos">↑ Vertical pass</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">7.5</div><div class="sh-lbl">MCS ✅ · 4evt</div><div class="sh-delta dneu">→ Mixed: YC + 9</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">7.0</div><div class="sh-lbl">OBI_T ✅ · 3evt</div><div class="sh-delta dneg">↓ Incl. 3/10 guilty</div></div>
+    <div class="sh-box sh-red"><div class="sh-val">6/10</div><div class="sh-lbl">SII_T ⚠️ · 1evt</div><div class="sh-delta dneg">↓ Structural limit</div></div>
+  </div>
+
+  <div class="ov-grid">
+    <div>
+      <div class="c" style="margin-bottom:10px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Position Map</div></div>
+        <div class="c-body" style="padding:10px">
+          <svg width="100%" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" style="max-width:160px;display:block;margin:0 auto">
+            <rect width="100" height="150" rx="2" fill="#0e0810"/>
+            <rect x="5" y="5" width="90" height="140" rx="1" fill="none" stroke="rgba(200,160,255,.15)" stroke-width=".8"/>
+            <line x1="5" y1="75" x2="95" y2="75" stroke="rgba(200,160,255,.1)" stroke-width=".6"/>
+            <circle cx="50" cy="75" r="12" fill="none" stroke="rgba(200,160,255,.1)" stroke-width=".6"/>
+            <rect x="30" y="5" width="40" height="18" fill="none" stroke="rgba(200,160,255,.1)" stroke-width=".6"/>
+            <rect x="30" y="127" width="40" height="18" fill="none" stroke="rgba(200,160,255,.1)" stroke-width=".6"/>
+            <!-- CB central, right-of-centre -->
+            <circle cx="55" cy="120" r="7" fill="rgba(139,63,168,.9)" stroke="var(--gold2)" stroke-width="1.5"/>
+            <text x="55" y="123.5" text-anchor="middle" font-size="5" fill="#fff" font-family="Rajdhani" font-weight="700">CB</text>
+          </svg>
+          <div style="text-align:center;margin-top:6px"><span style="font-family:'Rajdhani',sans-serif;font-size:.65rem;color:var(--muted)">CB · 1.90m · Aerial</span></div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Match Form</div><div class="c-sub">5 matches assessed</div></div>
+        <div class="c-body" style="padding:10px">
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:6px">
+            <div class="fd fd-w">W</div><div class="fd fd-l">L</div><div class="fd fd-d">D</div>
+            <div class="fd fd-w">W</div><div class="fd fd-w">W</div>
+          </div>
+          <div style="font-size:.67rem;color:var(--muted);text-align:center">3W 1D 1L · Protocol ✅</div>
+          <div class="divider"></div>
+          <div style="font-size:.67rem;color:var(--muted)">T1: Egnatia (M6 · D 0-0) · Vllaznia (M5)</div>
+          <div style="font-size:.67rem;color:var(--muted);margin-top:3px">M6 leadership → goal sequence 47:36–48:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Confirmed Metrics</div><div class="c-sub">5 confirmed · LOG 2.5</div></div>
+      <div class="c-body">
+        <div class="section-label">Confirmed (3+ events)</div>
+        <div id="confirmed-list"></div>
+        <div class="section-label" style="margin-top:10px">Partial (1–2 events)</div>
+        <div id="partial-list"></div>
+        <div class="section-label" style="margin-top:10px">Zero Events</div>
+        <div style="font-size:.72rem;color:var(--muted);line-height:1.8">
+          <strong style="color:var(--redL)">DYN:</strong> 0 · <strong style="color:var(--redL)">CRK:</strong> 0 · <strong style="color:var(--redL)">SII_R:</strong> 0
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:.72rem;color:var(--gold2)">🎙️ COACH_R (8/10) + COACH_T (9/10) — unique metric pair</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="c" style="margin-bottom:10px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Profile</div></div>
+        <div class="c-body" style="font-size:.76rem">
+          <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val" style="font-size:.7rem">Emir Azemović</span></div>
+          <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">Jan 6, 1997 · Novi Pazar</span></div>
+          <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--accentL)">1.90m</span></div>
+          <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--accentL)">AF Elbasani</span></div>
+          <div class="ti-row"><span class="ti-lbl">League</span><span class="ti-val">Kategoria Superiore, ALB</span></div>
+          <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val">🇲🇪 Montenegro U21</span></div>
+          <div class="ti-row"><span class="ti-lbl">Market value</span><span class="ti-val">~€150–200K</span></div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Traits</div></div>
+        <div class="c-body">
+          <span class="trait-pill">Aerial Dominant</span>
+          <span class="trait-pill">Positional Reader</span>
+          <span class="trait-pill">Field Coach</span>
+          <span class="trait-pill">Vocal Leader</span>
+          <span class="trait-pill">Experienced Defender</span>
+          <div class="divider"></div>
+          <div class="section-label">Confirmed Limitations</div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.6">
+            <strong style="color:var(--redL)">SII_T 6:</strong> "Clearly not a fast player"<br>
+            <strong style="color:var(--redL)">SOA 4:</strong> "Too slow to go further"<br>
+            <strong style="color:var(--amber)">M3 63:52:</strong> Hesitation → guilty on goal
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Top Philosophy Fits</div></div>
+      <div class="c-body" id="ov-phil"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">T3 Radar</div><div class="c-sub">OBI_P dominant · Speed gap</div></div>
+      <div class="c-body"><canvas id="ovRadar" height="180"></canvas></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Scouting Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">Azemović is a 28-year-old experienced European CB at AF Elbasani — the league's best club in 2025-26. His formation (Benfica youth, Raków Częstochowa, multiple European countries) explains the defensive intelligence at the top of his profile. OBI_P 8.27 / 17 events is the most statistically established positional metric in the series. He reads attacks before they form.</div>
+        <div class="scout-para">The pace deficit is the honest limitation. "Clearly not a fast player" is the analyst's explicit language, not inference. At 28 in Albania's top tier, he is compensating effectively. At a higher LOG, that calculus becomes harder.</div>
+        <div class="verdict-box">
+          <div class="verdict-label">Empire FGA Verdict</div>
+          <div class="verdict-text"><strong>Experienced European CB · OBI_P Series Max · Pace the Structural Constraint.</strong> OBI_P 8.27 / 17 events + leadership sequence (CHR→CRS→GOAL) + COACH intelligence bridge = a complete senior defensive profile for this level. SII_T 6 / "not a fast player" limits the ceiling to compact-line or low-block systems. Ideal fit: structured mid-table European club requiring a reading-first CB with natural leadership. Kategoria Superiore ceiling currently. Accessible via AF Elbasani.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ATTRIBUTES ═══ -->
+<div id="tab-attributes" class="tab-panel">
+  <div style="background:rgba(212,0,0,.05);border:1px solid rgba(212,0,0,.18);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
+    ⚠️ <strong style="color:var(--redL)">OBI_P ✅ dominant · SII entirely directional · pace confirmed below average.</strong> 5 confirmed metrics, all defensive/cognitive. DYN/CRK/SII_R = 0 events.
+  </div>
+  <div class="g3">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical / Defensive</div></div>
+      <div class="c-body" id="attr-tech"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Mental / Leadership</div></div>
+      <div class="c-body" id="attr-men"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div><div class="c-sub">SII_T confirmed below average</div></div>
+      <div class="c-body" id="attr-phy"></div>
+    </div>
+  </div>
+  <div style="margin-top:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Attribute Radar</div><div class="c-sub">vs Kat. Superiore CB average · Speed gap and OBI_P dominance visible</div></div>
+      <div class="c-body" style="height:320px"><canvas id="attrRadar"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FGA ANALYTICS ═══ -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--redL)"></div><div class="c-title" style="color:var(--redL)">Tier 1 — Data</div><div class="c-sub">TM / Sofascore / partial</div></div>
+      <div class="c-body" id="t1-metrics"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 — Composite</div></div>
+      <div class="c-body" id="t2-metrics"></div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:10px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">FGA Breakdown</div></div>
+        <div class="c-body" style="height:180px"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">LOG Context</div></div>
+        <div class="c-body">
+          <div class="log-ring">
+            <canvas id="logRing" width="60" height="60"></canvas>
+            <div>
+              <div class="log-val">2.5</div>
+              <div style="font-size:.65rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">LOG Score</div>
+              <div style="margin-top:4px"><span class="log-badge">Kat. Superiore · ALB</span></div>
+            </div>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.7">
+            <strong style="color:var(--accentL)">Albanian top flight</strong><br>
+            <strong style="color:var(--lite)">Egnatia: Europa League alumni</strong><br>
+            <strong style="color:var(--lite)">Vllaznia: historic giant (T1)</strong><br>
+            <strong style="color:var(--lite)">Compare: N2 France 2.5 · Swiss PL 2.8</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Tier 3 — Scout Observation · Jim Totime · 5 Matches · 5/12 Confirmed</div></div>
+    <div class="c-body">
+      <div class="g3">
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold2)">OBI</span>
+              <span style="font-size:.78rem;color:var(--muted)">Off-Ball Intelligence</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--amber);margin-left:auto">7.11⚠️</span>
+            </div>
+            <div id="obi-subs"></div>
+          </div>
+          <div style="font-size:.7rem;color:var(--muted);line-height:1.5">OBI_P ✅ (17 events — series maximum). OBI_T ✅ (3 events, avg 7.0 — pulled down by M3 63:52 3/10 guilty goal event). OBI_S ⚠️ (2 events, avg 6.0 — includes a 4/10 negative). OBI composite 7.11 blocked by OBI_S pending. OBI_P alone is the dominant signal.</div>
+        </div>
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold2)">SII</span>
+              <span style="font-size:.78rem;color:var(--muted)">Sprint Intensity Index</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--redL);margin-left:auto">WEAK</span>
+            </div>
+            <div id="sii-subs"></div>
+          </div>
+          <div style="font-size:.7rem;color:var(--redL);margin-top:4px;line-height:1.5;font-style:italic">SII_T 6/10 (1 event: "clearly not a fast player"). SII_A 7/10 (1 event only). SII_R: 0 events. All SII metrics directional-to-weak. The SII_T 6 is not a random low event — it comes with an explicit analyst observation. Pace is structurally below the LOG 2.5 average for this position.</div>
+        </div>
+        <div>
+          <div class="section-label">Video Completeness</div>
+          <div id="vc-mini"></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">All 10 Remaining Metrics</div>
+      <div class="g3" id="t3-rest-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHILOSOPHY DNA ═══ -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Top 10 Philosophy Fits</div></div>
+        <div class="c-body" id="phil-full"></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">School Averages</div></div>
+        <div class="c-body" id="school-avgs"></div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px;height:340px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar</div></div>
+        <div class="c-body" style="height:290px"><canvas id="philRadar"></canvas></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Tactical Archetype</div></div>
+        <div class="c-body">
+          <div class="scout-para">OBI_P 8.27 + CLM 8.5 + leadership data maps directly to the <strong>Sacchi/Capello reading CB</strong> — the centre-back who commands the defensive line through positional intelligence rather than physical dominance. The Sacchi system (AC Milan) built its back four on CBs who read through balls, held lines without sprinting, and organised verbally. The COACH_R/COACH_T dimension is the Sacchi field-coach CB archetype completed: he doesn't just hold the line, he communicates tactical adjustments in real time.</div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px;margin-top:8px">
+            <div class="section-label">Confirmed Tactical DNA</div>
+            <span class="trait-pill">Sacchi Reading CB</span>
+            <span class="trait-pill">Field Coach Proxy</span>
+            <span class="trait-pill">Aerial Leader</span>
+            <span class="trait-pill">Line Organiser</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CAREER ═══ -->
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">Born Jan 6, 1997 · Novi Pazar · Serbia/Yugoslavia</div><div class="tl-text"><strong>Novi Pazar, Sandžak region.</strong> A footballing city on the Serbia/Montenegro/Bosnia border that has produced multiple professional players. Began at AS Novi Pazar, one of Serbia's established lower-professional clubs.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2014–2016 · Partizan Belgrade (youth) → SL Benfica (youth)</div><div class="tl-text"><strong>Elite European formation.</strong> Partizan Belgrade is one of the Balkans' most prestigious youth systems. Then: <strong>SL Benfica, Lisbon</strong> — one of Europe's best academies (Bernardo Silva, Renato Sanches, Ederson all Benfica academy). Moving to Benfica at 17-18 from Novi Pazar is a significant talent identification. He did not reach the first team, but Benfica B confirms serious professional trajectory.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accent)"></div><div class="tl-date">2017–2018 · Domžale · Slovenia PrvaLiga</div><div class="tl-text"><strong>Slovenian top flight.</strong> NK Domžale — a regular Europa League qualifier. Senior European professional debut at 20. Confirms the ability to transition from Benfica formation to senior competitive minutes.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2019–2020 · Raków Częstochowa · Poland Ekstraklasa</div><div class="tl-text"><strong>Raków Częstochowa — Poland's emerging powerhouse.</strong> Now a Champions League qualifier and one of Poland's strongest clubs. Azemović was there in 2019-20 during their Ekstraklasa consolidation phase. This is the highest LOG competitive context of his career — Polish Ekstraklasa ≈ LOG 3.0.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-date">2020–2022 · Aluminij · Slovenia + 2022–2024 · Kolubara → Novi Pazar · Serbia</div><div class="tl-text"><strong>Mid-career Balkan circuit.</strong> Aluminij in Slovenia (NL), Kolubara and return to Novi Pazar in Serbia. Six countries across a career that peaks in terms of talent markers with Benfica and Raków — but then follows the common Balkan CB pathway of league hopping.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold2)"></div><div class="tl-date">2024 → Current · AF Elbasani · Kategoria Superiore</div><div class="tl-text"><strong>League leader in 2025-26.</strong> Elbasani promoted to Albania's top flight recently (founded 2021). In 2025-26, they lead the table after 33 matches with 62 points, qualifying for the Final Four. Azemović is their starting CB in a club that beat Tirana 4-1 away. The OBI_P data confirms he is performing at the top of his position at this level.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">OBI_P Event Distribution</div><div class="c-sub">17 events · series maximum</div></div>
+        <div class="c-body" style="height:180px"><canvas id="obiChart"></canvas></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Transfer Intelligence</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--accentL)">AF Elbasani</span></div>
+          <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val">🇲🇪 Montenegro U21</span></div>
+          <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--accentL)">1.90m</span></div>
+          <div class="ti-row"><span class="ti-lbl">Market value</span><span class="ti-val">~€150–200K</span></div>
+          <div class="ti-row"><span class="ti-lbl">Previous peak</span><span class="ti-val">Raków Częstochowa (PL)</span></div>
+          <div class="ti-row"><span class="ti-lbl">Optimal fit</span><span class="ti-val" style="color:var(--greenL)">Compact-line European clubs</span></div>
+          <div class="ti-row"><span class="ti-lbl">Avoid</span><span class="ti-val" style="color:var(--amber)">High defensive line systems</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Match Assessment Register</div></div>
+    <div class="c-body">
+      <table class="career-table">
+        <thead><tr><th>M</th><th>Opponent</th><th>H/A</th><th>Result</th><th>Tier</th><th>Key Events</th></tr></thead>
+        <tbody>
+          <tr><td>M2</td><td>KF Teuta</td><td>A</td><td>W</td><td>T2</td><td>DMA 9 (13:09) · OBI_P 9 (16:39) crucial interception · OBI_P 8.5 (63:44) · MCS 8 (92:40)</td></tr>
+          <tr><td>M3</td><td>KF Vora</td><td>A</td><td>L</td><td>T3</td><td>OBI_P 9 (47:57) · MCS 5 YC (48:02) · MCS 9 strong duel (62:44) · ⚠️ Triple negative (63:52)</td></tr>
+          <tr><td>M5</td><td>KF Vllaznia</td><td>H</td><td>W</td><td>T1</td><td>SII_A 7 (15:57) · OBI_P 9 aerial duel (30:32) · CLM 9 (36:01) · OBI_S 8 (43:45) · OBI_P 9 (87:25)</td></tr>
+          <tr class="hl"><td><strong>M6</strong></td><td><strong>KF Egnatia</strong></td><td><strong>H</strong></td><td><strong>D 0-0</strong></td><td><strong>T1</strong></td><td><strong>CHR 9 (47:36) → CRS 9 (48:00) → GOAL · OBI_P 10 (53:07) · COACH_R + COACH_T · OBI_P 8.5 (86:37)</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCOUTING INTEL ═══ -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Full Scouting Report</div><div class="c-sub">Jim Totime · 2026 · 5 matches · Kategoria Superiore Albania</div></div>
+        <div class="c-body">
+          <div class="scout-para">Emir Azemović is a 28-year-old Montenegrin centre-back at AF Elbasani, currently league leaders in Albania's Kategoria Superiore (62 points, 17W 11D 5L after 33 matches, Final Four qualified). Born in Novi Pazar, FR Yugoslavia. Formation: AS Novi Pazar → Partizan (youth) → SL Benfica (youth, 2015-16) → Benfica B → Domžale (Slovenia) → Zemun (Serbia) → Raków Częstochowa (Poland) → Aluminij (Slovenia) → Kolubara → Novi Pazar → AF Elbasani. Montenegro U21 international. Height 1.90m. Jersey #25.</div>
+
+          <div class="scout-para"><strong>OBI_P 8.27 ✅ (17 events)</strong> — the defining metric of this card and the series maximum for OBI_P. Thirteen confirmed positive events across M2, M3, M5, and M6 describe a CB who arrives in the correct defensive position before the attacking threat materialises. The distribution: six events at 8.0–8.5, three at 9.0, one at 10.0 (M6 53:07 "1v1 def successful. Excellent game reading"). The 10/10 event is a textbook OBI_P execution — read, position, duel, win. The three 9/10 events include two aerial duels won from the highest of headers ("he jumps above everybody" at M5 87:25 and M6 77:25), confirming his 1.90m frame is deployed effectively at the positional intelligence level, not just the physical level. Thirteen events across multiple opponents (Teuta, Vora, Vllaznia T1, Egnatia T1) confirms this is a consistent pattern, not a peak match.</div>
+
+          <div class="scout-para"><strong>MCS 7.5 ✅ (4 events)</strong> — honest distribution. M2 92:40 (8/10 — aggressive anticipation, opponent on ground, no foul); M3 48:02 (5/10 — yellow card for intentional foul after losing a 1v1); M3 62:44 (9/10 — strong technical and physical 1v1 duel, remains standing); M6 66:10 (8/10 — stays strong in aerial duel despite non-evident foul call). The yellow card (5/10) is the one documented MCS failure — a rash decision after a defensive error. The 9/10 two minutes later shows immediate mental recovery. MCS 7.5 is accurate: he is mentally consistent but not unimpeachable.</div>
+
+          <div class="scout-para"><strong>The M6 leadership sequence (47:36–48:00)</strong> is the analytically most significant event cluster in the file. CHR 9/10 at 47:36: "Ball carries with authority. Like if he's willing to wake up the team." CRS 9/10 at 48:00: "His leadership led to a goal for his team." A CB who carries the ball with body language specifically intended to energise teammates — and 24 seconds later this produces a goal — is demonstrating the full CB leadership spectrum: technical action (carrying), mental intention (waking team up), and competitive result (goal). At 28, this is the experience premium in his profile.</div>
+
+          <div class="scout-para"><strong>COACH_R (8/10, 53:01) + COACH_T (9/10, 58:52)</strong> — unique in the series. These are not standard rubric metrics, but they describe a specific leadership dimension: receiving the coach's in-match tactical instruction (COACH_R) and transmitting it to the relevant teammate on the field (COACH_T). Eight minutes between reception and transmission, under live match conditions against a T1 opponent (Egnatia, 0-0). A CB who functions as the coach's field proxy at this reliability level is part of the coaching structure, not just the playing structure. At 28 with Benfica and Raków in his background, this is the tactical maturity those experiences produce.</div>
+
+          <div class="scout-para"><strong>SII_T 6/10 (1 event, M2 68:13)</strong> — the structural limitation. The analyst's note is direct: "Clearly not a fast player, he has to tackle the ball due to lack of speed despite 1 meter ahead of his opponent." A CB who cannot win a foot race to a ball he is ahead of is vulnerable in every modern system with space behind the defensive line. Combined with SOA 4/10 (M3 3:14 — "good positioning but too slow go further") and the M3 63:52 triple-negative (OBI_T 3 + OBI_S 4 + SPI 4 — "hesitation and lack of conviction on his outing"), the picture is consistent: pace and explosive decision in transitions are the confirmed floor of this profile. OBI_P 8.27 compensates significantly — he reaches positions others must sprint to by reading the play earlier. But this compensation has LOG limits. Above 3.0, attackers are fast enough to beat the OBI advantage if the SII is too low.</div>
+
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Final Assessment</div>
+            <div class="verdict-text"><strong>Experienced Reading CB · OBI_P Series Max · Pace Structural Constraint · Ideal For Compact-Line Systems.</strong> OBI_P 8.27 / 17 events + CLM 8.5 + leadership sequence + COACH intelligence = a complete senior CB profile for organised defensive systems. SII_T 6 / "clearly not fast" defines the ceiling: high-line pressing systems are not compatible. Accessible via AF Elbasani. Career formation (Benfica, Raków) adds credibility beyond the current LOG 2.5 context.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">All T3 Scores</div></div>
+        <div class="c-body" id="psych-bars"></div>
+      </div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Key Event Log</div><div class="c-sub">39 events · 5 matches</div></div>
+        <div class="c-body" id="event-log-display" style="max-height:360px;overflow-y:auto"></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Match Log</div></div>
+        <div class="c-body" id="match-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LINKS ═══ -->
+<div id="tab-links" class="tab-panel">
+  <div style="background:rgba(139,63,168,.07);border:1px solid rgba(139,63,168,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accentL)">5 MATCH RECORDINGS — KATEGORIA SUPERIORE ALBANIA 2025–26</span>
+    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">Video highlights pending · Click any match to open full video</span>
+  </div>
+  <div class="g2">
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/77oju6puz7kosp9gdsd0a/Teuta-Elbasani-java-32.mp4?rlkey=8iocsx1jg4uoso3lzlaytqhv3&raw=1" target="_blank">
+      <div class="vlc-icon" style="background:var(--accent)">▶</div>
+      <div><div class="vlc-opp">KF Teuta vs Elbasani</div><div class="vlc-meta">M2 · Away · W · Java 32 · DMA 9 (13:09) · OBI_P 9 crucial interception (16:39) · MCS 8 (92:40)</div></div>
+      <span class="vlc-badge" style="background:rgba(34,168,90,.15);color:var(--greenL);border:1px solid rgba(34,168,90,.25)">Away W</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/e6vlhuy3f70dcdd8q4uzi/Vora-Elbasani-Java-34.mp4?rlkey=zohl1v38f1v3gk3eomhe3f8kd&raw=1" target="_blank">
+      <div class="vlc-icon" style="background:var(--accent)">▶</div>
+      <div><div class="vlc-opp">KF Vora vs Elbasani</div><div class="vlc-meta">M3 · Away · L · Java 34 · YC 48:02 · MCS 9 (62:44) · ⚠️ Triple neg 63:52 · SOA 4</div></div>
+      <span class="vlc-badge" style="background:rgba(212,0,0,.15);color:var(--redL);border:1px solid rgba(212,0,0,.25)">Away L · Anti-events</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/d0w8tplva8q2o19qs88bg/AF-Elbasani-Egnatia-0-0-Ndeshja-e-plot-Java-29-Abissnet-Superiore-2025-26-20.03.2026.mp4?rlkey=8boa8lwomyphxlqlczol74qeo&raw=1" target="_blank">
+      <div class="vlc-icon" style="background:var(--green)">▶</div>
+      <div><div class="vlc-opp">Elbasani vs Egnatia — 0-0 ⭐</div><div class="vlc-meta">M6 · Home · D 0-0 · T1 · Java 29 · CHR 9→CRS 9→GOAL (47:36) · OBI_P 10 (53:07) · COACH events · OBI_T 9 (86:37)</div></div>
+      <span class="vlc-badge" style="background:rgba(200,160,64,.12);color:var(--gold2);border:1px solid rgba(200,160,64,.25)">T1 D · Most events</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/z5ctdtxsg59inp8a1d2lf/Akademia-e-Futbollit-Elbasani-Football-Club-Dinamo-City.mp4?rlkey=5rsvrvhk47594iwp879661hce&raw=1" target="_blank">
+      <div class="vlc-icon" style="background:var(--amber)">▶</div>
+      <div><div class="vlc-opp">Elbasani vs Dinamo City</div><div class="vlc-meta">Home · Kategoria Superiore 2025–26</div></div>
+      <span class="vlc-badge" style="background:rgba(139,63,168,.15);color:var(--accentL);border:1px solid rgba(139,63,168,.25)">Home</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/gfu8yxcq03ru3kmeblzet/Akademia-e-Futbollit-Elbasani-Klubi-i-Futbollit-Vllaznia.mp4?rlkey=8rh6q11cyvfbxun6jwq4y63qf&raw=1" target="_blank">
+      <div class="vlc-icon" style="background:var(--green)">▶</div>
+      <div><div class="vlc-opp">Elbasani vs KF Vllaznia ⭐</div><div class="vlc-meta">M5 · Home · W · T1 · SII_A 7 (15:57) · OBI_P 9 aerial (30:32) · CLM 9 (36:01) · OBI_S 8 (43:45)</div></div>
+      <span class="vlc-badge" style="background:rgba(34,168,90,.15);color:var(--greenL);border:1px solid rgba(34,168,90,.25)">Home T1 W</span>
+    </a>
+  </div>
+
+  <div class="c" style="margin-top:14px">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold2)"></div><div class="c-title" style="color:var(--gold2)">Key Timestamps</div></div>
+    <div class="c-body">
+      <div class="g3">
+        <div>
+          <div class="section-label">M6 · Elbasani vs Egnatia · T1 · Draw 0-0</div>
+          <div style="font-size:.74rem;color:var(--muted);line-height:1.85">
+            <strong style="color:var(--gold2)">47:36</strong> — <strong style="color:var(--white)">CHR 9: "Ball carries with authority — wakes up team"</strong><br>
+            <strong style="color:var(--gold2)">48:00</strong> — <strong style="color:var(--white)">CRS 9: "Leadership led to goal for his team"</strong><br>
+            <strong style="color:var(--gold2)">52:14</strong> — CLM 6.5: long pass poor choice<br>
+            <strong style="color:var(--gold2)">53:01</strong> — <strong style="color:var(--white)">COACH_R 8: relays coach instruction</strong><br>
+            <strong style="color:var(--gold2)">53:07</strong> — <strong style="color:var(--white)">OBI_P 10: 1v1 def — Excellent game reading</strong><br>
+            <strong style="color:var(--gold2)">54:10</strong> — CLM 8<br>
+            <strong style="color:var(--gold2)">58:52</strong> — <strong style="color:var(--white)">COACH_T 9: screams instruction to right flank</strong><br>
+            <strong style="color:var(--gold2)">66:10</strong> — MCS 8: stays strong in aerial foul<br>
+            <strong style="color:var(--gold2)">76:43</strong> — OBI_P 9: cuts diagonal pass<br>
+            <strong style="color:var(--gold2)">77:25</strong> — OBI_P 8 + OBI_T 9: heading clearance<br>
+            <strong style="color:var(--gold2)">86:37</strong> — OBI_P 8.5 + OBI_T 9: aerial duel<br>
+            <strong style="color:var(--gold2)">88:45</strong> — OMS 8<br>
+            <strong style="color:var(--gold2)">92:51</strong> — OBI_P 8 · <strong style="color:var(--gold2)">95:30</strong> — DMA 8
+          </div>
+        </div>
+        <div>
+          <div class="section-label">M5 · vs Vllaznia · T1 · Home Win</div>
+          <div style="font-size:.74rem;color:var(--muted);line-height:1.85">
+            <strong style="color:var(--accentL)">15:57</strong> — SII_A 7: acceleration<br>
+            <strong style="color:var(--accentL)">30:32</strong> — OBI_P 9: aerial duel won<br>
+            <strong style="color:var(--accentL)">36:01</strong> — CLM 9: composure<br>
+            <strong style="color:var(--accentL)">43:45</strong> — OBI_S 8: ball carries + space creation<br>
+            <strong style="color:var(--accentL)">87:25</strong> — OBI_P 9: "jumps above everybody to head"
+          </div>
+        </div>
+        <div>
+          <div class="section-label">M3 · vs Vora · Anti-events</div>
+          <div style="font-size:.74rem;color:var(--muted);line-height:1.85">
+            <strong style="color:var(--amber)">3:14</strong> — OBI_P 6 + SOA 4: "too slow to go further"<br>
+            <strong style="color:var(--amber)">47:57</strong> — OBI_P 9: aerial duel won<br>
+            <strong style="color:var(--amber)">48:02</strong> — MCS 5: yellow card (intentional foul)<br>
+            <strong style="color:var(--amber)">62:44</strong> — OBI_P 9 + MCS 9: strong 1v1 won<br>
+            <strong style="color:var(--redL)">63:52</strong> — <strong style="color:var(--white)">⚠️ OBI_T 3 + OBI_S 4 + SPI 4 (guilty goal against — hesitation)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const ATTRS={
+  tech:[
+    {n:"OBI_P Positional (✅ 8.55 · 17evt)",v:8.27},{n:"CLM Calmness (✅ 8.33 · 5evt)",v:8.33},
+    {n:"DMA Decision Making (✅ 7.71 · 7evt)",v:7.71},{n:"OBI_T Run Timing (✅ 7.0 · 3evt)",v:7.0},
+    {n:"Aerial Heading (OBI_P events)",v:9.0},{n:"Line Organisation (verbal)",v:8.5},
+    {n:"1v1 Defending (OBI_P pattern)",v:8.5},{n:"Ball Carrying (CHR event)",v:8.5}
+  ],
+  men:[
+    {n:"MCS Mental Comp (✅ 7.71 · 7evt)",v:7.71},{n:"CHR Character (⚠️ 9.0 · 1evt)",v:9.0},
+    {n:"CRS Clutch (⚠️ 9.0 · 1evt)",v:9.0},{n:"COACH_T Tactical IQ (⚠️ 9.0)",v:9.0},
+    {n:"COACH_R Field Proxy (⚠️ 8.0)",v:8.0},{n:"Leadership (CHR→CRS→GOAL)",v:9.0},
+    {n:"MCS YC failure (M3 48:02)",v:5.0},{n:"Competitive resilience (MCS pattern)",v:8.0}
+  ],
+  phy:[
+    {n:"Height 1.90m (confirmed)",v:9.5},{n:"Aerial dominance (OBI_P events)",v:9.0},
+    {n:"SII_A Acceleration (⚠️ 7.5 · 2evt)",v:7.5},{n:"SII_T Top Speed (⚠️ 6.0 ⚠️)",v:6.0},
+    {n:"SII_R Recovery (0 events)",v:0},{n:"OMS Transition (⚠️ 8.0 · 1evt)",v:8.0},
+    {n:"SOA First Touch (✅ 6.67 · 3evt)",v:6.67},{n:"Stamina (5+ match sample)",v:7.5}
+  ]
+};
+const T1=[
+  {c:"Apps",n:"Kat. Superiore 25/26 starts",v:8.0},{c:"Team",n:"1st in table · 62 pts",v:9.5},
+  {c:"Opps",n:"Egnatia · Vllaznia assessed",v:8.0},{c:"H.cm",n:"1.90m · aerial asset",v:8.5},{c:"Age",n:"28yr · peak experience",v:7.5}
+];
+const T2=[
+  {c:"POI",n:"Position Intelligence (OBI_P ✅)",v:8.5,w:"25%"},{c:"CPX",n:"Composure (CLM 8.5 ✅)",v:8.0,w:"25%"},
+  {c:"AMS",n:"Anticipatory (OBI_P 17evt)",v:8.5,w:"20%"},{c:"MOB",n:"Mobility (SII_T 6 ⚠️)",v:5.5,w:"15%"},
+  {c:"GRI",n:"Aerial GRI (height + OBI)",v:8.5,w:"15%"}
+];
+const OBI=[
+  {c:"OBI_T",n:"Run Timing",v:7.0,w:"35%",ok:true},
+  {c:"OBI_S",n:"Space Architecture",v:6.0,w:"35%",ok:false},
+  {c:"OBI_P",n:"Positional Anticipation",v:8.27,w:"30%",ok:true}
+];
+const SII=[
+  {c:"SII_A",n:"Explosive Accel",v:7.5,w:"40%",ok:false},
+  {c:"SII_T",n:"Top-End Speed",v:6.0,w:"35%",ok:false,warn:true},
+  {c:"SII_R",n:"Recovery Sprint",v:0,w:"25%",ok:false,zero:true}
+];
+const T3R=[
+  {c:"DMA",n:"Decision Making",v:7.71,conf:true},{c:"CHR",n:"Character",v:8.0,conf:false,partial:true},
+  {c:"MCS",n:"Mental Comp.",v:7.71,conf:true},{c:"SOA",n:"Speed on Action",v:6.67,conf:true},
+  {c:"SPI",n:"Spatial Performance",v:4.0,conf:false,partial:true,warn:true},{c:"CLM",n:"Calmness",v:8.33,conf:true,elite:true},
+  {c:"CRS",n:"Clutch Response",v:9.0,conf:false,partial:true,elite:true},{c:"OMS",n:"Omschakeling",v:8.0,conf:false,partial:true},
+  {c:"DYN",n:"Dynamism",v:0,conf:false},{c:"CRK",n:"Creative Risk",v:0,conf:false}
+];
+const PHIL=[
+  {r:1,n:"Sacchi Zonal Reading CB",s:"Italian School",v:9.2,col:"#8b1a1a"},
+  {r:2,n:"Capello Organised Defender",s:"Italian School",v:9.0,col:"#8b1a1a"},
+  {r:3,n:"Mourinho Deep Block CB",s:"Modern Masters",v:8.8,col:"#9b59b6"},
+  {r:4,n:"Trapattoni Classic Stopper",s:"Italian School",v:8.8,col:"#8b1a1a"},
+  {r:5,n:"Lobanovskyi Zonal System CB",s:"Eastern European",v:8.5,col:"#c0392b"},
+  {r:6,n:"Nagelsmann Aerial Organiser",s:"German School",v:7.5,col:"#3498db"},
+  {r:7,n:"Ferguson Physical Stopper",s:"English School",v:7.5,col:"#c8102e"},
+  {r:8,n:"Wenger Technical CB",s:"French School",v:7.0,col:"#2980b9"},
+  {r:9,n:"High-Line Press CB",s:"Klopp/Bielsa",v:4.5,col:"#e07820"},
+  {r:10,n:"Modern Attacking Libero",s:"Guardiola",v:5.0,col:"#6CABDD"}
+];
+const SCHOOL_AVGS=[
+  {n:"Italian School (Sacchi primary)",v:9.0},{n:"Eastern European",v:8.5},
+  {n:"Modern Masters",v:8.8},{n:"German Organisation",v:7.5},
+  {n:"English Physical",v:7.5},{n:"High-Press Systems",v:4.8}
+];
+const MATCHES=[
+  {m:2,opp:"KF Teuta",ha:"A",res:"W",tier:"T2",rating:8.0},
+  {m:3,opp:"KF Vora",ha:"A",res:"L",tier:"T3",rating:7.0},
+  {m:5,opp:"KF Vllaznia",ha:"H",res:"W",tier:"T1",rating:8.5},
+  {m:6,opp:"KF Egnatia",ha:"H",res:"D",tier:"T1",rating:9.0}
+];
+const KEY_EVENTS=[
+  {t:"M2 · 13:09","m":"DMA","d":"Vertical pass successful — 9/10"},
+  {t:"M2 · 16:39","m":"OBI_P ⭐","d":"Crucial interception in keeper area — 9/10"},
+  {t:"M2 · 44:57","m":"DMA","d":"Clearance — 7/10"},
+  {t:"M2 · 63:44","m":"OBI_P","d":"Good block — 8.5/10"},
+  {t:"M2 · 68:13","m":"OBI_P + SII_T ⚠️","d":"OBI_P 8: good tackle · SII_T 6: 'clearly not a fast player'"},
+  {t:"M2 · 92:40","m":"MCS ⭐","d":"Aggressive anticipation — opponent on ground, no foul — 8/10"},
+  {t:"M3 · 3:14","m":"OBI_P + SOA ⚠️","d":"OBI_P 6: positioning OK · SOA 4: too slow to go further"},
+  {t:"M3 · 7:31","m":"DMA","d":"Through pass successful — 8/10"},
+  {t:"M3 · 47:57","m":"OBI_P ⭐","d":"1v1 def aerial duel won with energy — 9/10"},
+  {t:"M3 · 48:02","m":"MCS ⚠️","d":"Yellow card — intentional foul after losing 1v1 — 5/10"},
+  {t:"M3 · 62:44","m":"OBI_P + MCS ⭐","d":"2v1 def won technically + physically — OBI_P 9 · MCS 9"},
+  {t:"M3 · 63:52","m":"⚠️ TRIPLE NEG","d":"Guilty on goal against — OBI_T 3 + OBI_S 4 + SPI 4 · hesitation + lack of conviction"},
+  {t:"M5 · 15:57","m":"SII_A","d":"Acceleration — 7/10"},
+  {t:"M5 · 30:32","m":"OBI_P ⭐","d":"Defensive aerial duel won — 9/10"},
+  {t:"M5 · 36:01","m":"CLM ⭐","d":"Calmness — 9/10"},
+  {t:"M5 · 43:45","m":"OBI_S","d":"Ball carries + space creation — 8/10"},
+  {t:"M5 · 87:25","m":"OBI_P ⭐","d":"'Jumps above everybody in keeper area to header' — 9/10"},
+  {t:"M6 · 47:36","m":"CHR ⭐⭐","d":"Ball carries with authority — 'willing to wake up the team' — 9/10"},
+  {t:"M6 · 48:00","m":"CRS ⭐⭐","d":"'His leadership led to a goal for his team' — 9/10"},
+  {t:"M6 · 52:14","m":"CLM ⚠️","d":"Long pass unsuccessful — surely a better choice — 6.5/10"},
+  {t:"M6 · 53:01","m":"COACH_R ⭐","d":"Listening carefully to coach — relaying to right flank teammate — 8/10 (UNIQUE)"},
+  {t:"M6 · 53:07","m":"OBI_P ⭐⭐","d":"1v1 def — EXCELLENT GAME READING — 10/10"},
+  {t:"M6 · 54:10","m":"CLM","d":"Calmness — 8/10"},
+  {t:"M6 · 58:52","m":"COACH_T ⭐","d":"'Screams to teammate to play right side — link to coach instruction' — 9/10 (UNIQUE)"},
+  {t:"M6 · 60:05","m":"DMA","d":"Challenging one-touch pass unsuccessful — 6/10"},
+  {t:"M6 · 66:10","m":"MCS","d":"Stays strong aerial duel despite questionable foul call — 8/10"},
+  {t:"M6 · 76:43","m":"OBI_P","d":"Good positioning to cut diagonal pass — 9/10"},
+  {t:"M6 · 77:25","m":"OBI_P + OBI_T ⭐","d":"Good heading clearance (above everybody) — OBI_P 8 · OBI_T 9"},
+  {t:"M6 · 86:37","m":"OBI_P + OBI_T ⭐","d":"Aerial duel won — OBI_P 8.5 · OBI_T 9 (good run timing)"},
+  {t:"M6 · 88:45","m":"OMS","d":"Transition — 8/10"},
+  {t:"M6 · 92:51","m":"OBI_P","d":"Positional anticipation — 8/10"},
+  {t:"M6 · 95:30","m":"DMA","d":"— 8/10"}
+];
+
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#4a3858';
+const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
+const pct=v=>Math.round(v*10);
+const fmt=v=>v>0?(v%1!==0?parseFloat(v.toFixed(2)):v):'—';
+function safe(id){return document.getElementById(id)}
+function attrCircle(v){return`<div class="attr-circle ${ac(v)}">${v>0?Math.round(v*2):'?'}</div>`}
+function renderAttrList(el,arr){if(!el)return;el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${pct(a.v)}%;background:${sc(a.v)}"></div></div><span class="attr-val-lbl" style="color:${sc(a.v)}">${a.v>0?a.v:'?'}</span></div>`).join('');}
+function renderPhilList(el,arr){if(!el)return;el.innerHTML=arr.map(p=>`<div class="phil-item"><span class="phi-rank">${p.r}</span><div><div class="phi-name">${p.n}</div><div class="phi-school">${p.s}</div></div><div class="phi-bar-bg"><div class="phi-bar-fill" style="width:${pct(p.v)}%;background:${p.col}"></div></div><span class="phi-score" style="color:${p.col}">${p.v}</span></div>`).join('');}
+function renderSubM(el,arr){if(!el)return;el.innerHTML=arr.map(m=>{
+  const col=m.ok?sc(m.v):m.zero?'var(--redL)':m.warn?'var(--amber)':'var(--amber)';
+  const flag=m.ok?'<span class="mflag f-ok">✅</span>':m.zero?'<span class="mflag f-p">0evt</span>':m.warn?'<span class="mflag f-w">⚠️</span>':'<span class="mflag f-w">⚠️</span>';
+  return`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${col}"></div></div><span class="comp-val" style="color:${col}">${m.v>0?fmt(m.v):'—'}</span><span class="comp-wt">${m.w}</span>${flag}</div>`;
+}).join('');}
+
+function init(){
+  const c1=[{n:"OBI_P",v:8.27,evt:17},{n:"CLM",v:8.33,evt:5},{n:"DMA",v:7.71,evt:7},{n:"MCS",v:7.71,evt:7},{n:"OBI_T",v:7.25,evt:5},{n:"SOA",v:6.67,evt:3}];
+  const el1=safe('confirmed-list');
+  if(el1)el1.innerHTML=c1.map(m=>`<div class="mrow"><span class="mcode">${m.n}</span><span class="mname">${fmt(m.v)}</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span style="font-size:.67rem;color:var(--muted);width:40px;text-align:right">${m.evt}evt</span><span class="mflag f-ok">✅</span></div>`).join('');
+
+  const p1=[
+    {n:"CHR",v:9.0,evt:1,elite:true},{n:"CRS",v:9.0,evt:1,elite:true},{n:"COACH_T",v:9.0,evt:1,elite:true},
+    {n:"COACH_R",v:8.0,evt:1},{n:"OMS",v:8.0,evt:1},{n:"OBI_S",v:6.0,evt:2},
+    {n:"SII_A",v:7.0,evt:1},{n:"SII_T",v:6.0,evt:1,warn:true},
+    {n:"SOA",v:4.0,evt:1,warn:true},{n:"SPI",v:4.0,evt:1,warn:true}
+  ];
+  const el2=safe('partial-list');
+  if(el2)el2.innerHTML=p1.map(m=>`<div class="mrow"><span class="mcode">${m.n}</span><span class="mname" style="color:${m.warn?'var(--amber)':m.elite?'var(--gold2)':'var(--lite)'}">${fmt(m.v)}${m.elite?' ⭐':m.warn?' ⚠️':''}</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:${pct(m.v)}%;background:${m.warn?'var(--amber)':m.elite?sc(m.v):sc(m.v)}"></div></div><span style="font-size:.67rem;color:var(--muted);width:40px;text-align:right">${m.evt}evt</span><span class="mflag ${m.warn?'f-w':'f-w'}">${m.warn?'⚠️':'<3e'}</span></div>`).join('');
+
+  renderAttrList(safe('attr-tech'),ATTRS.tech);
+  renderAttrList(safe('attr-men'),ATTRS.men);
+  renderAttrList(safe('attr-phy'),ATTRS.phy);
+  renderSubM(safe('obi-subs'),OBI);
+  renderSubM(safe('sii-subs'),SII);
+  const t1=safe('t1-metrics');if(t1)t1.innerHTML=T1.map(m=>`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span class="comp-val" style="color:${sc(m.v)}">${fmt(m.v)}</span></div>`).join('');
+  const t2=safe('t2-metrics');if(t2)t2.innerHTML=T2.map(m=>`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span class="comp-val" style="color:${sc(m.v)}">${fmt(m.v)}</span><span class="comp-wt">${m.w}</span></div>`).join('');
+  renderPhilList(safe('ov-phil'),PHIL.slice(0,5));
+  renderPhilList(safe('phil-full'),PHIL);
+  const sa=safe('school-avgs');if(sa)sa.innerHTML=SCHOOL_AVGS.map(s=>`<div class="comp-row"><span style="font-size:.74rem;color:var(--lite);flex:1">${s.n}</span><div class="comp-bar-bg" style="width:120px"><div class="comp-bar-fill" style="width:${pct(s.v)}%;background:${sc(s.v)}"></div></div><span class="comp-val" style="color:${sc(s.v)}">${s.v}</span></div>`).join('');
+
+  const rEl=safe('t3-rest-grid');if(rEl){const ch=(a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
+  rEl.innerHTML=ch(T3R,4).map(col=>`<div>${col.map(m=>{
+    const cl=m.warn?'var(--amber)':m.elite?sc(m.v):m.conf?sc(m.v):m.partial?'var(--amber)':'#1e1428';
+    const fl=m.warn?'<span class="mflag f-w">⚠️</span>':m.elite?'<span class="mflag f-ok">⭐</span>':m.conf?'<span class="mflag f-ok">✅</span>':m.partial?'<span class="mflag f-w">⚠️</span>':'<span class="mflag f-p">0evt</span>';
+    return`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:${pct(m.v)}%;background:${cl}"></div></div><span class="mval" style="color:${cl}">${m.v>0?fmt(m.v):'—'}</span>${fl}</div>`;
+  }).join('')}</div>`).join('');}
+
+  const vc=safe('vc-mini');if(vc){
+  const allm=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM'];
+  const conf=['OBI_T','OBI_P','DMA','MCS','CLM'];
+  const partial=['OBI_S','SII_A','SII_T','CHR','CRS','OMS','SOA','SPI'];
+  vc.innerHTML=allm.map(m=>{const ok=conf.includes(m),pt=partial.includes(m),iz=['SII_R','DYN','CRK'].includes(m);
+    return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem">
+      <span style="width:6px;height:6px;border-radius:50%;background:${ok?'var(--green)':pt?'var(--amber)':iz?'var(--redL)':'#1e1428'};display:inline-block;flex-shrink:0"></span>
+      <span style="color:var(--muted);width:44px;font-family:'Rajdhani',sans-serif;font-weight:700">${m}</span>
+      <span class="mflag ${ok?'f-ok':iz?'f-p':'f-w'}">${ok?'✅':iz?'0evt':'<3evt'}</span>
+    </div>`;}).join('');}
+
+  const ml=safe('match-log');if(ml)ml.innerHTML=MATCHES.map(m=>{
+    const rc=m.res==='W'?'var(--green)':m.res==='L'?'var(--redL)':'var(--amber)';
+    const isT1=m.tier==='T1';
+    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(200,160,255,.03);font-size:.75rem;background:${isT1?'rgba(139,63,168,.05)':'transparent'}">
+      <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--muted);width:16px">M${m.m}</span>
+      <span style="flex:1;color:var(--lite);font-weight:${isT1?'600':'400'}">${m.opp}</span>
+      <span style="color:var(--muted);width:14px">${m.ha}</span>
+      <span style="font-weight:700;color:${rc};width:18px">${m.res}</span>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;background:rgba(139,63,168,.1);color:var(--accentL);padding:1px 5px;border-radius:2px">${m.tier}</span>
+      <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:${sc(m.rating)};width:28px;text-align:right">${m.rating}</span>
+    </div>`;}).join('');
+
+  const evEl=safe('event-log-display');if(evEl)evEl.innerHTML=KEY_EVENTS.map(e=>{
+    const isKey=e.m.includes('⭐');const isWarn=e.m.includes('⚠️');const isCoach=e.m.includes('COACH');
+    const bg=isCoach?'rgba(200,160,64,.08)':isKey?'rgba(139,63,168,.07)':isWarn?'rgba(212,0,0,.06)':'transparent';
+    const tc=isCoach?'var(--gold2)':isKey?'var(--accentL)':isWarn?'var(--redL)':'var(--lite)';
+    return`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid rgba(200,160,255,.025);font-size:.7rem;background:${bg}">
+      <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:${tc};width:72px;flex-shrink:0">${e.t}</span>
+      <span style="background:${isCoach?'rgba(200,160,64,.15)':isKey?'rgba(139,63,168,.15)':isWarn?'rgba(212,0,0,.15)':'rgba(200,160,255,.06)'};color:${tc};padding:1px 4px;border-radius:2px;width:68px;text-align:center;flex-shrink:0;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.6rem">${e.m.replace('⭐','').replace('⚠️','')}</span>
+      <span style="color:var(--muted);flex:1">${e.d}</span>
+    </div>`;}).join('');
+
+  const pb=safe('psych-bars');if(pb){
+  const all_s=[
+    {n:"OBI_P ✅ ⭐ 17evt",v:8.27},{n:"CLM ✅ ⭐",v:8.5},{n:"CHR ⭐ 1evt",v:9.0},{n:"CRS ⭐ 1evt",v:9.0},
+    {n:"COACH_T ⭐ 1evt",v:9.0},{n:"DMA ✅",v:7.6},{n:"MCS ✅",v:7.5},{n:"OBI_T ✅",v:7.0},
+    {n:"SII_A ⚠️ 1evt",v:7.0},{n:"COACH_R ⚠️ 1evt",v:8.0},{n:"OMS ⚠️ 1evt",v:8.0},
+    {n:"OBI_S ⚠️ 2evt",v:6.0},{n:"SII_T ⚠️ 6 — SLOW",v:6.0},
+    {n:"SOA ✅ 6.67 · 3evt",v:6.67},{n:"SPI ⚠️ 4",v:4.0},{n:"DYN/CRK/SII_R: 0evt",v:0}
+  ];
+  pb.innerHTML=all_s.map(p=>`<div class="mrow"><span class="mcode" style="width:140px;color:var(--muted)">${p.n}</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:${pct(p.v)}%;background:${p.v>0?sc(p.v):'#1e1428'}"></div></div><span class="mval" style="color:${p.v>0?sc(p.v):'var(--muted)'}">${p.v>0?p.v:'—'}</span></div>`).join('');}
+
+  const DFT={scales:{r:{min:0,max:10,grid:{color:'rgba(200,160,255,.06)'},angleLines:{color:'rgba(200,160,255,.06)'},ticks:{stepSize:2,color:'#4a3858',backdropColor:'transparent',font:{size:9}},pointLabels:{color:'#c8b8d8',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},plugins:{legend:{labels:{color:'#c8b8d8',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},tooltip:{backgroundColor:'#0e0a10',borderColor:'rgba(139,63,168,.3)',borderWidth:1,titleColor:'#b070d8',bodyColor:'#f4f0f8'}},responsive:true,maintainAspectRatio:false};
+
+  const dc=safe('fgaDial');if(dc){dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const score=7.3;
+  dctx.clearRect(0,0,120,120);
+  dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
+  dctx.strokeStyle='rgba(200,160,255,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+  const grad=dctx.createLinearGradient(14,70,106,70);
+  grad.addColorStop(0,'#d40000');grad.addColorStop(.45,'#8b3fa8');grad.addColorStop(1,'#c8a020');
+  dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(score/10)*Math.PI);
+  dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+  safe('fgaNum').textContent=score.toFixed(1);}
+
+  const lc=safe('logRing');if(lc){const lctx=lc.getContext('2d');
+  lctx.clearRect(0,0,60,60);
+  lctx.beginPath();lctx.arc(30,30,22,0,2*Math.PI);lctx.strokeStyle='rgba(200,160,255,.06)';lctx.lineWidth=6;lctx.stroke();
+  lctx.beginPath();lctx.arc(30,30,22,-Math.PI/2,(-Math.PI/2)+(2.5/6.5)*2*Math.PI);
+  lctx.strokeStyle='#c8a020';lctx.lineWidth=6;lctx.lineCap='round';lctx.stroke();}
+
+  const dEl=safe('fgaDonut');if(dEl)new Chart(dEl,{type:'doughnut',data:{labels:['Tier 1 · 20%','Tier 2 · 30%','Tier 3 · 50% (6/12 ✅)'],datasets:[{data:[20,30,50],backgroundColor:['rgba(212,0,0,.45)','rgba(34,168,90,.45)','rgba(139,63,168,.55)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#5a4868',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},tooltip:{backgroundColor:'#0e0a10',borderColor:'rgba(139,63,168,.3)',borderWidth:1}}}});
+
+  new Chart(safe('ovRadar'),{type:'radar',data:{labels:['OBI_P✅','CLM✅','DMA✅','MCS✅','OBI_T✅','SII_T⚠️','SOA⚠️'],datasets:[{label:'Azemović',data:[8.27,8.33,7.71,7.71,7.25,6.0,6.67],borderColor:'#8b3fa8',backgroundColor:'rgba(139,63,168,.1)',borderWidth:2,pointBackgroundColor:['#1a7a3a','#1a7a3a','#2e9e5a','#2e9e5a','#5a9e20','var(--amber)','#b05a10'],pointRadius:4}]},options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  new Chart(safe('attrRadar'),{type:'radar',data:{labels:['OBI_P/Reading','CLM/Composure','DMA/Decision','MCS/Mental','Aerial/1.90m','SII_T/Pace','Leadership'],datasets:[{label:'Azemović (28)',data:[8.27,8.33,7.71,7.71,9.0,6.0,9.0],borderColor:'#8b3fa8',backgroundColor:'rgba(139,63,168,.1)',borderWidth:2.5,pointBackgroundColor:'#c8a020',pointRadius:4},{label:'Kat. Sup. CB avg',data:[7.0,7.0,7.0,7.0,7.5,7.0,7.0],borderColor:'rgba(200,160,255,.25)',backgroundColor:'rgba(200,160,255,.04)',borderWidth:1.5,pointRadius:3}]},options:{...DFT,maintainAspectRatio:false}});
+
+  new Chart(safe('philRadar'),{type:'radar',data:{labels:['Italian Sacchi','Eastern Eur.','Modern Masters','German','English','High Press'],datasets:[{label:'Philosophy Fit',data:[9.0,8.5,8.8,7.5,7.5,4.8],borderColor:'#c8a020',backgroundColor:'rgba(200,160,32,.12)',borderWidth:2,pointBackgroundColor:['#8b1a1a','#c0392b','#9b59b6','#3498db','#c8102e','#e07820'],pointRadius:5}]},options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  // OBI_P distribution
+  const obiScores=[9,7,8.5,8,9,6,8,9,9,9,8,8.5,8,8,9,8,8];
+  new Chart(safe('obiChart'),{type:'bar',data:{labels:obiScores.map((_,i)=>`E${i+1}`),datasets:[{label:'OBI_P',data:obiScores,backgroundColor:obiScores.map(v=>v===10?'rgba(139,63,168,.95)':v>=9?'rgba(139,63,168,.75)':v>=8?'rgba(139,63,168,.5)':'rgba(139,63,168,.3)'),borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(200,160,255,.04)'},ticks:{color:'#4a3858',font:{size:8}}},y:{min:5,max:10,grid:{color:'rgba(200,160,255,.04)'},ticks:{color:'#4a3858',font:{size:9}}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#0e0a10',borderColor:'rgba(139,63,168,.3)',borderWidth:1}}}});
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
