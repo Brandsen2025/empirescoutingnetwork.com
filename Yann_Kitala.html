@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yann Kitala — Empire FGA Intelligence Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(0,140,255,.07);
+  --nap:#0067c5;--nap-dark:#004a8f;--nap-light:#4da6ff;
+  --accent:#0080f0;--accentL:#4db8ff;--accentFade:rgba(0,128,240,.1);
+  --gold:#f0b820;--gold2:#ffd060;--gold3:#7a5800;
+  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
+  --red:#e03030;--redL:#f05050;
+  --dr-congo:#007f5f;/* DR Congo green */
+  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
+  --vizela:#e30613;/* Vizela red */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(0,103,197,.7) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 90%,rgba(0,60,140,.3) 0%,transparent 50%)}
+
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--vizela) 20%,var(--dr-congo) 20% 80%,var(--vizela) 80%);z-index:10}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(0,103,197,.12) 0%,transparent 45%,rgba(0,74,143,.06) 100%)}
+.hero-photo{position:relative;overflow:hidden;background:#040810}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  filter:contrast(1.1) saturate(.95);
+  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(0,103,197,.06);line-height:1;pointer-events:none}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.bp-vizela{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(227,6,19,.9);color:#fff;text-transform:uppercase;border:1px solid rgba(255,80,80,.3)}
+.bp-val{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.8);color:#040806;text-transform:uppercase}
+.bp-dr{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(0,127,95,.8);color:#fff;text-transform:uppercase}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
+.hero-name{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
+.hero-name em{color:var(--accentL);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
+.pos-primary{background:var(--accent);color:#fff}
+.pos-sec{background:rgba(0,128,240,.15);color:var(--accentL);border:1px solid rgba(0,128,240,.35)}
+.pos-league{background:rgba(0,140,255,.1);color:var(--gold);border:1px solid rgba(0,140,255,.25)}
+.pos-ucl{background:rgba(227,6,19,.2);color:#ff6b6b;border:1px solid rgba(227,6,19,.4)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
+.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
+.htag-blue{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(0,128,240,.28)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-vizela{background:rgba(227,6,19,.12);color:#ff6b6b;border:1px solid rgba(227,6,19,.25)}
+.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(0,103,197,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fga-score-num{font-family:'Oswald',sans-serif;font-size:2.4rem;font-weight:500;line-height:1;color:var(--accentL)}
+.fga-score-lbl{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(0,103,197,.08);border:1px solid rgba(0,103,197,.15)}
+.ftr2{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.15)}
+.ftr3{background:rgba(240,184,32,.06);border:1px solid rgba(240,184,32,.14)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(0,103,197,.22);border-radius:2px;width:100%}
+.ca-val{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:500;color:var(--accentL)}
+.ca-info{font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:'Oswald',sans-serif;font-size:.95rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
+.logo-bar img{height:32px;width:auto;object-fit:contain}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sh-blue::before{background:var(--nap)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-red::before{background:var(--red)}.sh-amber::before{background:var(--amber)}
+.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,140,255,.025)}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
+.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
+.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#0a1428}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,140,255,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(224,48,48,.12);color:var(--redL)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,140,255,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+.log-ring{display:flex;align-items:center;gap:14px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:2px;margin-bottom:8px}
+.log-val{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:500;color:var(--gold);line-height:1}
+.log-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.12);color:var(--gold);border:1px solid rgba(240,184,32,.2)}
+.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(0,140,255,.03)}
+.phil-item:last-child{border-bottom:none}
+.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
+.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
+.phi-bar-bg{width:70px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden}
+.phi-bar-fill{height:100%;border-radius:99px}
+.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(0,103,197,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(0,103,197,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(0,140,255,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.career-table .vizela-row td{background:rgba(227,6,19,.06)}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--vizela),var(--dr-congo),var(--accentL))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accentL);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--accentL);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,140,255,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(0,103,197,.3)}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(0,103,197,.12);color:var(--accentL);border:1px solid rgba(0,103,197,.22)}
+/* Placeholder highlight */
+.pending-box{background:linear-gradient(135deg,rgba(224,120,32,.12),rgba(0,103,197,.06));border:2px solid rgba(224,120,32,.3);border-radius:2px;padding:12px 16px;margin-bottom:14px}
+.pending-head{font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--amber);margin-bottom:5px}
+.pending-sub{font-size:.77rem;color:var(--muted);line-height:1.7}
+.pending-sub strong{color:var(--lite)}
+.career-path{background:rgba(0,103,197,.07);border:1px solid rgba(0,103,197,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.log-banner{background:linear-gradient(135deg,rgba(227,6,19,.12),rgba(240,184,32,.06));border:1px solid rgba(227,6,19,.25);border-radius:2px;padding:10px 16px;margin-bottom:14px}
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
+.video-link-card:hover{border-color:rgba(227,6,19,.4)}
+.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.t1-highlight{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.t1-hl{background:linear-gradient(135deg,rgba(0,103,197,.15),rgba(240,184,32,.06));border:2px solid rgba(0,103,197,.35);border-radius:3px;padding:10px 12px;position:relative;overflow:hidden}
+.t1-hl.gold{background:linear-gradient(135deg,rgba(240,184,32,.12),rgba(0,103,197,.06));border-color:rgba(240,184,32,.5)}
+.t1-hl-code{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.t1-hl-val{font-family:'Oswald',sans-serif;font-size:1.65rem;font-weight:500;line-height:1;color:var(--accentL)}
+.t1-hl.gold .t1-hl-val{color:var(--gold)}
+.t1-hl-pct{font-size:.58rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.t1-hl-bar{height:3px;background:rgba(0,103,197,.1);border-radius:99px;overflow:hidden;margin-top:6px}
+.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--nap)}
+.t1-hl.gold .t1-hl-bar-fill{background:var(--gold)}
+.t1-source{font-family:'Rajdhani',sans-serif;font-size:.55rem;letter-spacing:.08em;color:rgba(0,140,255,.25);text-transform:uppercase;margin-top:auto;display:block}
+.t1-group{margin-bottom:12px}
+.t1-group-head{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(0,103,197,.08);margin-bottom:6px}
+.t1-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.t1-code{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--accentL);width:64px;flex-shrink:0}
+.t1-desc{font-size:.72rem;color:var(--muted);flex:1}
+.t1-bar-bg{width:80px;height:4px;background:rgba(0,103,197,.07);border-radius:99px;overflow:hidden;flex-shrink:0}
+.t1-bar-fill{height:100%;border-radius:99px}
+.t1-val{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;width:44px;text-align:right;flex-shrink:0}
+.t1-ctx{font-size:.58rem;color:rgba(0,140,255,.3);width:60px;text-align:right;flex-shrink:0;letter-spacing:.04em}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--gold)">▶ Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--vizela)"></span>FC Vizela · Liga Portugal 2 · 2025-26</span>
+    <span class="status-dot"><span class="dot" style="background:var(--gold)"></span>0/16 T3 metrics · Placeholder</span>
+    <span class="status-dot"><span class="dot" style="background:var(--dr-congo)"></span>DR Congo · 1 U17 cap</span>
+    <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>Video assessment pending</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://www.playmakerstats.com/img/geral/1345884_med_.jpg.jpg" alt="Yann Kitala" onerror="this.style.background='#040810'">
+    <div class="hero-flag">🇨🇩</div>
+    <div class="club-badge">
+      <span class="bp-vizela">FC Vizela · ST</span>
+      <span class="bp-val">€210K · Contract 2027</span>
+      <span class="bp-dr">🇨🇩 DR Congo U17</span>
+    </div>
+    <div class="hero-num">29</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">Centre-Forward · 28yr · 186cm · Paris · Left Foot · DR Congo · Vizela</div>
+      <div class="hero-name"><em>Yann</em><br>Kitala</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">ST</span>
+        <span class="pos-badge pos-sec">CF</span>
+        <span class="pos-badge pos-league">Liga Portugal 2</span>
+        <span class="pos-badge pos-ucl">🇨🇩 DR Congo U17</span>
+        <span class="pos-badge pos-league">Paris · France</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">28</div><div class="hmi-lbl">Born 9 Apr 1998</div></div>
+      <div><div class="hmi-val">1.86m</div><div class="hmi-lbl">Height</div></div>
+      <div><div class="hmi-val">Left</div><div class="hmi-lbl">Foot</div></div>
+      <div><div class="hmi-val">0/16</div><div class="hmi-lbl">T3 Confirmed</div></div>
+      <div><div class="hmi-val">€210K</div><div class="hmi-lbl">Market Value</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-vizela">FC Vizela · Liga Portugal 2 2025-26</span>
+      <span class="htag htag-warn">⚠️ 0/16 T3 metrics · Placeholder only</span>
+      <span class="htag htag-warn">No video assessment</span>
+      <span class="htag htag-blue">Paris FC → Clairefontaine → Lyon → Sochaux → Le Havre → Almere → Vizela</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">FGA v3 Score</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">—</div>
+        <div class="fga-score-lbl">/ 10.0</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">Sofascore/Transfermarkt</span><span class="tw" style="color:var(--amber)">Partial</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--greenL)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">—</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--gold)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--amber)">0/16</span></div>
+    </div>
+    <div class="hero-ca">
+      <div><div class="ca-val">—</div><div class="ca-info">CA (Empire)<br>Pending video</div></div>
+      <div class="ca-pa">PA ??</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- ═══ OVERVIEW ═══ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <!-- LOG banner -->
+  <div class="log-banner">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--vizela);letter-spacing:.1em;text-transform:uppercase">📋 PLACEHOLDER — NO TIER 3 ASSESSMENT YET · LIGA PORTUGAL 2 CONTEXT · 2025-26 SEASON</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">Yann Kitala is a 28-year-old centre-forward currently at FC Vizela in Liga Portugal 2. This card is a structural placeholder — all Tier 3 metrics (OBI, SII, DMA, SOA, CLM, CRS, OMS, DYN, CRK, CHR, MCS, SPI) are pending video analysis. A full Empire FGA assessment requires 5 full-match videos following the v4.0 protocol.</div>
+  </div>
+
+  <!-- Career path -->
+  <div class="career-path">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--gold);letter-spacing:.1em">🇫🇷</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--muted)">Paris FC</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--lite)">INF Clairefontaine</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--lite)">Olympique Lyonnais</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--lite)">Sochaux</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--lite)">Le Havre</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--lite)">Almere City</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--vizela);font-weight:600">FC Vizela</span>
+  </div>
+
+  <!-- Placeholder banner -->
+  <div class="pending-box">
+    <div class="pending-head">⏳ TIER 3 PENDING — NO VIDEO ANALYSIS CONDUCTED</div>
+    <div class="pending-sub">Yann Kitala has been logged in the Empire FGA database. However, <strong style="color:var(--white)">no match footage has been analysed</strong>. All T3 metrics (OBI, SII, DMA, SOA, CLM, CRS, OMS, DYN, CRK, CHR, MCS, SPI) are at 0 events. To activate this card, submit 5 full matches per Empire FGA protocol (balanced opposition, ≥2 top-third, ≥1 away, ≥1 losing context). Once video analysis is complete, this card will become a fully actionable scouting report.</div>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-blue"><div class="sh-val">—</div><div class="sh-lbl">FGA Rating</div><div class="sh-delta dneu">Pending</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">—</div><div class="sh-lbl">OBI</div><div class="sh-delta dneu">0/3</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">—</div><div class="sh-lbl">SII</div><div class="sh-delta dneu">0/3</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">—</div><div class="sh-lbl">DMA</div><div class="sh-delta dneu">0 events</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">—</div><div class="sh-lbl">SOA</div><div class="sh-delta dneu">0 events</div></div>
+    <div class="sh-box sh-red"><div class="sh-val">0/16</div><div class="sh-lbl">T3 Confirmed</div><div class="sh-delta dneg">Pending</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Profile</div></div>
+      <div class="c-body" style="font-size:.76rem">
+        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Yann Kitala</span></div>
+        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">9 Apr 1998 · Paris 🇫🇷</span></div>
+        <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--accentL)">186cm</span></div>
+        <div class="ti-row"><span class="ti-lbl">Foot</span><span class="ti-val" style="color:var(--gold)">Left</span></div>
+        <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--vizela)">FC Vizela</span></div>
+        <div class="ti-row"><span class="ti-lbl">League</span><span class="ti-val">Liga Portugal 2</span></div>
+        <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Until 30 Jun 2027</span></div>
+        <div class="ti-row"><span class="ti-lbl">Agent</span><span class="ti-val">HCM Sports</span></div>
+        <div class="ti-row"><span class="ti-lbl">Int'l</span><span class="ti-val">🇨🇩 DR Congo U17 (1 cap)</span></div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Tier 3 Status</div><div class="c-sub">0/16 metrics scored</div></div>
+      <div class="c-body">
+        <div class="section-label">Confirmed (3+ events)</div>
+        <div style="color:var(--muted);font-size:.74rem;padding:8px 0">— none —</div>
+        <div class="section-label" style="margin-top:10px">Pending / Partial</div>
+        <div style="color:var(--muted);font-size:.74rem;padding:8px 0">All 16 metrics pending video analysis.</div>
+        <div class="divider"></div>
+        <div style="font-size:.72rem;color:var(--muted)"><strong style="color:var(--redL)">Priority:</strong> OBI_T, OBI_S, OBI_P, SII_A, SII_T, SII_R, DMA, SOA, SPI, CLM, CRS, OMS, DYN, CRK, CHR, MCS</div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">Yann Kitala is a <strong>28-year-old centre-forward</strong> with a career spanning French and Portuguese clubs. His profile — 186cm, left-footed — is physically interesting for the striker position. However, <strong>no Tier 3 assessment exists</strong>. This card is a placeholder. To generate a meaningful FGA score, complete the full video protocol.</div>
+        <div class="verdict-box">
+          <div class="verdict-label">Empire FGA Verdict</div>
+          <div class="verdict-text"><strong>No assessment possible — Tier 3 pending.</strong> Submit 5 full match videos to activate this card. Expected LOG: 3.0 (Liga Portugal 2).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">Pending — requires video analysis.</div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">T3 Radar</div><div class="c-sub">0 confirmed</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Event Count</div><div class="c-sub">0 events logged</div></div><div class="c-body"><canvas id="eventChart" height="180"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ═══ ATTRIBUTES ═══ -->
+<div id="tab-attributes" class="tab-panel">
+  <div style="background:rgba(227,6,19,.06);border:1px solid rgba(227,6,19,.18);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
+    ⚠️ <strong style="color:var(--vizela)">No video observations have been made.</strong> All attributes are placeholders. Once matches are logged and scored, this section will populate with actual Empire FGA metrics.
+  </div>
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">— pending —</div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">— pending —</div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">— pending —</div></div>
+  </div>
+  <div style="margin-top:14px"><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Attribute Radar</div><div class="c-sub">No data</div></div><div class="c-body" style="height:310px"><canvas id="attrRadar"></canvas></div></div></div>
+</div>
+
+<!-- ═══ FGA ANALYTICS ═══ -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — Sofascore · Transfermarkt · FBref</div></div>
+      <div class="c-body" id="t1-metrics"></div>
+    </div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 — Composite</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">Pending — requires Tier 3.</div></div>
+    <div>
+      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Breakdown</div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">LOG Context</div></div>
+        <div class="c-body">
+          <div class="log-ring"><canvas id="logRing" width="60" height="60"></canvas>
+            <div><div class="log-val">3.0</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">LOG Estimate</div><div style="margin-top:4px"><span class="log-badge">Liga Portugal 2</span></div></div>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.7"><strong style="color:var(--gold)">Portuguese second tier</strong><br><strong style="color:var(--lite)">Competition Tier ~2.8</strong><br><strong style="color:var(--amber)">LOG 3.0 — requires video to refine</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tier 3 · Pending — 0/16 Confirmed</div></div>
+    <div class="c-body">
+      <div class="g3">
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)">OBI</span>
+              <span style="font-size:.78rem;color:var(--muted)">Off-Ball Intelligence</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--amber);margin-left:auto">PENDING</span>
+            </div>
+            <div id="obi-subs"></div>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)">SII</span>
+              <span style="font-size:.78rem;color:var(--muted)">Sprint Intensity Index</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--amber);margin-left:auto">PENDING</span>
+            </div>
+            <div id="sii-subs"></div>
+          </div>
+        </div>
+        <div><div class="section-label">Video Completeness</div><div id="vc-mini"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">All 16 Tier 3 Metrics</div>
+      <div class="g3" id="t3-rest-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHILOSOPHY DNA ═══ -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top 10 Philosophy Fits</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">Pending — requires video analysis.</div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">School Averages</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">—</div></div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px;height:340px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar</div></div><div class="c-body" style="height:290px"><canvas id="philRadar"></canvas></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">Unknown — insufficient data.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CAREER ═══ -->
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">Born 9 Apr 1998 · Paris, France</div><div class="tl-text"><strong>Paris-born.</strong> Began football at Paris FC youth academy (2004–2011).</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">2011–2013 · INF Clairefontaine</div><div class="tl-text"><strong>Elite French academy.</strong> Selected for the national training centre — the same pathway as Thierry Henry, Nicolas Anelka, and Kylian Mbappé. Graduated to Olympique Lyonnais academy.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2013–2017 · Olympique Lyonnais</div><div class="tl-text"><strong>Lyon academy.</strong> Developed at one of France's top clubs. Progressed through youth ranks but did not make a senior appearance. Released in 2017.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--nap)"></div><div class="tl-date">2017–2019 · Sochaux · Ligue 2</div><div class="tl-text"><strong>First professional club.</strong> Signed with Sochaux in Ligue 2. Made 22 appearances, establishing himself as a professional striker.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--nap)"></div><div class="tl-date">2019–2021 · Le Havre · Ligue 2</div><div class="tl-text"><strong>Key development phase.</strong> Joined Le Havre, made 47 appearances, 5 goals. Played alongside future stars like Himad Abdelli and Arouna Sangante. Left for Sochaux in 2021.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">2021–2023 · Sochaux (return) · Ligue 2</div><div class="tl-text"><strong>Return to Sochaux.</strong> 50 appearances, 7 goals. Played a key role in Sochaux's promotion push. Left for Le Havre in 2023.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--vizela)"></div><div class="tl-date">2023–2024 · Le Havre (return) · Ligue 2 → Ligue 1</div><div class="tl-text"><strong>Ligue 1 promotion.</strong> Helped Le Havre win Ligue 2 and gain promotion to Ligue 1. Made 11 appearances in Ligue 1. Loaned to Almere City in Eredivisie in 2024.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">2024–2025 · Almere City · Eredivisie</div><div class="tl-text"><strong>Dutch adventure.</strong> Loaned to Almere City in Eredivisie. Made 15 appearances, 2 goals. Returned to Le Havre.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--vizela)"></div><div class="tl-date">Jul 2025 · FC Vizela · Liga Portugal 2</div><div class="tl-text"><strong>Portuguese move.</strong> Signed for FC Vizela, one of Portugal's historic clubs. Contract until June 2027. 2025-26 season: 21 appearances, 1 goal, 716 minutes. 3 yellow cards. Sofascore avg ~6.5.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Career Goals</div><div class="c-sub">23 career goals (all competitions)</div></div><div class="c-body" style="height:175px"><canvas id="goalsChart"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Transfer Ladder</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">Sochaux → Le Havre</span><span class="ti-val">Undisclosed</span></div>
+          <div class="ti-row"><span class="ti-lbl">Le Havre → Sochaux</span><span class="ti-val">Undisclosed</span></div>
+          <div class="ti-row"><span class="ti-lbl">Sochaux → Le Havre</span><span class="ti-val">Undisclosed</span></div>
+          <div class="ti-row"><span class="ti-lbl">Le Havre → Almere (loan)</span><span class="ti-val">Loan</span></div>
+          <div class="ti-row"><span class="ti-lbl">Le Havre → Vizela</span><span class="ti-val">Free / undisclosed</span></div>
+          <div class="ti-row"><span class="ti-lbl">Current MV</span><span class="ti-val">€210K (Sofascore) · €327K (FotMob peak)</span></div>
+          <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Until 30 Jun 2027</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Season-by-Season (2025-26 Vizela)</div></div>
+    <div class="c-body">
+      <table class="career-table">
+        <thead><tr>
+          <th>Competition</th><th>Apps</th><th>Starts</th><th>Mins</th><th>Goals</th><th>Assists</th><th>YC</th>
+        </tr></thead>
+        <tbody>
+          <tr class="vizela-row"><td>Liga Portugal 2</td><td>21</td><td>7</td><td>716</td><td>1</td><td>0</td><td>3</td></tr>
+          <tr><td>Taça de Portugal</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr class="hl"><td><strong>Total 2025-26 (so far)</strong></td><td><strong>21</strong></td><td><strong>7</strong></td><td><strong>716</strong></td><td><strong>1</strong></td><td><strong>0</strong></td><td><strong>3</strong></td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:8px">Source: FotMob · Sofascore. One goal from 716 minutes = ~1 goal per 716 minutes. xG 1.05 (non-penalty).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCOUTING INTEL ═══ -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Scouting Report</div><div class="c-sub">Jim Totime · Placeholder · No video assessment</div></div>
+        <div class="c-body">
+          <div class="scout-para">Yann Kitala is a <strong>28-year-old centre-forward</strong> currently at FC Vizela in Liga Portugal 2. Born in Paris, he came through the French academy system — Paris FC, INF Clairefontaine, Olympique Lyonnais — before establishing himself as a Ligue 2 professional at Sochaux and Le Havre. He has 23 career goals across 172 appearances, primarily in Ligue 2. In the 2025-26 season at Vizela, he has made 21 appearances (7 starts), scoring 1 goal in 716 minutes with a Sofascore average of ~6.5.</div>
+          <div class="scout-para">Physically, he is a <strong>186cm left-footed striker</strong> — a profile that traditionally suits target-man or hold-up play roles. However, <strong>no Tier 3 video analysis has been conducted</strong>. The available Tier 1 data (Sofascore, Transfermarkt) provides basic context: his market value is €210K, contract runs until 2027, and he has 1 cap for DR Congo U17.</div>
+          <div class="scout-para">The assessment is incomplete. <strong>OBI, SII, DMA, SOA, SPI, CLM, CRS, OMS, DYN, CRK, CHR, MCS</strong> — all 16 Tier 3 metrics — have zero events. A meaningful evaluation requires watching a minimum of 5 full matches (per Empire FGA protocol) to observe his off-ball movement, sprint intensity, decision-making, and character.</div>
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Verdict</div>
+            <div class="verdict-text"><strong>Placeholder — no assessment possible without video.</strong> At 28 years old, Kitala is at a career stage where Tier 3 metrics would determine whether he is a solid Liga Portugal 2 striker or someone capable of stepping up. To progress this card, submit 5 full match videos (balanced opposition: ≥2 top-third, ≥1 away, ≥1 losing context) and complete the OBI + SII + 11 metric protocol.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All T3 Scores</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">All pending — 0/16.</div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Key Event Log</div><div class="c-sub">0 events logged</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">No events — video analysis pending.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MATCHES TAB ═══ -->
+<div id="tab-links" class="tab-panel">
+  <div style="background:rgba(227,6,19,.07);border:1px solid rgba(227,6,19,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--vizela)">CAREER HIGHLIGHTS — FRENCH + PORTUGUESE FOOTAGE</span>
+    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">Career reels: Sochaux → Le Havre → Almere → Vizela</span>
+  </div>
+
+  <div class="section-label">CAREER HIGHLIGHTS REELS</div>
+  <div class="g2" style="margin-bottom:14px">
+    <a class="video-link-card" href="#" target="_blank" style="opacity:0.6;pointer-events:none">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Sochaux — Ligue 2 highlights</div><div class="vlc-meta">First professional club · 2017-2019 · 22 apps</div></div>
+      <span class="vlc-badge" style="background:rgba(106,122,148,.2);color:var(--muted)">Pending</span>
+    </a>
+    <a class="video-link-card" href="#" target="_blank" style="opacity:0.6;pointer-events:none">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Le Havre — Ligue 2 / Ligue 1</div><div class="vlc-meta">47 apps · 5 goals · Promotion 2023-24</div></div>
+      <span class="vlc-badge" style="background:rgba(106,122,148,.2);color:var(--muted)">Pending</span>
+    </a>
+    <a class="video-link-card" href="#" target="_blank" style="opacity:0.6;pointer-events:none">
+      <div style="width:36px;height:36px;border-radius:2px;background:rgba(0,103,197,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Almere City — Eredivisie</div><div class="vlc-meta">Loan 2024-25 · 15 apps · 2 goals</div></div>
+      <span class="vlc-badge" style="background:rgba(106,122,148,.2);color:var(--muted)">Pending</span>
+    </a>
+    <a class="video-link-card" href="#" target="_blank" style="opacity:0.6;pointer-events:none">
+      <div style="width:36px;height:36px;border-radius:2px;background:rgba(227,6,19,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">FC Vizela — Liga Portugal 2</div><div class="vlc-meta">2025-26 · 21 apps · 1 goal</div></div>
+      <span class="vlc-badge" style="background:rgba(106,122,148,.2);color:var(--muted)">Pending</span>
+    </a>
+  </div>
+
+  <div class="pending-box" style="margin-top:8px">
+    <div class="pending-head" style="color:var(--accentL)">⏳ No video files have been provided for Yann Kitala</div>
+    <div class="pending-sub">To activate the video section, please provide match footage or working video links. Once submitted, the links above will be populated and this card will become a fully actionable scouting report.</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── TIER 1 DATA ──
+const T1_HIGHLIGHTS = [
+  {code:'Apps',label:'Apps (Liga Portugal 2 25/26)',val:'21',pct:50,pctLabel:'7 starts · 716 min',bar:50,gold:false,src:'FotMob',note:'1 goal · 3 YC'},
+  {code:'xG',label:'Expected Goals',val:'1.05',pct:50,pctLabel:'Non-penalty xG',bar:50,gold:false,src:'FBref',note:'0.47 xG/90 est.'},
+  {code:'SoF',label:'Sofascore Avg',val:'6.5',pct:45,pctLabel:'12-month average',bar:45,gold:false,src:'Sofascore',note:'Peak 6.7 Apr 2026'},
+  {code:'MV',label:'Market Value',val:'€210K',pct:40,pctLabel:'Peak €694K (Feb 2024)',bar:40,gold:true,src:'Sofascore',note:'Contract 2027'},
+  {code:'Gls',label:'Career Goals',val:'23',pct:70,pctLabel:'172 apps · 0.13 g/g',bar:70,gold:false,src:'FootyStats',note:'Primarily Ligue 2'}
+];
+
+const T1_STATS = {
+  season:[
+    {c:'Liga Portugal 2',d:'Apps (2025-26)',v:'21',raw:6.0,ctx:'FotMob'},
+    {c:'Starts',d:'Starts',v:'7',raw:4.0,ctx:'FotMob'},
+    {c:'Mins',d:'Minutes played',v:'716',raw:6.0,ctx:'FotMob'},
+    {c:'Goals',d:'Goals',v:'1',raw:5.0,ctx:'FotMob'},
+    {c:'Assists',d:'Assists',v:'0',raw:3.0,ctx:'FotMob'},
+    {c:'YC',d:'Yellow cards',v:'3',raw:4.0,ctx:'FotMob'},
+    {c:'xG',d:'Expected Goals',v:'1.05',raw:5.5,ctx:'FBref'},
+  ],
+  career:[
+    {c:'Total',d:'Career appearances',v:'172',raw:8.0,ctx:'FootyStats'},
+    {c:'Goals',d:'Career goals',v:'23',raw:7.5,ctx:'FootyStats'},
+    {c:'Assists',d:'Career assists',v:'4',raw:5.0,ctx:'FootyStats'},
+    {c:'L2',d:'Ligue 2 apps',v:'~120',raw:8.0,ctx:'Transfermarkt'},
+    {c:'L1',d:'Ligue 1 apps',v:'11',raw:5.5,ctx:'Transfermarkt'},
+    {c:'ED',d:'Eredivisie apps',v:'15',raw:6.0,ctx:'Transfermarkt'},
+  ],
+  physical:[
+    {c:'Height',d:'Height',v:'186cm',raw:8.5,ctx:'Transfermarkt'},
+    {c:'Foot',d:'Preferred foot',v:'Left',raw:8.0,ctx:'Sofascore'},
+    {c:'Age',d:'Age',v:'28',raw:7.0,ctx:'Transfermarkt'},
+  ]
+};
+
+// ── PLACEHOLDER TIER 3 ──
+const OBI = [
+  {c:"OBI_T",n:"Run Timing",v:0,w:"35%",ok:false},
+  {c:"OBI_S",n:"Space Architecture",v:0,w:"35%",ok:false},
+  {c:"OBI_P",n:"Positional Anticipation",v:0,w:"30%",ok:false}
+];
+const SII = [
+  {c:"SII_A",n:"Explosive Accel",v:0,w:"40%",ok:false},
+  {c:"SII_T",n:"Top-End Speed",v:0,w:"35%",ok:false},
+  {c:"SII_R",n:"Recovery Sprint",v:0,w:"25%",ok:false}
+];
+
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
+const pct=v=>Math.round(v*10);
+function safe(id){return document.getElementById(id)}
+function renderSubM(el,arr){if(!el)return;el.innerHTML=arr.map(m=>{
+  const col=m.ok?sc(m.v):'#2a3850';
+  const flag=m.ok?'<span class="mflag f-ok">✅</span>':'<span class="mflag f-p">PEND</span>';
+  return`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${col}"></div></div><span class="comp-val" style="color:${col}">—</span><span class="comp-wt">${m.w}</span>${flag}</div>`;
+}).join('')}
+
+function init(){
+  // T1 render
+  const t1=safe('t1-metrics');
+  if(t1){
+    let hl='<div class="t1-highlight">';
+    T1_HIGHLIGHTS.forEach(m=>{
+      hl+=`<div class="t1-hl${m.gold?' gold':''}">
+        <div class="t1-hl-code">${m.code}</div>
+        <div class="t1-hl-val">${m.val}</div>
+        <div class="t1-hl-pct">${m.pctLabel}</div>
+        <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${m.bar}%"></div></div>
+        <span class="t1-source">${m.src}</span>
+      </div>`;
+    });
+    hl+='</div>';
+
+    const grpOrder=[['season','📊 2025-26 Season (Vizela)'],['career','📈 Career Totals'],['physical','⚡ Physical Profile']];
+    grpOrder.forEach(([key,label])=>{
+      hl+=`<div class="t1-group"><div class="t1-group-head">${label}</div>`;
+      T1_STATS[key].forEach(m=>{
+        const col=sc(m.raw);
+        hl+=`<div class="t1-row">
+          <span class="t1-code" style="color:${m.raw>=7?'var(--accentL)':'var(--muted)'}">${m.c}</span>
+          <span class="t1-desc">${m.d}</span>
+          <div class="t1-bar-bg"><div class="t1-bar-fill" style="width:${pct(m.raw)}%;background:${col}"></div></div>
+          <span class="t1-val" style="color:${col}">${m.v}</span>
+          <span class="t1-ctx">${m.ctx}</span>
+        </div>`;
+      });
+      hl+='</div>';
+    });
+    t1.innerHTML=hl;
+  }
+
+  // T3 placeholder
+  renderSubM(safe('obi-subs'),OBI);
+  renderSubM(safe('sii-subs'),SII);
+
+  const vc=safe('vc-mini');
+  if(vc){
+    const allm=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM'];
+    vc.innerHTML=allm.map(m=>`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem">
+      <span style="width:6px;height:6px;border-radius:50%;background:#2a3850;display:inline-block;flex-shrink:0"></span>
+      <span style="color:var(--muted);width:44px;font-family:'Rajdhani',sans-serif;font-weight:700">${m}</span>
+      <span class="mflag f-p">PEND</span>
+    </div>`).join('');
+  }
+
+  const rEl=safe('t3-rest-grid');
+  if(rEl){
+    const metrics=['DMA','CHR','MCS','SOA','SPI','CLM','CRS','OMS','DYN','CRK'];
+    rEl.innerHTML=metrics.map(m=>`<div class="mrow"><span class="mcode">${m}</span><span class="mname">${m}</span><div class="mbar-bg"><div class="mbar-fill" style="width:0%"></div></div><span class="mval">—</span><span class="mflag f-p">PEND</span></div>`).join('');
+  }
+
+  // ── CHARTS ──
+  const DFT={
+    scales:{r:{min:0,max:10,grid:{color:'rgba(0,140,255,.06)'},angleLines:{color:'rgba(0,140,255,.06)'},
+      ticks:{stepSize:2,color:'#2a3850',backdropColor:'transparent',font:{size:9}},
+      pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},
+    plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},
+      tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,103,197,.3)',borderWidth:1,titleColor:'#4db8ff',bodyColor:'#f0f6fc'}},
+    responsive:true,maintainAspectRatio:false
+  };
+
+  const dc=safe('fgaDial');
+  if(dc){
+    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');
+    dctx.clearRect(0,0,120,120);
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
+    dctx.strokeStyle='rgba(0,140,255,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI);
+    dctx.strokeStyle='#2a3850';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    safe('fgaNum').textContent='?';
+  }
+
+  const lc=safe('logRing');
+  if(lc){
+    const lctx=lc.getContext('2d');lctx.clearRect(0,0,60,60);
+    lctx.beginPath();lctx.arc(30,30,22,0,2*Math.PI);lctx.strokeStyle='rgba(0,140,255,.06)';lctx.lineWidth=6;lctx.stroke();
+    lctx.beginPath();lctx.arc(30,30,22,-Math.PI/2,(-Math.PI/2)+(3.0/6.5)*2*Math.PI);
+    lctx.strokeStyle='#2a3850';lctx.lineWidth=6;lctx.lineCap='round';lctx.stroke();
+  }
+
+  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20%','Tier 2 · 30%','Tier 3 · 50%'],datasets:[{data:[20,30,50],backgroundColor:['rgba(0,103,197,.3)','rgba(34,168,90,.2)','rgba(240,184,32,.2)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},
+        tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,103,197,.3)',borderWidth:1}}}});
+
+  new Chart(safe('ovRadar'),{type:'radar',data:{labels:['OBI','SII','DMA','SOA','CLM','CRS'],datasets:[{data:[0,0,0,0,0,0],borderColor:'#2a3850',backgroundColor:'rgba(42,56,80,.1)',borderWidth:2}]},options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  new Chart(safe('attrRadar'),{type:'radar',data:{labels:['Physical','Technical','Mental','Pace','Strength','Agility'],datasets:[{data:[0,0,0,0,0,0],borderColor:'#2a3850',backgroundColor:'rgba(42,56,80,.1)'}]},options:{...DFT,maintainAspectRatio:false}});
+
+  new Chart(safe('philRadar'),{type:'radar',data:{labels:['French','Portuguese','Dutch','Spanish','German','Italian'],datasets:[{data:[0,0,0,0,0,0],borderColor:'#2a3850',backgroundColor:'rgba(42,56,80,.1)'}]},options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  new Chart(safe('goalsChart'),{type:'bar',
+    data:{labels:['Sochaux 1','Le Havre','Sochaux 2','Le Havre 2','Almere','Vizela'],
+      datasets:[{label:'Goals per club',data:[5,5,7,5,2,1],
+        backgroundColor:['#2a3850','#2a3850','#2a3850','#2a3850','#2a3850','#2a3850'],borderRadius:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:8}}},
+        y:{min:0,max:10,grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,103,197,.3)',borderWidth:1}}}});
+
+  new Chart(safe('eventChart'),{type:'bar',
+    data:{labels:['OBI','SII','DMA','SOA','CLM','CRS'],
+      datasets:[{label:'Events logged',data:[0,0,0,0,0,0],
+        backgroundColor:['#2a3850','#2a3850','#2a3850','#2a3850','#2a3850','#2a3850'],borderRadius:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:8}}},
+        y:{min:0,max:5,grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,103,197,.3)',borderWidth:1}}}});
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
