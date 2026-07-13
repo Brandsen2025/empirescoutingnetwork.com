@@ -1,0 +1,49 @@
+name: Update player directory
+
+# Runs automatically whenever HTML files change on main (e.g. you add a new
+# profile page), and rebuilds players.html, sitemap.xml, and platform.html's
+# profile-existence list to match what's actually in the repo. If nothing
+# changed, it commits nothing.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-directory-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Rebuild player directory, sitemap, and platform link list
+        run: python3 scripts/build_directory.py
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "esn-directory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to commit."
+          else
+            git add players.html sitemap.xml platform.html
+            git commit -m "Auto-update player directory, sitemap, and platform link list"
+            git push
+          fi
