@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giuliano Cerato — Empire FGA Intelligence Card v4.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
+    </script>
+    <style>
+        :root {
+            --bg: #05080f;
+            --bg2: #090d18;
+            --card: #0f1525;
+            --card2: #131b2e;
+            --border: rgba(255, 255, 255, .07);
+            --border2: rgba(212, 168, 67, .2);
+            --red: #c8102e;
+            --gold: #d4a843;
+            --gold3: #8a6820;
+            --teal: #00afc8;
+            --green: #22a85a;
+            --amber: #e07820;
+            --muted: #6a7a94;
+            --lite: #b8c8de;
+            --white: #e8f0fa;
+            --accent: #7c3aed;
+            --accentL: #a78bfa;
+            --accentFade: rgba(124, 58, 237, .12);
+            --attr-elite: #1a7a3a;
+            --attr-great: #2ecc71;
+            --attr-good: #98d44a;
+            --attr-avg: #d4a843;
+            --attr-below: #e07820;
+            --attr-weak: #c8102e;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+        html {
+            scroll-behavior: smooth
+        }
+        body {
+            background: var(--bg);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--white);
+            overflow-x: hidden;
+            min-height: 100vh
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: .025;
+            pointer-events: none;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")
+        }
+        .hero {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 280px 1fr 240px;
+            min-height: 240px;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(124, 58, 237, .35);
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(135deg, rgba(124, 58, 237, .12) 0%, transparent 50%, rgba(212, 168, 67, .06) 100%);
+        }
+        .hero-photo {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0c1525 0%, #05080f 100%);
+        }
+        .hero-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            filter: contrast(1.1) saturate(1.08);
+            mask-image: linear-gradient(to right, #000 70%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, #000 70%, transparent 100%);
+        }
+        .hero-num {
+            position: absolute;
+            bottom: -10px;
+            left: -6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 9rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .04);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+        .hero-flag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 1.4rem;
+        }
+        .club-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .62rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            padding: 3px 9px;
+            border-radius: 2px;
+            background: rgba(124, 58, 237, .9);
+            color: #fff;
+            text-transform: uppercase;
+            backdrop-filter: blur(4px);
+        }
+        .hero-info {
+            position: relative;
+            z-index: 2;
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(90deg, transparent 0%, rgba(9, 13, 24, .8) 20%, rgba(9, 13, 24, .95) 100%);
+        }
+        .hero-archetype {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--accentL);
+            margin-bottom: 4px;
+        }
+        .hero-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 3.4rem;
+            font-weight: 700;
+            line-height: .95;
+            text-transform: uppercase;
+            color: var(--white);
+        }
+        .hero-name em {
+            color: var(--gold);
+            font-style: normal
+        }
+        .hero-pos-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+        .pos-badge {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            padding: 3px 10px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+        .pos-primary {
+            background: var(--accent);
+            color: #fff
+        }
+        .pos-sec {
+            background: rgba(124, 58, 237, .2);
+            color: var(--accentL);
+            border: 1px solid rgba(124, 58, 237, .4)
+        }
+        .pos-league {
+            background: rgba(212, 168, 67, .1);
+            color: var(--gold);
+            border: 1px solid rgba(212, 168, 67, .25)
+        }
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(5, auto);
+            gap: 20px;
+            margin-top: 16px;
+        }
+        .hmi-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1
+        }
+        .hmi-lbl {
+            font-size: .68rem;
+            color: var(--muted);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            margin-top: 2px
+        }
+        .hero-bottom-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: auto;
+            padding-top: 12px
+        }
+        .htag {
+            font-size: .65rem;
+            font-weight: 600;
+            letter-spacing: .06em;
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+        .htag-ok {
+            background: rgba(34, 168, 90, .15);
+            color: var(--green);
+            border: 1px solid rgba(34, 168, 90, .25)
+        }
+        .htag-warn {
+            background: rgba(224, 120, 32, .12);
+            color: var(--amber);
+            border: 1px solid rgba(224, 120, 32, .25)
+        }
+        .htag-crit {
+            background: rgba(200, 16, 46, .12);
+            color: var(--red);
+            border: 1px solid rgba(200, 16, 46, .25)
+        }
+        .htag-info {
+            background: var(--accentFade);
+            color: var(--accentL);
+            border: 1px solid rgba(124, 58, 237, .3)
+        }
+        .hero-fga {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            background: rgba(9, 13, 24, .96);
+            border-left: 1px solid rgba(124, 58, 237, .25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            gap: 12px;
+        }
+        .fga-medallion {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+        .fga-medallion canvas {
+            width: 120px!important;
+            height: 120px!important
+        }
+        .fga-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .fga-score-num {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--red);
+        }
+        .fga-score-lbl {
+            font-size: .6rem;
+            letter-spacing: .1em;
+            color: var(--muted);
+            text-transform: uppercase
+        }
+        .fga-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--muted)
+        }
+        .fga-tier-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%
+        }
+        .fga-tier-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .68rem;
+            padding: 4px 8px;
+            border-radius: 2px;
+        }
+        .fga-tier-row .tw {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: .78rem;
+            margin-left: auto
+        }
+        .ftr1 {
+            background: rgba(0, 175, 200, .08);
+            border: 1px solid rgba(0, 175, 200, .15)
+        }
+        .ftr2 {
+            background: rgba(34, 168, 90, .08);
+            border: 1px solid rgba(34, 168, 90, .15)
+        }
+        .ftr3 {
+            background: var(--accentFade);
+            border: 1px solid rgba(124, 58, 237, .2)
+        }
+        .hero-ca {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(200, 16, 46, .08);
+            border: 1px solid rgba(200, 16, 46, .3);
+            border-radius: 2px;
+            width: 100%;
+        }
+        .ca-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--red)
+        }
+        .ca-info {
+            font-size: .62rem;
+            color: var(--muted);
+            letter-spacing: .04em;
+            line-height: 1.3
+        }
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 15, .97);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 0;
+        }
+        .logo-bar {
+            padding-right: 24px;
+            border-right: 1px solid var(--border);
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .logo-bar img {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+        }
+        .tab-btn {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            padding: 14px 16px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            color: var(--lite)
+        }
+        .tab-btn.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold)
+        }
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+        .status-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .68rem;
+            letter-spacing: .06em;
+            color: var(--muted);
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%
+        }
+        .tab-panel {
+            display: none;
+            animation: fadeIn .25s ease
+        }
+        .tab-panel.active {
+            display: block
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px)
+            }
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+        .page-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 20px
+        }
+        .c {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .c-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .c-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0
+        }
+        .c-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        .c-sub {
+            font-size: .68rem;
+            color: var(--muted);
+            margin-left: auto
+        }
+        .c-body {
+            padding: 14px
+        }
+        .g3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px
+        }
+        .g2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+        .stat-hero-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 14px
+        }
+        .sh-box {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 12px 10px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .sh-box::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+        .sh-purple::before {
+            background: var(--accent)
+        }
+        .sh-gold::before {
+            background: var(--gold)
+        }
+        .sh-teal::before {
+            background: var(--teal)
+        }
+        .sh-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--white)
+        }
+        .sh-lbl {
+            font-size: .63rem;
+            letter-spacing: .08em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-top: 3px
+        }
+        .sh-delta {
+            font-size: .65rem;
+            margin-top: 2px
+        }
+        .dpos {
+            color: var(--green)
+        }
+        .dneg {
+            color: var(--red)
+        }
+        .dneu {
+            color: var(--muted)
+        }
+        .attr-section-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 6px 0;
+            margin-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .attr-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .025);
+        }
+        .attr-row:last-child {
+            border-bottom: none
+        }
+        .attr-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .85rem;
+            font-weight: 700;
+            color: #fff;
+            transition: transform .15s;
+        }
+        .attr-circle:hover {
+            transform: scale(1.15)
+        }
+        .attr-name {
+            flex: 1;
+            font-size: .78rem;
+            color: var(--lite)
+        }
+        .attr-bar-bg {
+            width: 80px;
+            height: 5px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 99px;
+            overflow: hidden
+        }
+        .attr-bar-fill {
+            height: 100%;
+            border-radius: 99px
+        }
+        .attr-val-lbl {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .8rem;
+            font-weight: 700;
+            width: 30px;
+            text-align: right
+        }
+        .ac-elite {
+            background: #1a7a3a
+        }
+        .ac-great {
+            background: #1e8a4a
+        }
+        .ac-good {
+            background: #5a9e20
+        }
+        .ac-avg {
+            background: #a88010
+        }
+        .ac-below {
+            background: #b05a10
+        }
+        .ac-weak {
+            background: #8a1020
+        }
+        .ac-pend {
+            background: #2a3045
+        }
+        .mrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .03)
+        }
+        .mrow:last-child {
+            border-bottom: none
+        }
+        .mcode {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--muted);
+            width: 52px;
+            flex-shrink: 0
+        }
+        .mname {
+            font-size: .76rem;
+            flex: 1;
+            color: var(--lite)
+        }
+        .mbar-bg {
+            width: 90px;
+            height: 5px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 99px;
+            overflow: hidden;
+            flex-shrink: 0
+        }
+        .mbar-fill {
+            height: 100%;
+            border-radius: 99px
+        }
+        .mval {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            width: 32px;
+            text-align: right
+        }
+        .mflag {
+            font-size: .6rem;
+            padding: 1px 5px;
+            border-radius: 2px;
+            min-width: 32px;
+            text-align: center;
+            flex-shrink: 0
+        }
+        .f-ok {
+            background: rgba(34, 168, 90, .15);
+            color: var(--green)
+        }
+        .f-w {
+            background: rgba(224, 120, 32, .15);
+            color: var(--amber)
+        }
+        .f-p {
+            background: rgba(200, 16, 46, .12);
+            color: var(--red)
+        }
+        .composite-block {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 10px 12px;
+            margin-bottom: 8px
+        }
+        .cb-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 8px
+        }
+        .cb-code {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold)
+        }
+        .cb-name {
+            font-size: .78rem;
+            color: var(--muted)
+        }
+        .cb-score {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-left: auto
+        }
+        .cb-formula {
+            font-size: .65rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: .04em
+        }
+        .comp-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .03)
+        }
+        .comp-row:last-child {
+            border-bottom: none
+        }
+        .comp-lbl {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .78rem;
+            font-weight: 700;
+            width: 42px;
+            flex-shrink: 0;
+            color: var(--lite)
+        }
+        .comp-desc {
+            font-size: .72rem;
+            color: var(--muted);
+            flex: 1
+        }
+        .comp-bar-bg {
+            width: 100px;
+            height: 7px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 99px;
+            overflow: hidden;
+            flex-shrink: 0
+        }
+        .comp-bar-fill {
+            height: 100%;
+            border-radius: 99px
+        }
+        .comp-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .95rem;
+            font-weight: 700;
+            width: 34px;
+            text-align: right
+        }
+        .comp-wt {
+            font-size: .62rem;
+            color: var(--muted);
+            width: 28px;
+            text-align: right
+        }
+        .log-ring {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            margin-bottom: 8px
+        }
+        .log-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1
+        }
+        .log-lbl {
+            font-size: .65rem;
+            color: var(--muted);
+            letter-spacing: .08em;
+            text-transform: uppercase
+        }
+        .log-badge {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 2px;
+            background: rgba(212, 168, 67, .15);
+            color: var(--gold);
+            border: 1px solid var(--border2);
+        }
+        .form-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center
+        }
+        .fd {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .65rem;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif
+        }
+        .fd-w {
+            background: var(--green);
+            color: #fff
+        }
+        .fd-d {
+            background: var(--amber);
+            color: #fff
+        }
+        .fd-l {
+            background: var(--red);
+            color: #fff
+        }
+        .phil-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .03)
+        }
+        .phil-item:last-child {
+            border-bottom: none
+        }
+        .phi-rank {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: .9rem;
+            color: var(--gold3);
+            width: 18px;
+            text-align: center
+        }
+        .phi-name {
+            font-size: .78rem;
+            flex: 1;
+            color: var(--lite)
+        }
+        .phi-school {
+            font-size: .62rem;
+            color: var(--muted)
+        }
+        .phi-bar-bg {
+            width: 70px;
+            height: 5px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 99px;
+            overflow: hidden
+        }
+        .phi-bar-fill {
+            height: 100%;
+            border-radius: 99px
+        }
+        .phi-score {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            width: 28px;
+            text-align: right
+        }
+        .career-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .78rem
+        }
+        .career-table th {
+            padding: 7px 10px;
+            background: rgba(212, 168, 67, .08);
+            color: var(--gold);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            font-size: .7rem;
+            border-bottom: 1px solid var(--border2)
+        }
+        .career-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+            color: var(--lite)
+        }
+        .career-table .hl td {
+            background: var(--accentFade);
+            color: var(--white);
+            font-weight: 600
+        }
+        .career-table tr:hover td {
+            background: rgba(255, 255, 255, .02)
+        }
+        .tl-wrap {
+            position: relative;
+            padding-left: 20px
+        }
+        .tl-wrap::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accentL), var(--gold))
+        }
+        .tl-item {
+            position: relative;
+            margin-bottom: 16px
+        }
+        .tl-dot {
+            position: absolute;
+            left: -17px;
+            top: 4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 2px solid var(--bg);
+            z-index: 1
+        }
+        .tl-date {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            color: var(--gold);
+            text-transform: uppercase
+        }
+        .tl-text {
+            font-size: .78rem;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-top: 3px
+        }
+        .tl-text strong {
+            color: var(--lite)
+        }
+        .pitch-svg {
+            width: 100%;
+            max-width: 160px;
+            height: auto;
+            display: block;
+            margin: 0 auto
+        }
+        .ti-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .04)
+        }
+        .ti-row:last-child {
+            border-bottom: none
+        }
+        .ti-lbl {
+            font-size: .75rem;
+            color: var(--muted)
+        }
+        .ti-val {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--white)
+        }
+        .scout-para {
+            font-size: .8rem;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 10px
+        }
+        .scout-para strong {
+            color: var(--lite)
+        }
+        .verdict-box {
+            padding: 12px;
+            border-radius: 2px;
+            margin-top: 8px;
+            background: var(--accentFade);
+            border: 1px solid rgba(124, 58, 237, .3);
+        }
+        .verdict-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            color: var(--accentL);
+            text-transform: uppercase;
+            margin-bottom: 4px
+        }
+        .verdict-text {
+            font-size: .8rem;
+            color: var(--lite);
+            line-height: 1.6
+        }
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 0
+        }
+        .section-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px
+        }
+        .ov-grid {
+            display: grid;
+            grid-template-columns: 160px 1fr 200px;
+            gap: 14px;
+            margin-bottom: 14px
+        }
+        .psych-box {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 12px;
+            margin-bottom: 8px
+        }
+        .psych-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px
+        }
+        .trait-pill {
+            display: inline-block;
+            margin: 3px;
+            padding: 3px 9px;
+            border-radius: 2px;
+            font-size: .68rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+            background: rgba(212, 168, 67, .1);
+            color: var(--gold);
+            border: 1px solid rgba(212, 168, 67, .2)
+        }
+        .disclaimer-box {
+            background: rgba(200, 16, 46, .04);
+            border: 1px solid rgba(200, 16, 46, .15);
+            border-radius: 2px;
+            padding: 8px 12px;
+            font-size: .68rem;
+            color: var(--muted);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+        .disclaimer-box strong {
+            color: var(--red)
+        }
+        .source-note {
+            font-size: .62rem;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 4px;
+        }
+        .match-card {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .match-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(124, 58, 237, .06);
+        }
+        .match-card-header .mch-opp {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        .match-card-header .mch-comp {
+            font-size: .62rem;
+            color: var(--muted);
+            margin-left: auto;
+        }
+        .match-card video {
+            width: 100%;
+            display: block;
+            background: #000;
+            max-height: 240px;
+        }
+        .match-card-footer {
+            padding: 6px 12px;
+            font-size: .65rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .match-card-footer a {
+            color: var(--accentL);
+            text-decoration: none;
+        }
+        .match-card-footer a:hover {
+            text-decoration: underline;
+        }
+        .video-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 180px;
+            background: #000;
+            color: var(--muted);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .78rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        @media(max-width:1100px) {
+            .hero {
+                grid-template-columns: 200px 1fr 200px
+            }
+            .g3 {
+                grid-template-columns: 1fr 1fr
+            }
+            .ov-grid {
+                grid-template-columns: 1fr 1fr 1fr
+            }
+        }
+        @media(max-width:780px) {
+            .hero {
+                grid-template-columns: 1fr;
+                grid-template-rows: 280px auto auto
+            }
+            .hero-fga {
+                flex-direction: row;
+                justify-content: space-around
+            }
+            .g3,
+            .ov-grid,
+            .g2 {
+                grid-template-columns: 1fr
+            }
+            .stat-hero-row {
+                grid-template-columns: repeat(3, 1fr)
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+        <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+        <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+        <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+        <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+        <button class="tab-btn" onclick="switchTab('career')">Career</button>
+        <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+        <button class="tab-btn" onclick="switchTab('highlights')" style="color:var(--accentL)">▶ Highlights</button>
+        <button class="tab-btn" onclick="switchTab('links')">🔗 Links</button>
+        <div class="topbar-right">
+            <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>T3 Partial · 1/12 ⚠️</span>
+            <span class="status-dot"><span class="dot" style="background:var(--green)"></span>T1 ✅ T2 ✅</span>
+            <span class="status-dot"><span class="dot" style="background:var(--accentL)"></span>27yr · Instituto ACC</span>
+            <span style="font-family:'Rajdhani',sans-serif;font-size:.75rem;color:var(--muted);letter-spacing:.06em">May 2026</span>
+        </div>
+    </div>
+
+    <!-- ═══ HERO ═══ -->
+    <div class="hero">
+        <div class="hero-photo">
+            <img src="https://sortitoutsi.b-cdn.net/uploads/face/face_14186533.png" alt="Giuliano Cerato" onerror="this.style.background='#0a1020'">
+            <div class="hero-flag">🇦🇷</div>
+            <div class="club-badge">Instituto ACC · #44</div>
+            <div class="hero-num">44</div>
+        </div>
+        <div class="hero-info">
+            <div>
+                <div class="hero-archetype">Right-Back · Attacking Fullback · Clutch Performer · Promoted with Instituto 2022</div>
+                <div class="hero-name"><em>Giuliano</em><br>Cerato</div>
+                <div class="hero-pos-row">
+                    <span class="pos-badge pos-primary">RB</span>
+                    <span class="pos-badge pos-sec">RWB</span>
+                    <span class="pos-badge pos-sec">RM</span>
+                    <span class="pos-badge pos-league">Liga Profesional ARG</span>
+                    <span class="pos-badge pos-league">2025–26</span>
+                </div>
+            </div>
+            <div class="hero-meta">
+                <div><div class="hmi-val">27</div><div class="hmi-lbl">Age</div></div>
+                <div><div class="hmi-val">1.70m</div><div class="hmi-lbl">Height</div></div>
+                <div><div class="hmi-val">Arg / Ita</div><div class="hmi-lbl">Nationality</div></div>
+                <div><div class="hmi-val">€865K</div><div class="hmi-lbl">Market Val.¹</div></div>
+                <div><div class="hmi-val">LPF</div><div class="hmi-lbl">Arg. 1st Div</div></div>
+            </div>
+            <div class="hero-bottom-tags">
+                <span class="htag htag-info">Instituto ACC · #44 · Until 2027</span>
+                <span class="htag htag-ok">Def. Contributions · 84th pctile (Fotmob)</span>
+                <span class="htag htag-warn">CRS 8.7 ⚠️ PARTIAL (1 event)</span>
+                <span class="htag htag-crit">11/12 T3 metrics PENDING</span>
+            </div>
+        </div>
+        <div class="hero-fga">
+            <div class="fga-label">FGA v3 Score</div>
+            <div class="fga-medallion">
+                <canvas id="fgaDial"></canvas>
+                <div class="fga-center">
+                    <div class="fga-score-num">—</div>
+                    <div class="fga-score-lbl">NO RATING</div>
+                </div>
+            </div>
+            <div class="fga-tier-pills">
+                <div class="fga-tier-row ftr1"><span style="color:var(--teal)">Tier 1</span><span style="color:var(--muted)">Data</span><span class="tw" style="color:var(--green)">6.5</span></div>
+                <div class="fga-tier-row ftr2"><span style="color:var(--green)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">~7.0¹</span></div>
+                <div class="fga-tier-row ftr3"><span style="color:var(--accentL)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--amber)">1/12 ⚠️</span></div>
+            </div>
+            <div class="hero-ca">
+                <div class="ca-val">⚠️ NO OVERALL RATING</div>
+                <div class="ca-info">Tier 3 incomplete — 50% of FGA missing. Do not use for transfer decisions.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrap">
+
+        <!-- ═══ OVERVIEW ═══ -->
+        <div id="tab-overview" class="tab-panel active">
+            <div style="background:rgba(200,16,46,.08);border:1px solid rgba(200,16,46,.25);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+                <span style="color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem">⚠️ NO OVERALL FGA RATING AVAILABLE</span>
+                <span style="font-size:.76rem;color:var(--muted);flex:1">Tier 3 is 50% of the FGA score. With only <strong style="color:var(--amber)">1/12 metrics partially validated</strong> (CRS 8.7, single event), the system cannot compute a final rating. The numbers below are <strong>Tier averages only, not an FGA score</strong>. This card is not ready for client demos or transfer recommendations.</span>
+            </div>
+            <div class="stat-hero-row">
+                <div class="sh-box sh-purple"><div class="sh-val">6.5</div><div class="sh-lbl">Tier 1 Avg (20% wgt)</div><div class="sh-delta dpos">↑ FBref · Sofascore</div></div>
+                <div class="sh-box sh-gold"><div class="sh-val">~7.0</div><div class="sh-lbl">Tier 2 Avg (30% wgt)</div><div class="sh-delta dneu">→ Estimated from T1¹</div></div>
+                <div class="sh-box sh-teal"><div class="sh-val">—</div><div class="sh-lbl">Tier 3 Avg (50% wgt)</div><div class="sh-delta dneg">❌ Only 1/12 partial</div></div>
+                <div class="sh-box sh-purple"><div class="sh-val">27</div><div class="sh-lbl">Age</div><div class="sh-delta dneu">Senior cohort</div></div>
+                <div class="sh-box sh-gold"><div class="sh-val">3.0</div><div class="sh-lbl">LOG Context</div><div class="sh-delta dpos">↑ Liga Profesional ARG</div></div>
+                <div class="sh-box sh-teal"><div class="sh-val">1/12</div><div class="sh-lbl">T3 Scout Metrics</div><div class="sh-delta dneg">⚠️ CRS only</div></div>
+            </div>
+            <div class="ov-grid">
+                <div>
+                    <div class="c" style="margin-bottom:10px">
+                        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Position Map</div></div>
+                        <div class="c-body" style="padding:10px">
+                            <svg class="pitch-svg" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="100" height="150" rx="2" fill="#0a1a10"/>
+                                <rect x="5" y="5" width="90" height="140" rx="1" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".8"/>
+                                <line x1="5" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+                                <circle cx="50" cy="75" r="12" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+                                <rect x="30" y="5" width="40" height="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+                                <rect x="38" y="5" width="24" height="9" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+                                <rect x="30" y="127" width="40" height="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+                                <rect x="38" y="136" width="24" height="9" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".6"/>
+                                <circle cx="90" cy="50" r="7" fill="rgba(124,58,237,.9)" stroke="var(--gold)" stroke-width="1.5"/>
+                                <text x="90" y="53" text-anchor="middle" font-size="5" fill="white" font-family="Rajdhani" font-weight="700">RB</text>
+                                <circle cx="78" cy="60" r="4.5" fill="rgba(124,58,237,.3)" stroke="rgba(212,168,67,.4)" stroke-width=".8"/>
+                                <text x="78" y="63" text-anchor="middle" font-size="4" fill="white" font-family="Rajdhani" font-weight="600">RWB</text>
+                            </svg>
+                            <div style="text-align:center;margin-top:6px"><span style="font-family:'Rajdhani',sans-serif;font-size:.65rem;color:var(--muted);letter-spacing:.08em">RIGHT-BACK · ATTACKING FULLBACK</span></div>
+                        </div>
+                    </div>
+                    <div class="c">
+                        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Recent Form</div><div class="c-sub">Last 5 · Liga Profesional</div></div>
+                        <div class="c-body" style="padding:10px">
+                            <div class="form-dots" style="justify-content:center;margin-bottom:6px">
+                                <div class="fd fd-w">W</div><div class="fd fd-d">D</div><div class="fd fd-l">L</div><div class="fd fd-l">L</div><div class="fd fd-l">L</div>
+                            </div>
+                            <div style="font-size:.68rem;color:var(--muted);text-align:center">1W 1D 3L · Difficult run</div>
+                            <div class="divider"></div>
+                            <div style="font-size:.68rem;color:var(--muted)"><strong style="color:var(--lite)">Key stat (Fotmob):</strong> 84th percentile defensive contributions among fullbacks. 5 chances created, 5 successful crosses in 350 min (2026).</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Coach Summary</div><div class="c-sub">Data‑only — No scout obs.</div></div>
+                    <div class="c-body">
+                        <div class="attr-section-title">Technical (from stats)</div>
+                        <div id="coach-tech"></div>
+                        <div class="attr-section-title" style="margin-top:10px">Mental</div>
+                        <div id="coach-men"></div>
+                        <div class="attr-section-title" style="margin-top:10px">Physical</div>
+                        <div id="coach-phy"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="c" style="margin-bottom:10px">
+                        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Player Profile</div></div>
+                        <div class="c-body" style="font-size:.76rem">
+                            <div class="ti-row"><span class="ti-lbl">Full Name</span><span class="ti-val">Giuliano Cerato</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">Jun 10, 1998 · Río Cuarto, ARG</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val">🇦🇷 Argentina / 🇮🇹 Italy</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Height / Weight</span><span class="ti-val">1.70m / 65 kg</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Foot</span><span class="ti-val">Right</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--accentL)">Instituto ACC</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Joined / Contract</span><span class="ti-val">Jan 2022 · Until Dec 2027</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Squad Number</span><span class="ti-val">#44</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Market Value</span><span class="ti-val">€865K (Sofascore)</span></div>
+                            <div class="ti-row"><span class="ti-lbl">T3 Character</span><span class="ti-val" style="color:var(--red)">CHR Pending</span></div>
+                        </div>
+                        <div class="source-note">¹ Sources: Transfermarkt, Sofascore, Wikipedia, FBref, Fotmob. All data verified May 2026.</div>
+                    </div>
+                    <div class="c">
+                        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Traits (data‑only estimates)</div></div>
+                        <div class="c-body">
+                            <span class="trait-pill">Attacking Fullback</span>
+                            <span class="trait-pill">Crossing Specialist</span>
+                            <span class="trait-pill">High Shot Volume (P90)</span>
+                            <span class="trait-pill">Clutch Performer</span>
+                            <span class="trait-pill">Promotion Winner 2022</span>
+                            <span class="trait-pill">Italian Passport 🇪🇺</span>
+                            <div class="divider"></div>
+                            <div class="section-label">Assessment Gaps</div>
+                            <div style="font-size:.73rem;color:var(--muted);line-height:1.6">
+                                <strong style="color:var(--red)">CHR / DMA / MCS / SOA / SPI / CLM / OMS / SPR / DYN / CRK / COACH — all PENDING.</strong><br>Only CRS has 1 partial event (8.7). 11 metrics at zero.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="g3">
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits</div><div class="c-sub">60‑Frame (estimated)⁴</div></div>
+                    <div class="c-body" id="ov-phil"></div>
+                </div>
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">T3 Radar</div><div class="c-sub">1 partial · 11 pending</div></div>
+                    <div class="c-body"><canvas id="ovRadar" height="180"></canvas></div>
+                    <div class="disclaimer-box"><strong>⚠️ Data‑only radar.</strong> Grey area = pending. Orange = CRS partial (1 event).</div>
+                </div>
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Scouting Verdict</div></div>
+                    <div class="c-body">
+                        <div class="scout-para">Giuliano Cerato is a <strong>27-year-old Argentine/Italian right-back</strong> at Instituto ACC. His Fotmob data reveals an unusually attacking fullback — 90th percentile in shot attempts and 82nd percentile in goals among fullbacks, paired with 84th percentile defensive contributions[reference:0]. This is a two-way fullback with genuine end-product threat.</div>
+                        <div class="scout-para">CRS (Clutch Response) is partially validated at <strong>8.7</strong> from one observed event — a decisive defensive intervention in a high-stakes moment. This aligns with his statistical profile of above-average defensive contributions.</div>
+                        <div class="scout-para">He holds an <strong>Italian passport</strong>, making him EU-eligible — a significant advantage for European club recruitment. His contract runs to December 2027, giving Instituto strong negotiating position.</div>
+                        <div class="verdict-box">
+                            <div class="verdict-label">Empire FGA Verdict</div>
+                            <div class="verdict-text"><strong>Intriguing Statistical Profile — Scout Validation Required.</strong> The attacking output from right-back, defensive solidity, CRS partial score, and EU passport create a compelling data signal. <strong>Recommended action:</strong> Two-match scout observation to complete CRS, CHR, DMA, and COACH. Current market value €865K (Sofascore). Post-validation potential: €1.5M–€3M if metrics confirm. Full match footage in Links tab.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ ATTRIBUTES ═══ -->
+        <div id="tab-attributes" class="tab-panel">
+            <div style="background:rgba(200,16,46,.06);border:1px solid rgba(200,16,46,.2);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
+                ❌ <strong style="color:var(--red)">All mental and physical attributes are unvalidated.</strong> Technical estimates derived from Tier 1 stats only. CRS 8.7 is the sole scout‑observed metric (1 event, partial). Fotmob percentile data provides additional context but is not scout-validated.
+            </div>
+            <div class="g3">
+                <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical (estimated)</div></div><div class="c-body" id="attr-tech"></div></div>
+                <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental (1 partial)</div></div><div class="c-body" id="attr-men"></div></div>
+                <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Physical (All Pending)</div></div><div class="c-body" id="attr-phy"></div></div>
+            </div>
+            <div style="margin-top:14px">
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Attribute Radar</div><div class="c-sub">vs Liga Profesional avg fullback · Data‑only estimates</div></div>
+                    <div class="c-body" style="height:340px"><canvas id="attrRadar"></canvas></div>
+                    <div class="disclaimer-box"><strong>⚠️ Data‑only estimate.</strong> No scout‑validated attributes except CRS (1 event). All values are statistical proxies from Tier 1 data.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ FGA ANALYTICS ═══ -->
+        <div id="tab-fga" class="tab-panel">
+            <div class="g3" style="margin-bottom:14px">
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title" style="color:var(--teal)">Tier 1 – Data</div><div class="c-sub">20% weight · FBref/Sofascore</div></div>
+                    <div class="c-body" id="t1-metrics"></div>
+                </div>
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 – Composite</div><div class="c-sub">30% weight · Estimated from T1</div></div>
+                    <div class="c-body" id="t2-metrics"></div>
+                    <div class="disclaimer-box" style="margin:8px"><strong>⚠️ Tier 2 composites estimated from Tier 1 statistical data only.</strong> Actual values may differ significantly when T3 scout observations are available.</div>
+                </div>
+                <div>
+                    <div class="c" style="margin-bottom:10px">
+                        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Weighting Scheme</div><div class="c-sub">Not a score — T3 missing</div></div>
+                        <div class="c-body" style="height:180px"><canvas id="fgaDonut"></canvas></div>
+                    </div>
+                    <div class="c">
+                        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">LOG Context</div></div>
+                        <div class="c-body">
+                            <div class="log-ring"><canvas id="logRing" width="60" height="60"></canvas><div><div class="log-val">3.0</div><div class="log-lbl">LOG Score</div><div style="margin-top:4px"><span class="log-badge">Liga Profesional ARG</span></div></div></div>
+                            <div style="font-size:.72rem;color:var(--muted);line-height:1.7"><strong style="color:var(--lite)">LOG derivation:</strong> Competition Tier ~3.2 · Opposition Quality ~1.1 · Match Stakes ~1.0 → LOG ≈ 3.0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="c">
+                <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 3 – Scout Observation</div><div class="c-sub">⚠️ PARTIAL · 1/12 · CRS only</div></div>
+                <div class="c-body"><div class="g3" id="t3-rest-grid"></div>
+                    <div class="divider"></div>
+                    <div style="font-size:.76rem;color:var(--muted);line-height:1.7"><strong style="color:var(--amber)">CRS (Clutch Response): 8.7 ⚠️ PARTIAL</strong> — 1 event observed. Decisive defensive action in high-stakes moment. Needs 2+ additional events.<br><strong style="color:var(--red)">All other 11 metrics: PENDING.</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PHILOSOPHY DNA ═══ -->
+        <div id="tab-philosophy" class="tab-panel">
+            <div class="g2">
+                <div>
+                    <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top 10 Philosophy Fits</div><div class="c-sub">60‑Philosophy Framework · Data‑only</div></div><div class="c-body" id="phil-full"></div></div>
+                    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">School Averages</div></div><div class="c-body" id="school-avgs"></div></div>
+                </div>
+                <div>
+                    <div class="c" style="margin-bottom:14px;height:350px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar</div></div><div class="c-body" style="height:300px"><canvas id="philRadar"></canvas></div></div>
+                    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype</div></div><div class="c-body">
+                            <div class="scout-para">Stats and the CRS observation point to an <strong>attacking right-back</strong> who thrives in systems demanding overlapping runs and end-product from wide areas. High shot volume for his position suggests a fullback who enters the box — a fit for transitional and high-pressing systems. The Italian passport opens Serie A as a natural landing zone.</div>
+                            <div class="psych-box"><div class="psych-title">Tactical DNA Tags</div><span class="trait-pill">Attacking Fullback</span><span class="trait-pill">Overlapping Runs</span><span class="trait-pill">Crossing Threat</span><span class="trait-pill">EU Passport 🇪🇺</span></div>
+                        </div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ CAREER ═══ -->
+        <div id="tab-career" class="tab-panel">
+            <div style="background:rgba(34,168,90,.06);border:1px solid rgba(34,168,90,.15);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
+                ✅ <strong style="color:var(--green)">Career data verified against Wikipedia and Transfermarkt.</strong> Giuliano Cerato: born Jun 10, 1998 in Río Cuarto, Argentina. Youth at Vélez Sarsfield. 107+ career appearances, 12 goals. Promoted to Primera División with Instituto in 2022.
+            </div>
+            <div class="g2" style="margin-bottom:14px">
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div><div class="c-sub">Sources: Wikipedia · Transfermarkt</div></div>
+                    <div class="c-body">
+                        <div class="tl-wrap">
+                            <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">Jun 10, 1998 · Born in Río Cuarto, Argentina</div><div class="tl-text"><strong>Giuliano Cerato.</strong> Right‑footed defender. Height 1.70m, weight 65 kg. Also holds Italian citizenship.</div></div>
+                            <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Youth · Vélez Sarsfield</div><div class="tl-text"><strong>Formed at Vélez Sarsfield academy.</strong> Developed in one of Argentina's most respected youth systems before beginning his professional career.</div></div>
+                            <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-date">2019–2021 · UAI Urquiza (Primera B)</div><div class="tl-text"><strong>Professional debut.</strong> 61 appearances, 10 goals from right-back in Argentina's third division. Established as an attacking fullback with genuine goal threat.[reference:1]</div></div>
+                            <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">2022 · Instituto ACC (Primera B Nacional)</div><div class="tl-text"><strong>Signed Jan 2022.</strong> 30 appearances, 2 goals in the second division. <strong style="color:var(--gold)">Won promotion to Primera División</strong> — Instituto's return to the top flight.[reference:2]</div></div>
+                            <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">2023–Present · Instituto ACC (Primera División)</div><div class="tl-text"><strong>Top-flight regular.</strong> 16 appearances in 2023, 5 in 2024. Contract extended to Dec 2027. Loan to CA Aldosivi (2025). Currently back at Instituto for 2025–26 season. Subject of this Empire FGA assessment.[reference:3]</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="c" style="margin-bottom:14px">
+                        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">FGA Trajectory</div><div class="c-sub">T3‑dependent projection</div></div>
+                        <div class="c-body" style="height:180px"><canvas id="progressChart"></canvas></div>
+                    </div>
+                    <div class="c">
+                        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Honours & Key Data</div></div>
+                        <div class="c-body">
+                            <div class="psych-box">
+                                <div class="psych-title">🏆 Primera B Nacional Promotion</div>
+                                <div style="font-size:.78rem;color:var(--muted);line-height:1.6"><strong style="color:var(--gold)">Instituto ACC — 2022.</strong> Cerato was a key contributor (30 apps, 2 goals) in the campaign that returned Instituto to Argentina's top flight after years in the second division.[reference:4]</div>
+                            </div>
+                            <div class="psych-box">
+                                <div class="psych-title">🇪🇺 EU Passport</div>
+                                <div style="font-size:.78rem;color:var(--muted);line-height:1.6">Holds Italian citizenship through ancestry. This eliminates work-permit barriers for moves to Serie A, La Liga, Bundesliga, Ligue 1, and other EU leagues. A significant recruitment advantage over non-EU Argentine players.[reference:5]</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="c">
+                <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Statistics</div><div class="c-sub">Sources: Wikipedia · FBref · Transfermarkt</div></div>
+                <div class="c-body">
+                    <table class="career-table">
+                        <thead><tr><th>Club</th><th>Country</th><th>Season</th><th>Div</th><th>Apps</th><th>Goals</th></tr></thead>
+                        <tbody>
+                            <tr><td>UAI Urquiza</td><td>🇦🇷</td><td>2019–20</td><td>3ª</td><td>26</td><td>4</td></tr>
+                            <tr><td>UAI Urquiza</td><td>🇦🇷</td><td>2021</td><td>3ª</td><td>35</td><td>6</td></tr>
+                            <tr style="background:rgba(212,168,67,.04)"><td><strong>UAI Urquiza Tot.</strong></td><td></td><td></td><td></td><td><strong>61</strong></td><td><strong>10</strong></td></tr>
+                            <tr><td>Instituto ACC</td><td>🇦🇷</td><td>2022 🏆</td><td>2ª</td><td>30</td><td>2</td></tr>
+                            <tr><td>Instituto ACC</td><td>🇦🇷</td><td>2023</td><td>1ª</td><td>16</td><td>0</td></tr>
+                            <tr><td>Instituto ACC</td><td>🇦🇷</td><td>2024</td><td>1ª</td><td>5</td><td>0</td></tr>
+                            <tr class="hl"><td><strong>→ Aldosivi (loan)</strong></td><td><strong>🇦🇷</strong></td><td><strong>2025</strong></td><td><strong>1ª</strong></td><td><strong>—</strong></td><td><strong>—</strong></td></tr>
+                            <tr class="hl"><td><strong>Instituto ACC</strong></td><td><strong>🇦🇷</strong></td><td><strong>2025–26</strong></td><td><strong>1ª</strong></td><td><strong>4</strong></td><td><strong>0</strong></td></tr>
+                        </tbody>
+                    </table>
+                    <div style="font-size:.68rem;color:var(--muted);margin-top:6px">✅ Career totals (as of 2023): 107 apps, 12 goals across all clubs (Wikipedia). Current season: 4 apps, 350 min (Fotmob). 🏆 = Promotion winner (Instituto 2022).</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SCOUTING INTEL ═══ -->
+        <div id="tab-scouting" class="tab-panel">
+            <div class="g2">
+                <div>
+                    <div class="c" style="margin-bottom:14px">
+                        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Full Scouting Report</div><div class="c-sub">Data‑Led · CRS 8.7 Partial · May 2026</div></div>
+                        <div class="c-body">
+                            <div class="scout-para">Giuliano Cerato is a <strong>27-year-old Argentine/Italian right-back</strong> who has spent his entire professional career in Argentine football, rising from the third division (UAI Urquiza) to Primera División with Instituto ACC. His career arc from Primera B to the top flight mirrors Instituto's own journey — he was part of the 2022 promotion squad that returned the club to the first division.</div>
+                            <div class="scout-para"><strong>Statistical profile:</strong> Fotmob data places Cerato in the 90th percentile for shot attempts and 82nd percentile for goals among fullbacks — extraordinary attacking output for a defender. He also rates at 84th percentile for defensive contributions and 80th percentile for chances created. This is a <strong>genuine two-way fullback</strong> with end-product in both boxes.[reference:6]</div>
+                            <div class="scout-para">The single scout‑observed CRS event scored <strong>8.7/10</strong> — a decisive defensive action in a high-stakes moment. This aligns with his statistical profile of above-average defensive contributions but requires 2+ additional events for full validation.</div>
+                            <div class="scout-para"><strong>EU passport:</strong> Cerato holds Italian citizenship, making him immediately eligible for any EU league without work-permit restrictions. This is a significant commercial advantage and should be a core part of any transfer pitch.</div>
+                            <div class="verdict-box">
+                                <div class="verdict-label">Empire FGA Final Assessment</div>
+                                <div class="verdict-text"><strong>High-Potential Data Profile with EU Advantage — Scout Validation Required.</strong> The attacking output from right-back, defensive solidity, CRS partial score, promotion pedigree, and Italian passport create a compelling package. <strong>Recommended:</strong> Two‑match scout observation to complete CRS, CHR, DMA, and COACH. Current market value €865K (Sofascore). Post‑validation potential: €1.5M–€3M. Full match footage available in Links tab.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="c" style="margin-bottom:14px">
+                        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Transfer Intelligence</div></div>
+                        <div class="c-body">
+                            <div class="ti-row"><span class="ti-lbl">Market Value</span><span class="ti-val">€865K (Sofascore)²</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val">Until Dec 31, 2027</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Last Extension</span><span class="ti-val">Jan 20, 2026</span></div>
+                            <div class="ti-row"><span class="ti-lbl">EU Status</span><span class="ti-val" style="color:var(--green)">✅ EU Passport (Italy)</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Agent</span><span class="ti-val" style="color:var(--muted)">Not publicly listed</span></div>
+                            <div class="ti-row"><span class="ti-lbl">Scout Rec.</span><span class="ti-val" style="color:var(--amber)">Observation needed</span></div>
+                            <div class="source-note">² Source: Sofascore / Transfermarkt. Contract details verified.</div>
+                        </div>
+                    </div>
+                    <div class="c">
+                        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Comparison Radar</div><div class="c-sub">vs Liga Profesional fullback avg · Data‑only</div></div>
+                        <div class="c-body" style="height:260px"><canvas id="compRadar"></canvas></div>
+                        <div class="disclaimer-box" style="margin:8px"><strong>⚠️ Data‑only comparison.</strong> Values are statistical proxies from Tier 1. Scout‑validated attributes may differ.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ HIGHLIGHTS ═══ -->
+        <div id="tab-highlights" class="tab-panel">
+            <div style="background:var(--accentFade);border:1px solid rgba(124,58,237,.3);border-radius:2px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+                <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--accentL);text-transform:uppercase">▶ Video Highlights</span>
+                <span style="font-size:.75rem;color:var(--muted)">Giuliano Cerato · Instituto ACC · Season 2025–26 · Empire FGA Assessment</span>
+                <span style="margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(200,16,46,.12);color:var(--red);border:1px solid rgba(200,16,46,.25)">❌ No Clips</span>
+            </div>
+            <div class="c" style="margin-bottom:14px">
+                <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Highlight Reel</div><div class="c-sub">Not yet compiled</div></div>
+                <div class="c-body" style="padding:0">
+                    <div class="video-placeholder"><span>🎬 NO HIGHLIGHT CLIPS AVAILABLE FOR THIS PLAYER</span></div>
+                    <div style="padding:16px;text-align:center">
+                        <div style="font-size:.78rem;color:var(--muted);line-height:1.7;margin-bottom:12px">Highlight clips have not yet been compiled for Giuliano Cerato.<br><strong style="color:var(--lite)">To request clip compilation, submit match timestamps from the full matches in the Links tab.</strong></div>
+                        <button onclick="switchTab('links')" style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 20px;border:1px solid var(--accentL);background:var(--accentFade);color:var(--accentL);border-radius:2px;cursor:pointer">🔗 GO TO FULL MATCH LINKS →</button>
+                    </div>
+                </div>
+            </div>
+            <div class="g2">
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Key Event Markers</div><div class="c-sub">None logged</div></div>
+                    <div class="c-body">
+                        <div style="font-size:.78rem;color:var(--muted);line-height:2;padding:8px 0">
+                            <span style="color:#4a5568">⏱ — No timestamps logged</span><br>
+                            <span style="color:#4a5568">⏱ — No timestamps logged</span><br>
+                            <span style="color:#4a5568">⏱ — No timestamps logged</span><br>
+                            <span style="color:#4a5568">⏱ — No timestamps logged</span><br>
+                            <span style="color:#4a5568">⏱ — No timestamps logged</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="c">
+                    <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Assessment Notes</div><div class="c-sub">What to look for</div></div>
+                    <div class="c-body">
+                        <div style="margin-bottom:12px">
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accentL);margin-bottom:6px">Priority: CRS Confirmation</div>
+                            <div style="font-size:.78rem;color:var(--muted);line-height:1.6">CRS 8.7 needs 2+ confirmation events. Watch for decisive defensive actions in high-stakes moments — last-ditch tackles, goal-line clearances, game-saving interventions. Timestamp these for clip compilation.</div>
+                        </div>
+                        <div class="divider"></div>
+                        <div style="margin-bottom:12px">
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">SII — Sprint Events Needed</div>
+                            <div style="font-size:.78rem;color:var(--muted);line-height:1.6">No sprint data collected. Watch for acceleration bursts (SII_A), top‑speed runs (SII_T), and recovery sprints (SII_R) — essential for a fullback who operates in transition.</div>
+                        </div>
+                        <div class="divider"></div>
+                        <div>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:6px">⚠️ CHR — Body Language</div>
+                            <div style="font-size:.78rem;color:var(--muted);line-height:1.6">Zero character events. Observe responses after conceding goals, interactions with teammates, and leadership behaviors. The promotion pedigree suggests character — but needs direct observation.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ LINKS ═══ -->
+        <div id="tab-links" class="tab-panel">
+            <div style="background:rgba(0,175,200,.06);border:1px solid rgba(0,175,200,.15);border-radius:2px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+                <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--teal);text-transform:uppercase">🔗 Full Match Footage</span>
+                <span style="font-size:.75rem;color:var(--muted)">Instituto ACC · Liga Profesional 2025 · Four complete matches for scout observation</span>
+                <span style="margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(0,175,200,.1);color:var(--teal);border:1px solid rgba(0,175,200,.2)">4 MATCHES</span>
+            </div>
+            <div class="g2">
+                <div class="match-card">
+                    <div class="match-card-header"><span class="mch-opp">⚽ vs Boca Juniors</span><span class="mch-comp">Liga Profesional 2025</span></div>
+                    <video controls preload="none" style="width:100%;display:block;background:#000;max-height:280px"><source src="https://www.dropbox.com/scl/fi/t6k2ut9hh6k1drxgqa5j7/Club-Atl-tico-Boca-Juniors-Instituto-Atl-tico-Central-C-rdoba.mp4?rlkey=diua7b20cb0s33da3s4kgh0dh&raw=1" type="video/mp4"></video>
+                    <div class="match-card-footer"><span>📅 2025 Season</span><span style="margin-left:auto">🏟 Away · La Bombonera</span><a href="https://www.dropbox.com/scl/fi/t6k2ut9hh6k1drxgqa5j7/Club-Atl-tico-Boca-Juniors-Instituto-Atl-tico-Central-C-rdoba.mp4?rlkey=diua7b20cb0s33da3s4kgh0dh&raw=1" target="_blank">🔗 Open in new tab</a></div>
+                </div>
+                <div class="match-card">
+                    <div class="match-card-header"><span class="mch-opp">⚽ vs Independiente</span><span class="mch-comp">Liga Profesional 2025</span></div>
+                    <video controls preload="none" style="width:100%;display:block;background:#000;max-height:280px"><source src="https://www.dropbox.com/scl/fi/gukrpq90tt41nuzsfxym5/Instituto-Independiente.mp4?rlkey=rn62lhgas9co8gni4xexe776r&raw=1" type="video/mp4"></video>
+                    <div class="match-card-footer"><span>📅 2025 Season</span><span style="margin-left:auto">🏟 Home · Estadio Monumental</span><a href="https://www.dropbox.com/scl/fi/gukrpq90tt41nuzsfxym5/Instituto-Independiente.mp4?rlkey=rn62lhgas9co8gni4xexe776r&raw=1" target="_blank">🔗 Open in new tab</a></div>
+                </div>
+                <div class="match-card">
+                    <div class="match-card-header"><span class="mch-opp">⚽ vs Atlético Tucumán</span><span class="mch-comp">Liga Profesional 2025</span></div>
+                    <video controls preload="none" style="width:100%;display:block;background:#000;max-height:280px"><source src="https://www.dropbox.com/scl/fi/qnh5j769cca2kbb1i1sfd/Instituto-Atl-tico-Central-C-rdoba-Club-Atl-tico-Tucum-n.mp4?rlkey=54pvee5osspvoc0hndgn80ghr&raw=1" type="video/mp4"></video>
+                    <div class="match-card-footer"><span>📅 2025 Season</span><span style="margin-left:auto">🏟 Home · Instituto</span><a href="https://www.dropbox.com/scl/fi/qnh5j769cca2kbb1i1sfd/Instituto-Atl-tico-Central-C-rdoba-Club-Atl-tico-Tucum-n.mp4?rlkey=54pvee5osspvoc0hndgn80ghr&raw=1" target="_blank">🔗 Open in new tab</a></div>
+                </div>
+                <div class="match-card">
+                    <div class="match-card-header"><span class="mch-opp">⚽ vs Platense</span><span class="mch-comp">Liga Profesional 2025</span></div>
+                    <video controls preload="none" style="width:100%;display:block;background:#000;max-height:280px"><source src="https://www.dropbox.com/scl/fi/ss17wnp4pvecdjdqqfdzd/Platense-Instituto.mp4?rlkey=wo2w5n5t6nfr83bn9l6nz3kej&raw=1" type="video/mp4"></video>
+                    <div class="match-card-footer"><span>📅 2025 Season</span><span style="margin-left:auto">🏟 Away · Vicente López</span><a href="https://www.dropbox.com/scl/fi/ss17wnp4pvecdjdqqfdzd/Platense-Instituto.mp4?rlkey=wo2w5n5t6nfr83bn9l6nz3kej&raw=1" target="_blank">🔗 Open in new tab</a></div>
+                </div>
+            </div>
+            <div class="c" style="margin-top:14px">
+                <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Scout Observation Protocol — Cerato</div></div>
+                <div class="c-body">
+                    <div style="font-size:.76rem;color:var(--muted);line-height:1.8">
+                        <strong style="color:var(--lite)">These four matches provide a solid foundation for Tier 3 validation:</strong><br>
+                        • <strong style="color:var(--teal)">vs Boca Juniors (away):</strong> Elite opposition at La Bombonera — ideal for CRS, CHR, and MCS observation under maximum pressure<br>
+                        • <strong style="color:var(--teal)">vs Independiente (home):</strong> Traditional rival — good for assessing defensive contributions (84th percentile) and crossing output<br>
+                        • <strong style="color:var(--teal)">vs Atlético Tucumán (home):</strong> Balanced contest — ideal for general metric collection across all 12 Tier 3 categories<br>
+                        • <strong style="color:var(--teal)">vs Platense (away):</strong> Away fixture — tests character and defensive resilience<br><br>
+                        <strong style="color:var(--accentL)">Recommended approach for Cerato specifically:</strong> Prioritise CRS confirmation (defensive clutch moments), SII (sprint events — essential for fullback), and CHR (character — promotion pedigree suggests quality). The Italian passport makes this a priority assessment for European market readiness.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+    const T1 = [
+        { c:"Pass Cmp%", n:"Pass Completion", v:6.0, w:"12%" },
+        { c:"PrgP/90", n:"Progressive Passes", v:4.0, w:"12%" },
+        { c:"KP/90", n:"Key Passes", v:1.0, w:"12%" },
+        { c:"CrsPA/90", n:"Crosses into Box", v:0.9, w:"10%" },
+        { c:"Tkl+Int/90", n:"Tackles + Interceptions", v:2.8, w:"14%" },
+        { c:"Clr/90", n:"Clearances", v:2.8, w:"10%" },
+        { c:"Recov/90", n:"Recoveries", v:6.5, w:"12%" },
+        { c:"Drb/90", n:"Successful Dribbles", v:0.75, w:"8%" },
+        { c:"Def Contrib", n:"Def. Contrib. (pctile)", v:8.4, w:"10%" }
+    ];
+    const T2 = [
+        { c:"POI", n:"Position Intelligence", v:7.0, w:"20%" },
+        { c:"CPX", n:"Composure Index", v:6.8, w:"20%" },
+        { c:"MOB", n:"Mobility", v:7.2, w:"15%" },
+        { c:"GRI", n:"Ghost Run Index", v:6.8, w:"15%" },
+        { c:"AMS", n:"Anticipatory Movement", v:7.0, w:"15%" },
+        { c:"CPI", n:"Creative Player Index", v:7.2, w:"15%" }
+    ];
+    const TECH_ATTRS = [
+        { n:"Crossing (Fotmob)", v:7.5 },{ n:"Passing", v:7.0 },{ n:"Tackling", v:7.8 },
+        { n:"Interceptions", v:7.0 },{ n:"Ball Control", v:7.2 },{ n:"Long Pass", v:7.5 },
+        { n:"Heading", v:5.5 },{ n:"Set Pieces", v:6.0 }
+    ];
+    const MEN_ATTRS = [
+        { n:"Clutch Response (CRS⚠️)", v:8.7 },{ n:"Decisions (DMA 0evt)", v:0 },
+        { n:"Composure (CLM 0evt)", v:0 },{ n:"Character (CHR 0evt)", v:0 },
+        { n:"Mental Comp. (MCS 0evt)", v:0 },{ n:"Bravery (est.)", v:7.0 },
+        { n:"Work Rate (OMS 0evt)", v:0 },{ n:"Positioning (SPI 0evt)", v:0 }
+    ];
+    const PHY_ATTRS = [
+        { n:"Sprint (SPR 0evt)", v:0 },{ n:"Acceleration (est.)", v:7.8 },
+        { n:"Stamina (est.)", v:7.5 },{ n:"Agility (est.)", v:7.0 },
+        { n:"Balance (est.)", v:6.8 },{ n:"Strength (est.)", v:6.5 },
+        { n:"Jump Reach (est.)", v:5.5 }
+    ];
+    const PHIL = [
+        { r:1, n:"Herrera Catenaccio FB", s:"Italian School", v:8.8, col:"#2980b9" },
+        { r:2, n:"Sacchi High Pressing", s:"Italian School", v:8.5, col:"#3498db" },
+        { r:3, n:"Lippi Tactical Wing", s:"Italian School", v:8.3, col:"#e67e22" },
+        { r:4, n:"Klopp Heavy Metal FB", s:"German School", v:8.0, col:"#e07820" },
+        { r:5, n:"Flick Overlapping FB", s:"Modern Masters", v:7.8, col:"#6CABDD" },
+        { r:6, n:"Deschamps Wing-Back", s:"French School", v:7.5, col:"#27ae60" },
+        { r:7, n:"Conte 3-5-2 RWB", s:"Modern Masters", v:7.2, col:"#9b59b6" },
+        { r:8, n:"Bielsa Vertical FB", s:"South American", v:7.0, col:"#e67e22" },
+        { r:9, n:"Nagelsmann Raumdeuter FB", s:"Modern Masters", v:6.5, col:"#d4a843" },
+        { r:10, n:"Simeone Defensive Block", s:"South American", v:6.0, col:"#e67e22" }
+    ];
+    const SCHOOL_AVGS = [
+        { n:"Italian School", v:8.5 },{ n:"German School", v:8.0 },
+        { n:"Modern Masters", v:7.2 },{ n:"French School", v:7.5 },
+        { n:"South American", v:6.5 },{ n:"Dutch School", v:5.5 }
+    ];
+    const t3names = ['CHR','DMA','MCS','SOA','SPI','CLM','CRS','OMS','SPR','DYN','CRK','COACH'];
+    const t3labels = ['Character','Decision Making','Mental Comp.','Speed on Action','Spatial Perf.','Calmness','Clutch Response','Transition','Sprint Perf.','Dynamism','Creative Risk','Coachability'];
+    const t3values = [0,0,0,0,0,0,8.7,0,0,0,0,0];
+
+    function sc(v){return v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#4a5568';}
+    const pct=v=>Math.min(100,Math.round(v*10));
+    const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
+    const attrCircle=v=>`<div class="attr-circle ${ac(v)}" title="${v>0?v+'/10':'Pending'}">${v>0?Math.round(v*2):'?'}</div>`;
+
+    function renderAttrList(el,arr){el.innerHTML=arr.map(a=>{const col=a.v>0?sc(a.v):'#4a5568';return`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${a.v>0?pct(a.v):0}%;background:${col}"></div></div><span class="attr-val-lbl" style="color:${col}">${a.v>0?a.v:'—'}</span></div>`;}).join('');}
+    function renderPhilList(el,arr){el.innerHTML=arr.map(p=>`<div class="phil-item"><span class="phi-rank">${p.r}</span><div><div class="phi-name">${p.n}</div><div class="phi-school">${p.s}</div></div><div class="phi-bar-bg"><div class="phi-bar-fill" style="width:${pct(p.v)}%;background:${p.col}"></div></div><span class="phi-score" style="color:${p.col}">${p.v}</span></div>`).join('');}
+
+    function init(){
+        document.getElementById('t1-metrics').innerHTML=T1.map(m=>`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span class="comp-val" style="color:${sc(m.v)}">${m.v}</span><span class="comp-wt">${m.w||''}</span></div>`).join('');
+        document.getElementById('t2-metrics').innerHTML=T2.map(m=>`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span class="comp-val" style="color:${sc(m.v)}">${m.v}</span><span class="comp-wt">${m.w||''}</span></div>`).join('');
+        renderAttrList(document.getElementById('coach-tech'),TECH_ATTRS.slice(0,4));
+        renderAttrList(document.getElementById('coach-men'),MEN_ATTRS.slice(0,3));
+        renderAttrList(document.getElementById('coach-phy'),PHY_ATTRS.slice(0,3));
+        renderAttrList(document.getElementById('attr-tech'),TECH_ATTRS);
+        renderAttrList(document.getElementById('attr-men'),MEN_ATTRS);
+        renderAttrList(document.getElementById('attr-phy'),PHY_ATTRS);
+        renderPhilList(document.getElementById('ov-phil'),PHIL.slice(0,5));
+        renderPhilList(document.getElementById('phil-full'),PHIL);
+        const saEl=document.getElementById('school-avgs');
+        saEl.innerHTML=SCHOOL_AVGS.map(s=>`<div class="comp-row"><span style="font-size:.74rem;color:var(--lite);flex:1">${s.n}</span><div class="comp-bar-bg" style="width:120px"><div class="comp-bar-fill" style="width:${pct(s.v)}%;background:${sc(s.v)}"></div></div><span class="comp-val" style="color:${sc(s.v)}">${s.v}</span></div>`).join('');
+
+        const restEl=document.getElementById('t3-rest-grid');let html='';
+        for(let i=0;i<12;i+=4){html+='<div>';for(let j=i;j<Math.min(i+4,12);j++){const v=t3values[j];const cl=v>0?sc(v):'#4a5568';const fl=v>0?'<span class="mflag f-w">⚠️</span>':'<span class="mflag f-p">PEND</span>';html+=`<div class="mrow"><span class="mcode">${t3names[j]}</span><span class="mname">${t3labels[j]}</span><div class="mbar-bg"><div class="mbar-fill" style="width:${v>0?pct(v):0}%;background:${cl}"></div></div><span class="mval" style="color:${cl}">${v>0?v:'—'}</span>${fl}</div>`;}html+='</div>';}
+        restEl.innerHTML=html;
+
+        const dc=document.getElementById('fgaDial');dc.width=120;dc.height=120;
+        const dctx=dc.getContext('2d');dctx.clearRect(0,0,120,120);
+        dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);dctx.strokeStyle='rgba(255,255,255,.04)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+
+        const lc=document.getElementById('logRing');const lctx=lc.getContext('2d');
+        lctx.clearRect(0,0,60,60);lctx.beginPath();lctx.arc(30,30,22,0,2*Math.PI);lctx.strokeStyle='rgba(255,255,255,.06)';lctx.lineWidth=6;lctx.stroke();
+        lctx.beginPath();lctx.arc(30,30,22,-Math.PI/2,(-Math.PI/2)+(3.0/6.5)*2*Math.PI);lctx.strokeStyle='#e07820';lctx.lineWidth=6;lctx.lineCap='round';lctx.stroke();
+
+        new Chart(document.getElementById('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20%','Tier 2 · 30%','Tier 3 · 50% (PENDING)'],datasets:[{data:[20,30,50],backgroundColor:['rgba(0,175,200,.55)','rgba(34,168,90,.55)','rgba(200,16,46,.25)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#8a9bb5',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},title:{display:true,text:'Weighting Scheme — NOT a score',color:'#c8102e',font:{size:10,family:"'Rajdhani',sans-serif"},position:'top'}}});
+
+        new Chart(document.getElementById('ovRadar'),{type:'radar',data:{labels:t3labels,datasets:[{label:'CRS 8.7 (partial)',data:t3values,borderColor:'#e07820',backgroundColor:'rgba(224,120,32,.08)',borderWidth:2,pointBackgroundColor:t3values.map(v=>v>0?'#e07820':'rgba(255,255,255,.1)'),pointRadius:t3values.map(v=>v>0?6:2)}]},options:{scales:{r:{min:0,max:10,grid:{color:'rgba(255,255,255,.04)'},angleLines:{color:'rgba(255,255,255,.04)'},ticks:{stepSize:2,color:'#5a6880',font:{size:8}},pointLabels:{color:'#7a8aa0',font:{size:8,family:"'Rajdhani',sans-serif"}}}},plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}});
+
+        new Chart(document.getElementById('attrRadar'),{type:'radar',data:{labels:['Crossing','Tackling','Interceptions','Passing','Pace(est.)','Stamina(est.)'],datasets:[{label:'Cerato (est.)',data:[7.5,7.8,7.0,7.0,7.8,7.5],borderColor:'#a78bfa',backgroundColor:'rgba(124,58,237,.1)',borderWidth:2.5,pointBackgroundColor:'#d4a843',pointRadius:4},{label:'LPF FB Avg',data:[6.5,7.0,6.5,6.5,7.2,7.5],borderColor:'rgba(255,255,255,.25)',backgroundColor:'rgba(255,255,255,.04)',borderWidth:1.5,pointRadius:3}]},options:{scales:{r:{min:0,max:10,grid:{color:'rgba(255,255,255,.04)'},angleLines:{color:'rgba(255,255,255,.06)'},ticks:{stepSize:2,color:'#5a6880',font:{size:9}},pointLabels:{color:'#8a9bb5',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},plugins:{legend:{labels:{color:'#b8c8de',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}}},responsive:true,maintainAspectRatio:false}});
+
+        new Chart(document.getElementById('philRadar'),{type:'radar',data:{labels:['Italian','German','Modern','French','S.American','Dutch'],datasets:[{label:'Fit',data:[8.5,8.0,7.2,7.5,6.5,5.5],borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,.1)',borderWidth:2,pointBackgroundColor:['#2980b9','#3498db','#e67e22','#e07820','#9b59b6','#e67e22'],pointRadius:5}]},options:{scales:{r:{min:0,max:10,grid:{color:'rgba(255,255,255,.04)'},angleLines:{color:'rgba(255,255,255,.06)'},ticks:{stepSize:2,color:'#5a6880',font:{size:9}},pointLabels:{color:'#8a9bb5',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}});
+
+        new Chart(document.getElementById('compRadar'),{type:'radar',data:{labels:['Crossing','Tackling','Pace(est.)','Def.Contrib','Chances','Aerial'],datasets:[{label:'Cerato',data:[7.5,7.8,7.8,8.4,8.0,2.5],borderColor:'#a78bfa',backgroundColor:'rgba(124,58,237,.1)',borderWidth:2.5,pointBackgroundColor:'#d4a843',pointRadius:4},{label:'LPF FB Avg',data:[6.5,7.0,7.2,7.0,6.0,5.0],borderColor:'rgba(255,255,255,.25)',backgroundColor:'rgba(255,255,255,.04)',borderWidth:1.5,pointRadius:3}]},options:{scales:{r:{min:0,max:10,grid:{color:'rgba(255,255,255,.04)'},angleLines:{color:'rgba(255,255,255,.06)'},ticks:{stepSize:2,color:'#5a6880',font:{size:9}},pointLabels:{color:'#8a9bb5',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},plugins:{legend:{labels:{color:'#b8c8de',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}}},responsive:true,maintainAspectRatio:false}});
+
+        new Chart(document.getElementById('progressChart'),{type:'line',data:{labels:['2019','2020','2021','2022','2023','2025'],datasets:[{label:'FGA (T1+T2 only)',data:[3.5,4.0,5.0,6.0,6.5,6.8],borderColor:'#a78bfa',backgroundColor:'rgba(124,58,237,.08)',borderWidth:2,fill:true,tension:.4,pointBackgroundColor:'#d4a843',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:2,max:10,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a7a94',font:{size:9}}},x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6a7a94',font:{size:9}}}},plugins:{legend:{display:false}}}});
+    }
+
+    function switchTab(id){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');event.target.classList.add('active');}
+    document.addEventListener('DOMContentLoaded',init);
+    </script>
+</body>
+</html>
