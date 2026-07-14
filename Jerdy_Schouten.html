@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jerdy Schouten — Empire FGA Intelligence Card v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(226,0,26,.08);
+  --psv:#e2001a;--psv-dark:#a3000f;--psv-light:#ff4d5e;
+  --accent:#0080f0;--accentL:#4db8ff;--accentFade:rgba(0,128,240,.1);
+  --gold:#f0b820;--gold2:#ffd060;--gold3:#7a5800;
+  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
+  --red:#e03030;--redL:#f05050;
+  --nl-orange:#ff6600;
+  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
+  --ucl:#1e40af;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(226,0,26,.7) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 90%,rgba(163,0,15,.3) 0%,transparent 50%)}
+
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--nl-orange) 20%,var(--psv) 20% 80%,var(--nl-orange) 80%);z-index:10}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(226,0,26,.12) 0%,transparent 45%,rgba(163,0,15,.06) 100%)}
+.hero-photo{position:relative;overflow:hidden;background:#040810}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  filter:contrast(1.1) saturate(.95);
+  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(226,0,26,.06);line-height:1;pointer-events:none}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.bp-psv{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(226,0,26,.9);color:#fff;text-transform:uppercase;border:1px solid rgba(255,77,94,.3)}
+.bp-ucl{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(30,64,175,.8);color:#fff;text-transform:uppercase}
+.bp-val{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.8);color:#040806;text-transform:uppercase}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
+.hero-name{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
+.hero-name em{color:var(--accentL);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
+.pos-primary{background:var(--psv);color:#fff}
+.pos-sec{background:rgba(226,0,26,.15);color:var(--psv-light);border:1px solid rgba(226,0,26,.35)}
+.pos-league{background:rgba(0,140,255,.1);color:var(--gold);border:1px solid rgba(0,140,255,.25)}
+.pos-ucl{background:rgba(30,64,175,.2);color:#80a4f8;border:1px solid rgba(30,64,175,.4)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
+.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
+.htag-blue{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(0,128,240,.28)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-ucl{background:rgba(30,64,175,.15);color:#80a4f8;border:1px solid rgba(30,64,175,.3)}
+.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(226,0,26,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fga-score-num{font-family:'Oswald',sans-serif;font-size:1.9rem;font-weight:500;line-height:1;color:var(--accentL)}
+.fga-score-lbl{font-size:.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(226,0,26,.08);border:1px solid rgba(226,0,26,.15)}
+.ftr2{background:rgba(42,56,80,.2);border:1px solid rgba(42,56,80,.3)}
+.ftr3{background:rgba(224,48,48,.06);border:1px solid rgba(224,48,48,.16)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(226,0,26,.22);border-radius:2px;width:100%}
+.ca-val{font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:500;color:var(--accentL)}
+.ca-info{font-size:.6rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:'Oswald',sans-serif;font-size:.85rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
+.logo-bar img{height:32px;width:auto;object-fit:contain}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sh-blue::before{background:var(--psv)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-red::before{background:var(--red)}.sh-amber::before{background:var(--amber)}
+.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(226,0,26,.025)}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
+.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(226,0,26,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
+.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#0a1428}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(226,0,26,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(226,0,26,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(42,56,80,.35);color:var(--muted)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(226,0,26,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(226,0,26,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+.log-ring{display:flex;align-items:center;gap:14px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:2px;margin-bottom:8px}
+.log-val{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:500;color:var(--gold);line-height:1}
+.log-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.12);color:var(--gold);border:1px solid rgba(240,184,32,.2)}
+.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(226,0,26,.03)}
+.phil-item:last-child{border-bottom:none}
+.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
+.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
+.phi-bar-bg{width:70px;height:5px;background:rgba(226,0,26,.06);border-radius:99px;overflow:hidden}
+.phi-bar-fill{height:100%;border-radius:99px}
+.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(226,0,26,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(226,0,26,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(226,0,26,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.career-table .ucl-row td{background:rgba(30,64,175,.06)}
+.career-table .inj-row td{background:rgba(224,48,48,.07)}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--nl-orange),var(--psv),var(--accentL))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accentL);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--accentL);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(226,0,26,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(226,0,26,.3)}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(226,0,26,.12);color:var(--psv-light);border:1px solid rgba(226,0,26,.22)}
+.pend-box{background:linear-gradient(135deg,rgba(42,56,80,.25),rgba(42,56,80,.08));border:2px dashed rgba(42,56,80,.55);border-radius:2px;padding:12px 16px;margin-bottom:14px}
+.pend-head{font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.data-flash{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}
+.data-note{background:rgba(0,103,197,.06);border:1px solid rgba(0,103,197,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px}
+.career-path{background:rgba(226,0,26,.07);border:1px solid rgba(226,0,26,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.log-banner{background:linear-gradient(135deg,rgba(30,64,175,.12),rgba(240,184,32,.06));border:1px solid rgba(30,64,175,.25);border-radius:2px;padding:10px 16px;margin-bottom:14px}
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
+.video-link-card:hover{border-color:rgba(226,0,26,.4)}
+.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.obi-chain{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}
+.obi-ev{width:18px;height:18px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;font-family:'Rajdhani',sans-serif;color:#fff}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+
+/* ── T1 RICH DATA ── */
+.t1-highlight{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.t1-hl{background:linear-gradient(135deg,rgba(226,0,26,.15),rgba(240,184,32,.06));border:2px solid rgba(226,0,26,.35);border-radius:3px;padding:10px 12px;position:relative;overflow:hidden}
+.t1-hl.gold{background:linear-gradient(135deg,rgba(240,184,32,.12),rgba(226,0,26,.06));border-color:rgba(240,184,32,.5)}
+.t1-hl-code{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.t1-hl-val{font-family:'Oswald',sans-serif;font-size:1.65rem;font-weight:500;line-height:1;color:var(--accentL)}
+.t1-hl.gold .t1-hl-val{color:var(--gold)}
+.t1-hl-pct{font-size:.58rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.t1-hl-bar{height:3px;background:rgba(226,0,26,.1);border-radius:99px;overflow:hidden;margin-top:6px}
+.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--psv)}
+.t1-hl.gold .t1-hl-bar-fill{background:var(--gold)}
+.t1-source{font-family:'Rajdhani',sans-serif;font-size:.55rem;letter-spacing:.08em;color:rgba(226,0,26,.35);text-transform:uppercase;margin-top:auto;display:block}
+.t1-group{margin-bottom:12px}
+.t1-group-head{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(226,0,26,.08);margin-bottom:6px}
+.t1-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.t1-code{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--accentL);width:64px;flex-shrink:0}
+.t1-desc{font-size:.72rem;color:var(--muted);flex:1}
+.t1-bar-bg{width:80px;height:4px;background:rgba(226,0,26,.07);border-radius:99px;overflow:hidden;flex-shrink:0}
+.t1-bar-fill{height:100%;border-radius:99px}
+.t1-val{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;width:56px;text-align:right;flex-shrink:0}
+.t1-ctx{font-size:.58rem;color:rgba(226,0,26,.4);width:70px;text-align:right;flex-shrink:0;letter-spacing:.04em}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--muted)">▶ Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--psv)"></span>PSV Eindhoven · Captain · Eredivisie Champions 25-26</span>
+    <span class="status-dot"><span class="dot" style="background:var(--green)"></span>Tier 1 ✅ Full · FotMob/Wikipedia/Transfermarkt</span>
+    <span class="status-dot"><span class="dot" style="background:var(--muted)"></span>Tier 2/3 ❌ 0/12 · Pending match-log review</span>
+    <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>⚠️ Season ended early — ACL injury 4 Apr 2026</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://staticcdn.fcupdate.nl/images/cf/image/upload//3yr7OOixh8XGXHiocnvmAamz1YJ61AT5//q=90,g=auto,fit=contain,compression=fast,w=1560,h=920" alt="Jerdy Schouten" onerror="this.style.background='#040810'">
+    <div class="hero-flag">🇳🇱</div>
+    <div class="club-badge">
+      <span class="bp-psv">PSV Eindhoven · DM</span>
+      <span class="bp-ucl">UEFA Champions League 2025–26</span>
+      <span class="bp-val">€20.1M (FotMob) · Contract 2030</span>
+    </div>
+    <div class="hero-num">22</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">DM · 29yr · 184cm · Hellevoetsluis · Dutch · ADO Den Haag → Telstar → Excelsior → Bologna → PSV</div>
+      <div class="hero-name"><em>Jerdy</em><br>Schouten</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">DM</span>
+        <span class="pos-badge pos-sec">CM</span>
+        <span class="pos-badge pos-league">Eredivisie · Netherlands</span>
+        <span class="pos-badge pos-ucl" style="background:rgba(240,184,32,.18);color:var(--gold);border:1px solid rgba(240,184,32,.35)">Captain</span>
+        <span class="pos-badge pos-ucl">🇳🇱 Netherlands NT</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">29</div><div class="hmi-lbl">Born Jan 12 1997</div></div>
+      <div><div class="hmi-val">2,381'</div><div class="hmi-lbl">Eredivisie min · 28 starts</div></div>
+      <div><div class="hmi-val">7.37</div><div class="hmi-lbl">FotMob rating avg</div></div>
+      <div><div class="hmi-val">91.2%</div><div class="hmi-lbl">Pass completion</div></div>
+      <div><div class="hmi-val">172</div><div class="hmi-lbl">Def. contributions</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-gold">Captain since 26 Jul 2025 · succeeded Luuk de Jong</span>
+      <span class="htag htag-ok">3× Eredivisie champion (23-24 · 24-25 · 25-26) + Johan Cruyff Shield 25-26</span>
+      <span class="htag htag-warn">⚠️ ACL injury 4 Apr 2026 vs FC Utrecht · surgery · out 6-9 months · misses 2026 World Cup</span>
+      <span class="htag htag-blue">🇳🇱 Netherlands · 17 caps · UEFA Euro 2024 semi-finalist</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">Proxy FGA Rating</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">7.8</div>
+        <div class="fga-score-lbl">/ 10.0 · PROXY</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">FotMob/Wiki/Transfermarkt</span><span class="tw" style="color:var(--green)">Full</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--lite)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--muted)">Pending</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--redL)">Tier 3</span><span style="color:var(--muted)">Scout (Jim Totime)</span><span class="tw" style="color:var(--redL)">0/12 ❌</span></div>
+    </div>
+    <div style="font-size:.58rem;color:var(--muted);line-height:1.5;text-align:center">Data-only estimate from Tier 1 stats · <strong style="color:var(--amber)">not</strong> the evidence-weighted FGA · see FGA Analytics for breakdown</div>
+    <div class="hero-ca">
+      <div><div class="ca-val">€20.1M</div><div class="ca-info">Transfer value (FotMob)<br>peak €36.6M · 31 Oct 2024</div></div>
+      <div class="ca-pa">€22M (TM)</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+<!-- ═══ OVERVIEW ═══ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="log-banner">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">📊 DATA STATUS · TIER 1 COMPLETE (PUBLIC RECORD) · TIER 2/3 NOT YET SCOUTED</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">Every number on this card is sourced from FotMob, Wikipedia, Transfermarkt and Grokipedia (linked in Scouting Intel). Per Empire's evidence-first rule — no score without evidence — the OBI/SII/DMA/SPI Tier 3 metrics, Attribute ratings, and Philosophy Fit scores are left <strong style="color:var(--lite)">PENDING</strong> rather than estimated. They populate once match footage is logged.</div>
+  </div>
+
+  <div class="career-path">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--nl-orange);letter-spacing:.1em">🇳🇱</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">ADO Den Haag</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">Telstar <small style="font-size:.65rem;color:var(--muted)">(free · Eerste Divisie)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">Excelsior <small style="font-size:.65rem;color:var(--muted)">(free · Eredivisie POTY 18-19)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">Bologna <small style="font-size:.65rem;color:var(--muted)">(~€2-3M · Serie A · 109 apps)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--accentL);font-weight:600">PSV Eindhoven <small style="font-size:.65rem;color:var(--gold)">(€12M · Captain · to 2030)</small></span>
+  </div>
+
+  <div class="data-flash">
+    <div>
+      <div style="font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:500;color:var(--greenL);line-height:1">2,381'</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px">Eredivisie minutes · 25-26</div>
+    </div>
+    <div style="flex:1;font-size:.77rem;color:var(--muted);line-height:1.65">
+      <strong style="color:var(--white)">28 starts, 28 matches, zero substitute appearances — the definition of an undroppable captain.</strong> Wikipedia's mid-season squad log (through 21 Feb 2026) already had Schouten on 33 total appearances across all competitions, the highest of any PSV player listed, all as a starter. FotMob's Eredivisie-only tracker confirms 2,381 minutes at a 7.37 average rating before the season was cut short. No goalkeeper or outfield player in the squad log matched his combined workload and zero-sub reliability through that snapshot.
+    </div>
+  </div>
+
+  <div class="data-note">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--accentL);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">📤 PASSING & BUILD-UP — 91.2% COMPLETION ON 1,806 SUCCESSFUL PASSES</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">
+      <strong style="color:var(--lite)">2.40 expected assists against 2 actual assists</strong> — output roughly matches expectation, no lucky or unlucky swing either way. 24 chances created, 56 accurate long balls (63.6%), 2,338 touches. Grokipedia's independent style write-up (citing Bologna-era passing data climbing from 82.4% to 86.7% across four Serie A seasons) and the Daily Mail's 2024 "unsung hero" profile both describe the same thing from different angles: a deep-lying orchestrator, repeatedly compared to Sergio Busquets, who is trusted to keep the ball moving under pressure rather than take it forward himself.
+    </div>
+  </div>
+
+  <div class="pend-box">
+    <div class="pend-head">🛡️ DEFENSIVE VOLUME — REAL NUMBERS, NO QUALITY SCORE YET</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">172 total defensive contributions (44 tackles + 50 interceptions + supporting actions), 68 clearances, 160 recoveries, 10 blocked shots, 33 aerial duels won (49.3%) — all FotMob 2025-26 Eredivisie totals. What these numbers can't tell you: <strong style="color:var(--lite)">whether he wins the ball early or late, whether his positioning anticipates the pass or reacts to it, whether he's exposed for pace.</strong> That's exactly the judgment Tier 3 video scouting exists to make, and it hasn't been done for this player yet — so this card reports the totals and stops there rather than inventing a rating.</div>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-blue"><div class="sh-val">2,381</div><div class="sh-lbl">Min · 28 starts</div><div class="sh-delta dneu">FotMob 25-26</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">91.2%</div><div class="sh-lbl">Pass completion</div><div class="sh-delta dneu">1,806 passes</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">172</div><div class="sh-lbl">Def. contributions</div><div class="sh-delta dneu">44 tkl + 50 int</div></div>
+    <div class="sh-box sh-blue"><div class="sh-val">52.2%</div><div class="sh-lbl">Duels won</div><div class="sh-delta dneu">107 of 205</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">2.40</div><div class="sh-lbl">xA (2 actual)</div><div class="sh-delta dneu">24 chances created</div></div>
+    <div class="sh-box sh-red"><div class="sh-val">7.37</div><div class="sh-lbl">Avg rating</div><div class="sh-delta dneg">Season cut short</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Profile</div></div>
+      <div class="c-body" style="font-size:.76rem">
+        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Jerdy Schouten</span></div>
+        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">Jan 12, 1997 · Hellevoetsluis 🇳🇱</span></div>
+        <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--accentL)">184cm</span></div>
+        <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--accentL)">PSV Eindhoven</span></div>
+        <div class="ti-row"><span class="ti-lbl">Transfer in</span><span class="ti-val" style="color:var(--gold)">~€12M · 16 Aug 2023</span></div>
+        <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Jun 30, 2030</span></div>
+        <div class="ti-row"><span class="ti-lbl">Coach</span><span class="ti-val">Peter Bosz</span></div>
+        <div class="ti-row"><span class="ti-lbl">NT status</span><span class="ti-val">🇳🇱 Netherlands · 17 caps</span></div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 Status</div><div class="c-sub">0/12 confirmed</div></div>
+      <div class="c-body">
+        <div class="section-label">Confirmed (video-evidence required)</div>
+        <div id="confirmed-list"></div>
+        <div class="divider"></div>
+        <div style="font-size:.72rem;color:var(--muted)">All 12 T3 metrics (OBI_P/T/S, SII_A/T/R, DMA, SPI, CRS, CHR, MCS, CLM, OMS, DYN, CRK) are unscored. No match footage has been reviewed for this player. Paste timestamped observations to populate.</div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Preliminary Data Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">Undroppable captain by workload alone — 2,381 Eredivisie minutes, 28/28 starts, highest total appearances in the mid-season squad log — with elite pass volume (91.2% on 1,806 attempts) and real defensive activity (172 contributions). None of that is a scouting judgment; it's the public record.</div>
+        <div class="verdict-box">
+          <div class="verdict-label">Empire FGA Status — Not a Final Verdict</div>
+          <div class="verdict-text"><strong>Tier 1 data-complete · Tier 2/3 unscored · FGA composite cannot be calculated.</strong> Tier 3 alone carries 50% of the final FGA weighting under Empire's methodology — reporting a number here would mean guessing half the score. This card will carry a real composite once match footage is reviewed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Style Notes — Preliminary</div><div class="c-sub">Media/data, not scored</div></div><div class="c-body" id="ov-phil"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Statistical Radar</div><div class="c-sub">Raw % from real 25-26 totals</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">FotMob Rating Trend</div><div class="c-sub">Last 10 matches · real data</div></div><div class="c-body"><canvas id="ratingChart" height="180"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ═══ ATTRIBUTES ═══ -->
+<div id="tab-attributes" class="tab-panel">
+  <div class="pend-box">
+    <div class="pend-head">❌ ATTRIBUTES PENDING — 0/24 SCORED</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">Attribute circles (Technical/Mental/Physical) are a scouting judgment — exactly the layer Empire's "no score without evidence" rule protects. Assigning a 0-10 rating here without match footage would be inventing a score, so every row below is left unscored until Jim logs timestamped match evidence. What follows is the category list only.</div>
+  </div>
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical / Defensive</div></div><div class="c-body" id="attr-tech"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div><div class="c-body" id="attr-men"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div></div><div class="c-body" id="attr-phy"></div></div>
+  </div>
+</div>
+
+<!-- ═══ FGA ANALYTICS ═══ -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — FotMob · Wikipedia · Transfermarkt · Grokipedia</div></div>
+      <div class="c-body" id="t1-metrics"></div>
+    </div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 2 — Composite</div><div class="c-sub">Pending</div></div><div class="c-body">
+      <div class="pend-box" style="margin-bottom:0">
+        <div class="pend-head">❌ NOT CALCULABLE YET</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.6">Tier 2 (Positional Intelligence, Anticipatory, Ghost Run Index, Mobility, Composure) is derived directly from confirmed Tier 3 sub-metrics in Empire's methodology. Since Tier 3 is 0/12, Tier 2 has nothing to composite from.</div>
+      </div>
+    </div></div>
+    <div>
+      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Weighting Breakdown</div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Season Context</div></div>
+        <div class="c-body">
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.9"><strong style="color:var(--gold)">2025-26 competitions</strong><br><strong style="color:var(--lite)">Eredivisie:</strong> Champions (27th title) · 28 starts, 2,381'<br><strong style="color:var(--lite)">UCL:</strong> League phase · 8 apps (Wikipedia, thru 21 Feb)<br><strong style="color:var(--lite)">Johan Cruyff Shield:</strong> Winners · 2-1 v Go Ahead Eagles<br><strong style="color:var(--redL)">Season ended:</strong> 4 Apr 2026 ACL injury vs Utrecht</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c" style="margin-bottom:14px">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Proxy FGA Rating — 7.8 / 10 · Methodology</div><div class="c-sub">Tier 1 estimate only · not the evidence-weighted FGA</div></div>
+    <div class="c-body">
+      <div class="pend-box" style="margin-bottom:12px">
+        <div class="pend-head">⚠️ Read before citing this number</div>
+        <div style="font-size:.74rem;color:var(--muted);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. With Tier 2/3 both empty, that formula can't run. This 7.8 is a <strong style="color:var(--lite)">substitute</strong> built only from public Tier 1 numbers, weighted toward a DM's core job (passing, defensive volume) — it will very likely move, up or down, once real match evidence is scored.</div>
+      </div>
+      <div id="proxy-breakdown"></div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 · Awaiting Scout Assessment · 0 Matches Logged</div></div>
+    <div class="c-body">
+      <div class="pend-box" style="margin-bottom:12px">
+        <div class="pend-head">Ready when you are</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.6">Per the Empire Agent 1/2 workflow: paste timestamped match observations (minute, second, description, confidence) for Schouten and I'll structure them into OBI/SII/DMA/SPI/CRS/CHR/MCS/CLM/OMS/DYN/CRK evidence logs and calculate scores from that evidence — not the other way around.</div>
+      </div>
+      <div class="g3">
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted)">OBI</span>
+              <span style="font-size:.78rem;color:var(--muted)">Off-Ball Intelligence</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--muted);margin-left:auto">❌ PENDING</span>
+            </div>
+            <div id="obi-subs"></div>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted)">SII</span>
+              <span style="font-size:.78rem;color:var(--muted)">Sprint Intensity Index</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--muted);margin-left:auto">❌ PENDING</span>
+            </div>
+            <div id="sii-subs"></div>
+          </div>
+        </div>
+        <div><div class="section-label">Video Completeness</div><div id="vc-mini"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">All 10 Remaining Metrics</div>
+      <div class="g3" id="t3-rest-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHILOSOPHY DNA ═══ -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="pend-box">
+    <div class="pend-head">STYLE NOTES — PRELIMINARY (MEDIA & DATA), NOT A SCORED PHILOSOPHY FIT</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">Beukema's Philosophy Fit numbers were built from his confirmed OBI/AMS/SPI Tier 3 sub-metrics — an evidence chain that doesn't exist yet for Schouten. Rather than assign fake fit percentages against Michels/Cruyff/Guardiola, the traits below are pulled straight from published scouting commentary (Grokipedia, Daily Mail, Helden Magazine) and are qualitative only.</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Sourced Style Descriptors</div></div>
+        <div class="c-body">
+          <span class="trait-pill">"Busquets-like" deep-lying pivot (Daily Mail, Grokipedia)</span>
+          <span class="trait-pill">Dutch Cruyffian pivot lineage</span>
+          <span class="trait-pill">"Dirigent van het orkest" — orchestra conductor (Helden Magazine)</span>
+          <span class="trait-pill">Composure under press. — Euro 2024 semi-final run</span>
+          <span class="trait-pill">Bosz build-out flexibility (deep CB/libero deployment, 25-26)</span>
+          <span class="trait-pill">Facilitator, not scorer — 14 goals / 288 apps career</span>
+          <div class="divider"></div>
+          <div class="scout-para">FotMob's own positional tag lists "Center-back" as his primary 2025-26 role alongside DM/CM — consistent with reporting that Peter Bosz has used Schouten in a deeper, build-out CB/libero role in possession phases this season, not just the holding-mid role he played at Bologna and in his first two PSV seasons. That's a real, sourced tactical detail — not a scouted judgment about how well he performs it.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="height:340px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Fit Radar</div><div class="c-sub">Not available — Tier 3 required</div></div>
+        <div class="c-body" style="height:290px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px">
+          <div style="font-size:.8rem;color:var(--muted);line-height:1.7">Philosophy Fit scoring (Michels / Cruyff / Guardiola / Lobanovskyi weightings) runs on Tier 3 evidence logs. <strong style="color:var(--lite)">0 matches scouted → chart withheld</strong> rather than shown with invented numbers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CAREER ═══ -->
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--nl-orange)"></div><div class="tl-date">Born Jan 12, 1997 · Hellevoetsluis, South Holland</div><div class="tl-text"><strong>Football family.</strong> Great-uncle Henk Schouten played for Excelsior and Feyenoord and won 3 Netherlands caps in the 1950s. Joined the ADO Den Haag academy at age 11; a compartment syndrome injury at 17 required two surgeries and nearly a year out.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Dec 2016 · ADO Den Haag · Eredivisie debut</div><div class="tl-text"><strong>Limited breakthrough.</strong> Debut 10 Dec 2016 vs N.E.C. Released in 2017 after 3 total appearances amid a coaching change and stiff midfield competition.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">2017-18 · Telstar · Eerste Divisie</div><div class="tl-text"><strong>Attacking-mid breakout.</strong> Free transfer; 37 league apps, 4 goals, 2 assists as an attacking midfielder — the opposite role to the one that later defined his career.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2018-19 · Excelsior · Eredivisie · Player of the Year</div><div class="tl-text"><strong>The positional switch.</strong> Converted fully to defensive midfield. 31 league apps, voted club Player of the Year by fans — the form that took him to Serie A.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--psv)"></div><div class="tl-date">Jul 2019 · Bologna FC · Serie A · ~€2-3M</div><div class="tl-text"><strong>Four years in Italy.</strong> 109 apps, 2 goals across four Serie A seasons (2019-23). Passing accuracy climbed from 82.4% to a career-high 86.7% (2022-23) as he matured into a deep-lying playmaker under successive coaches.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">Jun 2022 · Netherlands senior debut</div><div class="tl-text"><strong>Full international.</strong> Debut 8 Jun 2022 vs Wales (Nations League), played 67 minutes, assisted Teun Koopmeiners' opener in a 2-1 win.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">Aug 2023 · PSV Eindhoven · ~€12M · 5-year deal</div><div class="tl-text"><strong>Repatriation.</strong> Returned to the Eredivisie on 16 Aug 2023. Immediate impact: 40 total apps, 4 goals as PSV won the 2023-24 Eredivisie — their first title in six years.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">Jun-Jul 2024 · UEFA Euro 2024 · Netherlands</div><div class="tl-text"><strong>"Unsung hero."</strong> Started all 6 Dutch matches (Group + Round of 16 + QF + SF) after Frenkie de Jong's injury withdrawal. Netherlands reached the semi-final (lost 1-2 to England) — their best run since 2004. Daily Mail profile: "Netherlands' unsung hero."</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2024-25 · PSV back-to-back champions</div><div class="tl-text"><strong>Title defended.</strong> 30 total apps, 2 goals as PSV won a 26th Eredivisie title, Schouten a regular alongside Joey Veerman in central midfield.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">26 Jul 2025 · Named PSV captain</div><div class="tl-text"><strong>Succeeds Luuk de Jong.</strong> "I'm not going to be Luuk de Jong 2.0 ... I'll be the captain that I am as a person." New contract to Jun 30, 2030 signed 6 Aug 2025.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">3 Aug 2025 · Johan Cruyff Shield winners</div><div class="tl-text"><strong>First trophy as captain.</strong> 2-1 comeback win over Go Ahead Eagles — PSV's 15th Super Cup.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--psv)"></div><div class="tl-date">2025-26 · Eredivisie 3-peat · UCL league phase</div><div class="tl-text"><strong>Record 27th title.</strong> 28 starts, 2,381 Eredivisie minutes, 7.37 average rating, 8 UCL appearances. PSV clinched the title on 5 April 2026 — one day after Schouten's injury.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-date">4 Apr 2026 · Severe ACL injury vs FC Utrecht</div><div class="tl-text"><strong>Season-ending, World Cup-ending.</strong> Twisted his knee in the 65th minute of a 4-3 win. Surgery required; 6-9 month recovery rules him out of the rest of 2025-26 and the 2026 FIFA World Cup.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">FotMob Rating — Last 10 Matches</div><div class="c-sub">Real data · through 4 Apr 2026 ACL injury</div></div><div class="c-body" style="height:175px"><canvas id="dmaChart"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Transfer Ladder</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">Excelsior → Bologna</span><span class="ti-val">~€2-3M <span style="font-size:.65rem;color:var(--muted)">(2019)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Bologna → PSV</span><span class="ti-val" style="color:var(--gold)">~€12M <span style="font-size:.65rem;color:var(--muted)">(16 Aug 2023)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Transfer value (FotMob)</span><span class="ti-val">€20.1M <span style="font-size:.65rem;color:var(--muted)">peak €36.6M (Oct '24)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Market value (Transfermarkt)</span><span class="ti-val">€22M</span></div>
+          <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Jun 30, 2030</span></div>
+          <div class="divider"></div>
+          <div style="font-size:.72rem;color:var(--muted)">4 trophies in 3 seasons at PSV: Eredivisie 23-24 / 24-25 / 25-26 + Johan Cruyff Shield 25-26</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Season-by-Season Register</div></div>
+    <div class="c-body">
+      <table class="career-table">
+        <thead><tr>
+  <th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Notes</th>
+</tr></thead>
+        <tbody>
+          <tr><td>2016-17</td><td>ADO Den Haag</td><td>Eredivisie</td><td>3</td><td>0</td><td>Senior debut 10 Dec 2016</td></tr>
+          <tr><td>2017-18</td><td>Telstar</td><td>Eerste Divisie</td><td>40</td><td>4</td><td>Attacking-mid breakout</td></tr>
+          <tr><td>2018-19</td><td>Excelsior</td><td>Eredivisie</td><td>34</td><td>1</td><td>Club Player of the Year</td></tr>
+          <tr><td>2019-20</td><td>Bologna</td><td>Serie A</td><td>20</td><td>0</td><td>Pass% 82.4</td></tr>
+          <tr><td>2020-21</td><td>Bologna</td><td>Serie A</td><td>35</td><td>1</td><td>Breakout starter · pass% 86.5</td></tr>
+          <tr><td>2021-22</td><td>Bologna</td><td>Serie A</td><td>18</td><td>1</td><td>Injury-affected</td></tr>
+          <tr><td>2022-23</td><td>Bologna</td><td>Serie A</td><td>36</td><td>0</td><td>Career-high pass% 86.7</td></tr>
+          <tr class="hl"><td><strong>2023-24</strong></td><td><strong>PSV</strong></td><td><strong>Eredivisie + UCL Q</strong></td><td><strong>40</strong></td><td><strong>4</strong></td><td><strong>🏆 Eredivisie champions (25th title)</strong></td></tr>
+          <tr><td>2024-25</td><td>PSV</td><td>Eredivisie + UCL</td><td>30</td><td>2</td><td>🏆 Eredivisie champions (26th title)</td></tr>
+          <tr class="ucl-row inj-row"><td><strong>2025-26</strong></td><td><strong>PSV</strong></td><td><strong>Eredivisie + UCL</strong></td><td><strong>28 (Ere.) + 8 (UCL)</strong></td><td><strong>1</strong></td><td><strong>🏆 Champions (27th) · Captain · ⚠️ ACL injury 4 Apr, season ended</strong></td></tr>
+          <tr style="border-top:1px solid rgba(226,0,26,.2)">
+            <td colspan="4" style="font-family:'Rajdhani',sans-serif;font-size:.7rem;color:rgba(77,184,255,.5);letter-spacing:.08em;text-transform:uppercase;padding-top:7px">Career total (Grokipedia, as of 19 Nov 2025 snapshot)</td>
+            <td colspan="2" style="text-align:center;padding-top:7px"><span style="font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:500;color:#2e9e5a">289 apps · 15G · 16A</span></td>
+          </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCOUTING INTEL ═══ -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Data-Driven Scouting Report — Preliminary</div><div class="c-sub">Public sources only · Tier 3 not conducted</div></div>
+        <div class="c-body">
+          <div class="scout-para">Jerdy Schouten is a 29-year-old Dutch defensive midfielder and captain of PSV Eindhoven, signed from Bologna for a reported €12M on 16 August 2023. Born 12 January 1997 in Hellevoetsluis. 184cm. Contract runs to 30 June 2030 after an extension signed 6 August 2025, two weeks after he was named captain. Career: ADO Den Haag → Telstar → Excelsior (Player of the Year 2018-19) → Bologna (2019-23, Serie A, 109 apps) → PSV (2023-, 3× Eredivisie champion, captain). This report is built entirely from public statistical sources (FotMob, Wikipedia, Transfermarkt, Grokipedia) and published tactical writeups — it is <strong>not</strong> a Tier 3 video-scouted assessment. No match footage has been reviewed for this player under Empire's evidence-first methodology.</div>
+
+          <div class="scout-para"><strong>Workload — 2,381 Eredivisie minutes, 28 starts, 0 sub appearances (FotMob, 2025-26).</strong> Wikipedia's squad appearance log through 21 Feb 2026 already had him at 33 total appearances across all competitions — the most of any player in the PSV squad table, all as a starter. That is a captain who does not get rotated, right up until the ACL injury that ended his season on 4 April 2026, one day before PSV clinched the title.</div>
+
+          <div class="scout-para"><strong>Distribution — 91.2% pass completion on 1,806 successful passes, 24 chances created, 2.40 xA vs 2 actual assists (FotMob).</strong> Bologna-era data shows the same profile maturing over time: passing accuracy rose from 82.4% (2019-20) to a career-high 86.7% (2022-23). Multiple independent sources (Grokipedia, Daily Mail) describe him as a "Busquets-like" deep-lying orchestrator rather than a progressive ball-carrier — Helden Magazine's profile is literally titled "Dirigent van het [PSV-]orkest" (conductor of the orchestra).</div>
+
+          <div class="scout-para"><strong>Defensive volume — 172 total defensive contributions, 44 tackles, 50 interceptions, 68 clearances, 160 recoveries, 10 blocked shots, 33 aerial duels won at 49.3% (FotMob).</strong> These are real, sourced totals. What they cannot establish — anticipation quality, positioning discipline, pace exposure — requires the video-based OBI/SII evidence layer Empire's methodology is built around, and that layer is empty for this player.</div>
+
+          <div class="scout-para"><strong>2025-26 context.</strong> FotMob tags his primary 2025-26 role as center-back alongside DM/CM, consistent with reports that Peter Bosz occasionally deployed him deeper in a build-out CB/libero role. 2 goals, 2 assists, and a 7.37 average rating across 28 Eredivisie starts before the injury. 2 yellow cards, 1 red card in that span.</div>
+
+          <div class="scout-para"><strong>International — Netherlands, 17 caps, 0 goals (FotMob).</strong> Debut 8 June 2022 vs Wales. Started all 6 matches of the Netherlands' run to the UEFA Euro 2024 semi-final after Frenkie de Jong's late injury withdrawal — a tournament that produced the "unsung hero" tag from British press.</div>
+
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Status Note</div>
+            <div class="verdict-text"><strong>Tier 1 data-complete · Tier 2/3 not scored · No final FGA composite.</strong> This card documents an undroppable, statistically productive Eredivisie-champion captain whose season ended early on a serious injury. It intentionally stops short of an on-pitch verdict — anticipation, positioning, and pace-under-pressure judgments require match footage that hasn't been reviewed yet. Paste timestamped match observations to move this card from data-only to fully scored.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All Tier 1 Season Totals (25-26)</div></div><div class="c-body" id="psych-bars"></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 Event Log</div><div class="c-sub">0 events · not yet scouted</div></div><div class="c-body" style="padding:24px;text-align:center;color:var(--muted);font-size:.78rem;line-height:1.7">No match footage has been logged for this player.<br>This panel will populate with timestamped OBI/SII/DMA/SPI events once Jim reviews match video.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MATCHES TAB ═══ -->
+<div id="tab-links" class="tab-panel">
+  <div style="background:rgba(0,103,197,.07);border:1px solid rgba(0,103,197,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accentL)">3 MATCH FILES RECEIVED — NOT YET SCOUTED</span>
+    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">Footage is loaded below. Tier 3 events (OBI/SII/DMA/SPI) still need timestamped review before scores populate.</span>
+  </div>
+
+  <div class="pend-box" style="margin-bottom:16px">
+    <div class="pend-head">⚠️ Check this before scouting the 3rd clip</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.6">PSV's Eredivisie round order has Sparta Rotterdam (round 30) landing <strong style="color:var(--lite)">after</strong> Round 29 (PSV 4-3 FC Utrecht, 4 Apr 2026 — the match where Schouten suffered his ACL injury). He was ruled out 6-9 months that day. Unless this Sparta Rotterdam file is from an earlier fixture than I have on record, he almost certainly isn't on the pitch for it — worth confirming before logging any events off it as his.</div>
+  </div>
+
+  <div class="section-label">ASSESSMENT MATCHES</div>
+  <div class="g2">
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/zbrxgmiuqc7fcv73r5rxy/Philips-Sport-Vereniging-PSV-Football-Club-Groningen.mp4?rlkey=z6jh0hm3dz7qx59l8tchthq4x&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--psv);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">PSV vs FC Groningen</div><div class="vlc-meta">Eredivisie · 23 Aug 2025 · PSV won 4-2 (Til, Bajraktarević ×2, Van Bommel)</div></div>
+      <span class="vlc-badge" style="background:rgba(226,0,26,.2);color:var(--psv-light);border:1px solid rgba(226,0,26,.3)">Ere. · R3</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/1jey2snwbcfgka7dh0fou/Sport-Club-Telstar-Philips-Sport-Vereniging-PSV.mp4?rlkey=7dlvwcqztnsu2potywhlmuxoc&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--psv);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Telstar vs PSV</div><div class="vlc-meta">Eredivisie · 22 Mar 2026 · PSV lost 3-1 · Schouten 75 min, 7.0 FotMob rating</div></div>
+      <span class="vlc-badge" style="background:rgba(226,0,26,.2);color:var(--psv-light);border:1px solid rgba(226,0,26,.3)">Ere. · R28</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/fhwa9c060n2ejho7gq67q/Philips-Sport-Vereniging-PSV-Sparta-Rotterdam.mp4?rlkey=v28y6nocnkvrckt0nmhgudqj6&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:rgba(42,56,80,.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">PSV vs Sparta Rotterdam</div><div class="vlc-meta">Eredivisie · Round 30 · PSV won 2-0 away · ⚠️ likely post-ACL injury — confirm Schouten featured</div></div>
+      <span class="vlc-badge" style="background:rgba(224,120,32,.2);color:var(--amber);border:1px solid rgba(224,120,32,.3)">⚠️ Verify</span>
+    </a>
+  </div>
+</div>
+</div>
+
+<script>
+const ATTRS={
+  tech:[
+    {n:"OBI_P Positional",v:0},{n:"OBI_T Run Timing",v:0},
+    {n:"SPI Spatial",v:0},{n:"DMA Passing",v:0},
+    {n:"CRK Creative",v:0},{n:"DYN Dynamism",v:0},
+    {n:"OBI_S Space",v:0},{n:"Offside trap awareness",v:0}
+  ],
+  men:[
+    {n:"CRS Clutch",v:0},{n:"CLM Calmness",v:0},
+    {n:"CHR Character",v:0},{n:"MCS Mental",v:0},
+    {n:"OMS Transition",v:0},{n:"Captaincy (CHR/MCS evidence)",v:0},
+    {n:"Discipline (2 YC · 1 RC 25-26)",v:0},{n:"Psychological duels",v:0}
+  ],
+  phy:[
+    {n:"SII_A Acceleration",v:0},{n:"SII_T Top Speed",v:0},
+    {n:"SII_R Recovery",v:0},{n:"Height 184cm (confirmed)",v:0},
+    {n:"Aerial ability (33 won · 49.3%)",v:0},{n:"Workload (2,381' · 28 starts)",v:0},
+    {n:"Pace exposure",v:0},{n:"Stamina (28 straight starts)",v:0}
+  ]
+};
+
+/* ─── TIER 1 HIGHLIGHTED METRICS ─── */
+const T1_HIGHLIGHTS = [
+  {code:'MIN',label:'Eredivisie Minutes 25-26',val:'2,381',pct:100,pctLabel:'28 starts · 0 sub apps',bar:100,gold:true,src:'FotMob',note:'Highest total apps in mid-season squad log (33, all starts) · Wikipedia'},
+  {code:'PASS%',label:'Pass Completion',val:'91.2%',pct:91,pctLabel:'1,806 successful passes',bar:91,gold:false,src:'FotMob',note:'56 accurate long balls (63.6%) · 2,338 touches'},
+  {code:'DEFC',label:'Defensive Contributions',val:'172',pct:86,pctLabel:'44 tackles + 50 interceptions',bar:86,gold:false,src:'FotMob',note:'68 clearances · 160 recoveries · 10 blocks'},
+  {code:'DUEL%',label:'Duels Won',val:'52.2%',pct:52,pctLabel:'107 of 205 duels',bar:52,gold:false,src:'FotMob',note:'Aerial duels won: 33 (49.3%)'},
+  {code:'RTG',label:'Avg FotMob Rating',val:'7.37',pct:74,pctLabel:'28 Eredivisie starts',bar:74,gold:true,src:'FotMob',note:'2G · 2A · 2 YC · 1 RC · season cut short by injury'}
+];
+
+/* ─── TIER 1 FULL STATS (all real, sourced) ─── */
+const T1_STATS = {
+  creation:[
+    {c:'Gls',d:'Goals (Eredivisie 25-26)',v:'1',ctx:'FotMob'},
+    {c:'Ast',d:'Assists (Eredivisie 25-26)',v:'2',ctx:'FotMob'},
+    {c:'xG',d:'Expected Goals',v:'1.13',ctx:'FotMob'},
+    {c:'xA',d:'Expected Assists',v:'2.40',ctx:'FotMob'},
+    {c:'Sh',d:'Shots (6 on target)',v:'19',ctx:'FotMob'},
+    {c:'CC',d:'Chances created',v:'24',ctx:'FotMob'},
+    {c:'BCC',d:'Big chances created',v:'1',ctx:'FotMob'},
+  ],
+  passing:[
+    {c:'Pass%',d:'Successful pass %',v:'91.2%',ctx:'FotMob'},
+    {c:'PassC',d:'Successful passes',v:'1,806',ctx:'FotMob'},
+    {c:'LB%',d:'Accurate long balls %',v:'63.6%',ctx:'FotMob'},
+    {c:'LB',d:'Accurate long balls',v:'56',ctx:'FotMob'},
+    {c:'Touch',d:'Touches',v:'2,338',ctx:'FotMob'},
+    {c:'TouchB',d:'Touches in opp. box',v:'24',ctx:'FotMob'},
+    {c:'Disp',d:'Dispossessed',v:'14',ctx:'FotMob'},
+  ],
+  defensive:[
+    {c:'Tkl',d:'Tackles',v:'44',ctx:'FotMob'},
+    {c:'Int',d:'Interceptions',v:'50',ctx:'FotMob'},
+    {c:'DefC',d:'Defensive contributions (total)',v:'172',ctx:'FotMob'},
+    {c:'Clr',d:'Clearances',v:'68',ctx:'FotMob'},
+    {c:'Recov',d:'Recoveries',v:'160',ctx:'FotMob'},
+    {c:'Blk',d:'Blocked shots',v:'10',ctx:'FotMob'},
+    {c:'CS',d:'Clean sheets on pitch',v:'6',ctx:'FotMob'},
+    {c:'DrbP',d:'Dribbled past',v:'12',ctx:'FotMob'},
+  ],
+  physical:[
+    {c:'Duel%',d:'Duels won %',v:'52.2%',ctx:'FotMob'},
+    {c:'Duel',d:'Duels won (total)',v:'107',ctx:'FotMob'},
+    {c:'Aer%',d:'Aerial duels won %',v:'49.3%',ctx:'FotMob'},
+    {c:'Aer',d:'Aerial duels won',v:'33',ctx:'FotMob'},
+    {c:'FoulW',d:'Fouls won',v:'15',ctx:'FotMob'},
+    {c:'FoulC',d:'Fouls committed',v:'31',ctx:'FotMob'},
+    {c:'YC/RC',d:'Yellow / red cards',v:'2 / 1',ctx:'FotMob'},
+  ],
+  seasons:[
+    {c:'23-24',d:'PSV · Eredivisie (title)',v:'40 apps · 4G',ctx:'Grokipedia'},
+    {c:'24-25',d:'PSV · Eredivisie (title)',v:'30 apps · 2G',ctx:'Grokipedia'},
+    {c:'25-26',d:'PSV · Eredivisie only',v:'28 apps · 2,381\' · 1G · 2A',ctx:'FotMob'},
+    {c:'25-26',d:'PSV · UCL (thru 21 Feb)',v:'8 apps',ctx:'Wikipedia'},
+    {c:'Career',d:'All clubs, all comps (19 Nov \'25)',v:'289 apps · 15G · 16A',ctx:'Grokipedia'},
+  ]
+};
+
+const OBI=[
+  {c:"OBI_T",n:"Run Timing",v:0,w:"35%",ok:false,zero:true},
+  {c:"OBI_S",n:"Space Architecture",v:0,w:"35%",ok:false,zero:true},
+  {c:"OBI_P",n:"Positional Anticipation",v:0,w:"30%",ok:false,zero:true}
+];
+const SII=[
+  {c:"SII_A",n:"Explosive Accel",v:0,w:"40%",ok:false,zero:true},
+  {c:"SII_T",n:"Top-End Speed",v:0,w:"35%",ok:false,zero:true},
+  {c:"SII_R",n:"Recovery Sprint",v:0,w:"25%",ok:false,zero:true}
+];
+const T3R=[
+  {c:"DMA",n:"Decision Making",v:0},{c:"CHR",n:"Character",v:0},
+  {c:"MCS",n:"Mental Comp.",v:0},{c:"SOA",n:"Speed on Action",v:0},
+  {c:"SPI",n:"Spatial Performance",v:0},{c:"CLM",n:"Calmness",v:0},
+  {c:"CRS",n:"Clutch Response",v:0},{c:"OMS",n:"Omschakeling",v:0},
+  {c:"DYN",n:"Dynamism",v:0},{c:"CRK",n:"Creative Risk",v:0}
+];
+const PHIL=[];
+const PROXY_COMPONENTS=[
+  {n:"Passing / Distribution",v:8.3,w:"30%",d:"91.2% completion (1,806 passes) · 63.6% long balls · 24 chances created"},
+  {n:"Defensive Workrate",v:7.6,w:"30%",d:"172 total contributions · 44 tackles · 50 interceptions · 68 clearances"},
+  {n:"Duels / Physical",v:6.2,w:"15%",d:"52.2% duels won · 49.3% aerial duels won"},
+  {n:"Output / Availability",v:8.6,w:"20%",d:"28/28 starts · 2,381' · 7.37 avg rating · captain"},
+  {n:"Discipline",v:6.8,w:"5%",d:"2 YC · 1 RC across 28 Eredivisie starts"}
+];
+const RATING_TREND=[6.8,7.7,7.6,5.9,8.1,6.7,7.0,null,6.9,7.4];
+const RATING_LABELS=['Feb 13 v Volendam','Feb 21 v Heerenveen','Feb 28 v Heracles','Mar 3 v NEC','Mar 7 v AZ','Mar 14 v NEC','Mar 22 v Telstar','Mar 27 v Norway (NT)','Mar 31 v Ecuador (NT)','Apr 4 v Utrecht (ACL)'];
+
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
+const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
+const pct=v=>Math.round(v*10);
+const fmt=v=>v>0?(v%1!==0?parseFloat(v.toFixed(2)):v):'—';
+function safe(id){return document.getElementById(id)}
+function attrCircle(v){return`<div class="attr-circle ${ac(v)}">?</div>`}
+function renderAttrList(el,arr){if(!el)return;el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:0%;background:${sc(0)}"></div></div><span class="attr-val-lbl" style="color:var(--muted)">—</span></div>`).join('')}
+function renderSubM(el,arr){if(!el)return;el.innerHTML=arr.map(m=>{
+  return`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:0%;background:#0a1428"></div></div><span class="comp-val" style="color:var(--muted)">—</span><span class="comp-wt">${m.w}</span><span class="mflag f-p">❌ 0evt</span></div>`
+}).join('')}
+
+function init(){
+  const el1=safe('confirmed-list');
+  if(el1)el1.innerHTML='<div style="font-size:.74rem;color:var(--muted);padding:8px 0">None confirmed. All 12 Tier 3 metrics require match-video evidence not yet collected for this player.</div>';
+
+  renderAttrList(safe('attr-tech'),ATTRS.tech);
+  renderAttrList(safe('attr-men'),ATTRS.men);
+  renderAttrList(safe('attr-phy'),ATTRS.phy);
+  renderSubM(safe('obi-subs'),OBI);
+  renderSubM(safe('sii-subs'),SII);
+
+  /* ── T1 RENDER ── */
+  const t1=safe('t1-metrics');
+  if(t1){
+    let hl='<div class="t1-highlight">';
+    T1_HIGHLIGHTS.forEach(m=>{
+      hl+=`<div class="t1-hl${m.gold?' gold':''}">
+        <div class="t1-hl-code">${m.code}</div>
+        <div class="t1-hl-val">${m.val}</div>
+        <div class="t1-hl-pct">${m.pctLabel}</div>
+        <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${m.bar}%"></div></div>
+        <span class="t1-source">${m.src}</span>
+      </div>`;
+    });
+    hl+='</div>';
+
+    hl+='<div style="background:rgba(226,0,26,.05);border:1px solid rgba(226,0,26,.12);border-radius:2px;padding:7px 12px;font-size:.71rem;color:var(--muted);margin-bottom:12px"><strong style="color:var(--lite)">Note on bars:</strong> widths reflect the raw stat value itself (or its own percentage), not a percentile rank or quality judgment — no league-wide percentile data was available for this player at time of writing.</div>';
+
+    const grpOrder=[['creation','🎯 Attack / Creation'],['passing','📤 Passing / Build-Up'],['defensive','🛡️ Defensive'],['physical','⚡ Duels / Discipline'],['seasons','📋 Season Totals']];
+    grpOrder.forEach(([key,label])=>{
+      hl+=`<div class="t1-group"><div class="t1-group-head">${label}</div>`;
+      T1_STATS[key].forEach(m=>{
+        hl+=`<div class="t1-row">
+          <span class="t1-code" style="color:var(--accentL)">${m.c}</span>
+          <span class="t1-desc">${m.d}</span>
+          <div class="t1-bar-bg"><div class="t1-bar-fill" style="width:60%;background:rgba(226,0,26,.5)"></div></div>
+          <span class="t1-val" style="color:var(--lite)">${m.v}</span>
+          <span class="t1-ctx">${m.ctx}</span>
+        </div>`;
+      });
+      hl+='</div>';
+    });
+    t1.innerHTML=hl;
+  }
+
+  const pbrk=safe('proxy-breakdown');
+  if(pbrk){
+    pbrk.innerHTML=PROXY_COMPONENTS.map(p=>`<div class="comp-row"><span class="comp-lbl" style="width:170px">${p.n}</span><span class="comp-desc">${p.d}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(p.v)}%;background:${sc(p.v)}"></div></div><span class="comp-val" style="color:${sc(p.v)}">${p.v}</span><span class="comp-wt">${p.w}</span></div>`).join('')
+      +`<div class="divider"></div><div style="display:flex;align-items:center;gap:10px;padding:6px 0"><span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--gold);width:170px">Weighted Proxy Total</span><div style="flex:1"></div><span style="font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:500;color:var(--gold)">7.8</span></div>`;
+  }
+
+  const ovp=safe('ov-phil');
+  if(ovp)ovp.innerHTML='<div style="font-size:.74rem;color:var(--muted);line-height:1.7"><span class="trait-pill">Busquets-like pivot</span><span class="trait-pill">Dutch Cruyffian lineage</span><span class="trait-pill">Orchestra conductor</span><span class="trait-pill">Facilitator not scorer</span><div style="margin-top:8px">Qualitative only — see Philosophy DNA tab for sourcing. No numeric fit score assigned.</div></div>';
+
+  const rEl=safe('t3-rest-grid');
+  if(rEl){
+    const ch=(a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
+    rEl.innerHTML=ch(T3R,4).map(col=>`<div>${col.map(m=>{
+      return`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">❌</span></div>`;
+    }).join('')}</div>`).join('');
+  }
+
+  const vc=safe('vc-mini');
+  if(vc){
+    const allm=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM'];
+    vc.innerHTML=allm.map(m=>{
+      return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem">
+        <span style="width:6px;height:6px;border-radius:50%;background:#0a1428;display:inline-block;flex-shrink:0"></span>
+        <span style="color:var(--muted);width:44px;font-family:'Rajdhani',sans-serif;font-weight:700">${m}</span>
+        <span class="mflag f-p">❌ 0evt</span>
+      </div>`;
+    }).join('');
+  }
+
+  const pb=safe('psych-bars');
+  if(pb){
+    const all_s=[
+      {n:"Eredivisie minutes",v:'2,381'},{n:"Starts (0 sub apps)",v:'28'},
+      {n:"Pass completion %",v:'91.2%'},{n:"Defensive contributions",v:'172'},
+      {n:"Tackles",v:'44'},{n:"Interceptions",v:'50'},
+      {n:"Duels won %",v:'52.2%'},{n:"Aerial duels won %",v:'49.3%'},
+      {n:"xA (vs 2 actual assists)",v:'2.40'},{n:"Avg FotMob rating",v:'7.37'},
+      {n:"Yellow / red cards",v:'2 / 1'}
+    ];
+    pb.innerHTML=all_s.map(p=>`<div class="mrow"><span class="mcode" style="width:170px;color:var(--muted)">${p.n}</span><span class="mval" style="color:var(--lite);width:auto;margin-left:auto">${p.v}</span></div>`).join('');
+  }
+
+  const DFT={
+    scales:{r:{min:0,max:100,grid:{color:'rgba(226,0,26,.06)'},angleLines:{color:'rgba(226,0,26,.06)'},
+      ticks:{stepSize:20,color:'#2a3850',backdropColor:'transparent',font:{size:9}},
+      pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},
+    plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},
+      tooltip:{backgroundColor:'#080c16',borderColor:'rgba(226,0,26,.3)',borderWidth:1,titleColor:'#4db8ff',bodyColor:'#f0f6fc'}},
+    responsive:true,maintainAspectRatio:false
+  };
+
+  const dc=safe('fgaDial');
+  if(dc){
+    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const proxyScore=7.8;
+    dctx.clearRect(0,0,120,120);
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
+    dctx.strokeStyle='rgba(226,0,26,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    // Proxy score fill — Tier 1 derived estimate only (not a real evidence-weighted FGA)
+    const grad=dctx.createLinearGradient(14,70,106,70);
+    grad.addColorStop(0,'rgba(226,0,26,.9)');grad.addColorStop(1,'rgba(0,140,255,.8)');
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(proxyScore/10)*Math.PI);
+    dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+  }
+
+  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20% (complete)','Tier 2 · 30% (pending)','Tier 3 · 50% (0/12 pending)'],
+    datasets:[{data:[20,30,50],backgroundColor:['rgba(226,0,26,.55)','rgba(42,56,80,.5)','rgba(42,56,80,.3)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},
+        tooltip:{backgroundColor:'#080c16',borderColor:'rgba(226,0,26,.3)',borderWidth:1}}}});
+
+  new Chart(safe('ovRadar'),{type:'radar',
+    data:{labels:['Pass%','Duel Win%','Aerial Win%','Long Ball%','Rating×10'],
+      datasets:[{label:'Schouten 25-26',data:[91.2,52.2,49.3,63.6,73.7],
+        borderColor:'#e2001a',backgroundColor:'rgba(226,0,26,.12)',borderWidth:2,
+        pointBackgroundColor:'#f0b820',pointRadius:4}]},
+    options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  new Chart(safe('ratingChart'),{type:'line',
+    data:{labels:RATING_LABELS,datasets:[{label:'FotMob rating',data:RATING_TREND,
+      borderColor:'#4db8ff',backgroundColor:'rgba(77,184,255,.12)',borderWidth:2,
+      pointBackgroundColor:RATING_TREND.map(v=>v===null?'transparent':(v>=7.5?'#2e9e5a':v>=6.5?'#a88010':'#8a1020')),
+      spanGaps:true,tension:.25,pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:'rgba(226,0,26,.04)'},ticks:{color:'#2a3850',font:{size:7},maxRotation:35,minRotation:35}},
+        y:{min:5,max:9,grid:{color:'rgba(226,0,26,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(226,0,26,.3)',borderWidth:1}}}});
+
+  new Chart(safe('dmaChart'),{type:'bar',
+    data:{labels:RATING_LABELS,
+      datasets:[{label:'Rating',data:RATING_TREND,
+        backgroundColor:RATING_TREND.map(v=>v===null?'rgba(42,56,80,.2)':v>=7.5?'rgba(34,168,90,.7)':v>=6.5?'rgba(168,128,16,.6)':'rgba(138,16,32,.6)'),
+        borderRadius:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:'rgba(226,0,26,.04)'},ticks:{color:'#2a3850',font:{size:7},maxRotation:35,minRotation:35}},
+        y:{min:5,max:9,grid:{color:'rgba(226,0,26,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(226,0,26,.3)',borderWidth:1}}}});
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
