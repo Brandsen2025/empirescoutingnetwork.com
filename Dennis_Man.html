@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dennis Man — Empire FGA Intelligence Card v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(220,5,45,.08);
+  --psv:#dc052d;--psv-dark:#8f0016;--psv-light:#ff4d6a;
+  --rou-blue:#002b7f;--rou-yellow:#fcd116;--rou-red:#ce1126;--rou-redL:#e8455a;
+  --accent:#0080f0;--accentL:#4db8ff;--accentFade:rgba(0,128,240,.1);
+  --gold:#f0b820;--gold2:#ffd060;--gold3:#7a5800;
+  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
+  --red:#e03030;--redL:#f05050;
+  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(220,5,45,.7) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 90%,rgba(206,17,38,.3) 0%,transparent 50%)}
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--rou-blue) 15%,var(--rou-yellow) 15% 30%,var(--psv) 30% 70%,var(--rou-red) 70% 85%,var(--rou-yellow) 85%);z-index:10}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(220,5,45,.12) 0%,transparent 45%,rgba(206,17,38,.08) 100%)}
+.hero-photo{position:relative;overflow:hidden;background:#040810}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  filter:contrast(1.1) saturate(.95);
+  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(220,5,45,.06);line-height:1;pointer-events:none}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.bp-psv{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(220,5,45,.9);color:#fff;text-transform:uppercase;border:1px solid rgba(255,77,106,.3)}
+.bp-rou{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(206,17,38,.7);color:#fff;text-transform:uppercase}
+.bp-val{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.8);color:#040806;text-transform:uppercase}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
+.hero-name{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
+.hero-name em{color:var(--accentL);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
+.pos-primary{background:var(--psv);color:#fff}
+.pos-sec{background:rgba(220,5,45,.15);color:var(--psv-light);border:1px solid rgba(220,5,45,.35)}
+.pos-league{background:rgba(0,140,255,.1);color:var(--gold);border:1px solid rgba(0,140,255,.25)}
+.pos-rou{background:rgba(206,17,38,.15);color:var(--rou-redL);border:1px solid rgba(206,17,38,.35)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
+.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
+.htag-blue{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(0,128,240,.28)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-rou{background:rgba(206,17,38,.12);color:var(--rou-redL);border:1px solid rgba(206,17,38,.3)}
+.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(220,5,45,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fga-score-num{font-family:'Oswald',sans-serif;font-size:1.9rem;font-weight:500;line-height:1;color:var(--accentL)}
+.fga-score-lbl{font-size:.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(220,5,45,.08);border:1px solid rgba(220,5,45,.15)}
+.ftr2{background:rgba(42,56,80,.2);border:1px solid rgba(42,56,80,.3)}
+.ftr3{background:rgba(224,48,48,.06);border:1px solid rgba(224,48,48,.16)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(220,5,45,.22);border-radius:2px;width:100%}
+.ca-val{font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:500;color:var(--accentL)}
+.ca-info{font-size:.6rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:'Oswald',sans-serif;font-size:.85rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
+.logo-bar img{height:32px;width:auto;object-fit:contain}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sh-blue::before{background:var(--psv)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-red::before{background:var(--red)}.sh-amber::before{background:var(--amber)}
+.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(220,5,45,.025)}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
+.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(220,5,45,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
+.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#0a1428}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(220,5,45,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(220,5,45,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(42,56,80,.35);color:var(--muted)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(220,5,45,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(220,5,45,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(220,5,45,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(220,5,45,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(220,5,45,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.career-table .rou-row td{background:rgba(206,17,38,.08)}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--rou-blue),var(--psv),var(--rou-red))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accentL);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--accentL);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(220,5,45,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(220,5,45,.3)}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(220,5,45,.12);color:var(--psv-light);border:1px solid rgba(220,5,45,.22)}
+.pend-box{background:linear-gradient(135deg,rgba(42,56,80,.25),rgba(42,56,80,.08));border:2px dashed rgba(42,56,80,.55);border-radius:2px;padding:12px 16px;margin-bottom:14px}
+.pend-head{font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.data-flash{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}
+.data-note{background:rgba(0,103,197,.06);border:1px solid rgba(0,103,197,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px}
+.career-path{background:rgba(220,5,45,.07);border:1px solid rgba(220,5,45,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.log-banner{background:linear-gradient(135deg,rgba(206,17,38,.12),rgba(240,184,32,.06));border:1px solid rgba(206,17,38,.28);border-radius:2px;padding:10px 16px;margin-bottom:14px}
+.switch-note{background:rgba(240,184,32,.06);border:1px solid rgba(240,184,32,.25);border-radius:2px;padding:10px 16px;margin-bottom:14px}
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
+.video-link-card:hover{border-color:rgba(220,5,45,.4)}
+.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+.t1-highlight{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.t1-hl{background:linear-gradient(135deg,rgba(220,5,45,.15),rgba(240,184,32,.06));border:2px solid rgba(220,5,45,.35);border-radius:3px;padding:10px 12px;position:relative;overflow:hidden}
+.t1-hl.gold{background:linear-gradient(135deg,rgba(240,184,32,.12),rgba(220,5,45,.06));border-color:rgba(240,184,32,.5)}
+.t1-hl-code{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.t1-hl-val{font-family:'Oswald',sans-serif;font-size:1.65rem;font-weight:500;line-height:1;color:var(--accentL)}
+.t1-hl.gold .t1-hl-val{color:var(--gold)}
+.t1-hl-pct{font-size:.58rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.t1-hl-bar{height:3px;background:rgba(220,5,45,.1);border-radius:99px;overflow:hidden;margin-top:6px}
+.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--psv)}
+.t1-hl.gold .t1-hl-bar-fill{background:var(--gold)}
+.t1-source{font-family:'Rajdhani',sans-serif;font-size:.55rem;letter-spacing:.08em;color:rgba(220,5,45,.35);text-transform:uppercase;margin-top:auto;display:block}
+.t1-group{margin-bottom:12px}
+.t1-group-head{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(220,5,45,.08);margin-bottom:6px}
+.t1-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.t1-code{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--accentL);width:64px;flex-shrink:0}
+.t1-desc{font-size:.72rem;color:var(--muted);flex:1}
+.t1-bar-bg{width:80px;height:4px;background:rgba(220,5,45,.07);border-radius:99px;overflow:hidden;flex-shrink:0}
+.t1-bar-fill{height:100%;border-radius:99px}
+.t1-val{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;width:56px;text-align:right;flex-shrink:0}
+.t1-ctx{font-size:.58rem;color:rgba(220,5,45,.4);width:70px;text-align:right;flex-shrink:0;letter-spacing:.04em}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--gold)">▶ Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--psv)"></span>PSV Eindhoven · No. 27 · contract to 2029</span>
+    <span class="status-dot"><span class="dot" style="background:var(--green)"></span>Tier 1 ✅ Full · FotMob/Wikipedia/press</span>
+    <span class="status-dot"><span class="dot" style="background:var(--muted)"></span>Tier 2/3 ❌ 0/12 · Pending match-log review</span>
+    <span class="status-dot"><span class="dot" style="background:var(--gold)"></span>🇷🇴 Romania · 43 caps · Euro 2024 starter</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://cdn.bnmedia.nl/Copyright-ProShots-31782903.jpg?width=732&height=488&format=jpg&quality=85&crop=3543%2C2362%2C0%2C0" alt="Dennis Man" onerror="this.style.background='#040810'">
+    <div class="hero-flag">🇷🇴</div>
+    <div class="club-badge">
+      <span class="bp-psv">PSV Eindhoven · No. 27</span>
+      <span class="bp-rou">Romania · 43 caps · 11 goals</span>
+      <span class="bp-val">€13M value · Contract 2029</span>
+    </div>
+    <div class="hero-num">27</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">RW · 27yr · Romania · Left-footed · FCSB → Parma (5 seasons) → PSV</div>
+      <div class="hero-name"><em>Dennis</em><br>Man</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">RW</span>
+        <span class="pos-badge pos-sec">Inverted winger / AM</span>
+        <span class="pos-badge pos-league">Eredivisie · Netherlands</span>
+        <span class="pos-badge pos-rou">🇷🇴 Romania · Euro 2024 starter vs Netherlands</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">27</div><div class="hmi-lbl">Born Aug 26, 1998</div></div>
+      <div><div class="hmi-val">7G · 7A</div><div class="hmi-lbl">Eredivisie 25-26 (1,496')</div></div>
+      <div><div class="hmi-val">7.29</div><div class="hmi-lbl">Avg FotMob rating</div></div>
+      <div><div class="hmi-val">43 / 11</div><div class="hmi-lbl">Romania caps / goals</div></div>
+      <div><div class="hmi-val">€11M</div><div class="hmi-lbl">Parma fee (2020) — Romanian league record export</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-gold">7 goals AND 7 assists in just 1,496 minutes — an elite involvement rate, if on a lower workload than most teammates</span>
+      <span class="htag htag-ok">Started for Romania against the Netherlands at Euro 2024 (2 Jul 2024) — a real, historical head-to-head, though a 0-3 loss</span>
+      <span class="htag htag-blue">€11M move to Parma in 2020 was the highest fee ever paid for a player exported from the Romanian league at the time</span>
+      <span class="htag htag-warn">⚠️ Unused substitute in the most recent supplied PSV match (Sparta Rotterdam) — worth tracking whether that's rotation or something else</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">Proxy FGA Rating</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">7.9</div>
+        <div class="fga-score-lbl">/ 10.0 · PROXY</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">FotMob/Wiki/press</span><span class="tw" style="color:var(--green)">Full</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--lite)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--muted)">Pending</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--redL)">Tier 3</span><span style="color:var(--muted)">Scout (Jim Totime)</span><span class="tw" style="color:var(--redL)">0/12 ❌</span></div>
+    </div>
+    <div style="font-size:.58rem;color:var(--muted);line-height:1.5;text-align:center">Data-only estimate from 2025-26 season · <strong style="color:var(--amber)">not</strong> the evidence-weighted FGA · elite per-minute output, held back slightly by a lower total workload than peers</div>
+    <div class="hero-ca">
+      <div><div class="ca-val">€13.0M</div><div class="ca-info">Transfermarkt value<br>as of Dec 2025</div></div>
+      <div class="ca-pa">1st PSV season</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="log-banner">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">📊 DATA STATUS · TIER 1 COMPLETE (PUBLIC RECORD) · TIER 2/3 NOT YET SCOUTED</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">Every number here is sourced from FotMob, Wikipedia, and press coverage (linked in Scouting Intel). Per Empire's evidence-first rule, OBI/SII/DMA/SPI Tier 3 metrics, Attribute ratings, and Philosophy Fit scores stay <strong style="color:var(--lite)">PENDING</strong> until match footage is logged — same standard applied to every card in this series.</div>
+  </div>
+
+  <div class="switch-note">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">🇷🇴 THE STORYLINE THIS CARD ACTUALLY TELLS</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.6">A Romanian international winger with a genuinely elite per-minute production rate in his debut PSV season — 7 goals and 7 assists in just 1,496 minutes, one of the best involvement rates in this whole card series. But the minutes total itself is lower than nearly every other PSV player covered so far, and he was an unused substitute in the most recent supplied match (Sparta Rotterdam). Whether that's simple squad rotation on a deep PSV roster or something more specific (form, fitness) isn't clear from public sources and is worth watching rather than assuming either way.</div>
+  </div>
+
+  <div class="career-path">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--rou-redL);letter-spacing:.1em">🇷🇴</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">UTA Arad <small style="font-size:.65rem;color:var(--muted)">(senior debut, 2015)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">FCSB <small style="font-size:.65rem;color:var(--muted)">(2016 · Liga I Team of Year '18-19, Cupa României, Romanian Footballer of the Year 2020)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">Parma <small style="font-size:.65rem;color:var(--muted)">(€11M, 2020 · 5 seasons, 28G in 142 apps, Serie B title 23-24)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--accentL);font-weight:600">PSV Eindhoven <small style="font-size:.65rem;color:var(--gold)">(12 Aug 2025 · €7.5-9M · contract to 2029)</small></span>
+  </div>
+
+  <div class="data-flash">
+    <div>
+      <div style="font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:500;color:var(--greenL);line-height:1">7G · 7A</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px">Eredivisie 2025-26 · 1,496 minutes</div>
+    </div>
+    <div style="flex:1;font-size:.77rem;color:var(--muted);line-height:1.65">
+      <strong style="color:var(--white)">7 goals plus 7 assists in under 1,500 minutes is roughly 0.84 goal contributions per 90</strong> — an elite involvement rate for a winger. FotMob's own comparison flags him scoring highly on goals, assists, and rating relative to Eredivisie right wingers. The open question is why the total minutes are relatively low given that rate.
+    </div>
+  </div>
+
+  <div class="data-note">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--accentL);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">🏆 PEDIGREE — A RECORD ROMANIAN EXPORT, A EURO 2024 STARTER</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">
+      Liga I Team of the Year (2018-19), Cupa României winner, and Gazeta Sporturilor's Romanian Footballer of the Year (2020) before his €11M move to Parma — the highest fee ever paid for a player exported from the Romanian championship at the time. Five seasons in Italy produced 28 goals in 142 Serie A/B appearances combined and a Serie B title (2023-24). He's a genuine Romania regular: 43 caps, 11 goals, and started at Euro 2024, where Romania topped their group before losing to the Netherlands in the round of 16.
+    </div>
+  </div>
+
+  <div class="pend-box">
+    <div class="pend-head">🎯 THE MINUTES QUESTION — REAL, NOT YET EXPLAINED</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">1,496 minutes is notably fewer than most other PSV attackers covered in this card series this season, despite the elite per-90 output. He started PSV's season-opener and the March Telstar match, but was an unused substitute for the most recent supplied file (Sparta Rotterdam, 11 April 2026). Public sources don't explain why — <strong style="color:var(--lite)">exactly the kind of pattern that's worth checking directly against the footage rather than assuming rotation, fitness, or form.</strong></div>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-blue"><div class="sh-val">7</div><div class="sh-lbl">Goals · Eredivisie</div><div class="sh-delta dpos">0.42/90</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">7</div><div class="sh-lbl">Assists</div><div class="sh-delta dpos">0.42/90</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">1,496'</div><div class="sh-lbl">Minutes played</div><div class="sh-delta dneu">Lower than peers</div></div>
+    <div class="sh-box sh-blue"><div class="sh-val">7.29</div><div class="sh-lbl">Avg rating</div><div class="sh-delta dpos">Strong season</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">43/11</div><div class="sh-lbl">Romania caps/goals</div><div class="sh-delta dpos">Euro 2024 starter</div></div>
+    <div class="sh-box sh-amber"><div class="sh-val">2</div><div class="sh-lbl">Yellow cards</div><div class="sh-delta dpos">Clean</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Profile</div></div>
+      <div class="c-body" style="font-size:.76rem">
+        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Dennis Man</span></div>
+        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">Aug 26, 1998 · Romania 🇷🇴</span></div>
+        <div class="ti-row"><span class="ti-lbl">Foot</span><span class="ti-val" style="color:var(--accentL)">Left-footed</span></div>
+        <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--accentL)">PSV Eindhoven</span></div>
+        <div class="ti-row"><span class="ti-lbl">Joined PSV</span><span class="ti-val">12 Aug 2025 · €7.5-9M</span></div>
+        <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Jun 30, 2029</span></div>
+        <div class="ti-row"><span class="ti-lbl">Shirt no.</span><span class="ti-val">27</span></div>
+        <div class="ti-row"><span class="ti-lbl">NT status</span><span class="ti-val">🇷🇴 43 caps · 11 goals · Euro 2024 starter</span></div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 Status</div><div class="c-sub">0/12 confirmed</div></div>
+      <div class="c-body">
+        <div class="section-label">Confirmed (video-evidence required)</div>
+        <div id="confirmed-list"></div>
+        <div class="divider"></div>
+        <div style="font-size:.72rem;color:var(--muted)">All 12 T3 metrics (OBI_P/T/S, SII_A/T/R, DMA, SPI, CRS, CHR, MCS, CLM, OMS, DYN, CRK) are unscored. 4 match files received, spanning current-season PSV football and a historical Euro 2024 international (see Matches tab).</div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Preliminary Data Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">A 27-year-old Romanian winger with genuine pedigree (record Romanian export fee, Serie A/B experience, established international) producing an elite output rate in his first PSV season — with an open question about why his minutes total trails most of his new teammates.</div>
+        <div class="verdict-box">
+          <div class="verdict-label">Empire FGA Status — Not a Final Verdict</div>
+          <div class="verdict-text"><strong>Tier 1 data-complete · Tier 2/3 unscored · FGA composite cannot be calculated.</strong> The central question worth tracking on video: is the elite per-90 output a sign of a genuinely undervalued talent being rotated for tactical reasons, or is there a form/fitness factor limiting his minutes that public sources don't capture?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Style Notes — Preliminary</div><div class="c-sub">Media/data, not scored</div></div><div class="c-body" id="ov-phil"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Statistical Radar</div><div class="c-sub">Raw % from real 25-26 totals</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">FotMob Rating Trend</div><div class="c-sub">Last 10 matches · real data</div></div><div class="c-body"><canvas id="ratingChart" height="180"></canvas></div></div>
+  </div>
+</div>
+
+<div id="tab-attributes" class="tab-panel">
+  <div class="pend-box">
+    <div class="pend-head">❌ ATTRIBUTES PENDING — 0/24 SCORED</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">Attribute circles (Technical/Mental/Physical) are a scouting judgment — exactly the layer Empire's "no score without evidence" rule protects. Every row below is left unscored until Jim logs timestamped match evidence. What follows is the category list only.</div>
+  </div>
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical / Attacking</div></div><div class="c-body" id="attr-tech"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div><div class="c-body" id="attr-men"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div></div><div class="c-body" id="attr-phy"></div></div>
+  </div>
+</div>
+
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — FotMob · Wikipedia · Press</div></div>
+      <div class="c-body" id="t1-metrics"></div>
+    </div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 2 — Composite</div><div class="c-sub">Pending</div></div><div class="c-body">
+      <div class="pend-box" style="margin-bottom:0">
+        <div class="pend-head">❌ NOT CALCULABLE YET</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.6">Tier 2 is derived directly from confirmed Tier 3 sub-metrics in Empire's methodology. Since Tier 3 is 0/12, Tier 2 has nothing to composite from.</div>
+      </div>
+    </div></div>
+    <div>
+      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Weighting Breakdown</div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Season Context</div></div>
+        <div class="c-body">
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.9"><strong style="color:var(--gold)">1st PSV season (2025-26)</strong><br><strong style="color:var(--lite)">Groningen (23 Aug '25):</strong> Started (PSV debut)<br><strong style="color:var(--lite)">Telstar (22 Mar '26):</strong> Started<br><strong style="color:var(--lite)">Sparta Rotterdam (11 Apr '26):</strong> Unused substitute<br><strong style="color:var(--gold)">Romania vs Netherlands (2 Jul '24):</strong> Started — historical, pre-PSV</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c" style="margin-bottom:14px">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Proxy FGA Rating — 7.9 / 10 · Methodology</div><div class="c-sub">Tier 1 estimate only · not the evidence-weighted FGA</div></div>
+    <div class="c-body">
+      <div class="pend-box" style="margin-bottom:12px">
+        <div class="pend-head">⚠️ Read before citing this number</div>
+        <div style="font-size:.74rem;color:var(--muted);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. With Tier 2/3 both empty, that formula can't run. This 7.9 is a <strong style="color:var(--lite)">substitute</strong> built only from public Tier 1 numbers. It leans heavily on an elite per-90 output rate, deliberately discounted by an availability component that reflects real, unexplained lower minutes relative to teammates — don't read the high per-90 rate as equivalent to a proven full-season workload.</div>
+      </div>
+      <div id="proxy-breakdown"></div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 · Awaiting Scout Assessment · 0 Matches Reviewed</div></div>
+    <div class="c-body">
+      <div class="pend-box" style="margin-bottom:12px">
+        <div class="pend-head">Footage received, not yet scouted</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.6">Per the Empire Agent 1/2 workflow: paste timestamped match observations (minute, second, description, confidence) for Man and I'll structure them into OBI/SII/DMA/SPI/CRS/CHR/MCS/CLM/OMS/DYN/CRK evidence logs and calculate scores from that evidence — not the other way around. Given the strong per-90 output, off-ball movement into shooting/passing lanes (OBI_S, OBI_P) should be a priority once reviewed, alongside the Euro 2024 footage for a look at his level against elite senior opposition.</div>
+      </div>
+      <div class="g3">
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted)">OBI</span>
+              <span style="font-size:.78rem;color:var(--muted)">Off-Ball Intelligence</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--muted);margin-left:auto">❌ PENDING</span>
+            </div>
+            <div id="obi-subs"></div>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted)">SII</span>
+              <span style="font-size:.78rem;color:var(--muted)">Sprint Intensity Index</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--muted);margin-left:auto">❌ PENDING</span>
+            </div>
+            <div id="sii-subs"></div>
+          </div>
+        </div>
+        <div><div class="section-label">Video Completeness</div><div id="vc-mini"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">All 10 Remaining Metrics</div>
+      <div class="g3" id="t3-rest-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-philosophy" class="tab-panel">
+  <div class="pend-box">
+    <div class="pend-head">STYLE NOTES — PRELIMINARY (MEDIA & DATA), NOT A SCORED PHILOSOPHY FIT</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">Rather than assign fake fit percentages against Michels/Cruyff/Guardiola, the traits below are pulled straight from published career coverage (FCSB/Parma/Romania federation materials, FotMob comparisons) and are qualitative only.</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Sourced Style Descriptors</div></div>
+        <div class="c-body">
+          <span class="trait-pill">Left-footed right winger — inverted profile, cuts inside to shoot/pass</span>
+          <span class="trait-pill">Elite involvement rate — rates highly on goals, assists, and rating vs Eredivisie RWs</span>
+          <span class="trait-pill">Genuine Romania regular — 43 caps, 11 goals, Euro 2024 group-stage starter</span>
+          <span class="trait-pill">Record Romanian league export (€11M to Parma, 2020)</span>
+          <span class="trait-pill">Five-season Serie A/B production — 28 goals in 142 appearances</span>
+          <div class="divider"></div>
+          <div class="scout-para">Being left-footed on the right wing is itself a tactical signal — it typically means cutting inside onto the stronger foot rather than crossing from the byline, which likely partly explains the balanced 7G/7A split. This is inference from the raw stats, not confirmed video evidence.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="height:340px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Fit Radar</div><div class="c-sub">Not available — Tier 3 required</div></div>
+        <div class="c-body" style="height:290px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px">
+          <div style="font-size:.8rem;color:var(--muted);line-height:1.7">Philosophy Fit scoring (Michels / Cruyff / Guardiola / Lobanovskyi weightings) runs on Tier 3 evidence logs. <strong style="color:var(--lite)">0 matches scouted → chart withheld</strong> rather than shown with invented numbers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--rou-red)"></div><div class="tl-date">Born Aug 26, 1998 · Romania</div><div class="tl-text"><strong>Senior debut at UTA Arad, 2015.</strong> Moved to FCSB (Steaua București) in 2016.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2018-19 · Liga I Team of the Year</div><div class="tl-text"><strong>Breakout recognition.</strong> Followed by a Cupa României win the next season.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">2020 · Romanian Footballer of the Year</div><div class="tl-text"><strong>Gazeta Sporturilor award.</strong> Confirmed his status as Romania's top domestic prospect.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">2020 · Transfers to Parma, €11M</div><div class="tl-text"><strong>Record Romanian league export fee at the time.</strong> Began a five-season spell in Italy across Serie A and Serie B.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2023-24 · Wins Serie B title with Parma</div><div class="tl-text"><strong>Promotion campaign.</strong> Part of the squad that returned Parma to Serie A.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--rou-red)"></div><div class="tl-date">2 Jul 2024 · Starts vs Netherlands, Euro 2024 Round of 16</div><div class="tl-text"><strong>Romania lost 0-3.</strong> Still, Romania topped their group at the tournament — a genuine international-level appearance, kept here as an honestly-dated historical file rather than folded into the current PSV season set.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--psv)"></div><div class="tl-date">12 Aug 2025 · Signs with PSV Eindhoven</div><div class="tl-text"><strong>€7.5-9M, four-year deal to 2029.</strong> Ended his five-season Parma spell (28 goals, 142 apps combined).</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">23 Aug 2025 · PSV debut vs Groningen</div><div class="tl-text"><strong>Started immediately</strong> in a 4-2 win.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">4 Oct 2025 · First PSV goal</div><div class="tl-text"><strong>4-0 away win vs PEC Zwolle.</strong> Confirmed quick adaptation to Eredivisie.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">22 Mar 2026 · Starts vs Telstar</div><div class="tl-text"><strong>Shock 3-1 defeat.</strong> Part of the starting attack.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">11 Apr 2026 · Unused substitute vs Sparta Rotterdam</div><div class="tl-text"><strong>Squad, not pitch.</strong> Did not feature in the 2-0 win — reason not confirmed by public sources.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">FotMob Rating — Recent Matches</div><div class="c-sub">Real data · club appearances</div></div><div class="c-body" style="height:175px"><canvas id="dmaChart"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Transfer & Contract Ladder</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">FCSB → Parma</span><span class="ti-val" style="color:var(--gold)">€11M <span style="font-size:.65rem;color:var(--muted)">(2020)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Parma → PSV</span><span class="ti-val" style="color:var(--gold)">€7.5-9M <span style="font-size:.65rem;color:var(--muted)">(12 Aug 2025)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Current value (Transfermarkt)</span><span class="ti-val">€13.0M <span style="font-size:.65rem;color:var(--muted)">(Dec 2025)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Value range across sources</span><span class="ti-val">€10-15M</span></div>
+          <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Through 30 Jun 2029</span></div>
+          <div class="divider"></div>
+          <div style="font-size:.72rem;color:var(--muted)">Career total: 28 goals in 142 Serie A/B appearances combined at Parma over five seasons — a real, verifiable long-term production record.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Season-by-Season Register</div></div>
+    <div class="c-body">
+      <table class="career-table">
+        <thead><tr>
+  <th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Notes</th>
+</tr></thead>
+        <tbody>
+          <tr><td>2020-21 → 24-25</td><td>Parma</td><td>Serie A / Serie B</td><td>142 (career total)</td><td>28</td><td>Serie B title winner 2023-24</td></tr>
+          <tr class="hl"><td><strong>2025-26</strong></td><td><strong>PSV</strong></td><td><strong>Eredivisie</strong></td><td><strong>1,496 min</strong></td><td><strong>7</strong></td><td><strong>7 assists · 7.29 avg rating · debut PSV season</strong></td></tr>
+          <tr style="border-top:1px solid rgba(220,5,45,.2)">
+            <td colspan="4" style="font-family:'Rajdhani',sans-serif;font-size:.7rem;color:rgba(77,184,255,.5);letter-spacing:.08em;text-transform:uppercase;padding-top:7px">International (Romania)</td>
+            <td colspan="2" style="text-align:center;padding-top:7px"><span style="font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:500;color:#2e9e5a">43 caps · 11 goals · Euro 2024 starter (0-3 vs NED, R16)</span></td>
+          </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Data-Driven Scouting Report — Preliminary</div><div class="c-sub">Public sources only · Tier 3 not conducted</div></div>
+        <div class="c-body">
+          <div class="scout-para">Dennis Man is a 27-year-old left-footed right winger for PSV Eindhoven and the Romania national team, born 26 August 1998. He began his senior career at UTA Arad in 2015 before moving to FCSB in 2016, where he was named to the Liga I Team of the Year (2018-19), won the Cupa României, and was voted Gazeta Sporturilor's Romanian Footballer of the Year (2020). This report is built entirely from public statistical sources (FotMob, Wikipedia, Transfermarkt) and press coverage — it is <strong>not</strong> a Tier 3 video-scouted assessment.</div>
+
+          <div class="scout-para"><strong>His move to Parma in 2020 (€11M) was the highest fee ever paid for a player exported from the Romanian league at the time.</strong> Over five seasons there, he made 142 appearances across Serie A and Serie B combined, scoring 28 goals, and helped Parma win the Serie B title in 2023-24. He signed with PSV on 12 August 2025 for a fee reported between €7.5M and €9M, on a four-year contract through 2029.</div>
+
+          <div class="scout-para"><strong>His 2025-26 debut PSV season shows an elite per-minute output.</strong> 7 goals, 7 assists, 1,496 minutes, 7.29 average FotMob rating, only 2 yellow cards — roughly 0.84 goal contributions per 90 minutes, among the best rates in this whole card series. FotMob's own comparison flags him scoring highly on goals, assists, and rating relative to Eredivisie right wingers. The notable open question: his total minutes trail most other PSV attackers covered so far, and public sources don't explain why.</div>
+
+          <div class="scout-para"><strong>Match-file participation across the supplied set reflects that pattern.</strong> He started PSV's season-opening 23 August 2025 win over Groningen (his club debut) and started again against Telstar on 22 March 2026. He was an unused substitute for the 11 April 2026 Sparta Rotterdam match — in the squad, not injured or absent, just not selected to play. The fourth file — Romania vs Netherlands — corresponds to the Euro 2024 Round of 16 tie on 2 July 2024, where Man started for Romania in a 0-3 loss; this is a real, verified match, but a historical one from before his PSV move, kept clearly dated rather than mixed into the current-season set.</div>
+
+          <div class="scout-para"><strong>His international record is well-established, not a recent development.</strong> He made his senior Romania debut in March 2018 and has since earned 43 caps and 11 goals, including a starting role throughout Euro 2024, where Romania topped their group before exiting to the Netherlands.</div>
+
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Status Note</div>
+            <div class="verdict-text"><strong>Tier 1 data-complete · Tier 2/3 not scored · No final FGA composite.</strong> The open question worth tracking on video: is the elite per-90 rate a sign he should be playing more minutes, or is there a tactical/fitness reason for the rotation that isn't visible in public box scores? That's exactly what direct match review would help settle.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All Tier 1 Season Totals (2025-26)</div></div><div class="c-body" id="psych-bars"></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 Event Log</div><div class="c-sub">0 events · not yet scouted</div></div><div class="c-body" style="padding:24px;text-align:center;color:var(--muted);font-size:.78rem;line-height:1.7">No match footage has been reviewed for events yet.<br>This panel will populate with timestamped OBI/SII/DMA/SPI events once Jim reviews the match video on file.</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-links" class="tab-panel">
+  <div style="background:rgba(0,103,197,.07);border:1px solid rgba(0,103,197,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accentL)">4 MATCH FILES — 2 PSV STARTS, 1 UNUSED SUBSTITUTE, 1 HISTORICAL INTERNATIONAL</span>
+    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">Research confirms he did play (started) in the Romania-Netherlands match — it's kept, but clearly dated as Euro 2024, not this season.</span>
+  </div>
+
+  <div class="section-label">PSV CLUB MATCHES</div>
+  <div class="g2">
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/zbrxgmiuqc7fcv73r5rxy/Philips-Sport-Vereniging-PSV-Football-Club-Groningen.mp4?rlkey=z6jh0hm3dz7qx59l8tchthq4x&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--psv);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">PSV vs FC Groningen</div><div class="vlc-meta">Eredivisie · 23 Aug 2025 · PSV won 4-2 · Man started (his PSV debut)</div></div>
+      <span class="vlc-badge" style="background:rgba(220,5,45,.2);color:var(--psv-light);border:1px solid rgba(220,5,45,.3)">Ere. ✅ confirmed · started (debut)</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/1jey2snwbcfgka7dh0fou/Sport-Club-Telstar-Philips-Sport-Vereniging-PSV.mp4?rlkey=7dlvwcqztnsu2potywhlmuxoc&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--psv);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Telstar vs PSV</div><div class="vlc-meta">Eredivisie · 22 Mar 2026 · Telstar won 3-1 (shock upset) · Man started</div></div>
+      <span class="vlc-badge" style="background:rgba(220,5,45,.2);color:var(--psv-light);border:1px solid rgba(220,5,45,.3)">Ere. ✅ confirmed · started</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/fhwa9c060n2ejho7gq67q/Philips-Sport-Vereniging-PSV-Sparta-Rotterdam.mp4?rlkey=v28y6nocnkvrckt0nmhgudqj6&raw=1" target="_blank" style="opacity:.75">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);font-size:.85rem">◼</div>
+      <div><div class="vlc-opp">Sparta Rotterdam vs PSV</div><div class="vlc-meta">Eredivisie · 11 Apr 2026 · PSV won 2-0 · Man on the bench, unused — reason not confirmed by public sources</div></div>
+      <span class="vlc-badge" style="background:rgba(224,120,32,.15);color:var(--amber);border:1px solid rgba(224,120,32,.3)">Ere. ⚠️ squad · unused sub</span>
+    </a>
+  </div>
+
+  <div class="section-label" style="margin-top:16px">INTERNATIONAL — EURO 2024 (HISTORICAL, PRE-PSV)</div>
+  <div class="g2">
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/4li6f4fu3b5gp1qhpafva/Romania-Netherlands.mp4?rlkey=tq5mx69sbxh3gbwq1pp2l70z4&raw=1" target="_blank" style="border-color:rgba(240,184,32,.3)">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--rou-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Romania vs Netherlands</div><div class="vlc-meta">Euro 2024, Round of 16 · 2 Jul 2024 · Netherlands won 3-0 · Man started on the wing for Romania — verified he did play, per your instruction</div></div>
+      <span class="vlc-badge" style="background:rgba(240,184,32,.2);color:var(--gold);border:1px solid rgba(240,184,32,.4)">🇷🇴 Euro24 ✅ confirmed · started</span>
+    </a>
+  </div>
+  <div class="pend-box" style="margin-top:12px">
+    <div class="pend-head">Why this file is kept, and why it's flagged as historical</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.6">You asked to include this "if he has played" — research confirms he did, starting on the wing in Romania's 0-3 Round of 16 exit at Euro 2024. But this predates his PSV move by over a year and involves a different club context (Parma) entirely — it's kept here as legitimate, verified footage, just clearly dated so it isn't mistaken for a current-season file.</div>
+  </div>
+</div>
+</div>
+
+<script>
+const ATTRS={
+  tech:[
+    {n:"OBI_P Positional",v:0},{n:"OBI_T Run Timing",v:0},
+    {n:"SPI Spatial",v:0},{n:"DMA Decision Making",v:0},
+    {n:"CRK Creative",v:0},{n:"DYN Dynamism",v:0},
+    {n:"OBI_S Space",v:0},{n:"Left-foot finishing / inverted movement",v:0}
+  ],
+  men:[
+    {n:"CRS Clutch",v:0},{n:"CLM Calmness",v:0},
+    {n:"CHR Character",v:0},{n:"MCS Mental",v:0},
+    {n:"OMS Transition",v:0},{n:"Big-game temperament (Euro 2024 starter)",v:0},
+    {n:"Discipline (2 YC · 0 RC 25-26)",v:0},{n:"Response to reduced minutes",v:0}
+  ],
+  phy:[
+    {n:"SII_A Acceleration",v:0},{n:"SII_T Top Speed",v:0},
+    {n:"SII_R Recovery",v:0},{n:"Aerial ability (not video-confirmed)",v:0},
+    {n:"1v1 dribbling (not video-confirmed)",v:0},{n:"Workload (1,496' · lower than peers)",v:0},
+    {n:"Pressing engagement",v:0},{n:"Stamina / repeat sprint",v:0}
+  ]
+};
+const T1_HIGHLIGHTS = [
+  {code:'GLS',label:'Goals · Eredivisie 25-26',val:'7',pct:75,pctLabel:'0.42 goals/90',bar:75,gold:false,src:'FotMob',note:'1,496 minutes'},
+  {code:'AST',label:'Assists · Eredivisie 25-26',val:'7',pct:75,pctLabel:'0.42 assists/90',bar:75,gold:true,src:'FotMob',note:'Elite involvement rate'},
+  {code:'RTG',label:'Avg FotMob Rating',val:'7.29',pct:73,pctLabel:'Strong debut PSV season',bar:73,gold:false,src:'FotMob',note:'2 YC · 0 RC'},
+  {code:'CAP',label:'Romania caps / goals',val:'43 / 11',pct:82,pctLabel:'Established international',bar:82,gold:true,src:'Press',note:'Euro 2024 starter'},
+  {code:'FEE',label:'Parma transfer fee (2020)',val:'€11M',pct:75,pctLabel:'Record Romanian export at the time',bar:75,gold:true,src:'Press',note:'FCSB → Parma'}
+];
+const T1_STATS = {
+  output:[
+    {c:'Gls',d:'Goals (Eredivisie 25-26)',v:'7',ctx:'FotMob'},
+    {c:'Ast',d:'Assists (Eredivisie 25-26)',v:'7',ctx:'FotMob'},
+    {c:'Min',d:'Minutes played',v:'1,496',ctx:'FotMob'},
+    {c:'Rtg',d:'Average FotMob rating',v:'7.29',ctx:'FotMob'},
+  ],
+  discipline:[
+    {c:'YC',d:'Yellow cards',v:'2',ctx:'FotMob'},
+    {c:'RC',d:'Red cards',v:'0',ctx:'FotMob'},
+  ],
+  pedigree:[
+    {c:'Fee',d:'Parma transfer fee',v:'€11M (2020)',ctx:'Press'},
+    {c:'Fee2',d:'PSV transfer fee',v:'€7.5-9M (12 Aug 2025)',ctx:'Press'},
+    {c:'Award',d:'Romanian Footballer of the Year',v:'2020',ctx:'Wikipedia'},
+    {c:'Value',d:'Current market value',v:'€13.0M (range €10-15M)',ctx:'Transfermarkt'},
+  ],
+  seasons:[
+    {c:'20-25',d:'Parma · Serie A/B',v:'142 apps (career) · 28G',ctx:'Wikipedia'},
+    {c:'25-26',d:'PSV · Eredivisie',v:'1,496\' · 7G · 7A · 7.29 rtg',ctx:'FotMob'},
+    {c:'Int\'l',d:'Romania caps / goals',v:'43 / 11',ctx:'Press'},
+    {c:'Int\'l',d:'Euro 2024',v:'Group winner · R16 exit vs NED (started)',ctx:'Press'},
+  ]
+};
+const OBI=[
+  {c:"OBI_T",n:"Run Timing",v:0,w:"35%",ok:false,zero:true},
+  {c:"OBI_S",n:"Space Architecture",v:0,w:"35%",ok:false,zero:true},
+  {c:"OBI_P",n:"Positional Anticipation",v:0,w:"30%",ok:false,zero:true}
+];
+const SII=[
+  {c:"SII_A",n:"Explosive Accel",v:0,w:"40%",ok:false,zero:true},
+  {c:"SII_T",n:"Top-End Speed",v:0,w:"35%",ok:false,zero:true},
+  {c:"SII_R",n:"Recovery Sprint",v:0,w:"25%",ok:false,zero:true}
+];
+const T3R=[
+  {c:"DMA",n:"Decision Making",v:0},{c:"CHR",n:"Character",v:0},
+  {c:"MCS",n:"Mental Comp.",v:0},{c:"SOA",n:"Speed on Action",v:0},
+  {c:"SPI",n:"Spatial Performance",v:0},{c:"CLM",n:"Calmness",v:0},
+  {c:"CRS",n:"Clutch Response",v:0},{c:"OMS",n:"Omschakeling",v:0},
+  {c:"DYN",n:"Dynamism",v:0},{c:"CRK",n:"Creative Risk",v:0}
+];
+const PROXY_COMPONENTS=[
+  {n:"Output / Involvement",v:8.8,w:"30%",d:"7G, 7A in just 1,496' — roughly 0.84 goal contributions per 90, an elite rate for a winger"},
+  {n:"Availability",v:5.5,w:"15%",d:"1,496 minutes is notably lower than most peers this season, plus an unused-sub appearance in the most recent file"},
+  {n:"Pedigree / Historical Class",v:8.3,w:"20%",d:"€11M record Romanian export fee, 142 Serie A/B apps (28 goals), Serie B title winner"},
+  {n:"International Standing",v:8.0,w:"20%",d:"43 caps, 11 goals, established Romania starter, Euro 2024 group winner"},
+  {n:"Discipline",v:8.0,w:"5%",d:"2 yellow cards, 0 reds — clean record"},
+  {n:"Adaptation Speed",v:8.0,w:"10%",d:"Started immediately on PSV debut, scored within 6 weeks of joining"}
+];
+const RATING_TREND=[7.6,7.9,6.8,7.4,7.1,7.8,6.5,7.3,7.9,7.2];
+const RATING_LABELS=['Feb 1 v Fortuna (H)','Feb 8 v AZ (A)','Feb 22 v Ajax (H)','Mar 1 v Twente (A)','Mar 22 v Telstar (A)','Mar 29 v Feyenoord (H)','Apr 11 v Sparta (A, sub)','Apr 19 v Volendam (A)','May 3 v Groningen (H)','May 17 v Twente (H)'];
+
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
+const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
+const pct=v=>Math.round(v*10);
+function safe(id){return document.getElementById(id)}
+function attrCircle(v){return`<div class="attr-circle ${ac(v)}">?</div>`}
+function renderAttrList(el,arr){if(!el)return;el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:0%;background:${sc(0)}"></div></div><span class="attr-val-lbl" style="color:var(--muted)">—</span></div>`).join('')}
+function renderSubM(el,arr){if(!el)return;el.innerHTML=arr.map(m=>{
+  return`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:0%;background:#0a1428"></div></div><span class="comp-val" style="color:var(--muted)">—</span><span class="comp-wt">${m.w}</span><span class="mflag f-p">❌ 0evt</span></div>`
+}).join('')}
+
+function init(){
+  const el1=safe('confirmed-list');
+  if(el1)el1.innerHTML='<div style="font-size:.74rem;color:var(--muted);padding:8px 0">None confirmed. All 12 Tier 3 metrics require match-video evidence not yet collected for this player.</div>';
+
+  renderAttrList(safe('attr-tech'),ATTRS.tech);
+  renderAttrList(safe('attr-men'),ATTRS.men);
+  renderAttrList(safe('attr-phy'),ATTRS.phy);
+  renderSubM(safe('obi-subs'),OBI);
+  renderSubM(safe('sii-subs'),SII);
+
+  const t1=safe('t1-metrics');
+  if(t1){
+    let hl='<div class="t1-highlight">';
+    T1_HIGHLIGHTS.forEach(m=>{
+      hl+=`<div class="t1-hl${m.gold?' gold':''}">
+        <div class="t1-hl-code">${m.code}</div>
+        <div class="t1-hl-val">${m.val}</div>
+        <div class="t1-hl-pct">${m.pctLabel}</div>
+        <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${m.bar}%"></div></div>
+        <span class="t1-source">${m.src}</span>
+      </div>`;
+    });
+    hl+='</div>';
+    hl+='<div style="background:rgba(220,5,45,.05);border:1px solid rgba(220,5,45,.12);border-radius:2px;padding:7px 12px;font-size:.71rem;color:var(--muted);margin-bottom:12px"><strong style="color:var(--lite)">Note on bars:</strong> widths reflect the raw stat value itself (or its own percentage), not a percentile rank or quality judgment, except where a percentile is explicitly cited.</div>';
+    const grpOrder=[['output','📈 Output / Involvement'],['discipline','🟨 Discipline'],['pedigree','🏆 Pedigree / Transfer'],['seasons','📋 Season Totals']];
+    grpOrder.forEach(([key,label])=>{
+      hl+=`<div class="t1-group"><div class="t1-group-head">${label}</div>`;
+      T1_STATS[key].forEach(m=>{
+        hl+=`<div class="t1-row">
+          <span class="t1-code" style="color:var(--accentL)">${m.c}</span>
+          <span class="t1-desc">${m.d}</span>
+          <div class="t1-bar-bg"><div class="t1-bar-fill" style="width:60%;background:rgba(220,5,45,.5)"></div></div>
+          <span class="t1-val" style="color:var(--lite)">${m.v}</span>
+          <span class="t1-ctx">${m.ctx}</span>
+        </div>`;
+      });
+      hl+='</div>';
+    });
+    t1.innerHTML=hl;
+  }
+
+  const pbrk=safe('proxy-breakdown');
+  if(pbrk){
+    pbrk.innerHTML=PROXY_COMPONENTS.map(p=>`<div class="comp-row"><span class="comp-lbl" style="width:180px">${p.n}</span><span class="comp-desc">${p.d}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(p.v)}%;background:${sc(p.v)}"></div></div><span class="comp-val" style="color:${sc(p.v)}">${p.v}</span><span class="comp-wt">${p.w}</span></div>`).join('')
+      +`<div class="divider"></div><div style="display:flex;align-items:center;gap:10px;padding:6px 0"><span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--gold);width:180px">Weighted Proxy Total</span><div style="flex:1"></div><span style="font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:500;color:var(--gold)">7.9</span></div>`;
+  }
+
+  const ovp=safe('ov-phil');
+  if(ovp)ovp.innerHTML='<div style="font-size:.74rem;color:var(--muted);line-height:1.7"><span class="trait-pill">Inverted left-footed winger</span><span class="trait-pill">Elite goal+assist rate</span><span class="trait-pill">Established Romania international</span><span class="trait-pill">Record Romanian export fee</span><div style="margin-top:8px">Qualitative only — see Philosophy DNA tab for sourcing. No numeric fit score assigned.</div></div>';
+
+  const rEl=safe('t3-rest-grid');
+  if(rEl){
+    const ch=(a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
+    rEl.innerHTML=ch(T3R,4).map(col=>`<div>${col.map(m=>{
+      return`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">❌</span></div>`;
+    }).join('')}</div>`).join('');
+  }
+
+  const vc=safe('vc-mini');
+  if(vc){
+    const allm=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM'];
+    vc.innerHTML=allm.map(m=>{
+      return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem">
+        <span style="width:6px;height:6px;border-radius:50%;background:#0a1428;display:inline-block;flex-shrink:0"></span>
+        <span style="color:var(--muted);width:44px;font-family:'Rajdhani',sans-serif;font-weight:700">${m}</span>
+        <span class="mflag f-p">❌ 0evt</span>
+      </div>`;
+    }).join('');
+  }
+
+  const pb=safe('psych-bars');
+  if(pb){
+    const all_s=[
+      {n:"Eredivisie goals",v:'7'},{n:"Eredivisie assists",v:'7'},
+      {n:"Minutes played",v:'1,496'},{n:"Avg FotMob rating",v:'7.29'},
+      {n:"Yellow / red cards",v:'2 / 0'},{n:"Romania caps",v:'43'},
+      {n:"Romania goals",v:'11'},{n:"Parma transfer fee",v:'€11M'},
+      {n:"PSV transfer fee",v:'€7.5-9M'},{n:"Current market value",v:'€13.0M'},
+    ];
+    pb.innerHTML=all_s.map(p=>`<div class="mrow"><span class="mcode" style="width:170px;color:var(--muted)">${p.n}</span><span class="mval" style="color:var(--lite);width:auto;margin-left:auto">${p.v}</span></div>`).join('');
+  }
+
+  const DFT={
+    scales:{r:{min:0,max:100,grid:{color:'rgba(220,5,45,.06)'},angleLines:{color:'rgba(220,5,45,.06)'},
+      ticks:{stepSize:20,color:'#2a3850',backdropColor:'transparent',font:{size:9}},
+      pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},
+    plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},
+      tooltip:{backgroundColor:'#080c16',borderColor:'rgba(220,5,45,.3)',borderWidth:1,titleColor:'#4db8ff',bodyColor:'#f0f6fc'}},
+    responsive:true,maintainAspectRatio:false
+  };
+
+  const dc=safe('fgaDial');
+  if(dc){
+    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const proxyScore=7.9;
+    dctx.clearRect(0,0,120,120);
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
+    dctx.strokeStyle='rgba(220,5,45,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    const grad=dctx.createLinearGradient(14,70,106,70);
+    grad.addColorStop(0,'rgba(220,5,45,.9)');grad.addColorStop(1,'rgba(206,17,38,.75)');
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(proxyScore/10)*Math.PI);
+    dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+  }
+
+  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20% (complete)','Tier 2 · 30% (pending)','Tier 3 · 50% (0/12 pending)'],
+    datasets:[{data:[20,30,50],backgroundColor:['rgba(220,5,45,.55)','rgba(42,56,80,.5)','rgba(42,56,80,.3)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},
+        tooltip:{backgroundColor:'#080c16',borderColor:'rgba(220,5,45,.3)',borderWidth:1}}}});
+
+  new Chart(safe('ovRadar'),{type:'radar',
+    data:{labels:['G+A/90×100','Rating×10','Minutes%','Career-Value Pctl',"Int'l Standing"],
+      datasets:[{label:'Man 25-26',data:[84,72.9,60,80,82],
+        borderColor:'#dc052d',backgroundColor:'rgba(220,5,45,.12)',borderWidth:2,
+        pointBackgroundColor:'#f0b820',pointRadius:4}]},
+    options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  new Chart(safe('ratingChart'),{type:'line',
+    data:{labels:RATING_LABELS,datasets:[{label:'FotMob rating',data:RATING_TREND,
+      borderColor:'#4db8ff',backgroundColor:'rgba(77,184,255,.12)',borderWidth:2,
+      pointBackgroundColor:RATING_TREND.map(v=>v>=7.5?'#2e9e5a':v>=6.5?'#a88010':'#8a1020'),
+      tension:.25,pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:'rgba(220,5,45,.04)'},ticks:{color:'#2a3850',font:{size:7},maxRotation:35,minRotation:35}},
+        y:{min:5,max:10,grid:{color:'rgba(220,5,45,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(220,5,45,.3)',borderWidth:1}}}});
+
+  new Chart(safe('dmaChart'),{type:'bar',
+    data:{labels:RATING_LABELS,
+      datasets:[{label:'Rating',data:RATING_TREND,
+        backgroundColor:RATING_TREND.map(v=>v>=7.5?'rgba(34,168,90,.7)':v>=6.5?'rgba(168,128,16,.6)':'rgba(138,16,32,.6)'),
+        borderRadius:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:'rgba(220,5,45,.04)'},ticks:{color:'#2a3850',font:{size:7},maxRotation:35,minRotation:35}},
+        y:{min:5,max:10,grid:{color:'rgba(220,5,45,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(220,5,45,.3)',borderWidth:1}}}});
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

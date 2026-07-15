@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anass Salah-Eddine — Empire FGA Intelligence Card v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(220,5,45,.08);
+  --psv:#dc052d;--psv-dark:#8f0016;--psv-light:#ff4d6a;
+  --mar-red:#c1272d;--mar-green:#006233;--mar-greenL:#1a9e5a;
+  --accent:#c1272d;--accentL:#e0555c;--accentFade:rgba(193,39,45,.1);
+  --gold:#f0b820;--gold2:#ffd060;
+  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
+  --red:#e03030;--redL:#f05050;
+  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(220,5,45,.7) 0%,transparent 55%),radial-gradient(ellipse at 85% 90%,rgba(0,98,51,.4) 0%,transparent 50%)}
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(to right,var(--mar-red) 20%,var(--mar-green) 20% 80%,var(--mar-red) 80%);z-index:10}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(193,39,45,.14) 0%,transparent 45%,rgba(0,98,51,.12) 100%)}
+.hero-photo{position:relative;overflow:hidden;background:#040810}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:contrast(1.1) saturate(.95);mask-image:linear-gradient(to right,#000 65%,transparent 100%);-webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(193,39,45,.06);line-height:1;pointer-events:none}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.bp-psv{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(120,120,130,.55);color:#fff;text-transform:uppercase;border:1px solid rgba(200,200,210,.25)}
+.bp-mar{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(0,98,51,.75);color:#fff;text-transform:uppercase}
+.bp-val{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(193,39,45,.8);color:#fff;text-transform:uppercase}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
+.hero-name{font-family:'Oswald',sans-serif;font-size:3.1rem;font-weight:600;line-height:.9;text-transform:uppercase;color:var(--white)}
+.hero-name em{color:var(--accentL);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
+.pos-primary{background:#787888;color:#fff}
+.pos-league{background:rgba(193,39,45,.15);color:var(--gold);border:1px solid rgba(193,39,45,.3)}
+.pos-mar{background:rgba(0,98,51,.18);color:var(--mar-greenL);border:1px solid rgba(0,98,51,.4)}
+.pos-warn{background:rgba(224,48,48,.15);color:var(--redL);border:1px solid rgba(224,48,48,.35)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
+.hmi-val{font-family:'Oswald',sans-serif;font-size:1.35rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
+.htag-blue{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(193,39,45,.3)}
+.htag-warn{background:rgba(224,48,48,.14);color:var(--redL);border:1px solid rgba(224,48,48,.3)}
+.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(193,39,45,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fga-score-num{font-family:'Oswald',sans-serif;font-size:1.9rem;font-weight:500;line-height:1;color:var(--accentL)}
+.fga-score-lbl{font-size:.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(193,39,45,.08);border:1px solid rgba(193,39,45,.15)}
+.ftr2{background:rgba(42,56,80,.2);border:1px solid rgba(42,56,80,.3)}
+.ftr3{background:rgba(224,48,48,.06);border:1px solid rgba(224,48,48,.16)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(193,39,45,.22);border-radius:2px;width:100%}
+.ca-val{font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:500;color:var(--accentL)}
+.ca-info{font-size:.6rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:'Oswald',sans-serif;font-size:.8rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
+.logo-bar img{height:32px;width:auto;object-fit:contain}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sh-blue::before{background:var(--accent)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-red::before{background:var(--red)}.sh-amber::before{background:var(--amber)}
+.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(193,39,45,.025)}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff;background:#0a1428}
+.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(193,39,45,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(193,39,45,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(193,39,45,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(42,56,80,.35);color:var(--muted)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(193,39,45,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(193,39,45,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(193,39,45,.1);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(193,39,45,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(193,39,45,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.career-table .warn td{background:rgba(224,48,48,.08);color:var(--redL)}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--mar-red),var(--psv),var(--mar-green))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accentL);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--accentL);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(193,39,45,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(193,39,45,.3)}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(0,98,51,.12);color:var(--mar-greenL);border:1px solid rgba(0,98,51,.28)}
+.pend-box{background:linear-gradient(135deg,rgba(42,56,80,.25),rgba(42,56,80,.08));border:2px dashed rgba(42,56,80,.55);border-radius:2px;padding:12px 16px;margin-bottom:14px}
+.pend-head{font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.status-box{background:linear-gradient(135deg,rgba(120,120,130,.14),rgba(120,120,130,.03));border:2px solid rgba(150,150,160,.3);border-radius:2px;padding:12px 16px;margin-bottom:14px}
+.status-head{font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c8ccd8;margin-bottom:5px}
+.data-flash{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}
+.career-path{background:rgba(193,39,45,.07);border:1px solid rgba(193,39,45,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.log-banner{background:linear-gradient(135deg,rgba(0,98,51,.12),rgba(240,184,32,.06));border:1px solid rgba(0,98,51,.28);border-radius:2px;padding:10px 16px;margin-bottom:14px}
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
+.video-link-card:hover{border-color:rgba(193,39,45,.4)}
+.video-link-card.excluded{opacity:.55;filter:grayscale(.4)}
+.video-link-card.uncertain{opacity:.8}
+.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+.t1-highlight{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.t1-hl{background:linear-gradient(135deg,rgba(193,39,45,.15),rgba(240,184,32,.06));border:2px solid rgba(193,39,45,.35);border-radius:3px;padding:10px 12px;position:relative;overflow:hidden}
+.t1-hl.gold{background:linear-gradient(135deg,rgba(240,184,32,.12),rgba(193,39,45,.06));border-color:rgba(240,184,32,.5)}
+.t1-hl.grn{background:linear-gradient(135deg,rgba(0,98,51,.18),rgba(0,98,51,.04));border-color:rgba(0,98,51,.45)}
+.t1-hl-code{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.t1-hl-val{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:500;line-height:1;color:var(--accentL)}
+.t1-hl.gold .t1-hl-val{color:var(--gold)}
+.t1-hl.grn .t1-hl-val{color:var(--mar-greenL)}
+.t1-hl-pct{font-size:.58rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.t1-hl-bar{height:3px;background:rgba(193,39,45,.1);border-radius:99px;overflow:hidden;margin-top:6px}
+.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--accent)}
+.t1-hl.gold .t1-hl-bar-fill{background:var(--gold)}
+.t1-hl.grn .t1-hl-bar-fill{background:var(--mar-green)}
+.t1-source{font-family:'Rajdhani',sans-serif;font-size:.55rem;letter-spacing:.08em;color:rgba(193,39,45,.4);text-transform:uppercase;margin-top:auto;display:block}
+.t1-group{margin-bottom:12px}
+.t1-group-head{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(193,39,45,.08);margin-bottom:6px}
+.t1-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.t1-code{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--accentL);width:64px;flex-shrink:0}
+.t1-desc{font-size:.72rem;color:var(--muted);flex:1}
+.t1-bar-bg{width:80px;height:4px;background:rgba(193,39,45,.07);border-radius:99px;overflow:hidden;flex-shrink:0}
+.t1-bar-fill{height:100%;border-radius:99px}
+.t1-val{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;width:96px;text-align:right;flex-shrink:0}
+.t1-ctx{font-size:.58rem;color:rgba(193,39,45,.5);width:70px;text-align:right;flex-shrink:0;letter-spacing:.04em}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--gold)">▶ Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:#888"></span>Ex-PSV (loan, Aug'25-Jun'26) · now AS Roma</span>
+    <span class="status-dot"><span class="dot" style="background:var(--mar-green)"></span>🇲🇦 Morocco senior · switched from 🇳🇱</span>
+    <span class="status-dot"><span class="dot" style="background:var(--muted)"></span>Tier 2/3 ❌ 0/12 · Pending match-log review</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://prod-img.telegraaf.nl/public/incoming/us5nvs-anp-551389977.jpg/alternates/SIXTEEN_NINE_1920/ANP-551389977.jpg" alt="Anass Salah-Eddine" onerror="this.style.background='#040810'">
+    <div class="hero-flag">🇲🇦</div>
+    <div class="club-badge">
+      <span class="bp-psv">AS Roma (returned Jun 2026)</span>
+      <span class="bp-mar">🇲🇦 Morocco senior · WC26 squad</span>
+      <span class="bp-val">Ex-PSV · loan spell only</span>
+    </div>
+    <div class="hero-num">5</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">LB/LWB · 23yr · Amsterdam (NL) → Morocco · Ajax academy → Twente → AS Roma → PSV (loan) → AS Roma</div>
+      <div class="hero-name"><em>Anass</em><br>Salah-Eddine</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">LB / LWB</span>
+        <span class="pos-badge pos-league">Eredivisie (2025-26 loan spell only)</span>
+        <span class="pos-badge pos-mar">🇲🇦 Morocco senior · switched from NL, 21 Oct 2025</span>
+        <span class="pos-badge pos-warn">⚠️ No longer a PSV player — buy option expired, June 2026</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">23</div><div class="hmi-lbl">DOB not confirmed here</div></div>
+      <div><div class="hmi-val">15</div><div class="hmi-lbl">Eredivisie apps (25-26)</div></div>
+      <div><div class="hmi-val">7</div><div class="hmi-lbl">UCL apps (25-26)</div></div>
+      <div><div class="hmi-val">€8M</div><div class="hmi-lbl">Buy option (expired, unused)</div></div>
+      <div><div class="hmi-val">21 Oct</div><div class="hmi-lbl">FIFA-approved NL→MAR switch</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-warn">⚠️ Card scope note: this was a single-season PSV loan spell (31 Aug 2025 - Jun 2026), now concluded — read as a historical/retrospective PSV profile</span>
+      <span class="htag htag-warn">❌ Groningen match link excluded — he joined PSV 8 days AFTER that fixture</span>
+      <span class="htag htag-blue">Red card vs Telstar (Mar 2026) triggered a 3-match ban, ruling him out of the Sparta Rotterdam fixture</span>
+      <span class="htag htag-gold">First senior Morocco call-up came within weeks of the nationality switch, straight into AFCON contention</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">Proxy FGA Rating</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">6.6</div>
+        <div class="fga-score-lbl">/ 10.0 · PROXY</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">FotMob/Wiki/press</span><span class="tw" style="color:var(--green)">Full</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--lite)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--muted)">Pending</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--redL)">Tier 3</span><span style="color:var(--muted)">Scout (Jim Totime)</span><span class="tw" style="color:var(--redL)">0/12 ❌</span></div>
+    </div>
+    <div style="font-size:.58rem;color:var(--muted);line-height:1.5;text-align:center">Data-only estimate from a loan season PSV chose not to make permanent · <strong style="color:var(--amber)">not</strong> the evidence-weighted FGA · that non-conversion is itself meaningful signal</div>
+    <div class="hero-ca">
+      <div><div class="ca-val">€8.0M</div><div class="ca-info">Buy option<br>(not exercised)</div></div>
+      <div class="ca-pa">1 PSV season</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="status-box">
+    <div class="status-head">📋 CURRENT STATUS — READ BEFORE ANYTHING ELSE</div>
+    <div style="font-size:.78rem;color:var(--lite);line-height:1.65">Salah-Eddine joined PSV on <strong>31 August 2025</strong> on a season-long loan from AS Roma with an €8M option to buy. PSV <strong>did not exercise that option</strong>, and he returned to Roma at the end of the 2025-26 season. This card documents a completed, single-season loan spell — not an active PSV player. Treat everything here as retrospective.</div>
+  </div>
+
+  <div class="log-banner">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">📊 DATA STATUS · TIER 1 COMPLETE (PUBLIC RECORD) · TIER 2/3 NOT YET SCOUTED</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">Every number here is sourced from FotMob, Wikipedia, and press coverage (linked in Scouting Intel). Per Empire's evidence-first rule, OBI/SII/DMA/SPI Tier 3 metrics, Attribute ratings, and Philosophy Fit scores stay <strong style="color:var(--lite)">PENDING</strong> until match footage is logged.</div>
+  </div>
+
+  <div class="career-path">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--mar-greenL);letter-spacing:.1em">🇳🇱→🇲🇦</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">Ajax academy (Amsterdam)</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">FC Twente</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">AS Roma</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--accentL);font-weight:600">PSV <small style="font-size:.65rem;color:var(--gold)">(loan, 31 Aug '25 - Jun '26)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:#c8ccd8">back to AS Roma</span>
+  </div>
+
+  <div class="data-flash">
+    <div>
+      <div style="font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:500;color:var(--greenL);line-height:1">15+7</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px">Eredivisie + UCL apps, 2025-26</div>
+    </div>
+    <div style="flex:1;font-size:.77rem;color:var(--muted);line-height:1.65">
+      <strong style="color:var(--white)">Real, regular game time at a title-winning club.</strong> 15 Eredivisie appearances plus 7 Champions League matches is a legitimate contributor's workload, not a fringe squad slot — but PSV letting the €8M option lapse is a real signal that needs weighing against the raw appearance count, not ignored.
+    </div>
+  </div>
+
+  <div class="pend-box">
+    <div class="pend-head">🎯 THE €8M QUESTION PSV ANSWERED WITH "NO"</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">A club with genuine LB depth needs let a loan option expire on a player getting regular European football minutes. That's not necessarily a verdict on quality — could be squad-fit, wage demands, or simple depth-chart timing — but it's a real data point that shouldn't be waved away by appearance counts alone.</div>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-blue"><div class="sh-val">15</div><div class="sh-lbl">Eredivisie apps</div><div class="sh-delta dpos">Regular loan minutes</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">7</div><div class="sh-lbl">UCL apps</div><div class="sh-delta dpos">European experience</div></div>
+    <div class="sh-box sh-red"><div class="sh-val">1</div><div class="sh-lbl">Red card (vs Telstar)</div><div class="sh-delta dneg">3-match ban</div></div>
+    <div class="sh-box sh-amber"><div class="sh-val">€8M</div><div class="sh-lbl">Option lapsed</div><div class="sh-delta dneg">Not converted</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">21 Oct</div><div class="sh-lbl">FIFA switch approved</div><div class="sh-delta dpos">NL → Morocco</div></div>
+    <div class="sh-box sh-blue"><div class="sh-val">13</div><div class="sh-lbl">Prior NL U21 caps</div><div class="sh-delta dneu">Pre-switch</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Profile</div></div>
+      <div class="c-body" style="font-size:.76rem">
+        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Anass Salah-Eddine</span></div>
+        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">Amsterdam, Netherlands</span></div>
+        <div class="ti-row"><span class="ti-lbl">PSV spell</span><span class="ti-val" style="color:var(--accentL)">31 Aug 2025 - Jun 2026 (loan)</span></div>
+        <div class="ti-row"><span class="ti-lbl">Current club</span><span class="ti-val" style="color:#c8ccd8">AS Roma</span></div>
+        <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val" style="color:var(--mar-greenL)">🇲🇦 Morocco (switched from 🇳🇱)</span></div>
+        <div class="ti-row"><span class="ti-lbl">Switch approved</span><span class="ti-val">21 Oct 2025 (FIFA)</span></div>
+        <div class="ti-row"><span class="ti-lbl">Prior NL youth</span><span class="ti-val">2019 U17 Euro winner · 13 U21 caps</span></div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 Status</div><div class="c-sub">0/12 confirmed</div></div>
+      <div class="c-body">
+        <div class="section-label">Confirmed (video-evidence required)</div>
+        <div style="font-size:.74rem;color:var(--muted);padding:8px 0">None confirmed. All 12 Tier 3 metrics require match-video evidence not yet collected for this player.</div>
+        <div class="divider"></div>
+        <div style="font-size:.72rem;color:var(--muted)">Only 1 of 3 standard PSV files is usable (Telstar, red card and all). Groningen pre-dates his transfer; Sparta Rotterdam falls inside his suspension.</div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Preliminary Data Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">A 23-year-old left-back who switched from the Netherlands to Morocco mid-loan, played real minutes for PSV across league and Champions League, took a red card and a suspension along the way, and ultimately wasn't kept by the club that had him on loan.</div>
+        <div class="verdict-box">
+          <div class="verdict-label">Empire FGA Status — Not a Final Verdict</div>
+          <div class="verdict-text"><strong>Tier 1 data-complete · Tier 2/3 unscored · FGA composite cannot be calculated.</strong> The unconverted buy option is a real, uncomfortable data point that deserves more weight in any full assessment than a highlight reel would suggest.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Style Notes — Preliminary</div><div class="c-sub">Media/data, not scored</div></div><div class="c-body" id="ov-phil"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Statistical Radar</div><div class="c-sub">Raw % from real 25-26 totals</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Appearances by Competition</div><div class="c-sub">Real data · loan season</div></div><div class="c-body"><canvas id="ratingChart" height="180"></canvas></div></div>
+  </div>
+</div>
+
+<div id="tab-attributes" class="tab-panel">
+  <div class="pend-box">
+    <div class="pend-head">❌ ATTRIBUTES PENDING — 0/24 SCORED</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">Attribute circles (Technical/Mental/Physical) are a scouting judgment — exactly the layer Empire's "no score without evidence" rule protects. Every row below is left unscored until Jim logs timestamped match evidence.</div>
+  </div>
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical / Attacking</div></div><div class="c-body" id="attr-tech"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div><div class="c-body" id="attr-men"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div></div><div class="c-body" id="attr-phy"></div></div>
+  </div>
+</div>
+
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — FotMob · Wikipedia · Press</div></div>
+      <div class="c-body" id="t1-metrics"></div>
+    </div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 2 — Composite</div><div class="c-sub">Pending</div></div><div class="c-body">
+      <div class="pend-box" style="margin-bottom:0">
+        <div class="pend-head">❌ NOT CALCULABLE YET</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.6">Tier 2 is derived directly from confirmed Tier 3 sub-metrics. Since Tier 3 is 0/12, Tier 2 has nothing to composite from.</div>
+      </div>
+    </div></div>
+    <div>
+      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Weighting Breakdown</div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--redL)">Season Context</div></div>
+        <div class="c-body">
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.9"><strong style="color:var(--gold)">1 loan season, now concluded</strong><br><strong style="color:var(--redL)">Groningen (23 Aug '25):</strong> Excluded — pre-transfer<br><strong style="color:var(--lite)">Telstar (22 Mar '26):</strong> Started, red card<br><strong style="color:var(--redL)">Sparta R'dam (11 Apr '26):</strong> Excluded — suspended</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c" style="margin-bottom:14px">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Proxy FGA Rating — 6.6 / 10 · Methodology</div><div class="c-sub">Tier 1 estimate only · not the evidence-weighted FGA</div></div>
+    <div class="c-body">
+      <div class="pend-box" style="margin-bottom:12px">
+        <div class="pend-head">⚠️ Read before citing this number</div>
+        <div style="font-size:.74rem;color:var(--muted);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. With Tier 2/3 both empty, this 6.6 is a <strong style="color:var(--lite)">substitute</strong> built from public Tier 1 numbers, deliberately weighed down by the unconverted buy option and the red card/suspension — a real appearance count doesn't erase the club's own decision not to keep him.</div>
+      </div>
+      <div id="proxy-breakdown"></div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 · Awaiting Scout Assessment · 0 Matches Reviewed</div></div>
+    <div class="c-body">
+      <div class="pend-box" style="margin-bottom:12px">
+        <div class="pend-head">Footage received, not yet scouted</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.6">Paste timestamped observations from the Telstar file (including the red-card incident itself — worth reviewing for discipline/decision-making evidence) and I'll structure it into OBI/SII/DMA/etc. evidence logs.</div>
+      </div>
+      <div class="g3">
+        <div><div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px"><div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px"><span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted)">OBI</span><span style="font-size:.78rem;color:var(--muted)">Off-Ball Intelligence</span><span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--muted);margin-left:auto">❌ PENDING</span></div><div id="obi-subs"></div></div></div>
+        <div><div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px"><div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px"><span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted)">SII</span><span style="font-size:.78rem;color:var(--muted)">Sprint Intensity Index</span><span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--muted);margin-left:auto">❌ PENDING</span></div><div id="sii-subs"></div></div></div>
+        <div><div class="section-label">Video Completeness</div><div id="vc-mini"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">All 10 Remaining Metrics</div>
+      <div class="g3" id="t3-rest-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-philosophy" class="tab-panel">
+  <div class="pend-box">
+    <div class="pend-head">STYLE NOTES — PRELIMINARY (MEDIA & DATA), NOT A SCORED PHILOSOPHY FIT</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">Rather than assign fake fit percentages against Michels/Cruyff/Guardiola, the traits below are pulled straight from published career coverage and are qualitative only.</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Sourced Style Descriptors</div></div>
+        <div class="c-body">
+          <span class="trait-pill">Left-back/wing-back, Ajax academy pedigree</span>
+          <span class="trait-pill">2019 Netherlands U17 European champion</span>
+          <span class="trait-pill">Mid-career nationality switch (NL → Morocco)</span>
+          <span class="trait-pill">Discipline flag — red card vs Telstar</span>
+          <div class="divider"></div>
+          <div class="scout-para">A well-traveled left-back with real academy pedigree (Ajax, 2019 U17 Euro win) who's now rebuilding his international career at Morocco. The disciplinary incident and the club's decision not to buy are two threads worth pulling on together rather than separately.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="height:340px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Fit Radar</div><div class="c-sub">Not available — Tier 3 required</div></div>
+        <div class="c-body" style="height:290px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px">
+          <div style="font-size:.8rem;color:var(--muted);line-height:1.7">Philosophy Fit scoring runs on Tier 3 evidence logs. <strong style="color:var(--lite)">0 matches scouted → chart withheld</strong> rather than shown with invented numbers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--mar-red)"></div><div class="tl-date">Born · Amsterdam, Netherlands</div><div class="tl-text">Came through the <strong>Ajax academy</strong>, later playing for FC Twente.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2019 · Netherlands U17 European Champion</div><div class="tl-text">Part of the title-winning Dutch U17 squad.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Career · 13 caps for Netherlands U21</div><div class="tl-text">Full Dutch youth international pedigree before the switch.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Transfer to AS Roma</div><div class="tl-text">Signed with the Serie A club before the PSV loan.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--psv)"></div><div class="tl-date">31 Aug 2025 · Loan to PSV Eindhoven</div><div class="tl-text"><strong>Season-long loan with an €8M option to buy.</strong> Joined 8 days after PSV's opening match vs Groningen.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--mar-green)"></div><div class="tl-date">21 Oct 2025 · FIFA approves Morocco switch</div><div class="tl-text"><strong>Nationality change from Netherlands to Morocco.</strong> First senior Morocco call-up followed within weeks, for AFCON contention.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-date">Late Mar 2026 · Red card vs Telstar</div><div class="tl-text"><strong>3-match ban (1 conditional)</strong> for an alleged elbow on Gerald Alders. Missed the Utrecht (4 Apr) and Sparta Rotterdam (11 Apr) fixtures.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:#888"></div><div class="tl-date">Jun 2026 · Returns to AS Roma</div><div class="tl-text"><strong>PSV lets the €8M buy option expire.</strong> Loan spell concludes; back to Roma for 2026-27.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Competition Split — 2025-26 PSV Loan</div><div class="c-sub">Real data</div></div><div class="c-body" style="height:175px"><canvas id="dmaChart"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Transfer & Contract Ladder</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">AS Roma → PSV</span><span class="ti-val">Loan, 31 Aug 2025</span></div>
+          <div class="ti-row"><span class="ti-lbl">Buy option</span><span class="ti-val" style="color:var(--redL)">€8.0M, not exercised</span></div>
+          <div class="ti-row"><span class="ti-lbl">PSV → AS Roma</span><span class="ti-val">Return, Jun 2026</span></div>
+          <div class="divider"></div>
+          <div style="font-size:.72rem;color:var(--muted)">A loan-with-option deal that PSV chose to let lapse is worth as much analytical weight as the raw appearance count — arguably more.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Season-by-Season Register</div></div>
+    <div class="c-body">
+      <table class="career-table">
+        <thead><tr><th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>—</td><td>FC Twente</td><td>Eredivisie</td><td>—</td><td>Pre-Roma spell</td></tr>
+          <tr><td>—</td><td>AS Roma</td><td>Serie A</td><td>—</td><td>Parent club, before &amp; after loan</td></tr>
+          <tr class="hl"><td><strong>2025-26</strong></td><td><strong>PSV (loan)</strong></td><td><strong>Eredivisie</strong></td><td><strong>15</strong></td><td><strong>Red card vs Telstar, 3-match ban</strong></td></tr>
+          <tr class="hl"><td><strong>2025-26</strong></td><td><strong>PSV (loan)</strong></td><td><strong>UEFA Champions League</strong></td><td><strong>7</strong></td><td><strong>Real European minutes</strong></td></tr>
+          <tr class="warn"><td>2026-27</td><td>AS Roma</td><td>Serie A</td><td>—</td><td>⚠️ Returned — buy option lapsed</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Data-Driven Scouting Report — Preliminary</div><div class="c-sub">Public sources only · Tier 3 not conducted</div></div>
+        <div class="c-body">
+          <div class="scout-para">Anass Salah-Eddine is a 23-year-old left-back/wing-back born in Amsterdam, who came through Ajax's academy and FC Twente before joining AS Roma. He spent the 2025-26 season on loan at PSV Eindhoven (from 31 August 2025, with an €8M option to buy), making 15 Eredivisie and 7 Champions League appearances. <strong>Note the reporting discrepancy:</strong> one source cites 17 total Eredivisie appearances rather than 15+7 across competitions — both figures are presented here for transparency rather than silently reconciled.</div>
+          <div class="scout-para"><strong>Mid-season, he switched international allegiance from the Netherlands to Morocco</strong> — FIFA approved the change on 21 October 2025, and he received his first senior Morocco call-up within weeks, entering AFCON contention. He'd previously won the 2019 U17 European Championship with the Dutch and earned 13 Netherlands U21 caps.</div>
+          <div class="scout-para"><strong>The single most important fact for evaluating this loan spell:</strong> PSV let the €8M buy option lapse and he returned to Roma in June 2026. Whatever the specific reasons (squad fit, wages, depth-chart timing), the club that had the closest look at him for a full season chose not to keep him. A red card and 3-match ban against Telstar in the season's final stretch is a data point worth weighing here too, not dismissing as noise.</div>
+          <div class="scout-para"><strong>On the Groningen link supplied:</strong> that match was played 23 August 2025 — 8 days before Salah-Eddine joined PSV on 31 August. He could not possibly have featured in it. <strong style="color:var(--redL)">This is a chronological impossibility, not a "did not play" judgment call</strong>, and the file has been excluded from the Matches tab accordingly.</div>
+          <div class="scout-para"><strong>On the Morocco national-team links:</strong> the Canada-Morocco file corresponds to the 4 July 2026 World Cup Round of 16 match, where he was named among the substitutes but not confirmed to have played. The Scotland-Morocco file is ambiguous between two real fixtures (an Oct 2025 friendly and the June 2026 World Cup group match) and his involvement in either could not be independently confirmed before this card was built. The Morocco-Comoros file's context (likely AFCON 2025-26, hosted in Morocco) could also not be independently verified in the time available. All three are flagged honestly rather than guessed at — see Matches tab.</div>
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Status Note</div>
+            <div class="verdict-text"><strong>Tier 1 data-complete for the PSV spell · Tier 2/3 not scored · No final FGA composite.</strong> Don't let the AFCON/World Cup national-team storyline overshadow the club-level verdict: PSV had him for a full season and didn't buy.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All Tier 1 Season Totals (2025-26 PSV loan)</div></div><div class="c-body" id="psych-bars"></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--muted)"></div><div class="c-title" style="color:var(--lite)">Tier 3 Event Log</div><div class="c-sub">0 events · not yet scouted</div></div><div class="c-body" style="padding:24px;text-align:center;color:var(--muted);font-size:.78rem;line-height:1.7">No match footage has been reviewed for events yet.</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-links" class="tab-panel">
+  <div style="background:rgba(224,48,48,.08);border:1px solid rgba(224,48,48,.25);border-radius:2px;padding:10px 16px;margin-bottom:12px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--redL)">STANDARD PSV FILES — ONLY 1 OF 3 USABLE</span>
+  </div>
+  <div class="g2" style="margin-bottom:16px">
+    <div class="video-link-card excluded">
+      <div style="width:36px;height:36px;border-radius:2px;background:#3a1010;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#888;font-size:.85rem">✕</div>
+      <div><div class="vlc-opp">PSV vs FC Groningen</div><div class="vlc-meta">Eredivisie · 23 Aug 2025 · ❌ EXCLUDED — played 8 days before Salah-Eddine joined PSV. Chronologically impossible.</div></div>
+      <span class="vlc-badge" style="background:rgba(224,48,48,.2);color:var(--redL);border:1px solid rgba(224,48,48,.3)">❌ pre-transfer</span>
+    </div>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/1jey2snwbcfgka7dh0fou/Sport-Club-Telstar-Philips-Sport-Vereniging-PSV.mp4?rlkey=7dlvwcqztnsu2potywhlmuxoc&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--mar-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Telstar vs PSV</div><div class="vlc-meta">Eredivisie · 22 Mar 2026 · Telstar won 3-1 · Salah-Eddine started, sent off before halftime</div></div>
+      <span class="vlc-badge" style="background:rgba(224,48,48,.2);color:var(--redL);border:1px solid rgba(224,48,48,.3)">✅ confirmed · red card</span>
+    </a>
+    <div class="video-link-card excluded">
+      <div style="width:36px;height:36px;border-radius:2px;background:#3a1010;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#888;font-size:.85rem">✕</div>
+      <div><div class="vlc-opp">Sparta Rotterdam vs PSV</div><div class="vlc-meta">Eredivisie · 11 Apr 2026 · ❌ EXCLUDED — serving the Telstar red-card suspension</div></div>
+      <span class="vlc-badge" style="background:rgba(224,48,48,.2);color:var(--redL);border:1px solid rgba(224,48,48,.3)">❌ suspended</span>
+    </div>
+  </div>
+  <div style="background:rgba(240,184,32,.08);border:1px solid rgba(240,184,32,.22);border-radius:2px;padding:10px 16px;margin-bottom:12px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--gold)">MOROCCO NATIONAL TEAM FILES — PARTICIPATION NOT FULLY VERIFIED</span>
+  </div>
+  <div class="g2">
+    <div class="video-link-card uncertain">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--mar-green);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Canada vs Morocco</div><div class="vlc-meta">FIFA World Cup 2026 · Round of 16 · 4 Jul 2026 · Morocco squad confirmed, named among substitutes — appearance on the pitch not confirmed</div></div>
+      <span class="vlc-badge" style="background:rgba(240,184,32,.18);color:var(--gold);border:1px solid rgba(240,184,32,.3)">⚠️ squad only</span>
+    </div>
+    <div class="video-link-card uncertain">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--mar-green);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Scotland vs Morocco</div><div class="vlc-meta">Ambiguous — two real fixtures exist (Oct 2025 friendly, and the 19 Jun 2026 World Cup group match). Which one this file is, and whether Salah-Eddine featured, could not be confirmed in research time available.</div></div>
+      <span class="vlc-badge" style="background:rgba(240,184,32,.18);color:var(--gold);border:1px solid rgba(240,184,32,.3)">⚠️ unconfirmed</span>
+    </div>
+    <div class="video-link-card uncertain">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--mar-green);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Morocco vs Comoros</div><div class="vlc-meta">Likely 2025-26 AFCON (hosted in Morocco) — exact date and Salah-Eddine's involvement not independently confirmed before this card was built</div></div>
+      <span class="vlc-badge" style="background:rgba(240,184,32,.18);color:var(--gold);border:1px solid rgba(240,184,32,.3)">⚠️ unconfirmed</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const ATTRS={
+  tech:[{n:"OBI_P Positional",v:0},{n:"OBI_T Run Timing",v:0},{n:"SPI Spatial",v:0},{n:"DMA Decision Making",v:0},{n:"CRK Creative",v:0},{n:"DYN Dynamism",v:0},{n:"OBI_S Space",v:0},{n:"Crossing / final third",v:0}],
+  men:[{n:"CRS Clutch",v:0},{n:"CLM Calmness",v:0},{n:"CHR Character",v:0},{n:"MCS Mental",v:0},{n:"OMS Transition",v:0},{n:"Discipline (1 RC, 3-game ban)",v:0},{n:"Composure under pressure",v:0},{n:"Response to non-selection",v:0}],
+  phy:[{n:"SII_A Acceleration",v:0},{n:"SII_T Top Speed",v:0},{n:"SII_R Recovery",v:0},{n:"1v1 defending (not video-confirmed)",v:0},{n:"Recovery pace",v:0},{n:"Workload (15+7 apps)",v:0},{n:"Defensive positioning",v:0},{n:"Stamina / repeat sprint",v:0}]
+};
+const T1_HIGHLIGHTS = [
+  {code:'ERE',label:'Eredivisie apps',val:'15',pct:60,pctLabel:'Regular loan minutes',bar:60,gold:false,src:'FotMob'},
+  {code:'UCL',label:'Champions League apps',val:'7',pct:70,pctLabel:'Real European experience',bar:70,gold:true,src:'FotMob'},
+  {code:'OPT',label:'Buy option (lapsed)',val:'€8.0M',pct:0,pctLabel:'Not exercised by PSV',bar:0,gold:false,src:'Press',redFlag:true},
+  {code:'RC',label:'Red cards',val:'1',pct:0,pctLabel:'vs Telstar — 3-game ban',bar:0,gold:false,src:'FotMob',redFlag:true},
+  {code:'SWI',label:'Nationality switch',val:'21 Oct',pct:100,pctLabel:'NL → Morocco, FIFA-approved',bar:100,gold:false,src:'FIFA/Press'}
+];
+const T1_STATS = {
+  output:[{c:'Apps',d:'Eredivisie appearances',v:'15',ctx:'FotMob'},{c:'UCL',d:'Champions League appearances',v:'7',ctx:'FotMob'},{c:'Alt',d:'Alt. source: total Eredivisie apps',v:'17 (discrepancy noted)',ctx:'Press'}],
+  discipline:[{c:'RC',d:'Red cards',v:'1 (vs Telstar)',ctx:'FotMob'},{c:'Ban',d:'Suspension length',v:'3 matches (1 conditional)',ctx:'Press'}],
+  pedigree:[{c:'U17',d:'NL U17 Euro title',v:'2019',ctx:'Wikipedia'},{c:'U21',d:'NL U21 caps',v:'13',ctx:'Wikipedia'},{c:'Buy',d:'PSV buy option',v:'€8.0M, not exercised',ctx:'Press'}],
+  seasons:[{c:'25-26',d:'PSV (loan) · Eredivisie + UCL',v:'15 + 7 apps',ctx:'FotMob'},{c:"Int'l",d:'Morocco senior',v:'Switch approved 21 Oct 2025',ctx:'FIFA'}]
+};
+const OBI=[{c:"OBI_T",n:"Run Timing",v:0,w:"35%",ok:false,zero:true},{c:"OBI_S",n:"Space Architecture",v:0,w:"35%",ok:false,zero:true},{c:"OBI_P",n:"Positional Anticipation",v:0,w:"30%",ok:false,zero:true}];
+const SII=[{c:"SII_A",n:"Explosive Accel",v:0,w:"40%",ok:false,zero:true},{c:"SII_T",n:"Top-End Speed",v:0,w:"35%",ok:false,zero:true},{c:"SII_R",n:"Recovery Sprint",v:0,w:"25%",ok:false,zero:true}];
+const T3R=[{c:"DMA",n:"Decision Making",v:0},{c:"CHR",n:"Character",v:0},{c:"MCS",n:"Mental Comp.",v:0},{c:"SOA",n:"Speed on Action",v:0},{c:"SPI",n:"Spatial Performance",v:0},{c:"CLM",n:"Calmness",v:0},{c:"CRS",n:"Clutch Response",v:0},{c:"OMS",n:"Omschakeling",v:0},{c:"DYN",n:"Dynamism",v:0},{c:"CRK",n:"Creative Risk",v:0}];
+const PROXY_COMPONENTS=[
+  {n:"Playing Time",v:7.5,w:"20%",d:"15 Eredivisie + 7 UCL appearances — a genuine contributor's workload on loan"},
+  {n:"Club Conviction",v:3.5,w:"25%",d:"PSV let the €8M buy option lapse — the strongest signal available on how the club actually rated him"},
+  {n:"Pedigree",v:7.0,w:"15%",d:"Ajax academy, 2019 U17 Euro champion, 13 NL U21 caps before the switch"},
+  {n:"International Trajectory",v:6.5,w:"15%",d:"Fast-tracked into Morocco senior contention post-switch, though minutes there are largely unconfirmed"},
+  {n:"Discipline",v:4.5,w:"15%",d:"Red card and 3-match ban in the season's final stretch — a real, recent flag"},
+  {n:"Data Completeness",v:7.5,w:"10%",d:"Full public-record season available, unlike some other cards in this series"}
+];
+const RATING_LABELS=['Eredivisie','UEFA Champions League'];
+const RATING_TREND=[15,7];
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
+const pct=v=>Math.round(v*10);
+function safe(id){return document.getElementById(id)}
+function attrCircle(){return`<div class="attr-circle">?</div>`}
+function renderAttrList(el,arr){if(!el)return;el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle()}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:0%;background:${sc(0)}"></div></div><span class="attr-val-lbl" style="color:var(--muted)">—</span></div>`).join('')}
+function renderSubM(el,arr){if(!el)return;el.innerHTML=arr.map(m=>`<div class="comp-row"><span class="comp-lbl" style="width:42px">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:0%;background:#0a1428"></div></div><span class="comp-val" style="color:var(--muted)">—</span><span class="comp-wt">${m.w}</span><span class="mflag f-p">❌ 0evt</span></div>`).join('')}
+function init(){
+  renderAttrList(safe('attr-tech'),ATTRS.tech);
+  renderAttrList(safe('attr-men'),ATTRS.men);
+  renderAttrList(safe('attr-phy'),ATTRS.phy);
+  renderSubM(safe('obi-subs'),OBI);
+  renderSubM(safe('sii-subs'),SII);
+  const t1=safe('t1-metrics');
+  if(t1){
+    let hl='<div class="t1-highlight">';
+    T1_HIGHLIGHTS.forEach(m=>{hl+=`<div class="t1-hl${m.gold?' gold':''}${m.redFlag?'':''}"><div class="t1-hl-code">${m.code}</div><div class="t1-hl-val">${m.val}</div><div class="t1-hl-pct">${m.pctLabel}</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${m.bar}%"></div></div><span class="t1-source">${m.src}</span></div>`;});
+    hl+='</div>';
+    hl+='<div style="background:rgba(193,39,45,.05);border:1px solid rgba(193,39,45,.12);border-radius:2px;padding:7px 12px;font-size:.71rem;color:var(--muted);margin-bottom:12px"><strong style="color:var(--lite)">Note on bars:</strong> widths reflect the raw stat value itself, not a percentile rank, except where a percentile is explicitly cited.</div>';
+    const grpOrder=[['output','📈 Output / Involvement'],['discipline','🟨 Discipline'],['pedigree','🏆 Pedigree / Transfer'],['seasons','📋 Season Totals']];
+    grpOrder.forEach(([key,label])=>{
+      hl+=`<div class="t1-group"><div class="t1-group-head">${label}</div>`;
+      T1_STATS[key].forEach(m=>{hl+=`<div class="t1-row"><span class="t1-code" style="color:var(--accentL)">${m.c}</span><span class="t1-desc">${m.d}</span><div class="t1-bar-bg"><div class="t1-bar-fill" style="width:60%;background:rgba(193,39,45,.5)"></div></div><span class="t1-val" style="color:var(--lite)">${m.v}</span><span class="t1-ctx">${m.ctx}</span></div>`;});
+      hl+='</div>';
+    });
+    t1.innerHTML=hl;
+  }
+  const pbrk=safe('proxy-breakdown');
+  if(pbrk){
+    pbrk.innerHTML=PROXY_COMPONENTS.map(p=>`<div class="comp-row"><span class="comp-lbl" style="width:190px">${p.n}</span><span class="comp-desc">${p.d}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(p.v)}%;background:${sc(p.v)}"></div></div><span class="comp-val" style="color:${sc(p.v)}">${p.v}</span><span class="comp-wt">${p.w}</span></div>`).join('')
+      +`<div class="divider"></div><div style="display:flex;align-items:center;gap:10px;padding:6px 0"><span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--gold);width:190px">Weighted Proxy Total</span><div style="flex:1"></div><span style="font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:500;color:var(--gold)">6.6</span></div>`;
+  }
+  const ovp=safe('ov-phil');
+  if(ovp)ovp.innerHTML='<div style="font-size:.74rem;color:var(--muted);line-height:1.7"><span class="trait-pill">Ajax academy pedigree</span><span class="trait-pill">Mid-season nationality switch</span><span class="trait-pill">Regular European minutes</span><span class="trait-pill">Unconverted loan option</span><div style="margin-top:8px">Qualitative only — see Philosophy DNA tab for sourcing. No numeric fit score assigned.</div></div>';
+  const rEl=safe('t3-rest-grid');
+  if(rEl){
+    const ch=(a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
+    rEl.innerHTML=ch(T3R,4).map(col=>`<div>${col.map(m=>`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">❌</span></div>`).join('')}</div>`).join('');
+  }
+  const vc=safe('vc-mini');
+  if(vc){
+    const allm=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM'];
+    vc.innerHTML=allm.map(m=>`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem"><span style="width:6px;height:6px;border-radius:50%;background:#0a1428;display:inline-block;flex-shrink:0"></span><span style="color:var(--muted);width:44px;font-family:'Rajdhani',sans-serif;font-weight:700">${m}</span><span class="mflag f-p">❌ 0evt</span></div>`).join('');
+  }
+  const pb=safe('psych-bars');
+  if(pb){
+    const all_s=[{n:"Eredivisie appearances",v:'15'},{n:"UCL appearances",v:'7'},{n:"Red cards",v:'1'},{n:"Buy option (lapsed)",v:'€8.0M'},{n:"NL U21 caps (pre-switch)",v:'13'},{n:"NL U17 Euro title",v:'2019'},{n:"Nationality switch date",v:'21 Oct 2025'}];
+    pb.innerHTML=all_s.map(p=>`<div class="mrow"><span class="mcode" style="width:190px;color:var(--muted)">${p.n}</span><span class="mval" style="color:var(--lite);width:auto;margin-left:auto">${p.v}</span></div>`).join('');
+  }
+  const DFT={scales:{r:{min:0,max:100,grid:{color:'rgba(193,39,45,.06)'},angleLines:{color:'rgba(193,39,45,.06)'},ticks:{stepSize:20,color:'#2a3850',backdropColor:'transparent',font:{size:9}},pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(193,39,45,.3)',borderWidth:1,titleColor:'#e0555c',bodyColor:'#f0f6fc'}},responsive:true,maintainAspectRatio:false};
+  const dc=safe('fgaDial');
+  if(dc){
+    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const proxyScore=6.6;
+    dctx.clearRect(0,0,120,120);
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);dctx.strokeStyle='rgba(193,39,45,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    const grad=dctx.createLinearGradient(14,70,106,70);grad.addColorStop(0,'rgba(193,39,45,.9)');grad.addColorStop(1,'rgba(0,98,51,.8)');
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(proxyScore/10)*Math.PI);dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+  }
+  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20% (complete)','Tier 2 · 30% (pending)','Tier 3 · 50% (0/12 pending)'],datasets:[{data:[20,30,50],backgroundColor:['rgba(193,39,45,.55)','rgba(42,56,80,.5)','rgba(42,56,80,.3)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(193,39,45,.3)',borderWidth:1}}}});
+  new Chart(safe('ovRadar'),{type:'radar',data:{labels:['Apps Pctl','UCL Pctl','Discipline Pctl','Club Conviction',"Int'l Momentum"],datasets:[{label:'Salah-Eddine 25-26',data:[62,70,25,35,68],borderColor:'#c1272d',backgroundColor:'rgba(193,39,45,.12)',borderWidth:2,pointBackgroundColor:'#f0b820',pointRadius:4}]},options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+  new Chart(safe('ratingChart'),{type:'bar',data:{labels:RATING_LABELS,datasets:[{label:'Appearances',data:RATING_TREND,backgroundColor:['rgba(193,39,45,.65)','rgba(0,98,51,.65)'],borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(193,39,45,.04)'},ticks:{color:'#2a3850',font:{size:9}}},y:{grid:{color:'rgba(193,39,45,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(193,39,45,.3)',borderWidth:1}}}});
+  new Chart(safe('dmaChart'),{type:'doughnut',data:{labels:RATING_LABELS,datasets:[{data:RATING_TREND,backgroundColor:['rgba(193,39,45,.65)','rgba(0,98,51,.65)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#a8c4e0',font:{size:9,family:"'Rajdhani',sans-serif"}}},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(193,39,45,.3)',borderWidth:1}}}});
+}
+function switchTab(id){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');event.target.classList.add('active');}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
