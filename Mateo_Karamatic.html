@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mateo Karamatic | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #04060c;
+  --bg-card: #080c16;
+  --bg-card-hover: #0d1220;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.1);
+  --text-primary: #e8ecf4;
+  --text-secondary: #8b92a8;
+  --text-tertiary: #5a6070;
+  --accent: #0044cc;
+  --accent-dim: rgba(0,68,204,0.15);
+  --accent-glow: rgba(0,68,204,0.4);
+  --success: #00d084;
+  --warning: #ffb800;
+  --danger: #ff3b3b;
+  --info: #3b82f6;
+  --tier1: #00d084;
+  --tier2: #ffb800;
+  --tier3: #ff3b3b;
+  --pending: #5a6070;
+  --font-display: 'Oswald', sans-serif;
+  --font-heading: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+/* HERO */
+.hero {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWrMhYBiI_scT7_jIQmLMptw6xv_RU2OWWT5LJgPIZd3VdBPeiSP91MZ0&s=10') center 20% / cover no-repeat;
+  filter: brightness(0.45) saturate(0.85);
+  transition: transform 8s ease;
+}
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4,6,12,0.2) 0%, rgba(4,6,12,0.75) 60%, var(--bg-primary) 100%);
+}
+.hero-branding {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--accent) 50%, #ffffff 50%);
+  z-index: 10;
+}
+.hero-content {
+  position: relative;
+  z-index: 5;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.jersey-watermark {
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 220px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.04);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+}
+.club-badge-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.badge-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-item .arrow {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+}
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.hero-meta span {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-meta .dot {
+  width: 4px; height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.hero-meta .flag {
+  font-size: 1.1rem;
+}
+.hero-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 32px;
+}
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,68,204,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-gold { background: rgba(249,232,20,0.1); color: #f9e814; border: 1px solid rgba(249,232,20,0.2); }
+
+/* FGA DIAL */
+.fga-dial-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+.fga-dial-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.fga-dial-inner .fga-label {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+}
+.fga-dial-inner .fga-score {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.fga-dial-inner .fga-status {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--warning);
+  margin-top: 2px;
+}
+
+/* TIER PILLS */
+.tier-pills {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tier-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(255,59,59,0.12); color: var(--tier3); border: 1px solid rgba(255,59,59,0.2); }
+
+/* STICKY TABS */
+.tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(4,6,12,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tab-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 0;
+}
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1;
+  min-width: 110px;
+  padding: 16px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%);
+}
+
+/* CONTENT */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title .line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* CARDS & GRIDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-medium);
+}
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+/* BANNERS */
+.banner {
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(249,232,20,0.06); border: 1px solid rgba(249,232,20,0.2); color: #f9e814; }
+
+/* STAT HERO */
+.stat-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-hero:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-medium);
+}
+.stat-hero .value {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.stat-hero .label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+/* CAREER PATH */
+.career-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.career-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.career-node.current {
+  background: var(--accent-dim);
+  border-color: rgba(0,68,204,0.3);
+  color: var(--accent);
+}
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+/* ATTRIBUTE CARDS */
+.attr-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+.attr-card h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+.attr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.attr-row .score {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ac-green { color: var(--success); }
+.ac-yellow { color: var(--warning); }
+.ac-red { color: var(--danger); }
+.ac-pend { color: var(--pending); }
+.circle {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.circle-green { background: var(--success); }
+.circle-yellow { background: var(--warning); }
+.circle-red { background: var(--danger); }
+.circle-pend { background: var(--pending); }
+
+/* PROGRESS BARS */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+/* T1 METRIC ROWS */
+.t1-metric-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 50px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.t1-metric-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  flex: 1;
+}
+.t1-metric-bar-wrap {
+  width: 100px;
+  flex-shrink: 0;
+}
+.t1-metric-val {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  width: 70px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.t1-metric-ctx {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+
+/* T1 HIGHLIGHT BOXES */
+.t1-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.t1-hl-box {
+  background: linear-gradient(135deg, rgba(0,68,204,0.18), rgba(249,232,20,0.06));
+  border: 2px solid rgba(0,68,204,0.4);
+  border-radius: 6px;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.t1-hl-box.gold {
+  background: linear-gradient(135deg, rgba(249,232,20,0.12), rgba(0,68,204,0.06));
+  border-color: rgba(249,232,20,0.5);
+}
+.t1-hl-code {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.t1-hl-val {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+}
+.t1-hl-box.gold .t1-hl-val { color: #f9e814; }
+.t1-hl-pct {
+  font-size: 0.58rem;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.t1-hl-bar {
+  height: 3px;
+  background: rgba(0,68,204,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.t1-hl-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+}
+.t1-hl-box.gold .t1-hl-bar-fill { background: #f9e814; }
+.t1-hl-source {
+  font-family: var(--font-heading);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  color: rgba(0,68,204,0.35);
+  text-transform: uppercase;
+  margin-top: 6px;
+  display: block;
+}
+
+/* T1 GROUP */
+.t1-group { margin-bottom: 14px; }
+.t1-group-head {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0,68,204,0.08);
+  margin-bottom: 8px;
+}
+
+/* PHILOSOPHY */
+.philo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.philo-row:last-child { border-bottom: none; }
+.philo-rank {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 28px;
+  text-align: center;
+}
+.philo-name {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.philo-score {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 36px;
+  text-align: right;
+}
+.philo-bar-wrap {
+  width: 120px;
+}
+
+/* MATCH CARDS */
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.match-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.match-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(0,68,204,0.1);
+}
+.match-card.excluded {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+.match-card.excluded:hover {
+  transform: none;
+  border-color: var(--border-subtle);
+  box-shadow: none;
+}
+.match-thumb {
+  height: 140px;
+  background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.match-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,68,204,0.15)" stroke-width="2"/></svg>') center / 80px no-repeat;
+}
+.match-thumb .play-icon {
+  width: 48px; height: 48px;
+  background: rgba(0,68,204,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s, background 0.2s;
+}
+.match-card:hover .play-icon {
+  transform: scale(1.1);
+  background: var(--accent);
+}
+.match-card.excluded .play-icon {
+  background: rgba(90,96,112,0.5);
+}
+.match-card.excluded:hover .play-icon {
+  background: rgba(90,96,112,0.5);
+  transform: none;
+}
+.play-icon svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.match-meta {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.match-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-excluded { background: rgba(255,59,59,0.12); color: var(--danger); }
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.data-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-medium);
+  background: rgba(255,255,255,0.02);
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+/* SCOUTING BOXES */
+.scout-box {
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.scout-box h4 {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(0,68,204,0.2); }
+.scout-verdict h4 { color: var(--accent); }
+.scout-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.scout-box li {
+  padding: 5px 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+}
+.scout-box li::before {
+  content: '—';
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* PHYSICAL CARD */
+.physical-card {
+  background: linear-gradient(135deg, rgba(0,68,204,0.08) 0%, rgba(4,6,12,0.5) 100%);
+  border: 1px solid rgba(0,68,204,0.15);
+  border-radius: 12px;
+  padding: 20px;
+}
+.physical-card h4 {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.physical-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.physical-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--border-subtle);
+}
+.timeline-item { position: relative; padding-bottom: 18px; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -17px; top: 4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+}
+.timeline-item.current::before { background: var(--accent); }
+.timeline-date {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.timeline-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+.timeline-text strong { color: var(--text-primary); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero { height: 440px; }
+  .jersey-watermark { font-size: 140px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .fga-dial-wrap { width: 110px; height: 110px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: 1fr; }
+  .t1-metric-bar-wrap { width: 60px; }
+  .t1-metric-val { width: 50px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="jersey-watermark">5</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">USK Anif</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Osijek II</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Olimpija Ljubljana</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">TSV Hartberg</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Al-Nasr SC #5</div>
+    </div>
+    <h1 class="hero-name">Mateo Karamatic</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇦🇹</span> Austria / 🇭🇷 Croatia</span>
+      <span class="dot"></span>
+      <span>24 years</span>
+      <span class="dot"></span>
+      <span>187cm</span>
+      <span class="dot"></span>
+      <span>Left-footed</span>
+      <span class="dot"></span>
+      <span>Centre-Back / Left-Back</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Proxy</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-club">Al-Nasr · Contract 2027</span>
+          <span class="tag tag-value">€500K Value</span>
+          <span class="tag tag-info">148 Career Apps</span>
+          <span class="tag tag-info">3 Goals</span>
+          <span class="tag tag-info">Slovenian Champion</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Proxy FGA</div>
+          <div class="fga-score">6.3</div>
+          <div class="fga-status">PROXY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> PROXY FGA 6.3 — Tier 3 video metrics pending scout validation. All T3 assessments marked ⏳ PENDING.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> SQUAD PLAYER STATUS — Only 153 minutes in 2025/26 UAE Pro League (3 apps, 1 start). Monitor playing time trajectory.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">USK Anif (2018–20)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Osijek II (2020–22)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Olimpija Ljubljana (2022–24)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">TSV Hartberg (2024–25)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Al-Nasr SC (2025–)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">3</div>
+      <div class="label">UAE Pro League Apps</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">0</div>
+      <div class="label">Goals</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">1</div>
+      <div class="label">Assist</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">153</div>
+      <div class="label">Minutes</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">1</div>
+      <div class="label">Start</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">0</div>
+      <div class="label">Yellow Cards</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        A <strong>left-footed centre-back</strong> (84% CB, 16% LB) who progressed through Red Bull Salzburg's youth system before senior stints in Austria, Croatia, Slovenia, and now the UAE. Won the <strong>Slovenian PrvaLiga and Slovenian Cup</strong> with Olimpija Ljubljana (2022–24). At 24 with 148 career apps, he offers a <strong>ball-playing defensive profile</strong> — 92% pass accuracy, 70% long-ball accuracy in limited 2025/26 minutes. Currently a squad player at Al-Nasr with limited minutes. Dual Austrian-Croatian citizenship.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 metrics validated.</strong> All physical, mobility, and micro-technical assessments are pending video scout review. Karamatic has <strong>no documented major injury history</strong> but has been largely confined to the bench at Al-Nasr (7 of 10 recent matches unused). T3 assessment should focus on aerial dominance at 187cm, left-footed distribution range, and acceleration profile for a modern ball-playing CB.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--accent);">PROXY FGA 6.3</strong> — Tier 1 data from 148 career apps validates a steady, ball-playing centre-back profile. The 2025/26 season at Al-Nasr shows <strong>limited playing time</strong> (153 minutes, 3 apps) which significantly caps the score. Previous pedigree at Olimpija Ljubljana (Slovenian champion) and TSV Hartberg (Austrian Bundesliga) provides a solid baseline. Left-footed CBs are tactically valuable. Primary risk factor: squad-player status and declining market value (peak €3.35M → €500K).
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row">
+        <div class="philo-rank">1</div>
+        <div class="philo-name">Guardiola Positional</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div>
+        <div class="philo-name">Dutch School Total Football</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div>
+        <div class="philo-name">Tuchel Structure</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div>
+        <div class="philo-name">Cruyff Intelligence</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div>
+        <div class="philo-name">Ferguson Drive</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.5</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;">
+      <canvas id="philosophyRadar" width="300" height="280"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">U24 CB Percentile Radar <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="cbRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero">
+        <div class="value">3</div>
+        <div class="label">UAE Pro League Apps</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1</div>
+        <div class="label">Start</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2</div>
+        <div class="label">Subs</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">0</div>
+        <div class="label">Goals</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1</div>
+        <div class="label">Assist</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">0</div>
+        <div class="label">Yellows</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">92%</div>
+        <div class="label">Pass Accuracy</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">7.18</div>
+        <div class="label">FotMob Rating</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Karamatic's 2025–26 season at Al-Nasr has been <strong>limited to squad-player minutes</strong> — 153 minutes across 3 UAE Pro League appearances. His single start (vs Baniyas, 2 Jan 2026) produced a <strong>7.7 FotMob rating and 1 assist</strong>. He has been an unused substitute in 7 of his last 10 matchday squads, indicating he is currently <strong>outside the first-choice XI</strong> under manager Slaviša Jokanović. Clean discipline (0 yellows, 0 reds) and strong passing metrics (92% accuracy, 70% long balls) are positives from his limited sample.
+    </p>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Passing (Short)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.2</span></div>
+      <div class="attr-row"><span class="name">Long Passing</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0</span></div>
+      <div class="attr-row"><span class="name">Ball Control</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.8 ⏳</span></div>
+      <div class="attr-row"><span class="name">Heading</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Tackling</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.7 ⏳</span></div>
+      <div class="attr-row"><span class="name">Marking</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.6 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Composure</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0</span></div>
+      <div class="attr-row"><span class="name">Positioning</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.8 ⏳</span></div>
+      <div class="attr-row"><span class="name">Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.7 ⏳</span></div>
+      <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Aggression</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.4 ⏳</span></div>
+      <div class="attr-row"><span class="name">Leadership</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.2 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Acceleration</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Sprint Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Agility</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Jumping</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Real Data Metrics</h3>
+
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Assists</div>
+          <div class="t1-hl-val">1</div>
+          <div class="t1-hl-pct">UAE Pro League 25-26</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:20%"></div></div>
+          <span class="t1-hl-source">FotMob</span>
+        </div>
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Rating</div>
+          <div class="t1-hl-val">7.18</div>
+          <div class="t1-hl-pct">Avg FotMob</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:72%"></div></div>
+          <span class="t1-hl-source">FotMob</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Minutes</div>
+          <div class="t1-hl-val">153'</div>
+          <div class="t1-hl-pct">Squad player</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:15%"></div></div>
+          <span class="t1-hl-source">FotMob</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Pass %</div>
+          <div class="t1-hl-val">92%</div>
+          <div class="t1-hl-pct">Short passing</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:92%"></div></div>
+          <span class="t1-hl-source">FotMob</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Long %</div>
+          <div class="t1-hl-val">70%</div>
+          <div class="t1-hl-pct">Long balls</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div>
+          <span class="t1-hl-source">FotMob</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">📈 Output / Involvement</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Gls</span>
+          <span class="t1-metric-desc">Goals (UAE Pro League 25-26)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Ast</span>
+          <span class="t1-metric-desc">Assists (UAE Pro League 25-26)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">1</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Min</span>
+          <span class="t1-metric-desc">Minutes played</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">153'</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Rtg</span>
+          <span class="t1-metric-desc">Average FotMob rating</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">7.18</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Clr</span>
+          <span class="t1-metric-desc">Clearances</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">6</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🟨 Discipline</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">YC</span>
+          <span class="t1-metric-desc">Yellow cards</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">RC</span>
+          <span class="t1-metric-desc">Red cards</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--danger)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🏆 Pedigree / Tenure</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Debut</span>
+          <span class="t1-metric-desc">USK Anif debut</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">2018</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Al-Nasr</span>
+          <span class="t1-metric-desc">Al-Nasr since</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">10 Jul 2025</span>
+          <span class="t1-metric-ctx">Transfermarkt</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Peak</span>
+          <span class="t1-metric-desc">Peak market value</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:67%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">€3.35M</span>
+          <span class="t1-metric-ctx">Besoccer</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">📋 Season Totals</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">25-26</span>
+          <span class="t1-metric-desc">Al-Nasr · UAE Pro League</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">3 apps</span>
+          <span class="t1-metric-ctx">FotMob</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Career</span>
+          <span class="t1-metric-desc">Total senior apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">~148 apps</span>
+          <span class="t1-metric-ctx">Besoccer</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Titles</span>
+          <span class="t1-metric-desc">Slovenian PrvaLiga + Cup</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2 titles</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">POI — Positional IQ</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.8</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Complexity</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Grit</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Athleticism</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0 ⏳</span>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With Tier 3 at 0/16, these are proxy estimates based on Tier 1 data patterns.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;">
+          <canvas id="fgaDonut"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Season Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">2025-26 · 1st Al-Nasr season</strong><br>
+          <strong style="color:var(--text-primary);">Al-Wasl (18 Oct '25):</strong> Unused sub<br>
+          <strong style="color:var(--text-primary);">Al-Wahda (30 Oct '25):</strong> Unused sub<br>
+          <strong style="color:var(--text-primary);">Shabab Al-Ahli (16 Nov '25):</strong> Unused sub<br>
+          <strong style="color:var(--text-primary);">Al-Dhafra (21 Nov '25):</strong> Unused sub<br>
+          <strong style="color:var(--text-primary);">Shabab Al-Ahli (29 Nov '25):</strong> Unused sub<br>
+          <strong style="color:var(--text-primary);">Al-Ain (13 Dec '25):</strong> Unused sub (League Cup)<br>
+          <strong style="color:var(--text-primary);">Al Bataeh (21 Dec '25):</strong> Subbed on 62' · 6.7<br>
+          <strong style="color:var(--text-primary);">Al-Ain (28 Dec '25):</strong> Unused sub<br>
+          <strong style="color:var(--text-primary);">Baniyas (2 Jan '26):</strong> Started 90' · Assist · 7.7<br>
+          <strong style="color:var(--text-primary);">Sharjah (6 Jan '26):</strong> Unused sub
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Proxy FGA Rating — 6.3 / 10 · Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. With Tier 2/3 both partially empty, this 6.3 is a <strong style="color:var(--text-primary);">substitute</strong> built from public Tier 1 numbers. The score reflects solid career pedigree and clean discipline, balanced against severely limited 2025/26 playing time and declining market value.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Career Pedigree</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">148 apps, Slovenian champion, Austrian Bundesliga experience</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">7.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">25%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Ball-Playing Ability</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">92% pass accuracy, 70% long balls, left-footed CB rarity</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:30px;text-align:right;">7.2</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Current Output</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">3 apps, 153 min, 1 assist. Severely limited sample</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--danger)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);width:30px;text-align:right;">3.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Discipline</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">0 yellows, 0 reds. Elite clean sheet</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">8.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Age / Ceiling</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">24 years old — entering prime but trajectory unclear</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Market Trajectory</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Peak €3.35M → €500K. Declining value trend</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--danger)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);width:30px;text-align:right;">3.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span>
+      </div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:180px;font-size:0.9rem;">Weighted Proxy Total</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);">6.3</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row">
+        <div class="philo-rank">1</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div><div class="philo-score">7.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div><div class="philo-name">Dutch School Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div><div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent);"></div></div></div><div class="philo-score">6.5</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">6</div><div class="philo-name">Beenhakker Technique</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--warning);"></div></div></div><div class="philo-score">6.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">7</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--warning);"></div></div></div><div class="philo-score">6.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">8</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--warning);"></div></div></div><div class="philo-score">5.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">9</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--warning);"></div></div></div><div class="philo-score">5.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">10</div><div class="philo-name">Spanish Positional Superiority</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning);"></div></div></div><div class="philo-score">5.5</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <canvas id="philosophyRadar2" width="300" height="280"></canvas>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--accent);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Left-Footed Build-Up Specialist"</strong> — A modern ball-playing centre-back who uses his left foot to open passing angles and progress play from the back. His 92% pass accuracy and 70% long-ball completion (FotMob) validate his distribution quality. At 187cm he has the frame for aerial duels but has won only 33.3% of aerial contests in his limited sample. Comfortable stepping into midfield or covering at left-back. Best suited for systems that build from the back and value left-sided balance in defensive transitions.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Left-Footed</span>
+          <span class="tag tag-club">Ball-Playing CB</span>
+          <span class="tag tag-club">Build-Up</span>
+          <span class="tag tag-club">Long Passing</span>
+          <span class="tag tag-club">LB Cover</span>
+          <span class="tag tag-club">Clean Discipline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.9</div>
+      <div class="label">Dutch School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.7</div>
+      <div class="label">German School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">6.2</div>
+      <div class="label">Spanish School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">6.0</div>
+      <div class="label">Italian School</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">28 Sep 2001</div>
+          <div class="timeline-text">Born in <strong>Ehenbichl, Austria</strong>. Of Croatian descent. Dual Austrian-Croatian citizenship.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2007–2015</div>
+          <div class="timeline-text">Youth development at <strong>SV Reutte</strong> in Tyrol, Austria.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2015–2018</div>
+          <div class="timeline-text">Accepted into <strong>Red Bull Salzburg</strong> youth academy. Elite Austrian youth development.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2018</div>
+          <div class="timeline-text">Senior debut with <strong>USK Anif II</strong> (12 apps, 1 goal) and <strong>USK Anif</strong> first team (17 apps).</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2018–2019</div>
+          <div class="timeline-text">Won <strong>SFV Cup</strong> with USK Anif — first senior trophy.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2020–2022</div>
+          <div class="timeline-text">Moved to Croatia, playing for <strong>NK Osijek II</strong> in First Football League. 39 apps, 1 goal.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2022</div>
+          <div class="timeline-text">Transferred to <strong>Olimpija Ljubljana</strong> (Slovenian PrvaLiga). Contract until 2025.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2022–2023</div>
+          <div class="timeline-text">Won <strong>Slovenian Football Cup</strong> and <strong>Slovenian PrvaLiga</strong> with Olimpija Ljubljana.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2024</div>
+          <div class="timeline-text">Returned to Austria with <strong>TSV Hartberg</strong> in Austrian Bundesliga. 23 apps.</div>
+        </div>
+        <div class="timeline-item current">
+          <div class="timeline-date">Jul 2025</div>
+          <div class="timeline-text">Signed for <strong>Al-Nasr SC</strong> (UAE Pro League). Contract until 30 June 2027. Squad player so far.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Club</th><th>Season</th><th>League</th><th>Apps</th><th>Goals</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>USK Anif II</strong></td><td>2018</td><td>Austrian Regionalliga</td><td>12</td><td>1</td></tr>
+          <tr><td><strong>USK Anif</strong></td><td>2018–20</td><td>Austrian Regionalliga</td><td>17</td><td>0</td></tr>
+          <tr><td><strong>Osijek II</strong></td><td>2020–22</td><td>First Football League (CRO)</td><td>39</td><td>1</td></tr>
+          <tr><td><strong>Olimpija Ljubljana</strong></td><td>2022–24</td><td>Slovenian PrvaLiga</td><td>35</td><td>1</td></tr>
+          <tr><td><strong>TSV Hartberg</strong></td><td>2024–25</td><td>Austrian Bundesliga</td><td>23</td><td>0</td></tr>
+          <tr><td><strong>Al-Nasr SC</strong></td><td>2025–26</td><td>UAE Pro League</td><td>3</td><td>0</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="3"><strong>Career Total (Club)</strong></td>
+            <td><strong>~129</strong></td>
+            <td><strong>3</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Season</th><th>Club</th><th>Honour</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2018/19</td><td>USK Anif</td><td>SFV Cup</td></tr>
+          <tr><td>2022/23</td><td>Olimpija Ljubljana</td><td>Slovenian Football Cup</td></tr>
+          <tr><td>2022/23</td><td>Olimpija Ljubljana</td><td>Slovenian PrvaLiga</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">187cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~81kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">CB / LB</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#5</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, balanced</span></div>
+        <div class="physical-item"><span class="label">Hair</span><span class="value">Dark, short</span></div>
+        <div class="physical-item"><span class="label">Complexion</span><span class="value">Light</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injuries Recorded</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No documented significant injury layoffs in career to date. Available for selection consistently across 148+ apps.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Match Fitness Concern</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">7 of last 10 matches as unused sub. Potential match rhythm issue. Not injury-related but affects conditioning baseline.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Left-footed centre-back</strong> — Tactically valuable rarity. Opens left-sided build-up angles and natural back-three balance</li>
+      <li><strong>Elite passing metrics</strong> — 92% pass accuracy, 70% long-ball accuracy in limited sample. Genuine ball-playing profile</li>
+      <li><strong>Clean discipline</strong> — 0 yellows, 0 reds in 2025/26. Career-long clean record</li>
+      <li><strong>Slovenian champion pedigree</strong> — Won PrvaLiga and Cup with Olimpija Ljubljana (2022–24). Proven winner</li>
+      <li><strong>Red Bull Salzburg youth</strong> — Elite Austrian academy background. High-level youth development</li>
+      <li><strong>Versatile defensive profile</strong> — 84% CB, 16% LB. Can cover multiple positions in defensive line</li>
+      <li><strong>Age curve</strong> — 24 years old with 148 senior apps. Entering prime with development runway</li>
+      <li><strong>Multi-league experience</strong> — Austria, Croatia, Slovenia, UAE. Adaptable to different football cultures</li>
+      <li><strong>Contract security</strong> — Two-year deal until 2027. Stable club situation</li>
+      <li><strong>No injury history</strong> — No documented major layoffs. Durability validated</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Severely limited minutes</strong> — Only 153 minutes in 2025/26 (3 apps, 1 start). Not in first-choice plans</li>
+      <li><strong>Declining market value</strong> — Peak €3.35M (2025) to €500K (2026). Sharp decline signals reduced perceived potential</li>
+      <li><strong>Aerial weakness</strong> — Only 33.3% aerial duels won in limited sample. Concerning for 187cm CB</li>
+      <li><strong>Low duel success</strong> — 33.3% overall duels won. Below average for position</li>
+      <li><strong>No top-5 league experience</strong> — Career in Austria, Croatia, Slovenia, UAE. Unproven at elite level</li>
+      <li><strong>No international caps</strong> — No Austria or Croatia senior appearances. No international validation</li>
+      <li><strong>Defensive action volume low</strong> — Only 2 tackles, 4 recoveries in 153 minutes. Limited defensive impact</li>
+      <li><strong>Match rhythm concern</strong> — 7 of 10 recent matches unused. Potential sharpness and confidence issues</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>All 16 T3 metrics pending</strong> — Zero validated video assessments; full scout review required</li>
+      <li><strong>Physical metrics unvalidated</strong> — Acceleration, sprint speed, agility, jumping all pending. Critical for CB evaluation</li>
+      <li><strong>Limited match footage</strong> — Only 3 appearances in 2025/26. Sparse video sample for assessment</li>
+      <li><strong>No video links provided</strong> — No timestamped match footage available for T3 validation</li>
+      <li><strong>Elite pressing untested</strong> — Modern systems demand high-line CBs with recovery pace. Unproven at required level</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--accent);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROXY FGA 6.3 — HOLD with T3 validation required.</strong> Mateo Karamatic is a left-footed ball-playing centre-back with genuine distribution quality (92% pass accuracy) and a solid multi-league pedigree including a Slovenian championship. However, his 2025/26 season at Al-Nasr has been defined by the bench — 153 minutes across 3 apps with 7 unused substitute appearances in his last 10 matchday squads. His market value has collapsed from a €3.35M peak to €500K, reflecting reduced club trust and perceived ceiling. The aerial duel weakness (33.3% won) at 187cm is a red flag for a modern CB. Best suited for clubs in mid-tier European leagues seeking a left-footed build-up defender with experience and clean discipline. Not recommended for top-tier recruitment until T3 validates physical profile and aerial dominance. <strong>Provide video links for T3 validation.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-danger">
+    <span>⚠️</span> No video links provided for Mateo Karamatic. The Matches tab is pending video upload. When your scout provides timestamped match footage, reply with the links and I will verify involvement and embed the cards.
+  </div>
+
+  <div class="match-grid">
+    <div class="match-card excluded" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Pending Video Link</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">⏳ Awaiting Upload</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Scout Assessment Notes</h3>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Physical Identity Card</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Height</span><span class="value">187cm</span></div>
+          <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, balanced</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">#5</span></div>
+          <div class="physical-item"><span class="label">Hair</span><span class="value">Dark, short</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">CB / LB</span></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">CB-Specific Focus Areas</h4>
+        <ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Aerial dominance &amp; heading accuracy</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> 1v1 defending &amp; recovery pace</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Left-footed distribution range &amp; accuracy</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Positioning in high-line defensive block</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Pressing intensity &amp; duel success rate</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Leadership &amp; communication at back</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:16px;margin-bottom:0;">
+      <span>ℹ️</span> <strong>No-video caveat:</strong> All T3 metrics remain pending. Without video links, the card cannot progress to SCOUT_VALIDATED status. Provide match footage URLs when available.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Hero Dial
+const heroCanvas = document.getElementById('heroDial');
+const heroCtx = heroCanvas.getContext('2d');
+const heroScore = 6.3;
+const heroMax = 10;
+const heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+heroCtx.strokeStyle = '#0044cc';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+
+// CB Radar
+const cbCtx = document.getElementById('cbRadar').getContext('2d');
+new Chart(cbCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Pace','Aerial','Tackling','Passing','Positioning','Physical','Strength','Composure'],
+    datasets: [{
+      label: 'Karamatic (Proxy)',
+      data: [6.0, 5.5, 6.5, 7.2, 6.8, 6.2, 6.5, 7.0],
+      backgroundColor: 'rgba(0,68,204,0.2)',
+      borderColor: '#0044cc',
+      pointBackgroundColor: '#0044cc',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }, {
+      label: 'U24 CB Average',
+      data: [6.5, 6.5, 6.5, 6.2, 6.5, 6.5, 6.8, 6.3],
+      backgroundColor: 'rgba(255,255,255,0.05)',
+      borderColor: 'rgba(255,255,255,0.2)',
+      pointRadius: 0,
+      borderWidth: 1,
+      borderDash: [4,4]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 4, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+    }
+  }
+});
+
+// Attribute Radar
+const attrCtx = document.getElementById('attrRadar').getContext('2d');
+new Chart(attrCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Short Pass','Long Pass','Control','Heading','Tackling','Marking','Composure','Positioning','Decisions','Aggression'],
+    datasets: [{
+      label: 'Karamatic (Proxy)',
+      data: [7.2, 7.0, 6.8, 6.5, 6.7, 6.6, 7.0, 6.8, 6.7, 6.4],
+      backgroundColor: 'rgba(0,68,204,0.2)',
+      borderColor: '#0044cc',
+      pointBackgroundColor: '#0044cc',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 4, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Philosophy Radar
+const philoData = {
+  labels: ['Positional','Dutch','Structure','Intelligence','Drive','Technique','Development','Intensity','Pragmatism','Spanish'],
+  datasets: [{
+    label: 'Karamatic',
+    data: [7.2, 7.0, 7.0, 6.8, 6.5, 6.4, 6.2, 5.8, 5.6, 5.5],
+    backgroundColor: 'rgba(0,68,204,0.2)',
+    borderColor: '#0044cc',
+    pointBackgroundColor: '#0044cc',
+    pointBorderColor: '#fff',
+    pointRadius: 3,
+    borderWidth: 2
+  }]
+};
+const philoOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    r: {
+      min: 4, max: 10,
+      ticks: { display: false, stepSize: 1 },
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      angleLines: { color: 'rgba(255,255,255,0.06)' },
+      pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }
+    }
+  },
+  plugins: { legend: { display: false } }
+};
+new Chart(document.getElementById('philosophyRadar').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+new Chart(document.getElementById('philosophyRadar2').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+
+// FGA Donut
+new Chart(document.getElementById('fgaDonut').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['T1 Extensive','T2 Proxy','T3 Pending'],
+    datasets: [{
+      data: [20, 30, 50],
+      backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
