@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Julien Vetro | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #04060c;
+  --bg-card: #080c16;
+  --bg-card-hover: #0d1220;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.1);
+  --text-primary: #e8ecf4;
+  --text-secondary: #8b92a8;
+  --text-tertiary: #5a6070;
+  --accent: #660099;
+  --accent-dim: rgba(102,0,153,0.15);
+  --accent-glow: rgba(102,0,153,0.4);
+  --success: #00d084;
+  --warning: #ffb800;
+  --danger: #ff3b3b;
+  --info: #3b82f6;
+  --tier1: #00d084;
+  --tier2: #ffb800;
+  --tier3: #ff3b3b;
+  --pending: #5a6070;
+  --font-display: 'Oswald', sans-serif;
+  --font-heading: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+/* HERO */
+.hero {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  background: url('https://www.macommune.info/wp-content/uploads/2025/09/julien-vetro-960x504.jpg') center 20% / cover no-repeat;
+  filter: brightness(0.45) saturate(0.85);
+  transition: transform 8s ease;
+}
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4,6,12,0.2) 0%, rgba(4,6,12,0.75) 60%, var(--bg-primary) 100%);
+}
+.hero-branding {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--accent) 50%, #ffffff 50%);
+  z-index: 10;
+}
+.hero-content {
+  position: relative;
+  z-index: 5;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.jersey-watermark {
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 220px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.04);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+}
+.club-badge-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.badge-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-item .arrow {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+}
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.hero-meta span {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-meta .dot {
+  width: 4px; height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.hero-meta .flag {
+  font-size: 1.1rem;
+}
+.hero-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 32px;
+}
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(102,0,153,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-gold { background: rgba(249,232,20,0.1); color: #f9e814; border: 1px solid rgba(249,232,20,0.2); }
+
+/* FGA DIAL */
+.fga-dial-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+.fga-dial-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.fga-dial-inner .fga-label {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+}
+.fga-dial-inner .fga-score {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.fga-dial-inner .fga-status {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--warning);
+  margin-top: 2px;
+}
+
+/* TIER PILLS */
+.tier-pills {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tier-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(255,59,59,0.12); color: var(--tier3); border: 1px solid rgba(255,59,59,0.2); }
+
+/* STICKY TABS */
+.tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(4,6,12,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tab-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 0;
+}
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1;
+  min-width: 110px;
+  padding: 16px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%);
+}
+
+/* CONTENT */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title .line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* CARDS & GRIDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-medium);
+}
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+/* BANNERS */
+.banner {
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(249,232,20,0.06); border: 1px solid rgba(249,232,20,0.2); color: #f9e814; }
+
+/* STAT HERO */
+.stat-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-hero:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-medium);
+}
+.stat-hero .value {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.stat-hero .label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+/* CAREER PATH */
+.career-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.career-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.career-node.current {
+  background: var(--accent-dim);
+  border-color: rgba(102,0,153,0.3);
+  color: var(--accent);
+}
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+/* ATTRIBUTE CARDS */
+.attr-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+.attr-card h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+.attr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.attr-row .score {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ac-green { color: var(--success); }
+.ac-yellow { color: var(--warning); }
+.ac-red { color: var(--danger); }
+.ac-pend { color: var(--pending); }
+.circle {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.circle-green { background: var(--success); }
+.circle-yellow { background: var(--warning); }
+.circle-red { background: var(--danger); }
+.circle-pend { background: var(--pending); }
+
+/* PROGRESS BARS */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+/* T1 METRIC ROWS */
+.t1-metric-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 50px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.t1-metric-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  flex: 1;
+}
+.t1-metric-bar-wrap {
+  width: 100px;
+  flex-shrink: 0;
+}
+.t1-metric-val {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  width: 70px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.t1-metric-ctx {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+
+/* T1 HIGHLIGHT BOXES */
+.t1-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.t1-hl-box {
+  background: linear-gradient(135deg, rgba(102,0,153,0.18), rgba(249,232,20,0.06));
+  border: 2px solid rgba(102,0,153,0.4);
+  border-radius: 6px;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.t1-hl-box.gold {
+  background: linear-gradient(135deg, rgba(249,232,20,0.12), rgba(102,0,153,0.06));
+  border-color: rgba(249,232,20,0.5);
+}
+.t1-hl-code {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.t1-hl-val {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+}
+.t1-hl-box.gold .t1-hl-val { color: #f9e814; }
+.t1-hl-pct {
+  font-size: 0.58rem;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.t1-hl-bar {
+  height: 3px;
+  background: rgba(102,0,153,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.t1-hl-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+}
+.t1-hl-box.gold .t1-hl-bar-fill { background: #f9e814; }
+.t1-hl-source {
+  font-family: var(--font-heading);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  color: rgba(102,0,153,0.35);
+  text-transform: uppercase;
+  margin-top: 6px;
+  display: block;
+}
+
+/* T1 GROUP */
+.t1-group { margin-bottom: 14px; }
+.t1-group-head {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(102,0,153,0.08);
+  margin-bottom: 8px;
+}
+
+/* PHILOSOPHY */
+.philo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.philo-row:last-child { border-bottom: none; }
+.philo-rank {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 28px;
+  text-align: center;
+}
+.philo-name {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.philo-score {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 36px;
+  text-align: right;
+}
+.philo-bar-wrap {
+  width: 120px;
+}
+
+/* MATCH CARDS */
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.match-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.match-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(102,0,153,0.1);
+}
+.match-card.excluded {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+.match-card.excluded:hover {
+  transform: none;
+  border-color: var(--border-subtle);
+  box-shadow: none;
+}
+.match-card.unverified {
+  opacity: 0.75;
+}
+.match-card.unverified:hover {
+  border-color: var(--warning);
+  box-shadow: 0 8px 24px rgba(255,184,0,0.08);
+}
+.match-thumb {
+  height: 140px;
+  background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.match-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(102,0,153,0.15)" stroke-width="2"/></svg>') center / 80px no-repeat;
+}
+.match-thumb .play-icon {
+  width: 48px; height: 48px;
+  background: rgba(102,0,153,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s, background 0.2s;
+}
+.match-card:hover .play-icon {
+  transform: scale(1.1);
+  background: var(--accent);
+}
+.match-card.excluded .play-icon {
+  background: rgba(90,96,112,0.5);
+}
+.match-card.excluded:hover .play-icon {
+  background: rgba(90,96,112,0.5);
+  transform: none;
+}
+.match-card.unverified .play-icon {
+  background: rgba(255,184,0,0.7);
+}
+.match-card.unverified:hover .play-icon {
+  background: var(--warning);
+}
+.play-icon svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.match-meta {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.match-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-excluded { background: rgba(255,59,59,0.12); color: var(--danger); }
+.badge-unverified { background: rgba(255,184,0,0.12); color: var(--warning); }
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.data-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-medium);
+  background: rgba(255,255,255,0.02);
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+/* SCOUTING BOXES */
+.scout-box {
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.scout-box h4 {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(102,0,153,0.2); }
+.scout-verdict h4 { color: var(--accent); }
+.scout-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.scout-box li {
+  padding: 5px 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+}
+.scout-box li::before {
+  content: '—';
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* PHYSICAL CARD */
+.physical-card {
+  background: linear-gradient(135deg, rgba(102,0,153,0.08) 0%, rgba(4,6,12,0.5) 100%);
+  border: 1px solid rgba(102,0,153,0.15);
+  border-radius: 12px;
+  padding: 20px;
+}
+.physical-card h4 {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.physical-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.physical-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--border-subtle);
+}
+.timeline-item { position: relative; padding-bottom: 18px; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -17px; top: 4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+}
+.timeline-item.current::before { background: var(--accent); }
+.timeline-date {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.timeline-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+.timeline-text strong { color: var(--text-primary); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero { height: 440px; }
+  .jersey-watermark { font-size: 140px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .fga-dial-wrap { width: 110px; height: 110px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: 1fr; }
+  .t1-metric-bar-wrap { width: 60px; }
+  .t1-metric-val { width: 50px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="jersey-watermark">11</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Bordeaux (16 apps, 1G)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Burnley → Dundee (loan, 6 apps)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">FC Sochaux #11</div>
+    </div>
+    <h1 class="hero-name">Julien Vetro</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇫🇷</span> France</span>
+      <span class="dot"></span>
+      <span>22 years</span>
+      <span class="dot"></span>
+      <span>1.78m</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Right Winger</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Verified</div>
+          <div class="tier-pill t2">T2 Pending</div>
+          <div class="tier-pill t3">3/12 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 IN PROGRESS</span>
+          <span class="tag tag-club">FC Sochaux · #11</span>
+          <span class="tag tag-value">~€200k Value</span>
+          <span class="tag tag-gold">✅ Club Promoted to Ligue 2</span>
+          <span class="tag tag-info">France U20</span>
+          <span class="tag tag-info">Contract 2027</span>
+          <span class="tag tag-pending">⚠ Fringe Squad Status</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Video Read</div>
+          <div class="fga-score">7.8</div>
+          <div class="fga-status">PROVISIONAL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> PROVISIONAL VIDEO READ 7.8 — average of the 9 metrics with timestamped events. 3/12 validated (OBI_S 7.6, SOA 7.8, SPI 7.83 — all ✅ OK, 3 matches each). Do not cite 7.8 as a final FGA; threshold is 7/12.
+  </div>
+  <div class="banner banner-gold">
+    <span>⚽</span> CLUB CONTEXT — Sochaux finished 2nd in Championnat National 2025-26 (58 pts) and are <strong>promoted to Ligue 2 for 2026-27</strong>. Vetro is under contract to Jun 2027, but this season he was registered primarily with the reserve side (Sochaux II, National 3: 28 apps, 1138 min, 2G/2A) — first-team involvement is fragmentary and unconfirmed on Tier 1 sources.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> CAREER VOLATILITY — Bordeaux academy product (16 senior apps, 1 goal) → free transfer to Burnley 2024, never featured for the first team → season-long loan at Dundee, 6 substitute appearances only (longest: 25 minutes) → recalled Jan 2025 → released, signed by Sochaux Sep 2025. Two years, three countries, minimal senior football since leaving Bordeaux.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Bordeaux (16 apps, 1G)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Burnley → Dundee loan (6 apps)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">FC Sochaux #11</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">28</div>
+      <div class="label">Sochaux II Apps 25-26</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">2</div>
+      <div class="label">Goals</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">2</div>
+      <div class="label">Assists</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">1,138</div>
+      <div class="label">Minutes</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">3/6</div>
+      <div class="label">Registered Matches Scored</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">2nd</div>
+      <div class="label">Sochaux National Finish</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        A <strong>22-year-old right-footed right winger</strong> born in Lagny-sur-Marne, developed through the <strong>Bordeaux academy</strong>. Broke into Bordeaux's senior side in Ligue 2 (16 apps, 1 goal, 2022-24) before Bordeaux's well-documented financial collapse. Signed by <strong>Burnley on a free transfer</strong> in 2024 but never featured for the first team, spending the season on loan at <strong>Dundee FC</strong> in Scotland (6 substitute appearances). Released and signed by <strong>FC Sochaux</strong> in September 2025. This season he was registered mainly with <strong>Sochaux's reserve side</strong> in National 3 (28 apps, 2G, 2A), with the FGA-scouted footage capturing fringe involvement in senior fixtures during Sochaux's promotion-winning campaign.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--success);">3/12 T3 metrics validated.</strong> <strong>OBI_S 7.6, SOA 7.8, SPI 7.83</strong> — all ✅ OK across 3 matches, exactly the three metrics you'd want confirmed first for an attacking wide player (space creation, first-touch speed, spatial overloads). <strong>DMA (Decision Making) 7.27</strong> has 12 events but only 2 matches — one more match away from validation. <strong>OBI_P 8.0</strong> is a spread risk: all 3 events came from a single match. Zero events for SII_A, SII_R, MCS, CLM, CRS, DYN. Match 5 (Aubagne) has footage linked but not yet scored; Match 6 (Versailles) and Match 4 (Caen) have no footage at all.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--accent);">PROVISIONAL 7.8 — TALENTED, UNSETTLED DRIBBLER; squad status is the real question.</strong> The logged footage shows a technically excellent wide player: press-resistant in tight areas, creates space off the ball, quick to act on first touch. The open question isn't ability, it's opportunity — he's mostly playing reserve football at a club that just won promotion, meaning more competition for places next season, not less. <strong>Confirm his actual senior-squad standing before recommending a move.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits (Proxy — indicator logging pending) <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row">
+        <div class="philo-rank">1</div>
+        <div class="philo-name">Menotti Menottismo (isolate the dribbler)</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.6 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div>
+        <div class="philo-name">Guardiola Positional (third-man, space arch.)</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:73%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.3 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div>
+        <div class="philo-name">Wenger Technical Possession (inverted wide)</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.0 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div>
+        <div class="philo-name">Diniz Relationism (tight-cluster combination)</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--warning);"></div></div></div>
+        <div class="philo-score">6.8 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div>
+        <div class="philo-name">Ferguson Adaptive (touchline width)</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning);"></div></div></div>
+        <div class="philo-score">5.5 ⏳</div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;font-size:0.72rem;color:var(--text-secondary);">
+        ⚠️ Proxy estimates derived from logged event patterns (interior dribbling, combination in tight clusters, off-ball space creation) — <strong style="color:var(--warning);">not scored against philosophy indicator sets</strong>. Directional only.
+      </div>
+    </div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;">
+      <canvas id="philosophyRadar" width="300" height="280"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">Right Winger Percentile Radar (Provisional) <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="rwRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero">
+        <div class="value">28</div>
+        <div class="label">Sochaux II Apps</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2</div>
+        <div class="label">Goals (0.16/90)</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2</div>
+        <div class="label">Assists (0.16/90)</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1,138</div>
+        <div class="label">Minutes</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">6</div>
+        <div class="label">Matches Registered (FGA)</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">3</div>
+        <div class="label">Matches Scored</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">40</div>
+        <div class="label">Timestamped Events Logged</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2nd</div>
+        <div class="label">National Finish → Promoted</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Vetro's Tier 1 registered season is with <strong>Sochaux II in National 3</strong>: 28 appearances, 1,138 minutes, 2 goals and 2 assists — modest output rate (0.16 per 90 for both) but heavy involvement at that level. Separately, the FGA video log has captured him in <strong>three senior-team fixtures</strong> (vs QRM, Concarneau, Stade Briochin) during Sochaux's run to a 2nd-place, promotion-winning finish in the Championnat National. The footage shows genuine quality on the ball — repeated successful dribbles under pressure, a 10/10-graded nutmeg pass, consistent combination play between the lines — but his exact senior appearance count and role (starter, impact sub, matchday squad member) is <strong>not independently confirmed</strong> on Tier 1 sources and should be verified directly with the club before any recruitment conversation.
+    </p>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="banner banner-proxy" style="margin-bottom:16px;">
+    <span>⚠️</span> Attribute scores map directly from the FGA video workbook. Green = validated (≥3 events, ≥3 matches). Yellow ⏳ = logged but under-sampled. Grey ⏳ = no events yet.
+  </div>
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Space Architecture (OBI_S)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.6</span></div>
+      <div class="attr-row"><span class="name">Spatial Perf. Index (SPI)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.8</span></div>
+      <div class="attr-row"><span class="name">Speed on Action (SOA)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.8</span></div>
+      <div class="attr-row"><span class="name">Decision Making (DMA)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.3 ⏳</span></div>
+      <div class="attr-row"><span class="name">Creative Risk Taking (CRK)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.3 ⏳</span></div>
+      <div class="attr-row"><span class="name">Run Timing (OBI_T)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Positional Anticipation (OBI_P)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Transition (OMS)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Character (CHR)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Calmness (CLM)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Mental Competence (MCS)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Clutch Response (CRS)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Top-End Speed (SII_T)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Explosive Accel. (SII_A)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Recovery Sprints (SII_R)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Dynamism (DYN)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⏳</span></div>
+      <div class="attr-row"><span class="name">Height / Frame</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 1.78m</span></div>
+      <div class="attr-row"><span class="name">Weight</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ~72kg</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Real Data Metrics</h3>
+
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Apps</div>
+          <div class="t1-hl-val">28</div>
+          <div class="t1-hl-pct">Sochaux II, National 3</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div>
+          <span class="t1-hl-source">BeSoccer</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Min</div>
+          <div class="t1-hl-val">1,138</div>
+          <div class="t1-hl-pct">~41 min/app avg</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:45%"></div></div>
+          <span class="t1-hl-source">BeSoccer</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">G/A</div>
+          <div class="t1-hl-val">2 / 2</div>
+          <div class="t1-hl-pct">0.16 per 90 each</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:16%"></div></div>
+          <span class="t1-hl-source">BeSoccer</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Value</div>
+          <div class="t1-hl-val">€200k</div>
+          <div class="t1-hl-pct">Last update 8 Dec '25</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:20%"></div></div>
+          <span class="t1-hl-source">Transfermarkt</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Club</div>
+          <div class="t1-hl-val">2nd</div>
+          <div class="t1-hl-pct">Promoted to Ligue 2</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:90%;background:var(--success)"></div></div>
+          <span class="t1-hl-source">Wikipedia</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">⚽ Season Output 25-26 (Sochaux II · National 3)</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Apps</span>
+          <span class="t1-metric-desc">Official matches</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">28</span>
+          <span class="t1-metric-ctx">BeSoccer</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Min</span>
+          <span class="t1-metric-desc">Minutes played</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">1,138</span>
+          <span class="t1-metric-ctx">BeSoccer</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Gls</span>
+          <span class="t1-metric-desc">Goals / 90</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:16%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2 / 0.16</span>
+          <span class="t1-metric-ctx">BeSoccer</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Ast</span>
+          <span class="t1-metric-desc">Assists / 90</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:16%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2 / 0.16</span>
+          <span class="t1-metric-ctx">BeSoccer</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">⚠ First Team</span>
+          <span class="t1-metric-desc">Senior apps — not independently confirmed</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">Unverified</span>
+          <span class="t1-metric-ctx">Cross-ref only</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🏆 Pedigree / Tenure</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Intl</span>
+          <span class="t1-metric-desc">France U20 (former)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">U20</span>
+          <span class="t1-metric-ctx">Transfermarkt</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Sochaux</span>
+          <span class="t1-metric-desc">Contract expires</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">30 Jun 2027</span>
+          <span class="t1-metric-ctx">Transfermarkt</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">L2 exp.</span>
+          <span class="t1-metric-desc">Prior Ligue 2 apps (Bordeaux)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:53%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">16 apps, 1G</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Jersey</span>
+          <span class="t1-metric-desc">⚠ Conflict: #11 (Wikipedia) vs #19 (BeSoccer)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">#11*</span>
+          <span class="t1-metric-ctx">Wiki / BeSoccer</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">📋 Career Totals</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Bordeaux B</span>
+          <span class="t1-metric-desc">Youth/reserve output</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">27 apps, 6G</span>
+          <span class="t1-metric-ctx">The Courier</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Dundee</span>
+          <span class="t1-metric-desc">Loan spell, Scottish Prem.</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--danger)"></div></div></div>
+          <span class="t1-metric-val">6 apps (all sub)</span>
+          <span class="t1-metric-ctx">The Courier</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 — Video Metric Board</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">OBI_S — Space Architecture</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.6 ✅ 5ev/3m</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">SPI — Spatial Performance Index</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.8 ✅ 6ev/3m</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">SOA — Speed on Action</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.8 ✅ 6ev/3m</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">DMA — Decision Making</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.27 ⚠ 12ev/2m</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CRK — Creative Risk Taking</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.33 ⚠ 3ev/2m</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">OMS — Transition</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0 ⚠ 3ev/2m</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">OBI_P — Positional Anticipation</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">8.0 ⚠ 3ev/1m only</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">SII_T — Top-End Speed</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0 ⏳ 1ev</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CHR — Character</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0 ⏳ 1ev</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">OBI_T · SII_A · SII_R · MCS · CLM · CRS · DYN</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">— 0 events</span>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ OBI / SII Composites</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Neither composite is calculable — OBI_T has zero events, SII_A and SII_R have zero events. Video completeness 3/12; FGA threshold requires 7/12 (4 more metrics needed).</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;">
+          <canvas id="fgaDonut"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Workbook</strong><br>
+          Empire_FGA_Video_Scoring · Tier A (13-metric)<br>
+          Analyst: <strong style="color:var(--text-primary);">Jim Totime</strong> · Started 13 Jul 2026<br><br>
+          <strong style="color:var(--text-primary);">Match Register (6)</strong><br>
+          M1 QRM (A, drawing, mid-third) · 21 Oct '25 ✅ scored<br>
+          M2 Concarneau (A, losing, bottom-third) · 3 Oct '25 ✅ scored<br>
+          M3 Stade Briochin (A, drawing, bottom-third) · 2 Feb '26 ✅ scored<br>
+          M4 SM Caen (H, drawing, top-third) · 12 Sep '25 — no footage<br>
+          M5 Aubagne (H, winning, bottom-third) · 17 Oct '25 — footage linked, not scored<br>
+          M6 Versailles (H, winning, top-third) · 31 Oct '25 — no footage<br><br>
+          <strong style="color:var(--text-primary);">Balance Check</strong><br>
+          ≥2 top-third opp ✅ · ≥1 away ✅ · ≥1 losing ✅ · ≥5 matches ✅
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Provisional Video Read — 7.8 / 10 · Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. This 7.8 is the <strong style="color:var(--text-primary);">unweighted average of the 9 metrics with logged, timestamped events</strong>. Three are validated; six are directional only.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">SPI Spatial Performance</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">6 events, 3 matches — validated. Occupies gaps between lines consistently</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">7.8</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">✅</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">SOA Speed on Action</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">6 events, 3 matches — validated. Fast, decisive first touch under pressure</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">7.8</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">✅</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">OBI_S Space Architecture</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">5 events, 3 matches — validated. Includes a logged "ghost run"</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">7.6</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">✅</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);width:180px;font-size:0.85rem;">OBI_P Anticipation</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">3 events, but all from ONE match — spread risk, not yet trustworthy</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--danger)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">⚠</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">SII_T Top Speed</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">1 event — high-intensity recovery sprint</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">⏳</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">OMS Transition</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">3 events, 2 matches — quick reactions after losing the ball</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">⏳</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">CHR Character</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">1 event — took initiative on a slow throw-in to keep tempo</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">⏳</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:180px;font-size:0.85rem;">CRK Creative Risk</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">3 events, 2 matches — includes a 10/10-graded nutmeg pass</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:73%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.33</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">⚠</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:180px;font-size:0.85rem;">DMA Decision Making</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">12 events, 2 matches — closest under-validated metric to threshold. Includes 2 clearly poor decisions logged as "positive indicator" type (mislabeled) with quality 4</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:73%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.27</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">⚠</span>
+      </div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:220px;font-size:0.9rem;">Provisional Video Read</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);">7.8</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="banner banner-proxy" style="margin-bottom:16px;">
+    <span>⚠️</span> Philosophy fits are PROXY estimates derived from logged event patterns. None has been scored against a philosophy indicator set per the ESN Philosophy Scoring Methodology. Directional only — not citable to clients as scores.
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Philosophy Fit Estimates</h3>
+      <div class="philo-row">
+        <div class="philo-rank">1</div><div class="philo-name">Menotti Menottismo (isolate the 1v1 dribbler)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:var(--accent);"></div></div></div><div class="philo-score">7.6 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div><div class="philo-name">Guardiola Positional (third-man, spacing)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:73%;background:var(--accent);"></div></div></div><div class="philo-score">7.3 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div><div class="philo-name">Wenger Technical Possession (inverted wide player)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div><div class="philo-name">Diniz Relationism (tight-cluster combination)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--warning);"></div></div></div><div class="philo-score">6.8 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div><div class="philo-name">Michels Total Football (rotation, third-man)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--warning);"></div></div></div><div class="philo-score">6.4 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">6</div><div class="philo-name">Zagallo Structured Flair (false-wide drift)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning);"></div></div></div><div class="philo-score">6.0 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">7</div><div class="philo-name">Ferguson Adaptive (touchline width)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning);"></div></div></div><div class="philo-score">5.5 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">8</div><div class="philo-name">Simeone Cholismo (defensive role discipline)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--danger);"></div></div></div><div class="philo-score">4.5 ⏳</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">9</div><div class="philo-name">Mourinho Reactive Control (low block winger)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--danger);"></div></div></div><div class="philo-score">4.2 ⏳</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <canvas id="philosophyRadar2" width="300" height="280"></canvas>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--accent);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Interior Dribbler"</strong> — Logged footage shows a right winger who cuts inside more than he goes to the byline: repeated successful dribbles through 3-4 defenders in central/half-space zones, quick combination with teammates between the lines, and off-ball movement that opens space rather than just occupying it (validated OBI_S, SPI, SOA — all ✅). Best fit is a system built to isolate a technical dribbler in tight areas or a possession structure that rewards third-man combinations, <strong>not a touchline-hugging winger role</strong>. Decision-making under real pressure (DMA 7.27) is the metric closest to full validation and the one to watch — the event log shows both genuine quality (a nutmeg pass graded 10/10) and clear lapses (poor control, wrong choice under density).
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Interior Dribbler</span>
+          <span class="tag tag-club">Space Creator</span>
+          <span class="tag tag-club">Combination Play</span>
+          <span class="tag tag-club">France U20</span>
+          <span class="tag tag-club">Fringe Squad Status</span>
+          <span class="tag tag-club">Ligue 2 Experience</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">School Averages (Proxy) <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">7.3</div>
+      <div class="label">Argentine (Isolation)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">7.0</div>
+      <div class="label">Dutch / Positional</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.8</div>
+      <div class="label">Italian School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">4.3</div>
+      <div class="label">Argentine Pragmatist</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">23 Feb 2004</div>
+          <div class="timeline-text">Born in <strong>Lagny-sur-Marne, France</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2011–2019</div>
+          <div class="timeline-text">Youth football at <strong>Noisiel FC</strong>, then <strong>US Torcy</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2019–2023</div>
+          <div class="timeline-text">Joined the <strong>Bordeaux academy</strong>. First-team debut in 2022.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2021–24</div>
+          <div class="timeline-text"><strong>Bordeaux B: 27 apps, 6 goals.</strong> Bordeaux senior (Ligue 2): 16 apps, 1 goal, mostly as a substitute.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">29 Aug 2024</div>
+          <div class="timeline-text"><strong>Free transfer to Burnley</strong> (four-year deal) following Bordeaux's financial troubles. Assigned to the U21 squad.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">30 Aug 2024</div>
+          <div class="timeline-text">Immediately loaned to <strong>Dundee FC</strong> (Scottish Premiership) for the season.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">21 Sep 2024</div>
+          <div class="timeline-text">Dundee debut as a substitute in the <strong>Scottish League Cup quarter-final at Rangers</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">3 Nov 2024</div>
+          <div class="timeline-text">Collapsed in the dressing room before a match, taken to hospital; recovered and celebrated the team's comeback win with teammates.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">22 Jan 2025</div>
+          <div class="timeline-text"><strong>Recalled by Burnley</strong> after 6 substitute appearances at Dundee (longest: 25 minutes, at Rangers).</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">1 Sep 2025</div>
+          <div class="timeline-text">Released by Burnley (no senior appearances made). <strong>Signed by FC Sochaux</strong> on a free transfer, contract to 30 Jun 2027.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Sep '25 – May '26</div>
+          <div class="timeline-text">Registered primarily with <strong>Sochaux II</strong> (National 3): 28 apps, 1,138 min, 2G/2A. Fringe involvement in senior fixtures during the promotion campaign.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">16 May 2026</div>
+          <div class="timeline-text">Sochaux finish <strong>2nd in Championnat National</strong> (58 pts) — promoted to Ligue 2 for 2026-27.</div>
+        </div>
+        <div class="timeline-item current">
+          <div class="timeline-date">Jul 2026</div>
+          <div class="timeline-text">Pre-season with Sochaux ahead of a Ligue 2 return. <strong>ESN Tier A video assessment in progress.</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Club</th><th>Season</th><th>League</th><th>Apps</th><th>Goals</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Bordeaux B</strong></td><td>2021–24</td><td>Youth/Reserve</td><td>27</td><td>6</td></tr>
+          <tr><td><strong>Bordeaux</strong></td><td>2022–24</td><td>Ligue 2</td><td>16</td><td>1</td></tr>
+          <tr><td><strong>Dundee FC (loan)</strong></td><td>2024–25</td><td>Scottish Premiership</td><td>6</td><td>0</td></tr>
+          <tr><td><strong>Burnley</strong></td><td>2024–25</td><td>—</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>Sochaux II</strong></td><td>2025–26</td><td>National 3</td><td>28</td><td>2</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="3"><strong>Senior Career Total (excl. reserves)</strong></td>
+            <td><strong>22</strong></td>
+            <td><strong>1</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer Record</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Date</th><th>Move</th><th>Fee</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>29 Aug 2024</td><td>Bordeaux → Burnley</td><td>Free</td></tr>
+          <tr><td>30 Aug 2024</td><td>Burnley → Dundee (loan)</td><td>Loan</td></tr>
+          <tr><td>22 Jan 2025</td><td>Return from loan</td><td>—</td></tr>
+          <tr><td>1 Sep 2025</td><td>Burnley → Sochaux</td><td>Free</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">International Register</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Team</th><th>Level</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>France U20</strong></td><td>Youth</td><td>Former international</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">1.78m</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~72kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Right Winger / 2nd Striker</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#11* (⚠ #19 alt.)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Slight, low-slung dribbler</span></div>
+        <div class="physical-item"><span class="label">Top Speed</span><span class="value">SII_T 8.0 ⏳</span></div>
+        <div class="physical-item"><span class="label">Pace vs peers</span><span class="value">Unvalidated</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Medical & Availability</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠ Dressing Room Medical Incident — 3 Nov 2024</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Collapsed before a Dundee fixture, taken to hospital, recovered same day. No further public detail on cause or diagnosis. Worth a direct medical check before any move.</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">Reasonable Volume of Minutes</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">1,138 minutes across 28 reserve-team appearances this season suggests no long-term fitness issue, though minutes-per-appearance (~41) indicate frequent sub use rather than a fixed starting role.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Three validated metrics, all attacking-relevant (OBI_S 7.6, SOA 7.8, SPI 7.83)</strong> — space creation, first-touch speed, and spatial overloads, exactly the profile you want for a wide attacker</li>
+      <li><strong>Elite ball-carrying under pressure</strong> — repeated successful dribbles through 3-4 defenders (22'21, 29'57, 80'06), one nutmeg pass graded 10/10 (41'28)</li>
+      <li><strong>Prior Ligue 2 experience</strong> — 16 senior appearances at Bordeaux, the exact level Sochaux are returning to in 2026-27</li>
+      <li><strong>Combination play between the lines</strong> — multiple logged sequences of receiving deep, combining, and progressing (50'53, 67'42)</li>
+      <li><strong>Contract security</strong> — signed to June 2027, no imminent expiry pressure</li>
+      <li><strong>Club trajectory</strong> — Sochaux's promotion to Ligue 2 raises the ceiling of what a breakthrough there would mean</li>
+      <li><strong>France U20 pedigree</strong> and a technically advanced style (feints, disguised passes) consistent with elite youth development</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Registered with the reserve team, not the first team</strong> — 28 of his known 2025-26 appearances are for Sochaux II in National 3, a full tier below where the scouted footage was captured</li>
+      <li><strong>Never played a senior minute for Burnley</strong> — a four-year deal produced zero first-team involvement</li>
+      <li><strong>Dundee loan was marginal</strong> — 6 substitute appearances, longest 25 minutes, never started a match</li>
+      <li><strong>Decision-making under density is inconsistent (DMA 7.27)</strong> — the event log includes clear lapses (poor control facing his own goal, missed pass to an overlapping teammate) alongside the highlight moments</li>
+      <li><strong>Undisclosed medical incident</strong> (3 Nov 2024) with no public follow-up detail</li>
+      <li><strong>Jersey number conflict</strong> (#11 vs #19) suggests his squad registration itself may not be fully settled in public databases</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>9/12 metrics below validation threshold</strong> — only OBI_S, SOA, SPI are citable</li>
+      <li><strong>OBI_P's 8.0 is single-match evidence</strong> — a real spread risk, not yet trustworthy despite the high score</li>
+      <li><strong>Actual senior-team appearance count for 2025-26 is not confirmed anywhere in Tier 1 sources</strong> — the scouted matches (QRM, Concarneau, Stade Briochin) are inferred as first-team fixtures by cross-referencing a teammate's data, not confirmed directly for Vetro. This needs a direct answer before any recommendation.</li>
+      <li><strong>Physical metrics almost entirely unassessed</strong> — SII_A, SII_R, DYN all at zero events</li>
+      <li><strong>Two DMA events are mislabeled</strong> as "Positive indicator" type despite clearly negative descriptions and quality scores of 4 — same audit-trail discipline issue flagged in prior files</li>
+      <li><strong>Half the match register has no usable footage</strong> — M4 (Caen) and M6 (Versailles) unlinked; M5 (Aubagne) linked but unscored</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--accent);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROVISIONAL 7.8 — GENUINE TECHNICAL QUALITY, UNRESOLVED SQUAD STATUS.</strong> On the ball, Vetro's logged footage is the strongest of the three ESN video files scored so far: three metrics validated, all pointing the right direction for a wide attacker, plus a highlight reel of dribbles and combination play that would turn heads in isolation. But isolation is the problem — <strong>his actual role at Sochaux is unclear.</strong> He's registered mainly with the reserves, never played for Burnley, and managed only bit-part Championship-adjacent football at Dundee. Now his own club has been promoted to Ligue 2, which means more competition for his place, not less. <strong>Before recommending him anywhere, get a straight answer from Sochaux on his actual first-team standing.</strong> The talent read is real; the opportunity read is not yet established.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>4 video links provided</strong> — 3 correspond to scored matches in the FGA workbook (M1 QRM, M2 Concarneau, M3 Stade Briochin). <strong>1 (M5, Aubagne) is linked but not yet scored.</strong> Matches 4 (Caen) and 6 (Versailles) are registered with no footage at all.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Scored Full Matches — 2025/26 <span class="line"></span></div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/h784lm8fvuqtp2fq7fqov/Union-Sportive-Quevilly-Rouen-M-tropole-QRM-Football-Club-Sochaux-Montb-liard.mp4?rlkey=gikmgvot1vj651277jvqa4nf9&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">US Quevilly-Rouen Métropole vs FC Sochaux</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">National · Match 1</span>
+          <span class="match-badge badge-verified">✅ Scored · 21 Oct 2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Away · drawing · middle-third opposition. Source of the CHR (throw-in initiative) and part of the DMA/OBI_S/SPI/OMS log.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/uwo857i14qr11togz9pp0/Union-Sportive-Concarneau-Football-Club-Sochaux-Montb-liard.mp4?rlkey=adgz8yh2t76gxvrvdq4a8hjck&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">US Concarneau vs FC Sochaux</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">National · Match 2</span>
+          <span class="match-badge badge-verified">✅ Scored · 3 Oct 2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Away · losing · bottom-third opposition. Source of all 3 OBI_P events (single-match spread risk).
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/o2k7i3tp12lhhnzip6o8o/Stade-Briochin-Football-Club-Sochaux-Montb-liard.mp4?rlkey=msbfluepirfkuuxtk7qrf62e9&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Stade Briochin vs FC Sochaux</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">National · Match 3</span>
+          <span class="match-badge badge-verified">✅ Scored · 2 Feb 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Away · drawing · bottom-third opposition. Source of the SII_T sprint event and the CRK dribble at 80'06.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/75qd2xsgm0wu46ytu00i8/Football-Club-Sochaux-Montbeliard-Sporting-Club-Aubagne-Air-Bel.mp4?rlkey=ofdx0nrjw8nzm30ftqukj32jo&raw=1" target="_blank" class="match-card unverified">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">FC Sochaux vs SC Aubagne Air Bel</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">National · Match 5</span>
+          <span class="match-badge badge-unverified">⏳ FOOTAGE LINKED · NOT SCORED</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Home · winning · bottom-third opposition · 17 Oct 2025. Next in line for a metric pass — priority given DMA needs a 3rd match to clear MATCH_SPREAD_PENDING.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-title" style="margin:24px 0 16px;">Registered — No Footage <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card unverified">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">FC Sochaux vs SM Caen · Match 4</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">National</span>
+          <span class="match-badge badge-unverified">⏳ NO FOOTAGE · 12 Sep 2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Home · drawing · top-third opposition.
+        </div>
+      </div>
+    </div>
+    <div class="match-card unverified">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">FC Sochaux vs Versailles · Match 6</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">National</span>
+          <span class="match-badge badge-unverified">⏳ NO FOOTAGE · 31 Oct 2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Home · winning · top-third opposition.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">
+      <strong>Verification note:</strong> All 4 linked matches correspond to registered fixtures in the FGA workbook. 3/4 are fully scored (M1, M2, M3); M5 (Aubagne) is linked but has zero logged events. M4 (Caen) and M6 (Versailles) need footage sourced before DMA and OBI_P can clear their match-spread flags. Tier 1 sources: Transfermarkt, Sofascore, Ligue1.com, BeSoccer, Wikipedia (Jul 2026). If you have additional footage or metadata, reply and I'll update the card.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Hero Dial
+const heroCanvas = document.getElementById('heroDial');
+const heroCtx = heroCanvas.getContext('2d');
+const heroScore = 7.8;
+const heroMax = 10;
+const heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+heroCtx.strokeStyle = '#660099';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+
+// RW Radar
+const rwCtx = document.getElementById('rwRadar').getContext('2d');
+new Chart(rwCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Space Arch. ✅','Spatial Idx ✅','Speed Action ✅','Anticipation','Decisions','Creative Risk','Transition','Top Speed'],
+    datasets: [{
+      label: 'Vetro (Provisional)',
+      data: [7.6, 7.8, 7.8, 8.0, 7.27, 7.33, 8.0, 8.0],
+      backgroundColor: 'rgba(102,0,153,0.2)',
+      borderColor: '#660099',
+      pointBackgroundColor: '#660099',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }, {
+      label: 'National RW Baseline (indicative)',
+      data: [6.0, 6.0, 6.2, 6.0, 6.0, 5.8, 6.0, 6.2],
+      backgroundColor: 'rgba(255,255,255,0.05)',
+      borderColor: 'rgba(255,255,255,0.2)',
+      pointRadius: 0,
+      borderWidth: 1,
+      borderDash: [4,4]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+    }
+  }
+});
+
+// Attribute Radar
+const attrCtx = document.getElementById('attrRadar').getContext('2d');
+new Chart(attrCtx, {
+  type: 'radar',
+  data: {
+    labels: ['OBI_S ✅','SPI ✅','SOA ✅','OBI_P','DMA','CRK','OMS','SII_T','CHR'],
+    datasets: [{
+      label: 'Vetro (Workbook)',
+      data: [7.6, 7.8, 7.8, 8.0, 7.27, 7.33, 8.0, 8.0, 8.0],
+      backgroundColor: 'rgba(102,0,153,0.2)',
+      borderColor: '#660099',
+      pointBackgroundColor: '#660099',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Philosophy Radar
+const philoData = {
+  labels: ['Menotti','Guardiola','Wenger','Diniz','Michels','Zagallo','Ferguson','Simeone','Mourinho'],
+  datasets: [{
+    label: 'Vetro (Proxy)',
+    data: [7.6, 7.3, 7.0, 6.8, 6.4, 6.0, 5.5, 4.5, 4.2],
+    backgroundColor: 'rgba(102,0,153,0.2)',
+    borderColor: '#660099',
+    pointBackgroundColor: '#660099',
+    pointBorderColor: '#fff',
+    pointRadius: 3,
+    borderWidth: 2
+  }]
+};
+const philoOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    r: {
+      min: 3, max: 10,
+      ticks: { display: false, stepSize: 1 },
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      angleLines: { color: 'rgba(255,255,255,0.06)' },
+      pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }
+    }
+  },
+  plugins: { legend: { display: false } }
+};
+new Chart(document.getElementById('philosophyRadar').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+new Chart(document.getElementById('philosophyRadar2').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+
+// FGA Donut
+new Chart(document.getElementById('fgaDonut').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['T1 Verified','T2 Pending','T3 In Progress (3/12)'],
+    datasets: [{
+      data: [20, 30, 50],
+      backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

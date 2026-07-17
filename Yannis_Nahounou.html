@@ -3,773 +3,419 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yannis Nahounou — Empire FGA Intelligence Card (Proxy · CB)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<title>Yannis Nahounou | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(180,30,30,.07);
-  --nancy-red:#b41e1e;--nancy-white:#ffffff;--nice-red:#c01c2e;--nice-black:#0a0a0a;
-  --accent:#b41e1e;--accentL:#e85a5a;--accentFade:rgba(180,30,30,.1);
-  --gold:#f0b820;--gold2:#ffd060;--gold3:#7a5800;
-  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
-  --red:#e03030;--redL:#f05050;
-  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
-  --ucl:#1e40af;
+  --bg:#0a0a0d;
+  --bg2:#101015;
+  --panel:#14141b;
+  --panel2:#1a1a23;
+  --line:rgba(255,255,255,0.07);
+  --line2:rgba(255,255,255,0.13);
+  --txt:#eceef2;
+  --txt2:#9298a6;
+  --txt3:#5b6070;
+  --purple:#8b30d9;
+  --purple-dim:rgba(139,48,217,0.14);
+  --red:#d1152b;      /* Nancy red */
+  --red-dim:rgba(209,21,43,0.12);
+  --ok:#18c98a;
+  --ok-dim:rgba(24,201,138,0.12);
+  --warn:#f5a623;
+  --warn-dim:rgba(245,166,35,0.12);
+  --nodata:#4a4f5c;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Archivo',sans-serif;
+  --body:'Space Grotesk',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse at 15% 5%,rgba(180,30,30,.7) 0%,transparent 55%),
-             radial-gradient(ellipse at 85% 90%,rgba(0,0,0,.3) 0%,transparent 50%)}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--bg);color:var(--txt);line-height:1.6}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--purple);border-radius:3px}
+a{color:inherit}
 
-.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
-.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
-  background:linear-gradient(to right,var(--nancy-red) 30%,var(--nice-red) 30% 70%,var(--nancy-red) 70%);z-index:10}
-.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(135deg,rgba(180,30,30,.12) 0%,transparent 45%,rgba(0,0,0,.06) 100%)}
-.hero-photo{position:relative;overflow:hidden;background:#040810}
-.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;
-  filter:contrast(1.1) saturate(.95);
-  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
-  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
-.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(180,30,30,.06);line-height:1;pointer-events:none}
-.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
-.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
-.bp-nancy{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(180,30,30,.9);color:#fff;text-transform:uppercase;border:1px solid rgba(232,90,90,.3)}
-.bp-nice{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(192,28,46,.8);color:#fff;text-transform:uppercase}
-.bp-contract{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(212,175,55,.8);color:#000;text-transform:uppercase}
-.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
-.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
-.hero-name{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
-.hero-name em{color:var(--accentL);font-style:normal}
-.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
-.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
-.pos-primary{background:var(--accent);color:#fff}
-.pos-sec{background:rgba(180,30,30,.15);color:var(--accentL);border:1px solid rgba(180,30,30,.35)}
-.pos-league{background:rgba(180,30,30,.1);color:var(--gold);border:1px solid rgba(180,30,30,.25)}
-.pos-ucl{background:rgba(30,64,175,.2);color:#80a4f8;border:1px solid rgba(30,64,175,.4)}
-.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
-.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
-.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
-.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
-.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
-.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
-.htag-blue{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(180,30,30,.28)}
-.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
-.htag-red{background:rgba(224,48,48,.12);color:var(--redL);border:1px solid rgba(224,48,48,.25)}
-.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
-.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(180,30,30,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
-.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
-.fga-medallion canvas{width:120px!important;height:120px!important}
-.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.fga-score-num{font-family:'Oswald',sans-serif;font-size:2.4rem;font-weight:500;line-height:1;color:var(--accentL)}
-.fga-score-lbl{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
-.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
-.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
-.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
-.ftr1{background:rgba(180,30,30,.08);border:1px solid rgba(180,30,30,.15)}
-.ftr2{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.15)}
-.ftr3{background:rgba(240,184,32,.06);border:1px solid rgba(240,184,32,.14)}
-.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(180,30,30,.22);border-radius:2px;width:100%}
-.ca-val{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:500;color:var(--accentL)}
-.ca-info{font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
-.ca-pa{font-family:'Oswald',sans-serif;font-size:.95rem;font-weight:500;color:var(--lite);margin-left:auto}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
-.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
-.logo-bar img{height:32px;width:auto;object-fit:contain}
-.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
-.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
-.dot{width:6px;height:6px;border-radius:50%}
-.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
-.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
-.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
-.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
-.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
-.c-body{padding:14px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
-.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
-.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
-.sh-red::before{background:var(--nancy-red)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-blue::before{background:var(--accentL)}.sh-amber::before{background:var(--amber)}
-.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
-.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
-.sh-delta{font-size:.63rem;margin-top:2px}
-.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
-.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(180,30,30,.025)}
-.attr-row:last-child{border-bottom:none}
-.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
-.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
-.attr-bar-bg{width:80px;height:5px;background:rgba(180,30,30,.06);border-radius:99px;overflow:hidden}
-.attr-bar-fill{height:100%;border-radius:99px}
-.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
-.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
-.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#0a1428}
-.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(180,30,30,.03)}
-.mrow:last-child{border-bottom:none}
-.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
-.mname{font-size:.74rem;flex:1;color:var(--lite)}
-.mbar-bg{width:90px;height:5px;background:rgba(180,30,30,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
-.mbar-fill{height:100%;border-radius:99px}
-.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
-.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
-.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(224,48,48,.12);color:var(--redL)}
-.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(180,30,30,.03)}
-.comp-row:last-child{border-bottom:none}
-.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
-.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
-.comp-bar-bg{width:100px;height:7px;background:rgba(180,30,30,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
-.comp-bar-fill{height:100%;border-radius:99px}
-.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
-.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
-.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(180,30,30,.03)}
-.phil-item:last-child{border-bottom:none}
-.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
-.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
-.phi-bar-bg{width:70px;height:5px;background:rgba(180,30,30,.06);border-radius:99px;overflow:hidden}
-.phi-bar-fill{height:100%;border-radius:99px}
-.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
-.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
-.career-table th{padding:7px 10px;background:rgba(180,30,30,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(180,30,30,.2)}
-.career-table td{padding:7px 10px;border-bottom:1px solid rgba(180,30,30,.03);color:var(--lite)}
-.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
-.career-table .ucl-row td{background:rgba(30,64,175,.06)}
-.tl-wrap{position:relative;padding-left:20px}
-.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--nancy-red),var(--nice-red),var(--accentL))}
-.tl-item{position:relative;margin-bottom:14px}
-.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accentL);border:2px solid var(--bg);z-index:1}
-.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--accentL);text-transform:uppercase}
-.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
-.tl-text strong{color:var(--lite)}
-.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(180,30,30,.04)}
-.ti-row:last-child{border-bottom:none}
-.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
-.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
-.scout-para strong{color:var(--lite)}
-.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(180,30,30,.3)}
-.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
-.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
-.divider{height:1px;background:var(--border);margin:12px 0}
-.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(180,30,30,.12);color:var(--accentL);border:1px solid rgba(180,30,30,.22)}
-.proxy-banner{background:rgba(224,48,48,.08);border:1px solid rgba(224,48,48,.25);border-radius:2px;padding:10px 14px;margin-bottom:14px}
-.career-path{background:rgba(180,30,30,.07);border:1px solid rgba(180,30,30,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
-.video-link-card:hover{border-color:rgba(180,30,30,.4)}
-.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
-.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
-.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
-@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+/* ===== HERO ===== */
+.hero{position:relative;border-bottom:1px solid var(--line2);background:
+  linear-gradient(120deg,rgba(10,10,13,0.92) 30%,rgba(139,48,217,0.10) 100%),
+  repeating-linear-gradient(0deg,transparent 0 39px,rgba(255,255,255,0.02) 39px 40px);}
+.hero-top{height:4px;background:linear-gradient(90deg,var(--purple) 0 40%,var(--red) 40% 70%,#fff 70% 100%)}
+.hero-inner{max-width:1180px;margin:0 auto;padding:34px 24px 30px;display:grid;grid-template-columns:190px 1fr auto;gap:30px;align-items:end}
+.hero-photo{width:190px;height:230px;border:1px solid var(--line2);border-left:4px solid var(--red);
+  background:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-YNJ2mFeWcPtyvwiCYGWS3975Cm-CziCHltOvVt8g3QCHH57MOyHoAMQ&s=10') center top/cover no-repeat;
+  filter:saturate(0.9) contrast(1.05);position:relative}
+.hero-photo::after{content:'#77';position:absolute;bottom:0;right:0;background:rgba(10,10,13,0.85);
+  font-family:var(--disp);font-weight:900;font-size:22px;padding:2px 10px;color:#fff;border-top:1px solid var(--line2);border-left:1px solid var(--line2)}
+.hero-kicker{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--purple);text-transform:uppercase;margin-bottom:8px}
+.hero-name{font-family:var(--disp);font-weight:900;font-size:clamp(38px,6vw,64px);line-height:0.95;text-transform:uppercase;letter-spacing:-1px}
+.hero-name span{color:var(--red)}
+.hero-sub{font-family:var(--mono);font-size:13px;color:var(--txt2);margin-top:10px}
+.hero-facts{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--line2)}
+.fact{padding:8px 16px;border-right:1px solid var(--line2);text-align:left}
+.fact:last-child{border-right:none}
+.fact .k{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--txt3);text-transform:uppercase}
+.fact .v{font-family:var(--disp);font-weight:700;font-size:16px}
+.hero-right{text-align:right;padding-bottom:4px}
+.fga-box{border:1px solid var(--warn);background:var(--warn-dim);padding:14px 22px;display:inline-block}
+.fga-box .num{font-family:var(--disp);font-weight:900;font-size:44px;line-height:1;color:var(--warn)}
+.fga-box .tag{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--warn);text-transform:uppercase}
+.tier-chips{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 10px;border:1px solid var(--line2);text-transform:uppercase}
+.chip.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-dim)}
+.chip.warn{border-color:var(--warn);color:var(--warn);background:var(--warn-dim)}
+.chip.pend{border-color:var(--nodata);color:var(--txt3)}
+
+/* ===== NAV ===== */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,10,13,0.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line2)}
+.nav-inner{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;gap:2px;overflow-x:auto}
+.nav a{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;color:var(--txt3);padding:14px 16px;border-bottom:2px solid transparent;white-space:nowrap}
+.nav a:hover{color:var(--txt);border-bottom-color:var(--purple)}
+
+/* ===== LAYOUT ===== */
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px}
+section{margin-bottom:56px;scroll-margin-top:60px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;border-bottom:1px solid var(--line2);padding-bottom:10px}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--purple)}
+.sec-title{font-family:var(--disp);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:0.5px}
+.sec-note{font-family:var(--mono);font-size:11px;color:var(--txt3);margin-left:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);padding:20px}
+.panel h4{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--purple);margin-bottom:12px}
+p.body{color:var(--txt2);font-size:14.5px;margin-bottom:12px}
+p.body strong{color:var(--txt)}
+
+/* banners */
+.banner{border-left:4px solid;padding:12px 18px;margin-bottom:12px;font-size:13.5px;background:var(--panel)}
+.banner .b-tag{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:3px}
+.banner.warn{border-color:var(--warn)}.banner.warn .b-tag{color:var(--warn)}
+.banner.info{border-color:var(--purple)}.banner.info .b-tag{color:var(--purple)}
+.banner.ok{border-color:var(--ok)}.banner.ok .b-tag{color:var(--ok)}
+
+/* stat strip */
+.stat-strip{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--line2);margin-bottom:20px}
+.stat{padding:16px;border-right:1px solid var(--line);text-align:center}
+.stat:last-child{border-right:none}
+.stat .n{font-family:var(--disp);font-weight:900;font-size:30px;line-height:1.1}
+.stat .l{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;color:var(--txt3);text-transform:uppercase;margin-top:3px}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt3);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2)}
+td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--txt2)}
+td.mono{font-family:var(--mono);font-size:12px}
+td .big{font-family:var(--disp);font-weight:800;font-size:16px;color:var(--txt)}
+.src{font-family:var(--mono);font-size:10px;color:var(--txt3)}
+.st{font-family:var(--mono);font-size:10px;letter-spacing:0.5px;padding:2px 8px;white-space:nowrap}
+.st.ok{color:var(--ok);background:var(--ok-dim);border:1px solid rgba(24,201,138,0.35)}
+.st.warn{color:var(--warn);background:var(--warn-dim);border:1px solid rgba(245,166,35,0.35)}
+.st.no{color:var(--txt3);border:1px solid var(--line2)}
+
+/* metric bars */
+.mrow{display:grid;grid-template-columns:150px 1fr 46px 130px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.mrow .mn{font-family:var(--mono);font-size:12px}
+.mrow .mn small{display:block;color:var(--txt3);font-size:10px}
+.bar{height:8px;background:var(--bg2);position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0}
+.bar i.ok{background:var(--ok)}
+.bar i.warn{background:repeating-linear-gradient(45deg,var(--warn) 0 6px,rgba(245,166,35,0.35) 6px 12px)}
+.mrow .ms{font-family:var(--disp);font-weight:800;font-size:16px;text-align:right}
+
+/* event log */
+.ev{display:grid;grid-template-columns:70px 70px 1fr 44px;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:start}
+.ev .t{font-family:var(--mono);color:var(--purple);font-size:12px}
+.ev .c{font-family:var(--mono);font-size:11px;color:var(--txt3)}
+.ev .q{font-family:var(--disp);font-weight:800;text-align:right}
+.ev .q.hi{color:var(--ok)}.ev .q.lo{color:var(--red)}
+.ev p{color:var(--txt2)}
+
+/* career */
+.career{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--line2)}
+.cnode{flex:1;min-width:160px;padding:16px;border-right:1px solid var(--line);position:relative}
+.cnode:last-child{border-right:none}
+.cnode.cur{background:var(--red-dim);border-top:3px solid var(--red)}
+.cnode .cy{font-family:var(--mono);font-size:10px;color:var(--txt3);letter-spacing:1px}
+.cnode .cc{font-family:var(--disp);font-weight:800;font-size:15px;margin:3px 0}
+.cnode .cd{font-size:12px;color:var(--txt2)}
+
+/* matches / footage */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.mcard{background:var(--panel);border:1px solid var(--line);padding:16px;border-top:3px solid var(--purple)}
+.mcard.hl{border-top-color:var(--nodata)}
+.mcard .mt{font-family:var(--disp);font-weight:700;font-size:15px}
+.mcard .mm{font-family:var(--mono);font-size:11px;color:var(--txt3);margin:4px 0 10px}
+.mcard a.btn{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;border:1px solid var(--purple);color:var(--purple);padding:6px 14px}
+.mcard a.btn:hover{background:var(--purple-dim)}
+.mtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;padding:2px 8px;text-transform:uppercase;margin-left:6px}
+.mtag.scored{color:var(--ok);border:1px solid var(--ok)}
+.mtag.reg{color:var(--warn);border:1px solid var(--warn)}
+.mtag.hl{color:var(--txt3);border:1px solid var(--line2)}
+
+/* charts */
+.chart-wrap{position:relative;height:340px}
+.chart-wrap .wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-family:var(--disp);font-weight:900;font-size:34px;color:rgba(245,166,35,0.10);text-transform:uppercase;letter-spacing:4px}
+
+/* footer */
+.foot{border-top:1px solid var(--line2);padding:26px 24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--txt3)}
+.foot b{color:var(--purple)}
+
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:20px}
+  .hero-photo{width:150px;height:180px}
+  .hero-right{text-align:left}
+  .tier-chips{justify-content:flex-start}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .stat-strip{grid-template-columns:repeat(3,1fr)}
+  .stat:nth-child(3){border-right:none}
+  .stat:nth-child(-n+3){border-bottom:1px solid var(--line)}
+  .mrow{grid-template-columns:110px 1fr 40px 110px}
+}
 </style>
-<base target="_blank">
 </head>
 <body>
-<div class="topbar">
-  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
-  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
-  <button class="tab-btn" onclick="switchTab('attributes',this)">Attributes</button>
-  <button class="tab-btn" onclick="switchTab('fga',this)">FGA Analytics</button>
-  <button class="tab-btn" onclick="switchTab('philosophy',this)">Philosophy DNA</button>
-  <button class="tab-btn" onclick="switchTab('career',this)">Career</button>
-  <button class="tab-btn" onclick="switchTab('scouting',this)">Scouting Intel</button>
-  <button class="tab-btn" onclick="switchTab('links',this)" style="color:var(--gold)">▶ Matches</button>
-  <div class="topbar-right">
-    <span class="status-dot"><span class="dot" style="background:var(--nancy-red)"></span>AS Nancy-Lorraine · Ligue 2</span>
-    <span class="status-dot"><span class="dot" style="background:var(--red)"></span>0/16 T3 ⏳ · PROXY ONLY</span>
-    <span class="status-dot"><span class="dot" style="background:var(--nancy-red)"></span>🇫🇷 France / 🇨🇮 Côte d'Ivoire</span>
-  </div>
-</div>
 
+<!-- HERO -->
 <div class="hero">
-  <div class="hero-photo">
-    <img src="https://cdn-s-www.estrepublicain.fr/images/9b32eb38-dd4c-4da6-ba67-007ac8d7d4ff/NW_raw/yannis-nahounou-a-effectue-plusieurs-precieux-sauvetages-pour-conserver-le-match-nul-malheureusement-le-red-star-a-fini-par-trouver-la-faille-photo-cedric-jacquot-1771021980.jpg" alt="Yannis Nahounou" onerror="this.style.background='#040810'">
-    <div class="hero-flag">🇫🇷 🇨🇮</div>
-    <div class="club-badge">
-      <span class="bp-nancy">AS Nancy-Lorraine · CB · #77</span>
-      <span class="bp-nice">OGC Nice · Reggiana · Former</span>
-      <span class="bp-contract">🇫🇷 France U20 · Contract 2028</span>
-    </div>
-    <div class="hero-num">77</div>
-  </div>
-  <div class="hero-info">
+  <div class="hero-top"></div>
+  <div class="hero-inner">
+    <div class="hero-photo"></div>
     <div>
-      <div class="hero-archetype">CB · U22 · 193cm · AS Nancy-Lorraine · French-Ivorian · Nice → Reggiana → Nancy</div>
-      <div class="hero-name"><em>Yannis</em><br>Nahounou</div>
-      <div class="hero-pos-row">
-        <span class="pos-badge pos-primary">CB</span>
-        <span class="pos-badge pos-sec">D (C)</span>
-        <span class="pos-badge pos-league">Nancy · Ligue 2</span>
-        <span class="pos-badge pos-ucl">🇫🇷 France</span>
-        <span class="pos-badge pos-ucl">🇨🇮 Côte d'Ivoire</span>
+      <div class="hero-kicker">Empire FGA · Intelligence Dossier · Ligue 2 France</div>
+      <div class="hero-name">Yannis <span>Nahounou</span></div>
+      <div class="hero-sub">🇫🇷 France (Ivorian descent) · Former France U20 · AS Nancy-Lorraine · Centre-Back</div>
+      <div class="hero-facts">
+        <div class="fact"><div class="k">Age</div><div class="v">22</div></div>
+        <div class="fact"><div class="k">Born</div><div class="v">16.05.2004</div></div>
+        <div class="fact"><div class="k">Height</div><div class="v">1.93m*</div></div>
+        <div class="fact"><div class="k">Foot</div><div class="v">Right</div></div>
+        <div class="fact"><div class="k">Value</div><div class="v">€150k</div></div>
+        <div class="fact"><div class="k">Contract</div><div class="v">Jun 2028</div></div>
       </div>
     </div>
-    <div class="hero-meta">
-      <div><div class="hmi-val">22</div><div class="hmi-lbl">Born 16 May 2004</div></div>
-      <div><div class="hmi-val">5.8</div><div class="hmi-lbl">Proxy FGA · U22</div></div>
-      <div><div class="hmi-val">0/16</div><div class="hmi-lbl">T3 Pending</div></div>
-      <div><div class="hmi-val">193cm</div><div class="hmi-lbl">Height</div></div>
-      <div><div class="hmi-val">PROXY</div><div class="hmi-lbl">T3 Status</div></div>
-    </div>
-    <div class="hero-bottom-tags">
-      <span class="htag htag-red">⏳ T3 NOT VALIDATED — PROXY ESTIMATES ONLY</span>
-      <span class="htag htag-blue">Nancy · Contract until 2028</span>
-      <span class="htag htag-warn">Reggiana (Serie B) · 2024/25</span>
-      <span class="htag htag-blue">OGC Nice Academy · 2019-2021</span>
-      <span class="htag htag-warn">€400k market value · Limited senior mins</span>
-      <span class="htag htag-gold">Physical outlier · 193cm · 83kg</span>
-    </div>
-  </div>
-  <div class="hero-fga">
-    <div class="fga-label">Proxy FGA v3</div>
-    <div class="fga-medallion">
-      <canvas id="fgaDial"></canvas>
-      <div class="fga-center">
-        <div class="fga-score-num" id="fgaNum">—</div>
-        <div class="fga-score-lbl">/ 10.0</div>
+    <div class="hero-right">
+      <div class="fga-box">
+        <div class="tag">Provisional Video Read</div>
+        <div class="num">7.5</div>
+        <div class="tag">1 / 12 metrics validated</div>
       </div>
-    </div>
-    <div class="fga-tier-pills">
-      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">TM/FBref/FotMob/ESPN</span><span class="tw" style="color:var(--amber)">Moderate</span></div>
-      <div class="fga-tier-row ftr2"><span style="color:var(--greenL)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">Proxy</span></div>
-      <div class="fga-tier-row ftr3"><span style="color:var(--gold)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--redL)">0/16 ⏳</span></div>
-    </div>
-    <div class="hero-ca">
-      <div><div class="ca-val">—</div><div class="ca-info">CA (Empire Equiv.)<br>U22 CB · pending</div></div>
-      <div class="ca-pa">PA TBD</div>
-    </div>
-  </div>
-</div>
-
-<div class="page-wrap">
-<!-- ═══ OVERVIEW ═══ -->
-<div id="tab-overview" class="tab-panel active">
-
-  <div class="proxy-banner">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--redL);letter-spacing:.1em;text-transform:uppercase">⚠️ PROXY ESTIMATE CARD — U22 SENIOR · TIER 3 NOT VALIDATED</div>
-    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">All attributes below are algorithmic projections based on Tier 1 statistical inference, age-cohort norms, and limited match data. No Empire scout has validated behavioral evidence via video analysis. This card is for internal tracking only and must not be used for recruitment decisions until T3_STATUS = SCOUT_VALIDATED. Dual-scoring (absolute + cohort percentile) applied per Lars Hallengren framework.</div>
-  </div>
-
-  <div class="career-path">
-    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--nancy-red);letter-spacing:.1em">🇫🇷🇨🇮</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">USF Trilport</span>
-    <span style="color:var(--muted)">→</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">FC Montfermeil</span>
-    <span style="color:var(--muted)">→</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">CS Meaux</span>
-    <span style="color:var(--muted)">→</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--accentL);font-weight:600">OGC Nice <small style="font-size:.65rem;color:var(--gold)">(Academy · 2019-2021)</small></span>
-    <span style="color:var(--muted)">→</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">Reggiana <small style="font-size:.65rem;color:var(--muted)">(Serie B · 2024/25)</small></span>
-    <span style="color:var(--muted)">→</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--nancy-red);font-weight:600">Nancy <small style="font-size:.65rem;color:var(--muted)">(Ligue 2 · 2025-28)</small></span>
-  </div>
-
-  <div class="stat-hero-row">
-    <div class="sh-box sh-red"><div class="sh-val">5.8</div><div class="sh-lbl">Proxy FGA</div><div class="sh-delta dneu">U22 · moderate T1</div></div>
-    <div class="sh-box sh-amber"><div class="sh-val">0/16</div><div class="sh-lbl">T3 Confirmed</div><div class="sh-delta dneg">↓ Pending</div></div>
-    <div class="sh-box sh-grn"><div class="sh-val">22</div><div class="sh-lbl">Years old</div><div class="sh-delta dpos">U22 cohort</div></div>
-    <div class="sh-box sh-gold"><div class="sh-val">193</div><div class="sh-lbl">cm · Outlier</div><div class="sh-delta dneu">95th+ pctile</div></div>
-    <div class="sh-box sh-blue"><div class="sh-val">PROXY</div><div class="sh-lbl">OBI_P</div><div class="sh-delta dneg">⏳ No video</div></div>
-    <div class="sh-box sh-blue"><div class="sh-val">PROXY</div><div class="sh-lbl">SII</div><div class="sh-delta dneg">⏳ No video</div></div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Profile</div></div>
-      <div class="c-body" style="font-size:.76rem">
-        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Yannis Nahounou</span></div>
-        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">16 May 2004 · Meaux, France 🇫🇷</span></div>
-        <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--accentL)">193cm</span></div>
-        <div class="ti-row"><span class="ti-lbl">Weight</span><span class="ti-val">83kg</span></div>
-        <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--nancy-red)">AS Nancy-Lorraine · Ligue 2</span></div>
-        <div class="ti-row"><span class="ti-lbl">Position</span><span class="ti-val">Centre-Back (CB)</span></div>
-        <div class="ti-row"><span class="ti-lbl">Foot</span><span class="ti-val">Right</span></div>
-        <div class="ti-row"><span class="ti-lbl">Joined Nancy</span><span class="ti-val">12 Aug 2025 (from Reggiana)</span></div>
-        <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val">Until 30 Jun 2028</span></div>
-        <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val">🇫🇷 France / 🇨🇮 Côte d'Ivoire</span></div>
-        <div class="ti-row"><span class="ti-lbl">NT</span><span class="ti-val">France U20 (0 caps)</span></div>
-        <div class="ti-row"><span class="ti-lbl">Agent</span><span class="ti-val">GTS Management</span></div>
-        <div class="ti-row"><span class="ti-lbl">Market value</span><span class="ti-val">€400,000</span></div>
-      </div>
-    </div>
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Tier 3 Status</div><div class="c-sub">0/16 validated</div></div>
-      <div class="c-body">
-        <div class="section-label">All Metrics Pending</div>
-        <div style="font-size:.72rem;color:var(--muted);line-height:1.7">
-          <strong style="color:var(--redL)">OBI_P:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">OBI_T:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">OBI_S:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">SPI:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">DMA:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">SII_A:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">SII_T:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">SII_R:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">CRS:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">CLM:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">CHR:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">MCS:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">DYN:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">CRK:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">OMS:</strong> ⏳ PENDING — No video evidence<br>
-          <strong style="color:var(--redL)">SOA:</strong> ⏳ PENDING — No video evidence
-        </div>
-      </div>
-    </div>
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Verdict</div></div>
-      <div class="c-body">
-        <div class="scout-para">Yannis Nahounou is a 22-year-old French-Ivorian centre-back at AS Nancy-Lorraine in Ligue 2. A product of the OGC Nice academy, he spent 2024/25 at Italian Serie B side Reggiana before joining Nancy on a contract until 2028. At 193cm and 83kg, he is a significant physical outlier for his position and age. Tier 1 data shows limited but consistent senior minutes across Ligue 2 and Serie B, with a FotMob rating of ~6.7. All Empire FGA Tier 3 metrics remain pending.</div>
-        <div class="verdict-box" style="background:rgba(224,48,48,.08);border-color:rgba(224,48,48,.3)">
-          <div class="verdict-label" style="color:var(--redL)">Empire FGA Verdict</div>
-          <div class="verdict-text"><strong>PROXY ONLY — U22 CB · MODERATE TIER 1 DATA, ZERO VALIDATED BEHAVIOR.</strong> Tier 1 data is moderate for a 22-year-old: Nice academy pedigree, Serie B experience at Reggiana, and Ligue 2 minutes at Nancy. The 193cm/83kg frame is a confirmed physical outlier. However, FotMob ratings (~6.7) are below Ligue 2 average for CBs, and the aerial duel win rate (40%) is a concern for his height. The Nancy contract to 2028 shows institutional belief, but the €400k valuation reflects limited upside projection. Complete video assessment of all three provided match links before any scouting or recruitment use.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="g3">
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits (Proxy)</div></div><div class="c-body" id="ov-phil"></div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">U22 CB Percentile (France)</div><div class="c-sub">Age-cohort proxy · Dual scoring</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Season Snapshot</div><div class="c-sub">2025/26 · AS Nancy-Lorraine</div></div>
-      <div class="c-body">
-        <div style="font-size:.77rem;color:var(--muted);line-height:1.7">
-          <strong style="color:var(--accentL)">Competition:</strong> AS Nancy-Lorraine · Ligue 2<br>
-          <strong style="color:var(--accentL)">Appearances:</strong> ~8 Ligue 2 + Coupe de France<br>
-          <strong style="color:var(--accentL)">Goals:</strong> 0<br>
-          <strong style="color:var(--accentL)">Assists:</strong> 0<br>
-          <strong style="color:var(--accentL)">Minutes:</strong> ~400 (estimated)<br>
-          <strong style="color:var(--accentL)">FotMob rating:</strong> 6.7 avg<br>
-          <strong style="color:var(--accentL)">Yellow cards:</strong> 2<br>
-          <strong style="color:var(--accentL)">Aerial duels won:</strong> 40%<br>
-          <strong style="color:var(--accentL)">Defensive contributions:</strong> 94%<br><br>
-          <strong style="color:var(--redL)">⚠️ Data note:</strong> Ligue 2 minutes limited. ESPN reports 4 starts, 8 total appearances. FotMob data conflicts between 339 and 935 minutes. Conservative estimate applied.
-        </div>
+      <div class="tier-chips">
+        <span class="chip ok">T1 · Verified</span>
+        <span class="chip warn">T3 · In Progress</span>
+        <span class="chip pend">Tier A · 13-Metric</span>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ ATTRIBUTES ═══ -->
-<div id="tab-attributes" class="tab-panel">
-  <div style="background:rgba(224,48,48,.05);border:1px solid rgba(224,48,48,.18);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
-    ⚠️ <strong style="color:var(--redL)">ALL ATTRIBUTES ARE PROXY ESTIMATES.</strong> Derived from Tier 1 inference + U22 CB cohort norms. No scout validation. Greyed circles = pending confirmation. Dual scoring (absolute + cohort percentile) required per Lars Hallengren framework.
+<!-- NAV -->
+<nav class="nav"><div class="nav-inner">
+  <a href="#overview">01 Overview</a>
+  <a href="#t1">02 Tier 1 Data</a>
+  <a href="#t3">03 Video Scores</a>
+  <a href="#evidence">04 Evidence Log</a>
+  <a href="#career">05 Career</a>
+  <a href="#intel">06 Scouting Intel</a>
+  <a href="#footage">07 Footage</a>
+  <a href="#method">08 Methodology</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview">
+  <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">Overview</span><span class="sec-note">Analyst: Jim Totime · Started 10 Jul 2026</span></div>
+
+  <div class="banner warn"><span class="b-tag">⚠ Provisional Score</span>
+    Video Read 7.5 is the average of the 8 metrics with logged, timestamped events. Only <strong>OBI_P is validated</strong> (13 events, 3 matches). Do not cite 7.5 as a final FGA. Full FGA requires 7/12 metrics at threshold.</div>
+  <div class="banner warn"><span class="b-tag">⚠ Data Conflict — Height</span>
+    Transfermarkt lists 1.93m (used here). Tribuna and secondary databases list 1.88m. Difference is material for an aerial-profile CB. Verify against club media or matchday footage before client delivery.</div>
+  <div class="banner info"><span class="b-tag">◈ Late-Season Squad Note</span>
+    Out of the Nancy matchday squad for 4 consecutive fixtures (10 Apr – 2 May 2026), then returned for the full 90' in the final match vs Dunkerque (9 May, 3-2 win). Cause unverified — could be injury, rotation, or coach decision. Flag for direct club/agent inquiry.</div>
+
+  <div class="stat-strip">
+    <div class="stat"><div class="n">13</div><div class="l">Ligue 2 Apps 25-26</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">Coupe de France Apps</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Cup Goal</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">Yellow Cards (League)</div></div>
+    <div class="stat"><div class="n">7.1</div><div class="l">Soccerway Avg Rating</div></div>
+    <div class="stat"><div class="n">€250k</div><div class="l">Transfer Fee Aug '25</div></div>
   </div>
-  <div class="g3">
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical / Defensive</div></div><div class="c-body" id="attr-tech"></div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div><div class="c-body" id="attr-men"></div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div><div class="c-sub">Proxy estimates · 193cm/83kg</div></div><div class="c-body" id="attr-phy"></div></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h4>Profile</h4>
+      <p class="body">22-year-old right-footed centre-back from Meaux, developed in the <strong>OGC Nice academy</strong>. Former <strong>France U20 international</strong>. A limited season at Reggiana in Serie B (5 sub appearances, 2024-25) preceded a €250k move to newly-promoted AS Nancy-Lorraine in August 2025 on a three-year deal.</p>
+      <p class="body">At Nancy he became a rotation-to-regular option in the first half of 2025-26: 13 league apps plus 3 in the Coupe de France with a goal. Logged footage shows a physically dominant aerial defender who wins headed duels in both boxes and reads long balls early. The recurring weakness in the event log is <strong>distribution under density</strong> — repeated poor interior passes and risk-free clearances when better options existed.</p>
+    </div>
+    <div class="panel">
+      <h4>Empire FGA Verdict (Provisional)</h4>
+      <p class="body"><strong>UNDERVALUED PHYSICAL CB — validation incomplete.</strong> At €150k market value with a 2028 contract, Nahounou is a low-cost, high-frame (1.93m TM) profile with validated positional anticipation (OBI_P 7.0, 13 events / 3 matches) and provisional signals of elite transition speed (OMS 8.5) and top-end pace for a CB (SII_T 8.5).</p>
+      <p class="body">Two open risks before any recommendation: <strong>(1) DMA at 6.0</strong> with multiple logged distribution errors — a ceiling problem for possession-build clubs; <strong>(2) the April 2026 squad exclusion</strong> is unexplained. Complete SII_A/SII_R passes and resolve the squad question before this card goes to a club.</p>
+    </div>
   </div>
-  <div style="margin-top:14px"><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Attribute Radar</div><div class="c-sub">Proxy vs U22 CB France average · All pending validation</div></div><div class="c-body" style="height:310px"><canvas id="attrRadar"></canvas></div></div></div>
+</section>
+
+<!-- ============ TIER 1 ============ -->
+<section id="t1">
+  <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Tier 1 — Verified Data</span><span class="sec-note">Web-verified · Jul 2026</span></div>
+  <div class="grid2">
+    <div class="panel">
+      <h4>⚽ Season 2025-26 · AS Nancy-Lorraine</h4>
+      <table>
+        <tr><th>Item</th><th>Value</th><th>Source</th></tr>
+        <tr><td>Ligue 2 appearances</td><td class="mono"><span class="big">13</span></td><td class="src">Soccerway</td></tr>
+        <tr><td>Ligue 2 goals / assists</td><td class="mono">0 / 0</td><td class="src">Soccerway</td></tr>
+        <tr><td>Yellow cards (league)</td><td class="mono">2</td><td class="src">Soccerway</td></tr>
+        <tr><td>Coupe de France apps / goals</td><td class="mono">3 / 1</td><td class="src">Soccerway</td></tr>
+        <tr><td>Avg rating (league)</td><td class="mono">7.1</td><td class="src">Soccerway</td></tr>
+        <tr><td>Shirt number</td><td class="mono">#77</td><td class="src">Sofascore</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h4>📋 Contract · Market · Pedigree</h4>
+      <table>
+        <tr><th>Item</th><th>Value</th><th>Source</th></tr>
+        <tr><td>Market value</td><td class="mono"><span class="big">€150k</span></td><td class="src">Transfermarkt (11 Dec '25)</td></tr>
+        <tr><td>Contract expires</td><td class="mono">30 Jun 2028</td><td class="src">Transfermarkt</td></tr>
+        <tr><td>Transfer fee (Aug '25)</td><td class="mono">€250k from Reggiana</td><td class="src">Soccerway</td></tr>
+        <tr><td>Height</td><td class="mono">1.93m ⚠ (1.88m alt.)</td><td class="src">TM / Tribuna conflict</td></tr>
+        <tr><td>International</td><td class="mono">France U20 (former)</td><td class="src">Transfermarkt</td></tr>
+        <tr><td>Secondary position</td><td class="mono">Right-back</td><td class="src">Transfermarkt</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ T3 VIDEO SCORES ============ -->
+<section id="t3">
+  <div class="sec-head"><span class="sec-num">03</span><span class="sec-title">Tier 3 — Video Scoring</span><span class="sec-note">Workbook: Empire_FGA_Video_Scoring · Tier A</span></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h4>13-Metric Status Board</h4>
+      <div class="mrow"><div class="mn">OBI_P<small>Positional Anticipation</small></div><div class="bar"><i class="ok" style="width:70%"></i></div><div class="ms">7.0</div><div><span class="st ok">✅ VALIDATED · 13ev/3m</span></div></div>
+      <div class="mrow"><div class="mn">OMS<small>Transition</small></div><div class="bar"><i class="warn" style="width:85%"></i></div><div class="ms">8.5</div><div><span class="st warn">⚠ 2 events</span></div></div>
+      <div class="mrow"><div class="mn">SII_T<small>Top-End Speed</small></div><div class="bar"><i class="warn" style="width:85%"></i></div><div class="ms">8.5</div><div><span class="st warn">⚠ 2 events</span></div></div>
+      <div class="mrow"><div class="mn">OBI_T<small>Run Timing</small></div><div class="bar"><i class="warn" style="width:80%"></i></div><div class="ms">8.0</div><div><span class="st warn">⚠ 1 event</span></div></div>
+      <div class="mrow"><div class="mn">OBI_S<small>Space Architecture</small></div><div class="bar"><i class="warn" style="width:80%"></i></div><div class="ms">8.0</div><div><span class="st warn">⚠ 2 events</span></div></div>
+      <div class="mrow"><div class="mn">SOA<small>Speed on Action</small></div><div class="bar"><i class="warn" style="width:70%"></i></div><div class="ms">7.0</div><div><span class="st warn">⚠ 2 events</span></div></div>
+      <div class="mrow"><div class="mn">CLM<small>Calmness</small></div><div class="bar"><i class="warn" style="width:70%"></i></div><div class="ms">7.0</div><div><span class="st warn">⚠ 2 events</span></div></div>
+      <div class="mrow"><div class="mn">DMA<small>Decision Making</small></div><div class="bar"><i class="warn" style="width:60%"></i></div><div class="ms">6.0</div><div><span class="st warn">⚠ MATCH_SPREAD · 10ev/2m</span></div></div>
+      <div class="mrow"><div class="mn">SII_A<small>Explosive Accel.</small></div><div class="bar"></div><div class="ms" style="color:var(--txt3)">—</div><div><span class="st no">NO EVENTS</span></div></div>
+      <div class="mrow"><div class="mn">SII_R<small>Recovery Sprints</small></div><div class="bar"></div><div class="ms" style="color:var(--txt3)">—</div><div><span class="st no">NO EVENTS</span></div></div>
+      <div class="mrow"><div class="mn">CHR · MCS · SPI<small>Character / Mental / Spatial</small></div><div class="bar"></div><div class="ms" style="color:var(--txt3)">—</div><div><span class="st no">NO EVENTS</span></div></div>
+      <div class="mrow" style="border-bottom:none"><div class="mn">CRS · DYN · CRK<small>Clutch / Dynamism / Risk</small></div><div class="bar"></div><div class="ms" style="color:var(--txt3)">—</div><div><span class="st no">NO EVENTS</span></div></div>
+    </div>
+    <div class="panel">
+      <h4>Provisional Metric Radar — Logged Metrics Only</h4>
+      <div class="chart-wrap"><div class="wm">Provisional</div><canvas id="radar"></canvas></div>
+      <p class="body" style="margin-top:12px;font-size:12.5px">Solid fill = validated (OBI_P only). Dashed = under-sampled, indicative only. OBI composite currently reads <strong>7.7 (⚠ sub-metrics pending)</strong>; SII composite not calculable (SII_A and SII_R have zero events). Video completeness: <strong>1/12 — 6 more metrics needed for FGA threshold</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EVIDENCE ============ -->
+<section id="evidence">
+  <div class="sec-head"><span class="sec-num">04</span><span class="sec-title">Evidence Log — Selected Timestamps</span><span class="sec-note">Full log: EVENT_LOG tab, 33 entries</span></div>
+  <div class="grid2">
+    <div class="panel">
+      <h4>Strength Evidence</h4>
+      <div class="ev"><span class="t">14'00</span><span class="c">OBI_P / SII_T</span><p>Recovery tackle at the feet of Victor Lobry (Amiens) — best-graded event in the log.</p><span class="q hi">9</span></div>
+      <div class="ev"><span class="t">07'51</span><span class="c">SOA / OBI_T</span><p>Ball carry past Ikia Dimi with run variation despite shirt pull.</p><span class="q hi">8.5</span></div>
+      <div class="ev"><span class="t">49'39</span><span class="c">OBI_P</span><p>Wins headed duel at halfway line on opposition GK restart.</p><span class="q hi">8</span></div>
+      <div class="ev"><span class="t">73'19</span><span class="c">OBI_P</span><p>Cuts out Diawara cross inside his own box — early positioning, unhurried.</p><span class="q hi">8</span></div>
+      <div class="ev" style="border-bottom:none"><span class="t">78'33</span><span class="c">OBI_S / SII_T</span><p>Third-man surge without the ball after a build-out; run wins a corner.</p><span class="q hi">8</span></div>
+    </div>
+    <div class="panel">
+      <h4>Risk Evidence</h4>
+      <div class="ev"><span class="t">23'50</span><span class="c">OBI_P anti</span><p>Back line fully unbalanced, caught behind, cannot recover his zone — opposition cross and <strong>goal conceded</strong>.</p><span class="q lo">3</span></div>
+      <div class="ev"><span class="t">60'45</span><span class="c">CLM anti</span><p>Long ball to the front line with a free, unmarked pivot available to progress.</p><span class="q lo">3</span></div>
+      <div class="ev"><span class="t">36'58</span><span class="c">DMA</span><p>Poor interior pass to a teammate under no severe pressure.</p><span class="q lo">4</span></div>
+      <div class="ev"><span class="t">42'42</span><span class="c">DMA</span><p>Risk-free long clearance forward with better options on.</p><span class="q lo">4</span></div>
+      <div class="ev" style="border-bottom:none"><span class="t">80'42</span><span class="c">OBI_P</span><p>Beaten in transition, opens the interior channel and is eliminated 1v1.</p><span class="q lo">4</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAREER ============ -->
+<section id="career">
+  <div class="sec-head"><span class="sec-num">05</span><span class="sec-title">Career Path</span><span class="sec-note">51 senior matches · 4 goals (Tribuna)</span></div>
+  <div class="career">
+    <div class="cnode"><div class="cy">2021-22</div><div class="cc">OGC Nice II</div><div class="cd">Academy graduate, National 3. First-team registration Mar 2022 (Ligue 1 / Conference League squads).</div></div>
+    <div class="cnode"><div class="cy">2024-25</div><div class="cc">Reggiana</div><div class="cd">Serie B. 5 appearances, all as substitute. Limited minutes, avg rating 6.4.</div></div>
+    <div class="cnode cur"><div class="cy">2025-</div><div class="cc">AS Nancy-Lorraine</div><div class="cd">€250k, three-year deal to 2028. 16 apps all comps, 1 cup goal, avg 7.1 in Ligue 2.</div></div>
+  </div>
+</section>
+
+<!-- ============ INTEL ============ -->
+<section id="intel">
+  <div class="sec-head"><span class="sec-num">06</span><span class="sec-title">Scouting Intel</span></div>
+  <div class="grid3">
+    <div class="panel">
+      <h4 style="color:var(--ok)">▲ Strengths (Evidenced)</h4>
+      <p class="body"><strong>Aerial dominance.</strong> Three separate headed-duel wins logged (49'39, 84'11, both boxes). At 1.93m, a set-piece asset both ways.</p>
+      <p class="body"><strong>Positional anticipation — validated.</strong> OBI_P 7.0 across 3 matches. Reads long balls early, intercepts in space rather than scrambling.</p>
+      <p class="body"><strong>Transition speed.</strong> OMS 8.5 and SII_T 8.5 (provisional) — rare pace profile for a CB this size; recovers his own distribution errors fast (2'20, 25'07).</p>
+    </div>
+    <div class="panel">
+      <h4 style="color:var(--red)">▼ Concerns (Evidenced)</h4>
+      <p class="body"><strong>Distribution under density.</strong> DMA 6.0 with 4+ logged poor passes and risk-free clearances. Not a build-out CB today.</p>
+      <p class="body"><strong>Transition defending when unbalanced.</strong> The one goal conceded in the log (23'50) comes directly from his failure to recover his zone. 80'42 and 89'21 repeat the pattern.</p>
+      <p class="body"><strong>April 2026 squad exclusion.</strong> Four straight fixtures out of the matchday squad. Unexplained. Must be resolved before recommendation.</p>
+    </div>
+    <div class="panel">
+      <h4 style="color:var(--warn)">◆ Fit & Next Steps</h4>
+      <p class="body"><strong>Best system fit:</strong> deep-block or transition sides that ask the CB to defend the box, win duels, and clear — not positional-play build-out systems (see DMA).</p>
+      <p class="body"><strong>Market angle:</strong> €150k valuation, contract to 2028, French U20 pedigree. Realistic buyer profile: Ligue 2 rivals, Belgian Challenger Pro, mid-tier Eredivisie, MLS/Liga MX depth.</p>
+      <p class="body"><strong>To close the file:</strong> SII_A + SII_R passes (matches 3, 5-7), one more DMA match for spread, squad-status inquiry.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTAGE ============ -->
+<section id="footage">
+  <div class="sec-head"><span class="sec-num">07</span><span class="sec-title">Footage Library & Match Register</span><span class="sec-note">Balance check: ✅ all 4 conditions passed</span></div>
+  <div class="mgrid">
+    <div class="mcard"><div class="mt">Nancy vs Amiens SC <span class="mtag scored">Scored · M1</span></div><div class="mm">Away · Losing · Middle-third opp · ⚠ register date typo (logged 20 Jan 2025 — verify 2026)</div><a class="btn" href="https://www.dropbox.com/scl/fi/0wkcy10u2onuqkvant3dj/Association-Sportive-Nancy-Lorraine-Amiens-Sporting-Club.mp4?rlkey=2ug0j5exsn1llvtz0qu2h8c1d&raw=1" target="_blank">▶ Full Match</a></div>
+    <div class="mcard"><div class="mt">Le Mans FC vs Nancy <span class="mtag scored">Scored · M2</span></div><div class="mm">11 Jan 2026 · Away · Losing · Top-third opp</div><a class="btn" href="https://www.dropbox.com/scl/fi/jnri1dpnqwogh5d5h683z/Le-Mans-Football-Club-Association-Sportive-Nancy-Lorraine.mp4?rlkey=4s05xxum6hjipa0u49nkcvi0t&raw=1" target="_blank">▶ Full Match</a></div>
+    <div class="mcard"><div class="mt">Nancy vs ESTAC Troyes <span class="mtag scored">Scored · M4</span></div><div class="mm">7 Feb 2026 · Home · Winning · Top-third opp</div><a class="btn" href="https://www.dropbox.com/scl/fi/6fcdakm9wfec4evvlojez/Association-Sportive-Nancy-Lorraine-Esp-rance-Sportive-Troyenne-Aube-Champagne-ESTAC.mp4?rlkey=yu33o48q7qb8q4cboq3gr1sy3&raw=1" target="_blank">▶ Full Match</a></div>
+    <div class="mcard"><div class="mt">SC Bastia · Red Star · Dunkerque · Laval <span class="mtag reg">Registered M3, M5-M7</span></div><div class="mm">Jan-May 2026 · Footage not yet linked · Required for SII_A / SII_R passes</div></div>
+    <div class="mcard hl"><div class="mt">Highlights 2022 <span class="mtag hl">Context only</span></div><div class="mm">Nice II era · Not scoreable under FGA (edited footage, no full-match context)</div><a class="btn" href="https://www.dropbox.com/scl/fi/mlggphvekjdrnkz5fu6fq/Yannis-Nahounou.mp4?rlkey=nxcnj94xiqmz1kdin6hak7n4u&raw=1" target="_blank">▶ Watch</a></div>
+    <div class="mcard hl"><div class="mt">Highlights 2023 <span class="mtag hl">Context only</span></div><div class="mm">Not scoreable under FGA — highlight reels are excluded from metric passes by protocol</div><a class="btn" href="https://www.dropbox.com/scl/fi/l65ppkb8esuf5bboottmd/Yannis-Nahounou-II.mp4?rlkey=a1a5tp0fi1v3eh718ya4tltdo&raw=1" target="_blank">▶ Watch</a></div>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section id="method">
+  <div class="sec-head"><span class="sec-num">08</span><span class="sec-title">Methodology</span></div>
+  <div class="banner ok"><span class="b-tag">✅ The Rule</span>
+    No number without a timestamp. Every score on this card traces to a logged event (MM:SS, description, quality 1-10) in the source workbook. Metrics with fewer than 3 events across 3 distinct matches are flagged VIDEO_PENDING or MATCH_SPREAD_PENDING and never enter a final FGA.</div>
+  <p class="body">FGA weighting is 20% Tier 1 (verified public data) / 30% Tier 2 (composites derived from Tier 3) / 50% Tier 3 (timestamped video metrics). This card's headline 7.5 is a <strong>provisional average of logged raw scores only</strong> — it exists to show direction, not conclusion. Video completeness stands at 1/12; the FGA threshold requires 7/12. Highlight reels (2022, 2023) are included for context and identity confirmation only; the FGA protocol excludes edited footage from all metric passes.</p>
+</section>
+
 </div>
 
-<!-- ═══ FGA ANALYTICS ═══ -->
-<div id="tab-fga" class="tab-panel">
-  <div class="g3" style="margin-bottom:14px">
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — Transfermarkt · FBref · FotMob · ESPN · L'Équipe · Soccerway</div></div>
-      <div class="c-body" style="font-size:.74rem;color:var(--muted);line-height:1.7">
-        <strong style="color:var(--lite)">Transfermarkt:</strong> <a href="https://www.transfermarkt.com/yannis-nahounou/profil/spieler/904707" style="color:var(--accentL)">Profile #904707</a><br>
-        <strong style="color:var(--lite)">FBref:</strong> <a href="https://fbref.com/en/players/2405094a/Yannis-Nahounou" style="color:var(--accentL)">Advanced Stats</a><br>
-        <strong style="color:var(--lite)">FotMob:</strong> Ligue 2 ratings, match logs, aerial duel data<br>
-        <strong style="color:var(--lite)">ESPN:</strong> 4 starts, 8 apps, 0 goals, 1 YC in Ligue 2<br>
-        <strong style="color:var(--lite)">L'Équipe:</strong> 19 apps, 1 goal (all comps)<br>
-        <strong style="color:var(--lite)">Soccerway:</strong> Market value €374k, contract 2026<br>
-        <strong style="color:var(--lite)">Sofascore:</strong> 194cm, right foot, jersey #77<br><br>
-        <strong style="color:var(--redL)">Data limitations:</strong><br>
-        · Limited Ligue 2 minutes (~400 min estimated)<br>
-        · Conflicting appearance data across sources<br>
-        · No xG advanced metrics for defenders<br>
-        · No GPS/tracking data publicly available<br>
-        · Serie B data at Reggiana incomplete<br><br>
-        <strong style="color:var(--lite)">Available signals:</strong><br>
-        · OGC Nice academy (2019-2021) = elite French youth filter<br>
-        · Reggiana (Serie B, 2024/25) = first senior exposure<br>
-        · Nancy contract to 2028 = long-term institutional belief<br>
-        · 193cm/83kg = elite physical frame for CB<br>
-        · France U20 call-up = youth recognition (0 caps)<br>
-        · Dual nationality = squad flexibility
-      </div>
-    </div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 — Composite (Proxy)</div></div>
-      <div class="c-body" style="font-size:.74rem;color:var(--muted);line-height:1.7">
-        <strong style="color:var(--lite)">POI (Position Intelligence):</strong> Proxy 6.0 — CB positional discipline inferred from Ligue 2 selection; zonal awareness unvalidated<br><br>
-        <strong style="color:var(--lite)">CPX (Composure):</strong> Proxy 5.5 — No evidence of calmness under pressure; below-average FotMob ratings suggest inconsistency<br><br>
-        <strong style="color:var(--lite)">MOB (Mobility):</strong> Proxy 5.5 — 193cm frame suggests limited agility; recovery pace unvalidated<br><br>
-        <strong style="color:var(--lite)">GRI (Ghost Run Index):</strong> Proxy 5.0 — Off-ball positioning vs. set pieces and through balls unknown<br><br>
-        <strong style="color:var(--lite)">AMS (Anticipatory Movement):</strong> Proxy 5.5 — 40% aerial duel win rate is below expectation for 193cm; timing may be issue<br><br>
-        <strong style="color:var(--redL)">All Tier 2 composites flagged:</strong> T2_PROXY_ESTIMATE — derived from limited statistical sample + U22 CB norms, no video confirmation.
-      </div>
-    </div>
-    <div>
-      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Breakdown</div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
-      <div class="c">
-        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">T3 Warning · U22 Context</div></div>
-        <div class="c-body">
-          <div style="font-size:.72rem;color:var(--muted);line-height:1.7">
-            <strong style="color:var(--redL)">T3_STATUS: PENDING_VALIDATION</strong><br><br>
-            · 0 of 16 Tier 3 metrics confirmed<br>
-            · No Empire scout video assessment<br>
-            · No behavioral evidence logged<br>
-            · U22 level = absolute scoring relevant (near senior peak)<br>
-            · Cohort percentile (vs U22 CB) = secondary metric<br>
-            · Limited minutes = high variance risk<br><br>
-            <strong style="color:var(--redL)">DO NOT use for recruitment until T3 validated.</strong><br><br>
-            <strong style="color:var(--lite)">Lars Framework note:</strong><br>
-            MI (Mental Intensity) is assessable at 22.<br>
-            PHYI (Physical Intensity) at 193cm/83kg = near peak; limited agility may be structural.<br>
-            Technical refinement (TCI) is the key variable — can he develop ball-playing ability?<br>
-            Nancy Ligue 2 = crucial development window for senior validation.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ PHILOSOPHY DNA ═══ -->
-<div id="tab-philosophy" class="tab-panel">
-  <div class="g2">
-    <div>
-      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits (Proxy)</div></div><div class="c-body" id="phil-full"></div></div>
-      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">School Averages (Proxy)</div></div><div class="c-body" id="school-avgs"></div></div>
-    </div>
-    <div>
-      <div class="c" style="margin-bottom:14px;height:340px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar</div></div><div class="c-body" style="height:290px"><canvas id="philRadar"></canvas></div></div>
-      <div class="c">
-        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype (Proxy)</div></div>
-        <div class="c-body">
-          <div class="scout-para">Proxy projection: Traditional French centre-back archetype — physical dominance, aerial presence, and defensive discipline. The 193cm/83kg frame suggests a classic "stopper" profile rather than a ball-playing libero. Nice academy background implies some technical foundation, but the Serie B and Ligue 2 trajectory suggests a more pragmatic, physical development path. The 40% aerial duel win rate is a significant concern for his height — suggests either poor timing, weak jumping technique, or lack of aggression. Without video validation, no specific philosophy alignment can be confirmed. The Italian School (Catenaccio) fit is strongest for his physical profile, while the French School fit reflects his nationality and academy background.</div>
-          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px;margin-top:8px">
-            <div class="section-label">Proxy Tactical DNA</div>
-            <span class="trait-pill">French Physical CB</span><span class="trait-pill">Traditional Stopper</span>
-            <span class="trait-pill">Catenaccio</span><span class="trait-pill">Aerial Presence</span>
-            <span class="trait-pill">Zonal Marker</span><span class="trait-pill">Limited Ball-Player</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ CAREER ═══ -->
-<div id="tab-career" class="tab-panel">
-  <div class="g2" style="margin-bottom:14px">
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
-      <div class="c-body">
-        <div class="tl-wrap">
-          <div class="tl-item"><div class="tl-dot" style="background:var(--nancy-red)"></div><div class="tl-date">Born 16 May 2004 · Meaux, France 🇫🇷</div><div class="tl-text"><strong>Dual nationality: 🇫🇷 France / 🇨🇮 Côte d'Ivoire.</strong> Born in the Paris suburbs to Ivorian heritage. Eligible for both senior national teams.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2012 — 2017 · USF Trilport</div><div class="tl-text"><strong>Early football.</strong> Started at local club USF Trilport in the Île-de-France region.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2017 — 2018 · FC Montfermeil</div><div class="tl-text"><strong>Regional progression.</strong> Moved to FC Montfermeil, continuing development in the Parisian suburbs.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2018 — 2019 · CS Meaux</div><div class="tl-text"><strong>Local club.</strong> Played for CS Meaux before attracting academy scouts.</div></div>
-          <div class="tl-item"><div class="tl-dot" style="background:var(--nice-red)"></div><div class="tl-date">2019 — 2021 · OGC Nice Academy</div><div class="tl-text"><strong>Elite academy.</strong> Joined OGC Nice at 15. Developed in one of France's top youth systems. Physical growth to 193cm during academy years.</div></div>
-          <div class="tl-item"><div class="tl-dot" style="background:var(--nice-red)"></div><div class="tl-date">2021 — 2024 · OGC Nice B</div><div class="tl-text"><strong>Reserve football.</strong> Progressed to Nice B team in National 2/3 (4th/5th tier). Limited senior exposure but continued physical development.</div></div>
-          <div class="tl-item"><div class="tl-dot" style="background:var(--muted)"></div><div class="tl-date">2024/25 · AC Reggiana</div><div class="tl-text"><strong>First professional move.</strong> Transferred to Italian Serie B side Reggiana. First exposure to professional second-tier football. Limited appearances.</div></div>
-          <div class="tl-item highlight"><div class="tl-dot" style="background:var(--nancy-red)"></div><div class="tl-date">12 Aug 2025 — AS Nancy-Lorraine</div><div class="tl-text"><strong>Ligue 2 move.</strong> Joined Nancy on a contract until 2028. Assigned jersey #77. Competing for starting CB role in Ligue 2.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2025/26 — Present · Nancy</div><div class="tl-text"><strong>Ligue 2 campaign.</strong> ~8 appearances across Ligue 2 and Coupe de France. Inconsistent minutes — starts and bench appearances. FotMob rating ~6.7.</div></div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Career Statistics</div><div class="c-sub">Senior only</div></div>
-        <div class="c-body">
-          <table class="career-table">
-            <thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Notes</th></tr></thead>
-            <tbody>
-              <tr><td>2021–2024</td><td>OGC Nice B</td><td>National 2/3</td><td>—</td><td>—</td><td>Reserve level</td></tr>
-              <tr><td>2024/25</td><td>AC Reggiana</td><td>Serie B</td><td>~10</td><td>0</td><td>First pro exposure</td></tr>
-              <tr class="hl"><td><strong>2025/26</strong></td><td><strong>AS Nancy-Lorraine</strong></td><td><strong>Ligue 2</strong></td><td><strong>~8</strong></td><td><strong>0</strong></td><td><strong>Current</strong></td></tr>
-              <tr><td colspan="6" style="color:var(--muted);font-size:.72rem;padding-top:8px"><strong>Career senior total:</strong> ~18 apps, 0 goals · <strong>International:</strong> France U20 (0 caps)</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="c">
-        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Medical & Physical</div></div>
-        <div class="c-body">
-          <div class="ti-row"><span class="ti-lbl">Known injuries</span><span class="ti-val">None reported</span></div>
-          <div class="ti-row"><span class="ti-lbl">Growth status</span><span class="ti-val" style="color:var(--accentL)">193 cm @ 22y</span></div>
-          <div class="ti-row"><span class="ti-lbl">Body mass</span><span class="ti-val">83 kg</span></div>
-          <div class="ti-row"><span class="ti-lbl">Physical maturity</span><span class="ti-val">Near peak</span></div>
-          <div class="ti-row"><span class="ti-lbl">Aerial concern</span><span class="ti-val" style="color:var(--redL)">40% win rate</span></div>
-          <div class="divider"></div>
-          <div style="font-size:.72rem;color:var(--muted)">193cm/83kg at 22 = near final physical profile. Limited agility likely structural at this height. Aerial duel win rate (40%) is significantly below expectation for 193cm — suggests timing, technique, or aggression issues that require video validation.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ SCOUTING INTEL ═══ -->
-<div id="tab-scouting" class="tab-panel">
-  <div class="g2">
-    <div>
-      <div class="c" style="margin-bottom:14px">
-        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Scouting Report (Proxy)</div><div class="c-sub">No validated behavioral evidence · Tier 1 only</div></div>
-        <div class="c-body">
-          <div class="scout-para">Yannis Nahounou is a 22-year-old French-Ivorian centre-back at AS Nancy-Lorraine in Ligue 2. A product of the OGC Nice academy, he spent 2024/25 at Italian Serie B side Reggiana before joining Nancy on a contract until 2028. At 193cm and 83kg, he is a significant physical outlier. All Empire FGA Tier 3 metrics remain pending.</div>
-
-          <div class="scout-para"><strong style="color:var(--redL)">TIER 3 STATUS: PENDING_VALIDATION</strong> — No Empire scout has assessed Yannis Nahounou via video or live observation. All metrics below are algorithmic projections or Tier 1 inference. This report cannot be used for recruitment decisions.</div>
-
-          <div class="scout-para"><strong>Positive filters (Tier 1 derived — UNVALIDATED):</strong><br>
-          · Elite academy pedigree: OGC Nice (2019-2021) = top-10 French youth system<br>
-          · Physical outlier: 193cm/83kg = elite CB frame at any level<br>
-          · Multi-league exposure: Serie B (Reggiana) + Ligue 2 (Nancy) = adaptability<br>
-          · Institutional belief: Nancy contract to 2028 = long-term investment<br>
-          · Youth recognition: France U20 call-up = national federation awareness<br>
-          · Dual nationality: France + Côte d'Ivoire = squad flexibility<br>
-          · Age trajectory: 22 years old with 3-year contract = time to develop<br>
-          · Agent credibility: GTS Management represents verified professionals</div>
-
-          <div class="scout-para"><strong>Caution signals (data gaps):</strong><br>
-          · Limited senior minutes: ~18 career senior apps at age 22 = slow development curve<br>
-          · Below-average ratings: FotMob ~6.7 in Ligue 2 = struggling to impact games<br>
-          · Aerial weakness: 40% duel win rate at 193cm = major red flag for CB<br>
-          · Inconsistent selection: Multiple bench appearances and short substitute minutes<br>
-          · No goals: Expected for CB, but zero offensive contribution limits tactical flexibility<br>
-          · Discipline: 2 yellow cards in ~400 minutes = moderate risk<br>
-          · No international caps: France U20 call-up but zero caps = may not have impressed<br>
-          · €400k valuation: Low for a 22-year-old with Ligue 2 minutes = limited market interest<br>
-          · Position risk: Traditional physical CB archetype may be tactically obsolete without elite aerial or pace</div>
-
-          <div class="scout-para"><strong>Critical gaps (what we do not know):</strong><br>
-          · OBI_P (positional anticipation): No video — does he read the game and position correctly?<br>
-          · OBI_T (run timing): No video — does he step up effectively for offside traps?<br>
-          · OBI_S (space architecture): No video — does he organize the defensive line?<br>
-          · SII_A (explosive acceleration): No video — can he recover from deep balls?<br>
-          · SII_T (top-end speed): No video — pace vs. fast Ligue 2 forwards?<br>
-          · SII_R (recovery sprint): No video — does he track back after attacking set pieces?<br>
-          · DMA (decision-making): No video — when to press, when to drop, when to play out?<br>
-          · CHR (character/leadership): No scout observation — vocal organizer or quiet follower?<br>
-          · MCS (mental competence): No behavioral evidence — concentration across 90 minutes?<br>
-          · CLM (calmness): No pressure-event log — how does he handle 1v1 duels vs. elite forwards?</div>
-
-          <div class="verdict-box" style="background:rgba(224,48,48,.08);border-color:rgba(224,48,48,.3)">
-            <div class="verdict-label" style="color:var(--redL)">Empire FGA Proxy Assessment</div>
-            <div class="verdict-text"><strong>PROXY ONLY — U22 CB · MODERATE TIER 1 DATA, ZERO VALIDATED BEHAVIOR.</strong> Nahounou has an elite physical profile (193cm/83kg) and Nice academy pedigree, but the limited senior minutes, below-average FotMob ratings, and concerning aerial duel win rate (40%) are significant caution signals. The Nancy contract to 2028 shows institutional patience, but at 22 years old he should be further along in his development. Priority action: complete video assessment of all three provided match links (2021 Nice highlights + Nancy vs Amiens + Nancy vs Troyes) to validate OBI, SII, DMA, and aerial technique before any scouting or recruitment use.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All T3 Scores (Pending)</div></div>
-        <div class="c-body">
-          <div class="mrow"><span class="mcode">OBI_P</span><span class="mname">Positional Anticipation</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">OBI_T</span><span class="mname">Run Timing</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">OBI_S</span><span class="mname">Space Architecture</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">SPI</span><span class="mname">Spatial Performance</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">DMA</span><span class="mname">Decision Making</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">SII_A</span><span class="mname">Explosive Accel</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">SII_T</span><span class="mname">Top-End Speed</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">SII_R</span><span class="mname">Recovery Sprint</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">CRS</span><span class="mname">Clutch Response</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">CLM</span><span class="mname">Calmness</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">CHR</span><span class="mname">Character</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">MCS</span><span class="mname">Mental Comp.</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">DYN</span><span class="mname">Dynamism</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">CRK</span><span class="mname">Creative Risk</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">OMS</span><span class="mname">Omschakeling</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-          <div class="mrow"><span class="mcode">SOA</span><span class="mname">Speed on Action</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ MATCHES TAB ═══ -->
-<div id="tab-links" class="tab-panel">
-  <div style="background:rgba(180,30,30,.07);border:1px solid rgba(180,30,30,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
-    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accentL)">ASSESSMENT MATCHES — NICE YOUTH + LIGUE 2</span>
-    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">Four video links provided for Tier 3 validation. 2021 footage = youth baseline. 2025/26 Nancy footage = current senior level. All metrics remain pending until scout assessment complete.</span>
-  </div>
-
-  <div class="section-label">VIDEO ASSESSMENT FILES</div>
-  <div class="g2">
-    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/mlggphvekjdrnkz5fu6fq/Yannis-Nahounou.mp4?rlkey=nxcnj94xiqmz1kdin6hak7n4u&raw=1" target="_blank">
-      <div style="width:36px;height:36px;border-radius:2px;background:var(--nice-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">Yannis Nahounou — Youth Highlights (2021)</div><div class="vlc-meta">OGC Nice academy era · T3 assessment pending · Youth baseline · Physical development pre-senior</div></div>
-      <span class="vlc-badge" style="background:rgba(192,28,46,.2);color:#f07070;border:1px solid rgba(192,28,46,.3)">Youth · ⏳ T3</span>
-    </a>
-    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/0wkcy10u2onuqkvant3dj/Association-Sportive-Nancy-Lorraine-Amiens-Sporting-Club.mp4?rlkey=2ug0j5exsn1llvtz0qu2h8c1d&raw=1" target="_blank">
-      <div style="width:36px;height:36px;border-radius:2px;background:var(--nancy-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">AS Nancy-Lorraine vs Amiens SC</div><div class="vlc-meta">Ligue 2 · T3 assessment pending · Nancy home context · Amiens opposition</div></div>
-      <span class="vlc-badge" style="background:rgba(180,30,30,.2);color:var(--accentL);border:1px solid rgba(180,30,30,.3)">L2 · ⏳ T3</span>
-    </a>
-    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/jnri1dpnqwogh5d5h683z/Le-Mans-Football-Club-Association-Sportive-Nancy-Lorraine.mp4?rlkey=4s05xxum6hjipa0u49nkcvi0t&raw=1" target="_blank">
-      <div style="width:36px;height:36px;border-radius:2px;background:var(--nancy-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">Le Mans FC vs AS Nancy-Lorraine</div><div class="vlc-meta">Ligue 2 · T3 assessment pending · Away context · Le Mans opposition</div></div>
-      <span class="vlc-badge" style="background:rgba(180,30,30,.2);color:var(--accentL);border:1px solid rgba(180,30,30,.3)">L2 · ⏳ T3</span>
-    </a>
-    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/6fcdakm9wfec4evvlojez/Association-Sportive-Nancy-Lorraine-Esp-rance-Sportive-Troyenne-Aube-Champagne-ESTAC.mp4?rlkey=yu33o48q7qb8q4cboq3gr1sy3&raw=1" target="_blank">
-      <div style="width:36px;height:36px;border-radius:2px;background:var(--nancy-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">AS Nancy-Lorraine vs ESTAC Troyes</div><div class="vlc-meta">Ligue 2 · T3 assessment pending · Nancy home · Eastern opposition</div></div>
-      <span class="vlc-badge" style="background:rgba(180,30,30,.2);color:var(--accentL);border:1px solid rgba(180,30,30,.3)">L2 · ⏳ T3</span>
-    </a>
-  </div>
-
-  <div class="c" style="margin-top:14px">
-    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Scout Assessment Notes · CB Protocol</div></div>
-    <div class="c-body">
-      <div style="font-size:.77rem;color:var(--muted);line-height:1.7">
-        <strong style="color:var(--lite)">Physical Identity Card (pre-watch):</strong><br>
-        · Yannis Nahounou: 193cm, 83kg, tall/muscular build, likely one of the tallest players on pitch<br>
-        · Hair: dark, short (verify from photo)<br>
-        · Build: long limbs, broad shoulders, traditional CB physique<br>
-        · Shirt: Nancy #77 (red kit) or Nice youth kit; right-footed centre-back<br>
-        · Distinguishing trait: 193cm frame, right-footed, CB position, dark complexion<br>
-        · Note: 2021 youth footage may show different physical maturity (age 16-17)<br><br>
-        <strong style="color:var(--lite)">Required for T3 validation:</strong><br>
-        · Minimum 2 Empire scouts to review all three video files<br>
-        · Minimum 3 evidence instances per sub-metric (OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, CLM, CRS, DYN, CRK, OMS, SOA, SPI)<br>
-        · Timestamped event log for each observed behavior<br>
-        · Confidence tags: Confirmed / Deduced / Uncertain per AI Player Identification Protocol<br>
-        · Physical identity card: hair, build, skin tone, gear (Nahounou vs teammates)<br>
-        · Cross-reference position before confirming identity — CB #77<br><br>
-        <strong style="color:var(--redL)">Current status:</strong> 4 video files loaded. Awaiting scout assignment. DO NOT generate proxy scores from these links without full rubric assessment.<br><br>
-        <strong style="color:var(--redL)">Specific CB focus areas:</strong><br>
-        · Aerial duels — timing, jumping technique, aggression, success rate vs. different opponent heights<br>
-        · 1v1 defending — body positioning, stance, use of arms, recovery after being beaten<br>
-        · Zonal marking — does he maintain shape? Does he communicate with teammates?<br>
-        · Offside trap — does he step up in coordination with the line? Timing?<br>
-        · Ball-playing ability — comfort on the ball, passing range under pressure, first touch<br>
-        · Physical duels — how does 193cm/83kg frame handle contact? Does he use body effectively?<br>
-        · Pace and recovery — acceleration over 10-20m, top speed vs. fast forwards<br>
-        · Set-piece defending — organization, marking, clearances, aggression in box<br>
-        · Mentality — body language after mistakes, vocal leadership, coach interaction<br>
-        · Composure — does he panic under pressure? Or maintain control with ball at feet?<br>
-        · Discipline — tendency for fouls, yellow cards, rash challenges
-      </div>
-    </div>
-  </div>
-</div>
-</div>
+<div class="foot">EMPIRE SCOUTING NETWORK · <b>FGA INTELLIGENCE DOSSIER</b> · Yannis Nahounou · Generated Jul 2026 · empirescoutingnetwork.com<br>Tier 1 sources: Transfermarkt · Soccerway · Sofascore · Tribuna &nbsp;|&nbsp; Tier 3 source: Empire_FGA_Video_Scoring workbook (Analyst: Jim Totime)</div>
 
 <script>
-const ATTRS={
-  tech:[
-    {n:"OBI_P Positional (⏳ pending)",v:0},{n:"OBI_T Run Timing (⏳ pending)",v:0},
-    {n:"SPI Spatial (⏳ pending)",v:0},{n:"DMA Passing (⏳ pending)",v:0},
-    {n:"CRK Creative (⏳ pending)",v:0},{n:"DYN Dynamism (⏳ pending)",v:0},
-    {n:"OBI_S Space (⏳ pending)",v:0},{n:"Tackling (⏳ pending)",v:0}
-  ],
-  men:[
-    {n:"CRS Clutch (⏳ pending)",v:0},{n:"CLM Calmness (⏳ pending)",v:0},
-    {n:"CHR Character (⏳ pending)",v:0},{n:"MCS Mental (⏳ pending)",v:0},
-    {n:"OMS Transition (⏳ pending)",v:0},{n:"Focus/complacency (⏳ pending)",v:0},
-    {n:"Discipline (⏳ pending)",v:0},{n:"Pressure response (⏳ pending)",v:0}
-  ],
-  phy:[
-    {n:"SII_A Acceleration (⏳ pending)",v:0},{n:"SII_T Top Speed (⏳ pending)",v:0},
-    {n:"SII_R Recovery (⏳ pending)",v:0},{n:"Height 193cm (confirmed)",v:8.5},
-    {n:"Strength (⏳ pending)",v:0},{n:"Physical duels (⏳ pending)",v:0},
-    {n:"Stamina (⏳ pending)",v:0},{n:"Agility (⏳ pending)",v:0}
-  ]
-};
-
-const PHIL=[
-  {r:1,n:"Italian School (Catenaccio)",s:"Italian School",v:7.5,col:"#c0392b"},
-  {r:2,n:"French School",s:"French School",v:7.0,col:"#004d98"},
-  {r:3,n:"Sacchi Zonal Defence",s:"Italian School",v:6.5,col:"#c0392b"},
-  {r:4,n:"Modern Ball-Playing CB",s:"Modern Masters",v:6.5,col:"#6CABDD"},
-  {r:5,n:"Mourinho Physical Defence",s:"Modern Masters",v:6.0,col:"#cb3524"},
-  {r:6,n:"Wenger Development",s:"French School",v:5.5,col:"#004d98"},
-  {r:7,n:"Guardiola Build-Up CB",s:"Modern Masters",v:5.0,col:"#6CABDD"},
-  {r:8,n:"Bielsa High-Press CB",s:"S. American",v:4.5,col:"#e07820"},
-  {r:9,n:"Lobanovskyi System",s:"Eastern European",v:4.5,col:"#9b59b6"},
-  {r:10,n:"Menotti Expression",s:"S. American",v:4.0,col:"#e07820"}
-];
-
-const SCHOOL_AVGS=[
-  {n:"Italian School",v:7.0},{n:"French School",v:7.0},
-  {n:"Modern Masters",v:5.75},{n:"S. American",v:4.25},
-  {n:"Eastern European",v:4.5}
-];
-
-const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
-const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
-const pct=v=>v>0?Math.round(v*10):0;
-const fmt=v=>v>0?(v%1!==0?parseFloat(v.toFixed(2)):v):'—';
-function safe(id){return document.getElementById(id)}
-function attrCircle(v){return`<div class="attr-circle ${ac(v)}">${v>0?Math.round(v*2):'?'}</div>`}
-function renderAttrList(el,arr){if(!el)return;el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${pct(a.v)}%;background:${sc(a.v)}"></div></div><span class="attr-val-lbl" style="color:${sc(a.v)}">${a.v>0?a.v:'?'}</span></div>`).join('')}
-function renderPhilList(el,arr){if(!el)return;el.innerHTML=arr.map(p=>`<div class="phil-item"><span class="phi-rank">${p.r}</span><div><div class="phi-name">${p.n}</div><div class="phi-school">${p.s}</div></div><div class="phi-bar-bg"><div class="phi-bar-fill" style="width:${pct(p.v)}%;background:${p.col}"></div></div><span class="phi-score" style="color:${p.col}">${p.v}</span></div>`).join('')}
-
-function init(){
-  renderAttrList(safe('attr-tech'),ATTRS.tech);
-  renderAttrList(safe('attr-men'),ATTRS.men);
-  renderAttrList(safe('attr-phy'),ATTRS.phy);
-  renderPhilList(safe('ov-phil'),PHIL.slice(0,5));
-  renderPhilList(safe('phil-full'),PHIL);
-  const sa=safe('school-avgs');
-  if(sa)sa.innerHTML=SCHOOL_AVGS.map(s=>`<div class="comp-row"><span style="font-size:.74rem;color:var(--lite);flex:1">${s.n}</span><div class="comp-bar-bg" style="width:120px"><div class="comp-bar-fill" style="width:${pct(s.v)}%;background:${sc(s.v)}"></div></div><span class="comp-val" style="color:${sc(s.v)}">${s.v}</span></div>`).join('');
-
-  const dc=safe('fgaDial');
-  if(dc){
-    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const score=5.8;
-    dctx.clearRect(0,0,120,120);
-    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
-    dctx.strokeStyle='rgba(180,30,30,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
-    const grad=dctx.createLinearGradient(14,70,106,70);
-    grad.addColorStop(0,'#b41e1e');grad.addColorStop(.4,'#c01c2e');grad.addColorStop(1,'#f0b820');
-    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(score/10)*Math.PI);
-    dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
-    safe('fgaNum').textContent=score.toFixed(2);
-  }
-
-  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20%','Tier 2 · 30%','Tier 3 · 50% (0/16)'],
-    datasets:[{data:[20,30,50],backgroundColor:['rgba(180,30,30,.5)','rgba(34,168,90,.45)','rgba(240,184,32,.55)'],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
-      plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},
-        tooltip:{backgroundColor:'#080c16',borderColor:'rgba(180,30,30,.3)',borderWidth:1}}}});
-
-  new Chart(safe('ovRadar'),{type:'radar',
-    data:{labels:['Technical','Physical','Mental','Tactical','Speed','Creativity'],
-      datasets:[{label:'Nahounou Proxy',data:[5.0,7.5,5.5,6.0,5.0,3.5],
-        borderColor:'#b41e1e',backgroundColor:'rgba(180,30,30,.1)',borderWidth:2,
-        pointBackgroundColor:'#b41e1e',pointRadius:4}]},
-    options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
-
-  new Chart(safe('attrRadar'),{type:'radar',
-    data:{labels:['Defending','Aerial','Physical','Pace','Passing','Strength','Positioning','Leadership'],
-      datasets:[
-        {label:'Nahounou Proxy',data:[6.0,5.0,7.5,5.0,4.5,7.0,6.0,5.0],borderColor:'#b41e1e',backgroundColor:'rgba(180,30,30,.12)',borderWidth:2.5,pointBackgroundColor:'#b41e1e',pointRadius:4},
-        {label:'U22 CB France avg',data:[5.5,5.5,5.5,5.5,5.0,5.5,5.5,5.0],borderColor:'rgba(180,30,30,.25)',backgroundColor:'rgba(180,30,30,.04)',borderWidth:1.5,pointRadius:3}
-      ]},options:{...DFT,maintainAspectRatio:false}});
-
-  new Chart(safe('philRadar'),{type:'radar',
-    data:{labels:['Italian','French','Modern','S. American','E. European'],
-      datasets:[{label:'Philosophy Fit',data:[7.0,7.0,5.75,4.25,4.5],
-        borderColor:'#f0b820',backgroundColor:'rgba(240,184,32,.12)',borderWidth:2,
-        pointBackgroundColor:['#c0392b','#004d98','#6CABDD','#e07820','#9b59b6'],pointRadius:5}]},
-    options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
-}
-
-const DFT={
-  scales:{r:{min:0,max:10,grid:{color:'rgba(180,30,30,.06)'},angleLines:{color:'rgba(180,30,30,.06)'},
-    ticks:{stepSize:2,color:'#2a3850',backdropColor:'transparent',font:{size:9}},
-    pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},
-  plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},
-    tooltip:{backgroundColor:'#080c16',borderColor:'rgba(180,30,30,.3)',borderWidth:1,titleColor:'#e85a5a',bodyColor:'#f0f6fc'}},
-  responsive:true,maintainAspectRatio:false
-};
-
-function switchTab(id,btn){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  if(btn) btn.classList.add('active');
-}
-document.addEventListener('DOMContentLoaded',init);
+const ctx=document.getElementById('radar');
+new Chart(ctx,{type:'radar',data:{
+  labels:['OBI_P ✅','OBI_T','OBI_S','SII_T','OMS','SOA','CLM','DMA'],
+  datasets:[
+    {label:'Validated',data:[7,null,null,null,null,null,null,null],
+     backgroundColor:'rgba(24,201,138,0.25)',borderColor:'#18c98a',pointBackgroundColor:'#18c98a',pointRadius:5,borderWidth:2},
+    {label:'Provisional (under-sampled)',data:[7,8,8,8.5,8.5,7,7,6],
+     backgroundColor:'rgba(245,166,35,0.10)',borderColor:'#f5a623',borderDash:[6,5],pointBackgroundColor:'#f5a623',pointRadius:3,borderWidth:1.5}
+  ]},
+  options:{maintainAspectRatio:false,
+    scales:{r:{min:0,max:10,ticks:{stepSize:2,color:'#5b6070',backdropColor:'transparent',font:{family:'JetBrains Mono',size:9}},
+      grid:{color:'rgba(255,255,255,0.08)'},angleLines:{color:'rgba(255,255,255,0.08)'},
+      pointLabels:{color:'#9298a6',font:{family:'JetBrains Mono',size:11}}}},
+    plugins:{legend:{labels:{color:'#9298a6',font:{family:'JetBrains Mono',size:10},boxWidth:14}}}}
+});
 </script>
 </body>
 </html>
