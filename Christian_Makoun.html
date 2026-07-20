@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Christian Makoun | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://eurocom.bg/wp-content/uploads/2026/04/280e7648-0588-4ff8-93fa-a71c34bad221.jpg') center 25% / cover no-repeat;filter:brightness(0.5) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🏆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Bulgarian Champion 2025-26</div>
+  <div class="jersey-watermark">4</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Zamora Academy</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Zamora FC (2016)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Juventus U23 (loan)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Inter Miami (2020)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Charlotte FC (2022)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">New England Rev (2022)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Anorthosis (2024)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Levski Sofia (2024-)</div>
+    </div>
+    <h1 class="hero-name">Christian Makoun</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇻🇪</span> Venezuela</span>
+      <span class="dot"></span>
+      <span>26 years</span>
+      <span class="dot"></span>
+      <span>185cm</span>
+      <span class="dot"></span>
+      <span>Left-footed</span>
+      <span class="dot"></span>
+      <span>Centre-Back / DM / LB</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Proxy</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-club">Levski Sofia · #4</span>
+          <span class="tag tag-gold">Venezuela · #14</span>
+          <span class="tag tag-value">€550K Value</span>
+          <span class="tag tag-info">Bulgarian First League</span>
+          <span class="tag tag-gold">Bulgarian Champion 2025-26</span>
+          <span class="tag tag-info">2024 Copa America</span>
+          <span class="tag tag-info">Belgian Citizenship</span>
+          <span class="tag tag-info">U20 World Cup Runner-up 2017</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Proxy FGA</div>
+          <div class="fga-score">6.2</div>
+          <div class="fga-status">PROXY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-champ">
+    <span>🏆</span> <strong>BULGARIAN FIRST LEAGUE CHAMPION 2025-26.</strong> Christian Makoun won the Bulgarian First League with Levski Sofia in 2025-26, ending Ludogorets Razgrad's long reign. He has established himself as a key centre-back for the club, making 42+ appearances and scoring 4 goals since joining in August 2024.
+  </div>
+  <div class="banner banner-proxy">
+    <span>⚠️</span> PROXY FGA 6.2 — Tier 3 video metrics pending scout validation. All T3 assessments marked ⏳ PENDING. Eight match video links provided for T3 assessment (Levski Sofia fixtures vs Braga, Spartak Varna, Ludogorets, CSKA Sofia, CSKA 1948, Cherno More).
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> LEVSKI SOFIA (2024-) — Signed a three-year contract on 7 August 2024. 26-year-old Venezuelan centre-back/defensive midfielder. 185cm, left-footed. Wears #4. 42+ apps, 4 goals for Levski Sofia. Won Bulgarian First League 2025-26. Also holds Belgian citizenship through his Cameroonian father. Agent: THE·TEAM. Son of former professional footballer Christian Makoun (Cameroon youth international, played for Cercle Brugge).
+  </div>
+  <div class="banner banner-gold">
+    <span>🏅</span> INTERNATIONAL PEDIGREE — FIFA U-20 World Cup runner-up 2017 with Venezuela. 2024 Copa America squad member. 15 Venezuela senior caps (2022-2025). Captained Venezuela U-20 at 2019 South American Championship. 23+ youth international appearances (U17, U20).
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Zamora Academy</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Zamora FC</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Juventus U23 (loan)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Inter Miami</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Charlotte FC</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">New England Rev</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Anorthosis</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Levski Sofia</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">150</div><div class="label">Career Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">9</div><div class="label">Career Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">~8</div><div class="label">Career Assists (est.)</div></div>
+    <div class="stat-hero"><div class="value">0.06</div><div class="label">Goals Per App</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">15</div><div class="label">Venezuela Caps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">0</div><div class="label">Venezuela Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">42</div><div class="label">Levski Sofia Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">€550K</div><div class="label">Market Value</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Christian Frederick Bayoi Makoun Reyes</strong> is a <strong>26-year-old Venezuelan centre-back/defensive midfielder</strong> born on 5 March 2000 in Valencia, Carabobo, Venezuela. A product of the <strong>Zamora FC academy</strong> (joined 2010 at age 10), he made his professional debut in 2016 and spent three seasons with the club (32 apps, 1 goal), winning the <strong>Copa Venezuela 2019</strong> and <strong>Primera Division 2016</strong>. In 2018-19, he had a <strong>loan spell at Juventus U23/Primavera</strong> (21 apps, 3 goals). In 2019, he joined <strong>Inter Miami CF</strong> as their third-ever signing (30 MLS apps, 2 goals across 2020-21), with a brief loan to <strong>Fort Lauderdale CF</strong> (3 apps). He was traded to <strong>Charlotte FC</strong> in January 2022 (13 apps), then to <strong>New England Revolution</strong> in August 2022 (17 apps). In January 2024, he returned to Europe with <strong>Anorthosis Famagusta</strong> in Cyprus (13 apps, 2 goals). On <strong>7 August 2024, he signed a three-year contract with Levski Sofia</strong> in Bulgaria, where he has become a key player — <strong>42+ apps, 4 goals</strong>, and won the <strong>Bulgarian First League 2025-26</strong>, ending Ludogorets' dominance. On the international stage, he has <strong>15 caps for Venezuela</strong> (2022-2025), was part of the <strong>2024 Copa America squad</strong>, and was a <strong>FIFA U-20 World Cup runner-up in 2017</strong>. He also holds <strong>Belgian citizenship</strong> through his Cameroonian father, a former professional who played for Cercle Brugge.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 metrics validated.</strong> All physical, technical micro-assessments, and video-based evaluations are pending scout review. Makoun is a <strong>versatile defender with extensive multi-league experience</strong> (150 career apps across Venezuela, USA, Cyprus, Bulgaria). T3 should focus on <strong>defensive positioning, aerial ability, passing range, 1v1 defending, physical duels, and leadership/organizational skills</strong> — key attributes for a modern centre-back. At 26, he is in his <strong>peak defensive years</strong> — T3 assessment will determine whether his <strong>Bulgarian First League success translates to higher European levels</strong>, or whether his ceiling is mid-tier European football. <strong>8 video links provided for T3 assessment — all Levski Sofia fixtures from 2024-25 and 2025-26 seasons where Makoun is highly likely to feature as a regular starter.</strong>
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">PROXY FGA 6.2 — VERSATILE INTERNATIONAL DEFENDER with T3 validation required.</strong> Christian Makoun is a <strong>26-year-old Venezuelan centre-back/defensive midfielder</strong> with a <strong>diverse career trajectory across 4 countries and 7 clubs</strong> (150 apps, 9 goals). His <strong>2024-26 spell at Levski Sofia has been his most successful period</strong> — 42+ apps, 4 goals, <strong>Bulgarian First League champion 2025-26</strong>, and established as a key defender. His <strong>international pedigree (15 Venezuela caps, 2024 Copa America, U20 World Cup runner-up 2017)</strong> and <strong>Belgian citizenship</strong> add value. However, his <strong>entire T3 profile is unvalidated</strong> — no video-based micro-assessments have been completed. His <strong>modest career goal output (9 in 150 apps, 0.06 GpA), journeyman career path (7 clubs in 9 years), and €550K market value</strong> suggest he is a <strong>solid professional with international pedigree rather than an elite European prospect</strong>. His <strong>MLS experience (60 apps, 2 goals) was underwhelming</strong> — traded twice in 2022, limited impact. At 26, he is in his <strong>peak defensive years</strong> — T3 must assess whether he has the <strong>technical quality, physical attributes, and consistency</strong> to move to a higher European level (Eredivisie, Championship, Liga Portugal), or whether his ceiling is the Bulgarian/Cypriot top tier. <strong>Best deployed as a centre-back in a structured, pragmatic system</strong> that values his left-footed distribution, physicality, and defensive solidity. Can also cover defensive midfield and left-back. <strong>Validate T3 before any recruitment or retention decision. Focus on aerial ability, 1v1 defending, passing range, positioning, and leadership.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Levski Sofia 2024-26 — Championship Campaign <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero"><div class="value">42</div><div class="label">Total Apps</div></div>
+      <div class="stat-hero"><div class="value">4</div><div class="label">Goals</div></div>
+      <div class="stat-hero"><div class="value">26</div><div class="label">2024-25 Apps</div></div>
+      <div class="stat-hero"><div class="value">16</div><div class="label">2025-26 Apps</div></div>
+      <div class="stat-hero"><div class="value">3</div><div class="label">Cup Apps</div></div>
+      <div class="stat-hero"><div class="value">7</div><div class="label">European Apps</div></div>
+      <div class="stat-hero"><div class="value">7.1</div><div class="label">Sofascore Rating</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--gold);">🏆</div><div class="label">Champion 2025-26</div></div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Makoun's <strong>2024-26 spell at Levski Sofia</strong> represents his <strong>most successful and stable period in his career</strong>. He joined on a <strong>three-year contract in August 2024</strong> and quickly established himself as a <strong>key centre-back</strong>, making <strong>26 appearances in 2024-25 and 16+ in 2025-26</strong>, scoring <strong>4 goals</strong> — a notable return for a defender. He has also featured in <strong>3 Bulgarian Cup matches and 7 European matches</strong> (4 UEFA Europa League, 3 UEFA Conference League). His <strong>7.1 Sofascore rating</strong> indicates solid but not spectacular performance. The <strong>2025-26 Bulgarian First League title</strong> — ending Ludogorets Razgrad's long reign — is a significant achievement and confirms his ability to contribute to a winning team. However, the <strong>Bulgarian First League is not a top-tier European competition</strong> — T3 must assess whether his performances there translate to higher levels. His <strong>left-footedness, 185cm height, and physical profile</strong> suggest he could be effective in more competitive leagues, but his <strong>journeyman career and modest output in MLS</strong> raise questions about his ceiling.
+    </p>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Simeone Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent);"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--accent);"></div></div></div><div class="philo-score">6.4</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--warning);"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning);"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Spanish Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--warning);"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--warning);"></div></div></div><div class="philo-score">5.6</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:var(--warning);"></div></div></div><div class="philo-score">5.4</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Centre-Back Percentile Radar <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="cbRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero"><div class="value">16</div><div class="label">First League Apps</div></div>
+      <div class="stat-hero"><div class="value">1</div><div class="label">Goals</div></div>
+      <div class="stat-hero"><div class="value">0</div><div class="label">Assists</div></div>
+      <div class="stat-hero"><div class="value">7.1</div><div class="label">Sofascore Rating</div></div>
+      <div class="stat-hero"><div class="value">77%</div><div class="label">Ball Contacts</div></div>
+      <div class="stat-hero"><div class="value">65%</div><div class="label">Shot Attempts</div></div>
+      <div class="stat-hero"><div class="value">29%</div><div class="label">Aerial Duels Won</div></div>
+      <div class="stat-hero"><div class="value">81%</div><div class="label">Defensive Actions</div></div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Makoun's <strong>2025-26 season at Levski Sofia</strong> (as of July 2026): <strong>16 First League appearances, 1 goal, 0 assists</strong>, earning a <strong>7.1 Sofascore rating</strong>. His <strong>FotMob statistics</strong> show <strong>77% ball contact success, 65% shot attempts, 29% aerial duels won, and 81% defensive actions</strong>. These metrics suggest a <strong>defender who is comfortable on the ball but not dominant in the air</strong> — the 29% aerial duel success is concerning for a 185cm centre-back. His <strong>81% defensive actions success rate</strong> is solid. He has also featured in <strong>UEFA Champions League qualification matches</strong> (vs Borac Banja Luka, July 2026). At 26, this season confirms he is a <strong>reliable Bulgarian First League defender</strong> but T3 must assess whether he has the <strong>aerial dominance, pace, and technical quality</strong> to compete at a higher European level. His <strong>left-footedness is an asset</strong> for ball distribution and building from the back.
+    </p>
+  </div>
+</div>
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Passing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Ball Control</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">First Touch</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Tackling</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Heading</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Crossing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Positioning</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Discipline</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5</span></div>
+      <div class="attr-row"><span class="name">Work Rate</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Leadership</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Pace</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Acceleration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Agility</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Aerial Ability</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Real Data Metrics</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Career</div><div class="t1-hl-val">150</div><div class="t1-hl-pct">Total senior apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Gls</div><div class="t1-hl-val">9</div><div class="t1-hl-pct">9 goals in 150 apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:6%;background:var(--gold)"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Levski</div><div class="t1-hl-val">42</div><div class="t1-hl-pct">Levski Sofia apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:28%;background:var(--warning)"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">VEN</div><div class="t1-hl-val">15</div><div class="t1-hl-pct">Venezuela caps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:10%;background:var(--info)"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Champ</div><div class="t1-hl-val">🏆</div><div class="t1-hl-pct">Bulgarian FL 2025-26</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%;background:var(--gold)"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">⚽ Season Output</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">League</span><span class="t1-metric-desc">First League apps (Levski)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent)"></div></div></div><span class="t1-metric-val">42</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">First League goals</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div><span class="t1-metric-val">4</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Cup</span><span class="t1-metric-desc">Bulgarian Cup apps</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:7%;background:var(--accent)"></div></div></div><span class="t1-metric-val">3</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Europe</span><span class="t1-metric-desc">European apps (UEL/UECL)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:17%;background:var(--accent)"></div></div></div><span class="t1-metric-val">7</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">🟨 Discipline</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">YC</span><span class="t1-metric-desc">Yellow cards (career)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:12%;background:var(--warning)"></div></div></div><span class="t1-metric-val">~18</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">RC</span><span class="t1-metric-desc">Red cards (career)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--success)"></div></div></div><span class="t1-metric-val">0</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">📋 Pedigree / Tenure</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Born</span><span class="t1-metric-desc">Birth date</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div><span class="t1-metric-val">5 Mar 2000</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Debut</span><span class="t1-metric-desc">Professional debut</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div><span class="t1-metric-val">Jul 2016</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Contract</span><span class="t1-metric-desc">Levski Sofia contract</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div><span class="t1-metric-val">Until 2027</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Citizen</span><span class="t1-metric-desc">Belgian citizenship</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div><span class="t1-metric-val">✓</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">📋 Career Breakdown</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Zam</span><span class="t1-metric-desc">Zamora FC (2016-19)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:21%;background:var(--accent)"></div></div></div><span class="t1-metric-val">32 apps</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Juv</span><span class="t1-metric-desc">Juventus U23 (loan, 18-19)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:14%;background:var(--accent)"></div></div></div><span class="t1-metric-val">21 apps</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">MIA</span><span class="t1-metric-desc">Inter Miami (2020-21)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--accent)"></div></div></div><span class="t1-metric-val">30 apps</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CLT</span><span class="t1-metric-desc">Charlotte FC (2022)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:9%;background:var(--accent)"></div></div></div><span class="t1-metric-val">13 apps</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">NER</span><span class="t1-metric-desc">New England Rev (22-23)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:11%;background:var(--accent)"></div></div></div><span class="t1-metric-val">17 apps</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ano</span><span class="t1-metric-desc">Anorthosis (2024)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:9%;background:var(--accent)"></div></div></div><span class="t1-metric-val">13 apps</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Lev</span><span class="t1-metric-desc">Levski Sofia (2024-)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:28%;background:var(--accent)"></div></div></div><span class="t1-metric-val">42 apps</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Positional IQ</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.0 ⏳</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Complexity</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5 ⏳</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5 ⏳</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Grit</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.0 ⏳</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Athleticism</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5 ⏳</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With Tier 3 at 0/16, these are proxy estimates based on Tier 1 data patterns and positional averages for a 26-year-old centre-back with extensive multi-league experience.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Season-by-Season Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">2016 · Zamora</strong><br><strong style="color:var(--text-primary);">0 apps, 0 goals</strong> · Copa Venezuela debut<br><br>
+          <strong style="color:var(--text-primary);">2017 · Zamora</strong><br><strong style="color:var(--text-primary);">9 apps, 0 goals</strong> · Copa Libertadores debut<br><br>
+          <strong style="color:var(--text-primary);">2018 · Zamora</strong><br><strong style="color:var(--text-primary);">13 apps, 0 goals</strong> · Copa Sudamericana<br><br>
+          <strong style="color:var(--text-primary);">2019 · Zamora</strong><br><strong style="color:var(--text-primary);">10 apps, 1 goal</strong> · Copa Venezuela winner<br><br>
+          <strong style="color:var(--text-primary);">2018-19 · Juventus U23</strong><br><strong style="color:var(--text-primary);">21 apps, 3 goals</strong> · Primavera 1 + UEFA Youth League<br><br>
+          <strong style="color:var(--text-primary);">2020 · Inter Miami</strong><br><strong style="color:var(--text-primary);">4 apps, 0 goals</strong> · MLS debut<br><br>
+          <strong style="color:var(--text-primary);">2021 · Inter Miami</strong><br><strong style="color:var(--text-primary);">26 apps, 2 goals</strong> · First MLS goals<br><br>
+          <strong style="color:var(--text-primary);">2022 · Charlotte FC</strong><br><strong style="color:var(--text-primary);">13 apps, 0 goals</strong> · Traded to New England<br><br>
+          <strong style="color:var(--text-primary);">2022-23 · New England Rev</strong><br><strong style="color:var(--text-primary);">17 apps, 0 goals</strong> · MLS Cup Playoffs debut<br><br>
+          <strong style="color:var(--text-primary);">2024 · Anorthosis</strong><br><strong style="color:var(--text-primary);">13 apps, 2 goals</strong> · Cypriot First Division<br><br>
+          <strong style="color:var(--text-primary);">2024-25 · Levski Sofia</strong><br><strong style="color:var(--text-primary);">26 apps, 3 goals</strong> · First League + Europe<br><br>
+          <strong style="color:var(--text-primary);">2025-26 · Levski Sofia</strong><br><strong style="color:var(--text-primary);">16+ apps, 1 goal</strong> · Bulgarian Champion
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Proxy FGA Rating — 6.2 / 10 · Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 50% Tier 3 / 30% Tier 2 / 20% Tier 1. With Tier 2/3 both empty, this 6.2 is a <strong style="color:var(--text-primary);">substitute</strong> built from public Tier 1 numbers. The score reflects extensive career data (150 apps across 4 countries, 7 clubs), international pedigree (15 Venezuela caps, 2024 Copa America, U20 WC runner-up 2017), Bulgarian First League champion 2025-26, and Belgian citizenship. Balanced against modest goal output (9 in 150 apps, 0.06 GpA), journeyman career path, underwhelming MLS spell (60 apps, 2 goals), and €550K market value.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Career Pedigree</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Zamora academy, Juventus loan, 4 countries, 7 clubs, Belgian citizenship</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span><span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Current Output</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">42 Levski apps, 4 goals, Bulgarian FL champion</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.0</span><span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">25%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Technical/Defending</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">9 goals in 150 apps, 4 in 42 Levski, left-footed CB</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span><span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Discipline</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">~18 yellows career, 0 red cards</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.5</span><span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Age / Ceiling</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">26 years old — peak CB years. Contract until 2027</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.0</span><span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Physical</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">185cm, athletic build. Left-footed. Good stamina</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.5</span><span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">International</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">15 Venezuela caps, 2024 Copa America, U20 WC runner-up</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.0</span><span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">5%</span></div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;"><span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:180px;font-size:0.9rem;">Weighted Proxy Total</span><div style="flex:1;"></div><span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);">6.2</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> ESTIMATED LOG VALUES — PENDING OFFICIAL CALIBRATION. Bulgarian First League, Cypriot First Division, and Venezuelan Primera División are not yet entered in the Empire FGA LOG_Reference table. Values marked (est.) below are first-pass estimates anchored to UEFA country coefficient position and IFFHS league rankings — not confirmed Competition_Tier_Base entries. La Liga and MLS values are confirmed from the official LOG_Reference table.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality using Empire FGA's Competition_Tier_Base reference. <strong style="color:var(--text-primary);">This is a league-quality baseline comparison, not a scored LOG_Total</strong> — a full LOG rating requires match-level Tier 3 evidence (opposition rank, stakes, pressure), which Makoun does not yet have (T3: 0/16). The base FGA (6.2) is also a career-blended proxy, not a score earned in one league, so treat the adjusted figures as directional, not precise.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇬 Bulgarian First League</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">6.2</div>
+      <div class="label">Base FGA (Proxy) · LOG Tier 2.2 (est.)</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 La Liga</div>
+      <div class="value" style="font-size:2.1rem;">3.7</div>
+      <div class="label">LOG-Adjusted · Tier 3.7 (confirmed)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">🎯 Target</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 La Liga Top 6</div>
+      <div class="value" style="font-size:2.1rem;">3.5</div>
+      <div class="label">LOG-Adjusted · Tier 3.9 (confirmed)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">Reference</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇺🇸 MLS</div>
+      <div class="value" style="font-size:2.1rem;">5.3</div>
+      <div class="label">LOG-Adjusted · Tier 2.6 (confirmed)</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Career League Context — Competition_Tier_Base</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:220px;font-size:0.85rem;">Venezuelan Primera (Zamora)</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Not a UEFA league — IFFHS ranks it below Colombia, Paraguay, Chile, Ecuador in South America</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:70px;text-align:right;">2.0 (est.)</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:220px;font-size:0.85rem;">Juventus U23 / Primavera</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Youth League tier — loan spell, not senior Serie A minutes</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:16%;background:var(--success)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:70px;text-align:right;">1.6</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:220px;font-size:0.85rem;">MLS (Miami / Charlotte / NER)</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">60 apps, 2 goals across three clubs, 2020-23</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:26%;background:var(--success)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:70px;text-align:right;">2.6</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:220px;font-size:0.85rem;">Cypriot First Division (Anorthosis)</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">UEFA rank #15, coefficient 35.69 — 2024 single-season spell</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:70px;text-align:right;">2.5 (est.)</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:220px;font-size:0.85rem;">Bulgarian First League (Levski, current)</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">UEFA rank #29, coefficient 21.06 — 42+ apps, champion 2025-26</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:22%;background:var(--warning)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:70px;text-align:right;">2.2 (est.)</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;"><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:220px;font-size:0.85rem;">La Liga (target)</span><span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">UEFA rank #3, coefficient 97.05</span><div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:37%;background:var(--success)"></div></div></div><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:70px;text-align:right;">3.7</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br>
+      La Liga: 6.2 × (2.2 ÷ 3.7) = <strong style="color:var(--text-primary);">3.7</strong> &nbsp;|&nbsp; La Liga Top 6: 6.2 × (2.2 ÷ 3.9) = <strong style="color:var(--text-primary);">3.5</strong> &nbsp;|&nbsp; MLS reference: 6.2 × (2.2 ÷ 2.6) = <strong style="color:var(--text-primary);">5.3</strong><br><br>
+      <strong style="color:var(--warning);">Read before sending to a club:</strong> this projection carries two stacked layers of uncertainty — (1) the 6.2 base is a T1 proxy, not Tier 3 scored evidence, and (2) three of the five league tier values are estimates pending your calibration, not confirmed LOG_Reference entries. Treat 3.7 as "well below La Liga level on current evidence, gap size uncertain" rather than a precise number to quote.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Simeone Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent);"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--accent);"></div></div></div><div class="philo-score">6.4</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--warning);"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning);"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Spanish Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--warning);"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--warning);"></div></div></div><div class="philo-score">5.6</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:var(--warning);"></div></div></div><div class="philo-score">5.4</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Pragmatic South American Defender"</strong> — A 26-year-old Venezuelan centre-back who combines <strong>physicality, defensive solidity, and left-footed distribution</strong> with a <strong>journeyman career path that has tested his adaptability across 4 countries and 7 clubs</strong>. Makoun's <strong>2024-26 spell at Levski Sofia has been his most successful period</strong> — 42+ apps, 4 goals, Bulgarian First League champion 2025-26. His <strong>international pedigree (15 Venezuela caps, 2024 Copa America, U20 World Cup runner-up 2017)</strong> and <strong>Belgian citizenship</strong> add value. However, his <strong>underwhelming MLS experience (60 apps, 2 goals, traded twice in 2022)</strong> and <strong>modest career goal output (9 in 150 apps, 0.06 GpA)</strong> suggest he is a <strong>defensive specialist rather than a complete, ball-playing modern centre-back</strong>. His <strong>left-footedness is a tactical asset</strong> for building from the back and playing in a back three. At 26, he is in his <strong>peak defensive years</strong> — T3 must assess whether he has the <strong>technical refinement, aerial dominance, and pace</strong> to move to a higher European level, or whether his ceiling is the Bulgarian/Cypriot top tier. <strong>Best deployed as a left-sided centre-back in a back three or left-back in a back four</strong> in a pragmatic, defensive system. <strong>Can also cover defensive midfield.</strong> <strong>Less effective in high-line, possession-dominant systems</strong> that require exceptional pace and ball-playing ability.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Centre-Back</span>
+          <span class="tag tag-club">Defensive Midfield</span>
+          <span class="tag tag-club">Left-Back</span>
+          <span class="tag tag-club">Levski Sofia #4</span>
+          <span class="tag tag-gold">Venezuela #14</span>
+          <span class="tag tag-club">Left-Footed</span>
+          <span class="tag tag-gold">Bulgarian Champion</span>
+          <span class="tag tag-info">Belgian Citizenship</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">6.8</div><div class="label">British School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">6.5</div><div class="label">German School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.9</div><div class="label">Spanish School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.7</div><div class="label">Dutch School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">5 Mar 2000</div><div class="timeline-text">Born in <strong>Valencia, Carabobo, Venezuela</strong>. Son of Christian Makoun (former professional, Cameroon youth international, played for Cercle Brugge).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2010</div><div class="timeline-text">Joined <strong>Zamora FC academy</strong> at age 10. Would spend 8 years in the youth system.</div></div>
+        <div class="timeline-item"><div class="timeline-date">27 Jul 2016</div><div class="timeline-text"><strong>Professional debut</strong> for Zamora FC in Copa Venezuela vs Atlético Socopó (4-2 win).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2016-2019</div><div class="timeline-text"><strong>Zamora FC</strong> — 32 apps, 1 goal. Won <strong>Primera Division 2016</strong> and <strong>Copa Venezuela 2019</strong>. Made <strong>Copa Libertadores debut</strong> (April 2017 vs C.D. Iquique) and <strong>Copa Sudamericana</strong> appearances.</div></div>
+        <div class="timeline-item"><div class="timeline-date">20 Jul 2018</div><div class="timeline-text">Joined <strong>Juventus Academy on loan</strong> with option to join permanently. Also obtained <strong>Belgian citizenship</strong> through his father.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2018-2019</div><div class="timeline-text"><strong>Juventus U23/Primavera</strong> — 21 apps, 3 goals. Played in Primavera 1, UEFA Youth League. First professional goal October 19, 2018 vs Chievo U-19s.</div></div>
+        <div class="timeline-item"><div class="timeline-date">6 Aug 2019</div><div class="timeline-text">Signed by <strong>Inter Miami CF</strong> as their third-ever player for debut MLS campaign.</div></div>
+        <div class="timeline-item"><div class="timeline-date">1 Mar 2020</div><div class="timeline-text"><strong>MLS debut</strong> for Inter Miami vs LAFC (1-0 loss). 11-minute substitute appearance.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2020-2021</div><div class="timeline-text"><strong>Inter Miami</strong> — 30 MLS apps, 2 goals. Loaned to <strong>Fort Lauderdale CF</strong> (3 apps) in September 2020. First MLS goal September 15, 2021 vs Toronto (game winner). Second goal October 21, 2021 vs Toronto.</div></div>
+        <div class="timeline-item"><div class="timeline-date">10 Jan 2022</div><div class="timeline-text">Traded to <strong>Charlotte FC</strong> in exchange for #1 MLS Allocation Ranking spot.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022</div><div class="timeline-text"><strong>Charlotte FC</strong> — 13 MLS apps, 0 goals. Made club's inaugural match debut February 27 vs DC United.</div></div>
+        <div class="timeline-item"><div class="timeline-date">4 Aug 2022</div><div class="timeline-text">Traded to <strong>New England Revolution</strong> for $400K GAM (2022 & 2023).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022-2023</div><div class="timeline-text"><strong>New England Revolution</strong> — 17 MLS apps, 0 goals. First MLS assist May 27, 2023 vs Chicago. MLS Cup Playoffs debut October 28, 2023 vs Philadelphia. Four Venezuela call-ups in 2023.</div></div>
+        <div class="timeline-item"><div class="timeline-date">25 Mar 2022</div><div class="timeline-text"><strong>Venezuela senior debut</strong> vs Argentina in FIFA World Cup Qualifying. Played full 90 minutes.</div></div>
+        <div class="timeline-item"><div class="timeline-date">30 Mar 2022</div><div class="timeline-text">Second Venezuela cap vs Colombia in WCQ. Played full 90 minutes.</div></div>
+        <div class="timeline-item"><div class="timeline-date">1 Jan 2024</div><div class="timeline-text">Joined <strong>Anorthosis Famagusta</strong> (Cyprus). First goal February 9, 2024 vs Omonia (3-1 loss).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024</div><div class="timeline-text"><strong>Anorthosis Famagusta</strong> — 13 apps, 2 goals in Cypriot First Division.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jun 2024</div><div class="timeline-text">Named to <strong>Venezuela squad for 2024 Copa America</strong> in USA.</div></div>
+        <div class="timeline-item"><div class="timeline-date">7 Aug 2024</div><div class="timeline-text">Signed <strong>three-year contract with Levski Sofia</strong> (Bulgarian First League).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024-2025</div><div class="timeline-text"><strong>Levski Sofia</strong> — 26 apps, 3 goals in First League. Also played in UEFA Europa League and UEFA Conference League.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2025-2026</div><div class="timeline-text"><strong>Levski Sofia</strong> — 16+ apps, 1 goal. Won <strong>Bulgarian First League 2025-26</strong>, ending Ludogorets Razgrad's long reign. Also featured in UEFA Champions League qualification (vs Borac Banja Luka, July 2026).</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Jul 2026</div><div class="timeline-text">At <strong>Levski Sofia</strong>. 150 career apps, 9 goals. 15 Venezuela caps. Contract until 2027. T3 pending. Bulgarian First League champion.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2016</strong></td><td>Zamora</td><td>Venezuelan Primera</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2017</strong></td><td>Zamora</td><td>Venezuelan Primera</td><td>9</td><td>0</td></tr>
+          <tr><td><strong>2018</strong></td><td>Zamora</td><td>Venezuelan Primera</td><td>13</td><td>0</td></tr>
+          <tr><td><strong>2019</strong></td><td>Zamora</td><td>Venezuelan Primera</td><td>10</td><td>1</td></tr>
+          <tr><td><strong>2018-19</strong></td><td>Juventus U23 (loan)</td><td>Primavera 1</td><td>21</td><td>3</td></tr>
+          <tr><td><strong>2020</strong></td><td>Inter Miami</td><td>MLS</td><td>4</td><td>0</td></tr>
+          <tr><td><strong>2021</strong></td><td>Inter Miami</td><td>MLS</td><td>26</td><td>2</td></tr>
+          <tr><td><strong>2022</strong></td><td>Charlotte FC</td><td>MLS</td><td>13</td><td>0</td></tr>
+          <tr><td><strong>2022</strong></td><td>New England Rev</td><td>MLS</td><td>8</td><td>0</td></tr>
+          <tr><td><strong>2023</strong></td><td>New England Rev</td><td>MLS</td><td>9</td><td>0</td></tr>
+          <tr><td><strong>2024</strong></td><td>Anorthosis</td><td>Cypriot First Div</td><td>13</td><td>2</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Levski Sofia</td><td>Bulgarian First FL</td><td>26</td><td>3</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Levski Sofia</td><td>Bulgarian First FL</td><td>16</td><td>1</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>150</strong></td><td><strong>9</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>National Team</th><th>Years</th><th>Caps</th><th>Goals</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Venezuela U17</strong></td><td>2017</td><td>9</td><td>1</td></tr>
+          <tr><td><strong>Venezuela U20</strong></td><td>2017-2019</td><td>14</td><td>3</td></tr>
+          <tr><td><strong>Venezuela (Senior)</strong></td><td>2022-2025</td><td>15</td><td>0</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Total International</strong></td><td><strong>38+</strong></td><td><strong>4</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Club/Nation</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Venezuelan Primera Division</strong></td><td>2016</td><td>Zamora</td></tr>
+          <tr><td><strong>Copa Venezuela</strong></td><td>2019</td><td>Zamora</td></tr>
+          <tr><td><strong>FIFA U-20 World Cup Runner-up</strong></td><td>2017</td><td>Venezuela U20</td></tr>
+          <tr><td><strong>Bulgarian First League</strong></td><td>2025-26</td><td>Levski Sofia</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">185cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">75kg (165 lbs)</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Centre-Back</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Defensive Midfield / Left-Back</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#4 (Levski) / #14 (Venezuela)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, lean</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Venezuela / Belgium</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">✅ No Major Long-Term Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant long-term injury history documented. Makoun has maintained consistent availability across his career, including 60 MLS appearances and 42+ apps for Levski Sofia.</div>
+        </div>
+        <div style="padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--info);margin-bottom:4px;">ℹ️ COVID-19 Recovery (2020)</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Recovered from COVID-19 in 2020 while at Inter Miami, which caused a temporary absence from the squad. Returned to action and established himself in both Fort Lauderdale and Inter Miami squads.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Peak Physical Condition</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>26 years old, 185cm, 75kg</strong> — in peak defensive physical condition. Good stamina and work rate evidenced by consistent 90-minute appearances. However, <strong>29% aerial duel success rate</strong> in 2025-26 is concerning for his height. T3 should assess physical maintenance and aerial dominance.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Bulgarian First League champion 2025-26 with Levski Sofia</strong> — Ended Ludogorets Razgrad's long reign; significant domestic achievement</li>
+      <li><strong>42+ appearances and 4 goals for Levski Sofia since August 2024</strong> — Established as a key centre-back</li>
+      <li><strong>Left-footed centre-back</strong> — Tactical asset for building from the back and back-three systems</li>
+      <li><strong>15 Venezuela senior caps (2022-2025)</strong> — Established international defender</li>
+      <li><strong>2024 Copa America squad member</strong> — Competed at major international tournament</li>
+      <li><strong>FIFA U-20 World Cup runner-up 2017</strong> — Elite youth international pedigree</li>
+      <li><strong>Belgian citizenship through Cameroonian father</strong> — EU passport, no work permit issues</li>
+      <li><strong>Multi-country experience (Venezuela, Italy, USA, Cyprus, Bulgaria)</strong> — Proven adaptability across 5 football cultures</li>
+      <li><strong>Juventus U23/Primavera loan experience</strong> — Trained at elite Italian academy</li>
+      <li><strong>Three-year contract at Levski Sofia until 2027</strong> — Long-term stability</li>
+      <li><strong>Agent: THE·TEAM</strong> — Professional representation</li>
+      <li><strong>Good disciplinary record</strong> — ~18 yellows career, 0 red cards</li>
+      <li><strong>Consistent availability across career</strong> — No major injury record</li>
+      <li><strong>Versatile across defence and midfield</strong> — Centre-back, left-back, defensive midfield capability</li>
+      <li><strong>7 European appearances (UEL/UECL)</strong> — Tested at continental level</li>
+      <li><strong>Age 26 — peak defensive years</strong> — Physical prime with room for further development</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Journeyman career path — 7 clubs in 9 years</strong> — Never established at a single club long-term; longest spell was 3 seasons at Zamora (youth-to-pro transition)</li>
+      <li><strong>Underwhelming MLS experience (60 apps, 2 goals across 3 clubs)</strong> — Traded twice in 2022 (Charlotte FC, New England Revolution); limited impact in top North American league</li>
+      <li><strong>Modest career goal output (9 in 150 apps, 0.06 GpA)</strong> — Very low for a player who also plays defensive midfield</li>
+      <li><strong>0 goals in 15 Venezuela senior caps</strong> — No attacking contribution at international level</li>
+      <li><strong>€550K market value</strong> — Low valuation reflects limited European profile</li>
+      <li><strong>No top-5 European league experience</strong> — Career limited to Venezuelan Primera, MLS, Cypriot First Division, Bulgarian First League</li>
+      <li><strong>29% aerial duel success in 2025-26</strong> — Concerning for a 185cm centre-back; suggests aerial weakness</li>
+      <li><strong>Failed to establish at Juventus U23 (loan only, no permanent move)</strong> — Elite Italian club did not retain him</li>
+      <li><strong>Inter Miami's third-ever signing but traded after 2 seasons</strong> — Initial high expectations not met</li>
+      <li><strong>System-dependent player</strong> — Thrives in structured, pragmatic defensive systems; less effective in high-press or possession-dominant setups</li>
+      <li><strong>Physical style may not translate to higher leagues</strong> — Bulgarian First League success may not replicate in more competitive environments</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>All 16 T3 metrics pending</strong> — Zero validated video assessments. Full scout review required</li>
+      <li><strong>Aerial ability</strong> — 185cm height but 29% aerial duel success in 2025-26. Can he dominate in the air? T3 must assess</li>
+      <li><strong>1v1 defending</strong> — Success rate in direct duels against Bulgarian First League attackers. T3 must assess</li>
+      <li><strong>Pace and recovery speed</strong> — At 26, can he recover when beaten by faster attackers? Unvalidated</li>
+      <li><strong>Passing quality from deep</strong> — Left-footed distribution is claimed as a strength, but T3 must validate accuracy and decision-making under pressure</li>
+      <li><strong>Positioning in high line</strong> — Does Levski play a high defensive line? Is he comfortable in this system? Unknown</li>
+      <li><strong>Ball-playing ability</strong> — Can he play out from the back under pressure, or is he limited to simple distribution? T3 must assess</li>
+      <li><strong>Organizational leadership</strong> — Does he command the defensive line and organize teammates? Unvalidated</li>
+      <li><strong>Physical maintenance trajectory</strong> — Is he maintaining fitness, or is decline beginning at 26? T3 must assess</li>
+      <li><strong>Left-back coverage quality</strong> — When deployed out of position, does he maintain defensive solidity? Unknown</li>
+      <li><strong>Defensive midfield capability</strong> — Can he effectively cover DM when needed, or is this an emergency option only? T3 must assess</li>
+      <li><strong>Comparison to Levski alternatives</strong> — Does he offer significantly more than Levski's other defensive options? T3 must assess</li>
+      <li><strong>European competition performance</strong> — 7 European apps (UEL/UECL). How did he perform against continental opposition? T3 must assess</li>
+      <li><strong>MLS failure analysis</strong> — Why did he struggle in MLS (60 apps, 2 goals, traded twice)? T3 must assess whether this was tactical, physical, or mental</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROXY FGA 6.2 — VERSATILE INTERNATIONAL DEFENDER with T3 validation required.</strong> Christian Makoun is a <strong>26-year-old Venezuelan centre-back/defensive midfielder</strong> with a <strong>diverse career trajectory across 5 countries and 7 clubs</strong> (150 apps, 9 goals). His <strong>2024-26 spell at Levski Sofia has been his most successful period</strong> — 42+ apps, 4 goals, <strong>Bulgarian First League champion 2025-26</strong>, and established as a key defender. His <strong>international pedigree (15 Venezuela caps, 2024 Copa America, U20 World Cup runner-up 2017)</strong> and <strong>Belgian citizenship</strong> add value. However, his <strong>entire T3 profile is unvalidated</strong> — no video-based micro-assessments have been completed. His <strong>modest career goal output (9 in 150 apps, 0.06 GpA), journeyman career path (7 clubs in 9 years), underwhelming MLS spell (60 apps, 2 goals, traded twice), and €550K market value</strong> suggest he is a <strong>solid professional with international pedigree rather than an elite European prospect</strong>. His <strong>29% aerial duel success rate in 2025-26 is concerning for a 185cm centre-back</strong> and raises questions about his physical dominance. At 26, he is in his <strong>peak defensive years</strong> — T3 must assess whether he has the <strong>technical quality, physical attributes (particularly aerial ability), and consistency</strong> to move to a higher European level (Eredivisie, Championship, Liga Portugal), or whether his ceiling is the Bulgarian/Cypriot top tier. <strong>Best deployed as a left-sided centre-back in a back three or left-back in a back four</strong> in a pragmatic, defensive system that values his left-footed distribution and physicality. <strong>Can also cover defensive midfield.</strong> <strong>Less effective in high-line, possession-dominant systems</strong> that require exceptional pace and ball-playing ability. <strong>Validate T3 before any recruitment or retention decision. Focus on aerial ability, 1v1 defending, passing range, positioning, and leadership. If T3 confirms solid fundamentals and aerial improvement, he could be a valuable squad player at a higher level; if aerial weakness and physical limitations are evident, his role should be limited to the Bulgarian/Cypriot tier.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>🏆</span> <strong>8 Video Links Provided — T3 Pending.</strong> Christian Makoun is a regular starter for Levski Sofia. The video links include <strong>8 full match fixtures</strong> (Levski Sofia home/away matches vs Braga, Spartak Varna, Ludogorets, CSKA Sofia, CSKA 1948, Cherno More). T3 verification is required to confirm his specific participation and assess performance across all 16 metrics.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Video Links — T3 Assessment</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/2lzher7ypijv1z2mci5wt/Sporting-Clube-de-Braga-Profesionalen-Futbolen-Klub-Levski.mp4?rlkey=m99bd0eymw0250svs5bi9lgc4&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Braga vs Levski Sofia</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 European Competition</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>European competition fixture.</strong> Levski Sofia away vs Portuguese opposition. Makoun is a regular starter and highly likely to feature. T3 scout to assess his centre-back performance against quality European opposition across all 16 metrics.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/cswtlvb98qx8639vhhwjm/Profesionalen-Futbolen-Klub-Levski-Futbolen-Klub-Spartak-Varna.mp4?rlkey=zmag73zx9psbo1g5nkwo2nr1l&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Levski Sofia vs Spartak Varna</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 Bulgarian First League</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Bulgarian First League home fixture.</strong> Makoun highly likely to start as regular centre-back. T3 scout to assess his defensive positioning, aerial ability, passing, and physical attributes across all 16 metrics.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/lr6zxjwqgrv6qj2afoow4/Profesionalen-Futbolen-Klub-Levski-Profesionalen-Futbolen-Klub-Ludogorets-1945.mp4?rlkey=t0la5wh4pf7kwt363fur4pvfo&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Levski Sofia vs Ludogorets Razgrad</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 Bulgarian First League</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Bulgarian First League top-of-table clash.</strong> Levski Sofia vs reigning champions Ludogorets. Makoun highly likely to start. T3 scout to assess his performance in a high-stakes domestic fixture against the league's dominant force.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/00tr8092vbszkbvnhb3o2/Profesionalen-Futbolen-Klub-Levski-Profesionalen-Futbolen-Klub-Centralen-Sporten-Klub-na-Armijata-CSKA-Sofiya.mp4?rlkey=9ynswwftx2jdficx9pqb6gfi0&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Levski Sofia vs CSKA Sofia</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 Bulgarian First League</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Bulgarian First League — Eternal Derby.</strong> Levski Sofia vs CSKA Sofia, the biggest fixture in Bulgarian football. Makoun highly likely to start. T3 scout to assess his big-game mentality and defensive performance under maximum pressure.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/5cbi7jcmzcbkl28w8fkge/Profesionalen-Futbolen-Klub-Levski-Futbo-en-K-ub-Centra-en-Sporten-K-ub-na-Armijata-1948-CSKA-1948.mp4?rlkey=r11oemm43dp6q67nsloclc2lt&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Levski Sofia vs CSKA 1948</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 Bulgarian First League</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Bulgarian First League home fixture.</strong> Makoun likely to start as regular centre-back. T3 scout to assess his defensive performance across all 16 metrics in a standard league fixture.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/uekl9yaqk310wg8hdp51n/Profesionalen-Futbolen-Klub-Levski-Sporting-Clube-de-Braga.mp4?rlkey=ow2s2wmnppl6x3m98fi66mvrt&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Levski Sofia vs Braga</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 European Competition</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>European competition home fixture.</strong> Levski Sofia vs Portuguese opposition. Makoun highly likely to start. T3 scout to assess his centre-back performance against quality European opposition across all 16 metrics.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/3mciqb7zjfv8ifk738zaw/Profesionalen-Futbolen-Klub-Levski-Sofia-Profesionalen-Futbolen-Klub-Cherno-More-Varna.mp4?rlkey=597e4tbrw5g2lrnby91tr4rc5&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Levski Sofia vs Cherno More Varna</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 Bulgarian First League 2024-25</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Bulgarian First League 2024-25 season.</strong> Levski Sofia home fixture. Makoun likely to feature as regular starter. T3 scout to assess his defensive performance across all 16 metrics.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/yycwdfn4m8x4cf53s78sx/Profesionalen-Futbolen-Klub-Cherno-More-Varna-Profesionalen-Futbolen-Klub-Levski-Sofia.mp4?rlkey=jra7da1k67h7mfw2r31anm6od&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Cherno More Varna vs Levski Sofia</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">🏆 Bulgarian First League 2024-25</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Bulgarian First League 2024-25 season.</strong> Levski Sofia away fixture. Makoun likely to feature as regular starter. T3 scout to assess his defensive performance in an away context across all 16 metrics.
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Scout Assessment Notes</h3>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Physical Identity Card</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Height</span><span class="value">185cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">75kg</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">#4 (Levski) / #14 (Venezuela)</span></div>
+          <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, lean</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Centre-Back</span></div>
+          <div class="physical-item"><span class="label">Alt Pos</span><span class="value">Left-Back / DM</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">Venezuela / Belgium</span></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Centre-Back-Specific Focus Areas</h4>
+        <ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Aerial Ability:</strong> 185cm height but 29% aerial duel success — does he dominate in aerial duels against taller strikers?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>1v1 Defending:</strong> Success rate in direct duels against Bulgarian First League attackers</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Pace & Recovery:</strong> At 26, can he recover when beaten by faster attackers?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Ball-Playing:</strong> Quality of left-footed forward passes under pressure — claimed as a strength</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>High-Line Comfort:</strong> Does Levski play a high defensive line? Is he comfortable in this system?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Organizational Leadership:</strong> Does he command the defensive line and organize teammates?</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:16px;margin-bottom:0;">
+      <span>ℹ️</span> <strong>Verification note:</strong> 8 video links provided, all <strong>Levski Sofia fixtures where Makoun is highly likely to feature</strong> as a regular starter (2 European competition matches vs Braga, 6 Bulgarian First League matches including the Eternal Derby vs CSKA Sofia and top-of-table clash vs Ludogorets). T3 scout should prioritize the <strong>European competition matches (vs Braga home/away)</strong> and the <strong>Eternal Derby (vs CSKA Sofia)</strong> for the highest-quality assessment, as these represent the most demanding opposition. The <strong>Ludogorets match</strong> is also critical for assessing performance against the league's dominant force. With <strong>150 career apps across 5 countries and 7 clubs</strong>, additional match footage from his <strong>MLS spell (Inter Miami, Charlotte, New England)</strong> and <strong>Anorthosis period</strong> would be valuable for comprehensive T3 validation, particularly to understand his <strong>MLS failure context</strong>. Focus on aerial duels, 1v1 defending, passing quality, positioning, and leadership. If you have additional match data or metadata, reply and I'll update the card. When your scout completes the video assessment, reply with the validated scores and I'll update the card to <strong>T3_STATUS = SCOUT_VALIDATED</strong>.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.2;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// CB Radar
+(function() {
+  var el = document.getElementById('cbRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Tackling','Positioning','Aerial Ability','Physicality','Passing','Pace','Strength','Discipline'],
+      datasets: [{
+        label: 'Makoun (Proxy)',
+        data: [6.5, 7.0, 5.5, 6.5, 6.5, 6.0, 6.5, 6.5],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#1e3a8a',
+        pointBorderColor: '#fff',
+        pointRadius: 3,
+        borderWidth: 2
+      }, {
+        label: 'Bulgarian FL CB Average',
+        data: [6.0, 6.0, 6.0, 6.0, 5.5, 6.0, 6.0, 6.0],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Passing','Tackling','First Touch','Ball Control','Heading','Positioning','Decision Making','Discipline','Work Rate','Stamina'],
+      datasets: [{
+        label: 'Makoun (Proxy)',
+        data: [6.5, 6.5, 6.5, 6.5, 6.0, 7.0, 6.5, 6.5, 7.0, 7.0],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#1e3a8a',
+        pointBorderColor: '#fff',
+        pointRadius: 3,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Mourinho Pragmatism','Simeone Intensity','Tuchel Structure','Bielsa Intensity','Ferguson Drive','Wenger Development','Guardiola Positional','Spanish Positional','Cruyff Intelligence','Total Football'],
+    datasets: [{
+      label: 'Makoun',
+      data: [7.2, 7.0, 6.8, 6.6, 6.4, 6.2, 6.0, 5.8, 5.6, 5.4],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#1e3a8a',
+      pointBackgroundColor: '#1e3a8a',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive','T2 Proxy','T3 Pending'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

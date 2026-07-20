@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferran Torres | Empire FGA Intelligence Dashboard — World Cup 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #0a0a0f; --bg-card: #0f0f1a; --bg-card-hover: #151525;
+  --border-subtle: rgba(255,255,255,0.06); --border-medium: rgba(255,255,255,0.1);
+  --text-primary: #f0f0f5; --text-secondary: #9b9bb0; --text-tertiary: #5a5a70;
+  --accent: #c41e3a; --accent-dim: rgba(196,30,58,0.15); --accent-glow: rgba(196,30,58,0.4);
+  --gold: #ffc400; --gold-dim: rgba(255,196,0,0.15);
+  --success: #00d084; --warning: #ffb800; --danger: #ff3b3b; --info: #3b82f6;
+  --tier1: #00d084; --tier2: #ffb800; --tier3: #ff3b3b; --pending: #5a5a70;
+  --font-display: 'Oswald', sans-serif; --font-heading: 'Rajdhani', sans-serif; --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+.hero { position: relative; height: 540px; overflow: hidden; border-bottom: 1px solid var(--border-subtle); }
+.hero-photo { position: absolute; inset: 0; background: url('https://e00-xlk-ue-marca-en.uecdn.es/uploads/2026/07/20/6a5d5e5266f34.jpeg') center 25% / cover no-repeat; filter: brightness(0.5) saturate(0.9); transition: transform 8s ease; }
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,15,0.3) 0%, rgba(196,30,58,0.15) 40%, rgba(10,10,15,0.85) 70%, var(--bg-primary) 100%); }
+.hero-branding { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--accent) 33%, var(--gold) 33%, var(--gold) 66%, var(--accent) 66%); z-index: 10; }
+.wc-badge { position: absolute; top: 20px; right: 24px; z-index: 5; background: linear-gradient(135deg, var(--accent), #8b1538); padding: 6px 14px; border-radius: 8px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); border: 1px solid rgba(255,196,0,0.3); display: flex; align-items: center; gap: 6px; }
+.wc-badge::before { content: '⚽'; font-size: 0.8rem; }
+.hero-content { position: relative; z-index: 5; max-width: 1200px; margin: 0 auto; padding: 40px 24px 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.jersey-watermark { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); font-family: var(--font-display); font-size: 240px; font-weight: 700; color: rgba(255,196,0,0.04); line-height: 1; pointer-events: none; z-index: 2; }
+.club-badge-strip { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.badge-item { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); padding: 2px 7px; border-radius: 100px; border: 1px solid var(--border-subtle); font-family: var(--font-heading); font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.badge-item .arrow { color: var(--text-tertiary); font-size: 0.6rem; }
+.hero-name { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.05; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 8px; background: linear-gradient(135deg, #fff 0%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.hero-meta span { font-family: var(--font-heading); font-size: 0.95rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.hero-meta .dot { width: 4px; height: 4px; background: var(--gold); border-radius: 50%; }
+.hero-meta .flag { font-size: 1.1rem; }
+.hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 32px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { padding: 5px 12px; border-radius: 6px; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(196,30,58,0.25); }
+.tag-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,196,0,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+
+.fga-dial-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.fga-dial-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.fga-dial-inner .fga-label { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); }
+.fga-dial-inner .fga-score { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.fga-dial-inner .fga-status { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--warning); margin-top: 2px; }
+
+.tier-pills { display: flex; gap: 8px; margin-top: 12px; }
+.tier-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(255,59,59,0.12); color: var(--tier3); border: 1px solid rgba(255,59,59,0.2); }
+
+.tab-bar { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+.tab-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; }
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn { flex: 1; min-width: 110px; padding: 16px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-tertiary); font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%); }
+
+.content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-title .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s, background 0.2s; }
+.card:hover { background: var(--bg-card-hover); border-color: var(--border-medium); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+.banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; }
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(255,196,0,0.08); border: 1px solid rgba(255,196,0,0.2); color: var(--gold); }
+.banner-wc { background: linear-gradient(135deg, rgba(196,30,58,0.1), rgba(255,196,0,0.05)); border: 1px solid rgba(196,30,58,0.2); color: var(--accent); }
+
+.stat-hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-hero { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+.stat-hero:hover { transform: translateY(-2px); border-color: var(--border-medium); }
+.stat-hero .value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.stat-hero .label { font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-top: 6px; }
+
+.career-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.career-node { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
+.career-node.current { background: var(--accent-dim); border-color: rgba(196,30,58,0.3); color: var(--accent); }
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+.attr-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; }
+.attr-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; color: var(--text-primary); }
+.attr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-secondary); }
+.attr-row .score { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.ac-green { color: var(--success); } .ac-yellow { color: var(--warning); } .ac-red { color: var(--danger); } .ac-pend { color: var(--pending); }
+.circle { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.circle-green { background: var(--success); } .circle-yellow { background: var(--warning); } .circle-red { background: var(--danger); } .circle-pend { background: var(--pending); }
+
+.progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+.t1-metric-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 700; color: var(--accent); width: 50px; flex-shrink: 0; text-transform: uppercase; }
+.t1-metric-desc { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
+.t1-metric-bar-wrap { width: 100px; flex-shrink: 0; }
+.t1-metric-val { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); width: 70px; text-align: right; flex-shrink: 0; }
+
+.t1-highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.t1-hl-box { background: linear-gradient(135deg, rgba(196,30,58,0.18), rgba(255,196,0,0.06)); border: 2px solid rgba(196,30,58,0.4); border-radius: 6px; padding: 12px; position: relative; overflow: hidden; }
+.t1-hl-box.gold { background: linear-gradient(135deg, rgba(255,196,0,0.12), rgba(196,30,58,0.06)); border-color: rgba(255,196,0,0.5); }
+.t1-hl-code { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+.t1-hl-val { font-family: var(--font-display); font-size: 1.65rem; font-weight: 500; color: var(--accent); line-height: 1; }
+.t1-hl-box.gold .t1-hl-val { color: var(--gold); }
+.t1-hl-pct { font-size: 0.58rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
+.t1-hl-bar { height: 3px; background: rgba(196,30,58,0.1); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.t1-hl-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+.t1-hl-box.gold .t1-hl-bar-fill { background: var(--gold); }
+
+.t1-group { margin-bottom: 14px; }
+.t1-group-head { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); padding: 6px 0; border-bottom: 1px solid rgba(196,30,58,0.08); margin-bottom: 8px; }
+
+.philo-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.philo-row:last-child { border-bottom: none; }
+.philo-rank { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-tertiary); width: 28px; text-align: center; }
+.philo-name { flex: 1; font-family: var(--font-body); font-size: 0.85rem; color: var(--text-primary); }
+.philo-score { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--gold); width: 36px; text-align: right; }
+.philo-bar-wrap { width: 120px; }
+
+.match-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.match-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; display: block; }
+.match-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(196,30,58,0.1); }
+.match-thumb { height: 140px; background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.match-thumb::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(196,30,58,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat; }
+.match-thumb .play-icon { width: 48px; height: 48px; background: rgba(196,30,58,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; transition: transform 0.2s, background 0.2s; }
+.match-card:hover .play-icon { transform: scale(1.1); background: var(--accent); }
+.play-icon svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
+.match-meta { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-tertiary); display: flex; gap: 8px; flex-wrap: wrap; }
+.match-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-wc { background: rgba(196,30,58,0.12); color: var(--accent); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.data-table th { text-align: left; padding: 10px 12px; font-family: var(--font-heading); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-medium); background: rgba(255,255,255,0.02); }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+.scout-box { border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.scout-box h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(196,30,58,0.2); }
+.scout-verdict h4 { color: var(--accent); }
+.scout-box ul { list-style: none; padding: 0; margin: 0; }
+.scout-box li { padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); display: flex; gap: 8px; }
+.scout-box li::before { content: '—'; color: var(--text-tertiary); flex-shrink: 0; }
+
+.physical-card { background: linear-gradient(135deg, rgba(196,30,58,0.08) 0%, rgba(10,10,15,0.5) 100%); border: 1px solid rgba(196,30,58,0.15); border-radius: 12px; padding: 20px; }
+.physical-card h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.physical-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.physical-item { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border-subtle); border-radius: 1px; }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); z-index: 2; }
+.timeline-item.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(196,30,58,0.4); }
+.timeline-item.hist::before { background: var(--success); border-color: var(--success); }
+.timeline-item.wc::before { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(255,196,0,0.3); }
+.timeline-date { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.timeline-item.hist .timeline-date { color: var(--success); }
+.timeline-item.wc .timeline-date { color: var(--gold); }
+.timeline-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+.timeline-text strong { color: var(--text-primary); }
+
+.radar-container { width: 100%; max-width: 520px; margin: 0 auto; aspect-ratio: 500/450; position: relative; }
+.radar-container canvas { width: 100% !important; height: 100% !important; }
+
+.wc-match-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.wc-match-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+.wc-match-row:hover { border-color: var(--accent); }
+.wc-match-date { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; width: 70px; flex-shrink: 0; }
+.wc-match-opp { flex: 1; font-size: 0.82rem; color: var(--text-primary); font-weight: 600; }
+.wc-match-res { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; color: var(--success); width: 50px; text-align: center; }
+.wc-match-res.loss { color: var(--danger); }
+.wc-match-res.draw { color: var(--warning); }
+.wc-match-min { font-family: var(--font-heading); font-size: 0.72rem; color: var(--text-tertiary); width: 50px; text-align: right; }
+.wc-match-rat { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 700; color: var(--gold); width: 40px; text-align: right; }
+
+@media (max-width: 768px) {
+  .hero { height: 440px; }
+  .jersey-watermark { font-size: 140px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .fga-dial-wrap { width: 110px; height: 110px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: 1fr; }
+  .t1-metric-bar-wrap { width: 60px; }
+  .t1-metric-val { width: 50px; }
+  .wc-match-row { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="wc-badge">World Cup 2026</div>
+  <div class="jersey-watermark">7</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Valencia Youth</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Valencia (2017)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Manchester City (2020)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">FC Barcelona (2022-)</div>
+    </div>
+    <h1 class="hero-name">Ferran Torres</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇪🇸</span> Spain</span>
+      <span class="dot"></span>
+      <span>26 years</span>
+      <span class="dot"></span>
+      <span>183cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Centre-Forward / Winger</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Proxy</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-club">FC Barcelona · #7</span>
+          <span class="tag tag-gold">Spain · #11</span>
+          <span class="tag tag-value">€58M Value</span>
+          <span class="tag tag-info">La Liga / WC 2026</span>
+          <span class="tag tag-gold">Euro 2024 Winner</span>
+          <span class="tag tag-gold">3x La Liga Champion</span>
+          <span class="tag tag-info">Contract until 2027</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Proxy FGA</div>
+          <div class="fga-score">7.8</div>
+          <div class="fga-status">PROXY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-wc">
+    <span>🏆</span> <strong>WORLD CUP 2026 — ACTIVE CAMPAIGN.</strong> Ferran Torres is currently competing for Spain at the 2026 FIFA World Cup in the United States, Canada & Mexico. He scored the decisive goal in the 1-0 victory over Argentina (July 19, 2026) and provided a crucial assist in the 1-0 win over Portugal (July 6, 2026). Spain reached the World Cup Final.
+  </div>
+  <div class="banner banner-proxy">
+    <span>⚠️</span> PROXY FGA 7.8 — Tier 3 video metrics pending scout validation. All T3 assessments marked ⏳ PENDING. Two international match video links provided for T3 assessment (Spain vs Austria, Portugal vs Spain).
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> FC BARCELONA (2022-2027) — Signed from Manchester City in January 2022 for €55M (+€10M add-ons), with a €1bn buyout clause. 26-year-old Spanish forward/winger. 183cm, right-footed. Wears #7. Contract until June 30, 2027. Agent: LEADERBROCK. Product of Valencia CF academy. 140 La Liga apps, 41 goals for Barcelona. 2025-26 season: 33 La Liga apps, 16 goals (career-best La Liga tally). Copa del Rey top scorer 2024-25 (6 goals). Named MVP of the Copa del Rey final vs Real Madrid (April 2025).
+  </div>
+  <div class="banner banner-gold">
+    <span>🏅</span> EURO 2024 WINNER — Won the UEFA European Championship with Spain in Germany (July 2024). Scored the opening goal in the 1-0 group stage win over Albania. Also won UEFA Nations League top scorer 2020-21 (6 goals) and U19 Euro 2019 with Spain.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Valencia Youth</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Valencia (2017-20)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Man City (2020-22)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">FC Barcelona (2022-)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">251</div>
+      <div class="label">Career Apps</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--gold);">57</div>
+      <div class="label">Career Goals</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">~25</div>
+      <div class="label">Career Assists (est.)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">0.23</div>
+      <div class="label">Goals Per App</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--gold);">61</div>
+      <div class="label">Spain Caps</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--gold);">24</div>
+      <div class="label">Spain Goals</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">16</div>
+      <div class="label">La Liga Goals 25-26</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">€58M</div>
+      <div class="label">Market Value</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Ferran Torres García</strong> is a <strong>26-year-old Spanish forward</strong> born on 29 February 2000 in Foios, Valencia. A product of the renowned <strong>Valencia CF academy</strong>, he made his La Liga debut at 17 — becoming the first player born this century to appear in the competition. After 71 apps and 6 goals for Valencia (including Copa del Rey 2019), he moved to <strong>Manchester City for €23M in 2020</strong>, where he won the Premier League and EFL Cup, scoring 16 goals in 43 apps. In <strong>January 2022, Barcelona paid €55M (+€10M add-ons)</strong> for his signature — a club-record winter transfer. At Barcelona, he has won <strong>3 La Liga titles (2022-23, 2024-25, 2025-26), Copa del Rey 2024-25, and 3 Supercopa de España</strong>. His <strong>2025-26 season was his best La Liga campaign: 33 apps, 16 goals</strong>. He was named <strong>MVP of the Copa del Rey final vs Real Madrid (April 2025)</strong> and finished as the competition's top scorer (6 goals). On the international stage, he has <strong>61 caps and 24 goals for Spain</strong>, winning <strong>Euro 2024</strong> and finishing as <strong>UEFA Nations League top scorer 2020-21</strong>. He is currently competing at the <strong>2026 FIFA World Cup</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 metrics validated.</strong> All physical, technical micro-assessments, and video-based evaluations are pending scout review. Torres is an <strong>established elite forward with extensive top-level data</strong> (251 career apps, 57 goals across La Liga, Premier League, Champions League). T3 should focus on <strong>off-ball movement, finishing under pressure, link-up play, pressing intensity, aerial ability, and decision-making in high-stakes international matches</strong>. At 26, he is in his <strong>peak years as a forward</strong> — T3 assessment will determine whether he has the <strong>technical quality, mental composure, and physical attributes</strong> to be considered among Europe's elite forwards, or whether he remains a very good but not truly world-class player. <strong>2 video links provided for T3 assessment — both Spain international matches from the 2026 World Cup campaign where Torres featured.</strong>
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--accent);">PROXY FGA 7.8 — ELITE SPANISH FORWARD with T3 validation required.</strong> Ferran Torres is a <strong>26-year-old established elite forward</strong> with a proven track record at the highest level: <strong>251 career apps, 57 goals, Euro 2024 winner, 3 La Liga titles, Copa del Rey MVP, and 61 Spain caps with 24 goals</strong>. His <strong>2025-26 season (33 La Liga apps, 16 goals)</strong> represents a career-best domestic campaign. However, his <strong>entire T3 profile is unvalidated</strong> — no video-based micro-assessments have been completed. His <strong>€58M market value, extensive trophy cabinet, and consistent goal output</strong> indicate elite status, but questions remain about his <strong>consistency against top-tier opposition, aerial ability, and ability to lead the line as a pure #9</strong>. At 26, he is in his <strong>peak forward years</strong> — T3 must assess whether he has the <strong>completeness, big-game mentality, and technical refinement</strong> to reach the truly world-class tier (FGA 8.5+), or whether he plateaus as a very good squad player. <strong>Best deployed as a centre-forward or inside winger in a possession-based system</strong> that values his movement, finishing, and link-up play. <strong>Validate T3 before any elite recruitment assessment. Focus on finishing under pressure, off-ball intelligence, aerial duels, and big-game performance.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">World Cup 2026 — Spain Campaign <span class="line"></span></div>
+  <div class="card">
+    <div class="wc-match-grid" style="margin-bottom:16px;">
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jun 4</div>
+        <div class="wc-match-opp">vs Iraq</div>
+        <div class="wc-match-res draw">1-1</div>
+        <div class="wc-match-min">45'</div>
+        <div class="wc-match-rat">7.5</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jun 9</div>
+        <div class="wc-match-opp">@ Peru</div>
+        <div class="wc-match-res">3-1</div>
+        <div class="wc-match-min">69'</div>
+        <div class="wc-match-rat">7.6</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jun 15</div>
+        <div class="wc-match-opp">vs Cape Verde</div>
+        <div class="wc-match-res draw">0-0</div>
+        <div class="wc-match-min">81'</div>
+        <div class="wc-match-rat">6.6</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jun 21</div>
+        <div class="wc-match-opp">vs Saudi Arabia</div>
+        <div class="wc-match-res">4-0</div>
+        <div class="wc-match-min">45'</div>
+        <div class="wc-match-rat">6.3</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jun 27</div>
+        <div class="wc-match-opp">@ Uruguay</div>
+        <div class="wc-match-res">1-0</div>
+        <div class="wc-match-min">14'</div>
+        <div class="wc-match-rat">6.6</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jul 2</div>
+        <div class="wc-match-opp">vs Austria</div>
+        <div class="wc-match-res">3-0</div>
+        <div class="wc-match-min">19'</div>
+        <div class="wc-match-rat">6.0</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jul 6</div>
+        <div class="wc-match-opp">@ Portugal</div>
+        <div class="wc-match-res">1-0</div>
+        <div class="wc-match-min">15'</div>
+        <div class="wc-match-rat">6.7</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jul 10</div>
+        <div class="wc-match-opp">vs Belgium</div>
+        <div class="wc-match-res">2-1</div>
+        <div class="wc-match-min">35'</div>
+        <div class="wc-match-rat">6.0</div>
+      </div>
+      <div class="wc-match-row">
+        <div class="wc-match-date">Jul 14</div>
+        <div class="wc-match-opp">@ France</div>
+        <div class="wc-match-res">2-0</div>
+        <div class="wc-match-min">16'</div>
+        <div class="wc-match-rat">6.3</div>
+      </div>
+      <div class="wc-match-row" style="border:1px solid var(--gold);">
+        <div class="wc-match-date">Jul 19</div>
+        <div class="wc-match-opp">vs Argentina</div>
+        <div class="wc-match-res">1-0</div>
+        <div class="wc-match-min">58'</div>
+        <div class="wc-match-rat" style="color:var(--gold);">7.4</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Torres has been a <strong>squad player and impact substitute</strong> for Spain at the 2026 World Cup, featuring in all 10 matches but starting only select fixtures. His <strong>most impactful performance came in the semi-final vs Argentina (July 19)</strong>, where he played 58 minutes, scored the <strong>decisive 1-0 winner</strong>, and earned a <strong>7.4 FotMob rating</strong> — his highest of the tournament. He also provided a <strong>crucial assist in the quarter-final vs Portugal (July 6)</strong> in a 1-0 victory. His <strong>limited minutes (mostly 14-45 minute substitute appearances)</strong> suggest he is not the first-choice starter for Luis de la Fuente, but he has proven his ability to deliver in high-pressure knockout stages. His <strong>World Cup xG of 2.32 with 1 actual goal</strong> indicates he is converting at below-expected rate, but his clutch performances in the semi-final and quarter-final demonstrate big-game mentality. T3 must assess whether his <strong>limited playing time is tactical (squad rotation) or indicative of limitations</strong> in his all-round game compared to Spain's other attacking options (Lamine Yamal, Nico Williams, Álvaro Morata).
+    </p>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row">
+        <div class="philo-rank">1</div>
+        <div class="philo-name">Guardiola Positional</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">8.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div>
+        <div class="philo-name">Spanish Positional Superiority</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">8.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div>
+        <div class="philo-name">Cruyff Intelligence</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div>
+        <div class="philo-name">Dutch School Total Football</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div>
+        <div class="philo-name">Wenger Development</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.4</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Forward Percentile Radar <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="fwRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero">
+        <div class="value">33</div>
+        <div class="label">La Liga Apps</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">16</div>
+        <div class="label">La Liga Goals</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2</div>
+        <div class="label">La Liga Assists</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">7.1</div>
+        <div class="label">FotMob Rating</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1,976</div>
+        <div class="label">Minutes</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">14</div>
+        <div class="label">Shots</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">4</div>
+        <div class="label">Shots on Target</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2.32</div>
+        <div class="label">xG</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Torres' <strong>2025-26 season at Barcelona</strong> was his <strong>best La Liga campaign to date</strong>: <strong>33 appearances, 16 goals, 2 assists</strong> in 1,976 minutes, earning a <strong>7.1 FotMob rating</strong>. He also scored <strong>1 goal in 4 Copa del Rey appearances</strong> and featured in <strong>10 European matches</strong>. His <strong>2.32 xG with 16 actual goals</strong> indicates significant overperformance — a sign of elite finishing or good fortune. His <strong>14 shots with 4 on target (29%)</strong> suggests selective but not always accurate shooting. His <strong>66 successful passes at 75% completion, 2 chances created, and 1 big chance created</strong> show solid but not exceptional creative contribution. His <strong>3 successful dribbles (33.3%) and 12 duels won (35.3%)</strong> indicate moderate success in 1v1 situations, while his <strong>5 aerial duels won (83.3%)</strong> is surprisingly strong for his height. At 26, this season confirms he is a <strong>proven La Liga goalscorer</strong> but T3 must assess whether he has the <strong>completeness to be a world-class forward</strong> or whether he is a system-dependent finisher.
+    </p>
+  </div>
+</div>
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Finishing</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Passing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">First Touch</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Ball Control</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Dribbling</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Heading</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Positioning</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Discipline</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5</span></div>
+      <div class="attr-row"><span class="name">Work Rate</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Composure</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Pace</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Acceleration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Agility</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Jumping</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Real Data Metrics</h3>
+
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Career</div>
+          <div class="t1-hl-val">251</div>
+          <div class="t1-hl-pct">Total senior apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Gls</div>
+          <div class="t1-hl-val">57</div>
+          <div class="t1-hl-pct">57 goals in 251 apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:23%;background:var(--gold)"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">25-26</div>
+          <div class="t1-hl-val">16</div>
+          <div class="t1-hl-pct">La Liga goals (career-best)</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:48%;background:var(--warning)"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">ESP</div>
+          <div class="t1-hl-val">61</div>
+          <div class="t1-hl-pct">Spain caps, 24 goals</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:24%;background:var(--info)"></div></div>
+        </div>
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Value</div>
+          <div class="t1-hl-val">€58M</div>
+          <div class="t1-hl-pct">Market value</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:58%;background:var(--gold)"></div></div>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">⚽ Season Output</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">League</span>
+          <span class="t1-metric-desc">La Liga apps (Barcelona)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:87%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">33</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Gls</span>
+          <span class="t1-metric-desc">La Liga goals</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">16</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Ast</span>
+          <span class="t1-metric-desc">La Liga assists</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:13%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cup</span>
+          <span class="t1-metric-desc">Copa del Rey apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:27%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">4</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cont</span>
+          <span class="t1-metric-desc">Champions League apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">10</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🟨 Discipline</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">YC</span>
+          <span class="t1-metric-desc">Yellow cards (2025-26)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:4%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">2</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">RC</span>
+          <span class="t1-metric-desc">Red cards (career)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--success)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🏆 Pedigree / Tenure</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Born</span>
+          <span class="t1-metric-desc">Birth date</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">29 Feb 2000</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Debut</span>
+          <span class="t1-metric-desc">La Liga debut</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">Dec 2017</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Contract</span>
+          <span class="t1-metric-desc">Barcelona contract</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">Until 2027</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Clause</span>
+          <span class="t1-metric-desc">Buyout clause</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">€1bn</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">📋 Career Breakdown</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">VAL</span>
+          <span class="t1-metric-desc">Valencia (2017-20)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:28%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">71 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">MCY</span>
+          <span class="t1-metric-desc">Manchester City (2020-22)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:11%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">28 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">BAR</span>
+          <span class="t1-metric-desc">Barcelona (2022-)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">140 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Career</span>
+          <span class="t1-metric-desc">Total senior apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">251</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">POI — Positional IQ</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">8.0 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Complexity</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.5 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.0 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Grit</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.0 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Athleticism</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.0 ⏳</span>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With Tier 3 at 0/16, these are proxy estimates based on Tier 1 data patterns and positional averages for a 26-year-old elite forward with extensive top-level experience.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;">
+          <canvas id="fgaDonut"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Season-by-Season Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">2017-18 · Valencia</strong><br>
+          <strong style="color:var(--text-primary);">13 apps, 0 goals</strong> · La Liga debut at 17<br><br>
+          <strong style="color:var(--text-primary);">2018-19 · Valencia</strong><br>
+          <strong style="color:var(--text-primary);">24 apps, 2 goals</strong> · Copa del Rey winner<br><br>
+          <strong style="color:var(--text-primary);">2019-20 · Valencia</strong><br>
+          <strong style="color:var(--text-primary);">34 apps, 4 goals</strong> · Breakthrough season<br><br>
+          <strong style="color:var(--text-primary);">2020-21 · Manchester City</strong><br>
+          <strong style="color:var(--text-primary);">24 apps, 7 goals</strong> · Premier League & EFL Cup winner<br><br>
+          <strong style="color:var(--text-primary);">2021-22 · Man City / Barcelona</strong><br>
+          <strong style="color:var(--text-primary);">4 apps, 2 goals (MCY) + 18 apps, 4 goals (BAR)</strong> · Record transfer<br><br>
+          <strong style="color:var(--text-primary);">2022-23 · Barcelona</strong><br>
+          <strong style="color:var(--text-primary);">33 apps, 4 goals</strong> · La Liga winner<br><br>
+          <strong style="color:var(--text-primary);">2023-24 · Barcelona</strong><br>
+          <strong style="color:var(--text-primary);">29 apps, 7 goals</strong> · 100th appearance, first hat-trick<br><br>
+          <strong style="color:var(--text-primary);">2024-25 · Barcelona</strong><br>
+          <strong style="color:var(--text-primary);">27 apps, 10 goals</strong> · Copa del Rey MVP, top scorer (6 goals)<br><br>
+          <strong style="color:var(--text-primary);">2025-26 · Barcelona</strong><br>
+          <strong style="color:var(--text-primary);">33 apps, 16 goals</strong> · Career-best La Liga tally, La Liga winner
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Proxy FGA Rating — 7.8 / 10 · Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 50% Tier 3 / 30% Tier 2 / 20% Tier 1. With Tier 2/3 both empty, this 7.8 is a <strong style="color:var(--text-primary);">substitute</strong> built from public Tier 1 numbers. The score reflects extensive elite-level career data (251 apps, 57 goals, €58M value), major honours (Euro 2024, 3 La Liga, Copa del Rey MVP), international pedigree (61 Spain caps, 24 goals), and a career-best 2025-26 season (16 La Liga goals). Balanced against unvalidated technical/physical attributes and questions about consistency against elite opposition.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Career Pedigree</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">251 apps, Valencia academy, €55M to Barcelona, €1bn clause</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Current Output</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">33 apps, 16 goals, 2 assists. Career-best La Liga season</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">25%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Technical/Finishing</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">57 goals in 251 apps, 16 in 33 (2025-26), Copa del Rey top scorer</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Discipline</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">2 yellows in 33 apps. 0 red cards in career</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Age / Ceiling</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">26 years old — peak forward years. Contract until 2027</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Physical</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">183cm, athletic build. Right-footed. Good pace and agility</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">International</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">61 Spain caps, 24 goals. Euro 2024 winner. WC 2026 active</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">8.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">5%</span>
+      </div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:180px;font-size:0.9rem;">Weighted Proxy Total</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);">7.8</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row">
+        <div class="philo-rank">1</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:var(--accent);"></div></div></div><div class="philo-score">8.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div><div class="philo-name">Spanish Positional Superiority</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent);"></div></div></div><div class="philo-score">8.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--accent);"></div></div></div><div class="philo-score">7.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div><div class="philo-name">Dutch School Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:var(--accent);"></div></div></div><div class="philo-score">7.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--accent);"></div></div></div><div class="philo-score">7.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">6</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--warning);"></div></div></div><div class="philo-score">7.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">7</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning);"></div></div></div><div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">8</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--warning);"></div></div></div><div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">9</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--warning);"></div></div></div><div class="philo-score">6.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">10</div><div class="philo-name">Simeone Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--warning);"></div></div></div><div class="philo-score">6.4</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--accent);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Modern Spanish Forward"</strong> — A 26-year-old forward who embodies the <strong>Spanish positional play philosophy</strong> honed at Valencia, refined under Guardiola at Manchester City, and perfected at Barcelona. Torres combines <strong>intelligent off-ball movement, clinical finishing, and positional versatility</strong> with a <strong>strong work ethic and pressing intensity</strong>. His <strong>€55M transfer to Barcelona and €1bn buyout clause</strong> reflect elite club confidence in his potential. His <strong>career-best 16 La Liga goals in 2025-26</strong> confirm his development trajectory. However, his <strong>limited creative output (2 assists in 33 apps)</strong> and <strong>moderate dribbling success (33.3%)</strong> suggest he is a <strong>finisher and movement specialist rather than a complete creative forward</strong>. At 26, he is in his <strong>peak years</strong> — T3 must assess whether he has the <strong>technical completeness and big-game consistency</strong> to reach the world-class tier (FGA 8.5+), or whether he remains a very good system player. <strong>Best deployed as a centre-forward or inside-left winger in a possession-dominant, positional system</strong> that values his movement, finishing, and link-up play. <strong>Less effective in counter-attacking or direct systems</strong> that require individual dribbling brilliance. <strong>His World Cup 2026 performances as an impact substitute suggest he thrives in high-pressure moments but may lack the consistency for 90-minute dominance.</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Centre-Forward</span>
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-club">Right Winger</span>
+          <span class="tag tag-club">Barcelona #7</span>
+          <span class="tag tag-gold">Spain #11</span>
+          <span class="tag tag-club">Valencia Academy</span>
+          <span class="tag tag-gold">Euro 2024 Winner</span>
+          <span class="tag tag-gold">3x La Liga</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">7.5</div>
+      <div class="label">Spanish School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">7.3</div>
+      <div class="label">Dutch School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">6.8</div>
+      <div class="label">British School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">6.5</div>
+      <div class="label">German School</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item">
+          <div class="timeline-date">29 Feb 2000</div>
+          <div class="timeline-text">Born in <strong>Foios, Valencia, Spain</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2006-2017</div>
+          <div class="timeline-text">Youth career at <strong>Valencia CF academy</strong>, one of Spain's most prestigious youth systems.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Dec 2017</div>
+          <div class="timeline-text"><strong>La Liga debut</strong> for Valencia at age 17 — <strong>first player born in the 21st century to play in La Liga</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2017-20</div>
+          <div class="timeline-text"><strong>71 apps, 6 goals</strong> for Valencia. Won <strong>Copa del Rey 2018-19</strong>. Established as one of Spain's brightest young talents.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Aug 2020</div>
+          <div class="timeline-text">Transferred to <strong>Manchester City for €23M</strong>. Won <strong>Premier League 2020-21 and EFL Cup 2020-21</strong>. Reached UCL final 2020-21.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2020-22</div>
+          <div class="timeline-text"><strong>28 apps, 9 goals</strong> for Manchester City. Scored 16 goals in 43 total apps across all competitions.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jan 2022</div>
+          <div class="timeline-text">Transferred to <strong>FC Barcelona for €55M (+€10M add-ons)</strong> — a club-record winter transfer. €1bn buyout clause.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2022-23</div>
+          <div class="timeline-text"><strong>33 La Liga apps, 4 goals</strong> for Barcelona. Won <strong>La Liga 2022-23 and Supercopa de España 2023</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2023-24</div>
+          <div class="timeline-text"><strong>29 La Liga apps, 7 goals</strong> for Barcelona. Reached <strong>100th appearance</strong>. Scored first career hat-trick.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2024-25</div>
+          <div class="timeline-text"><strong>27 La Liga apps, 10 goals</strong>. Won <strong>La Liga 2024-25, Copa del Rey 2024-25, Supercopa 2025</strong>. Named <strong>Copa del Rey MVP</strong> and <strong>top scorer (6 goals)</strong> in the competition.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2024</div>
+          <div class="timeline-text">Won <strong>UEFA Euro 2024</strong> with Spain in Germany. Scored opening goal in 1-0 group stage win over Albania.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2025-26</div>
+          <div class="timeline-text"><strong>33 La Liga apps, 16 goals</strong> — career-best domestic season. Won <strong>La Liga 2025-26 and Supercopa de España 2026</strong>.</div>
+        </div>
+        <div class="timeline-item wc">
+          <div class="timeline-date">Jun-Jul 2026</div>
+          <div class="timeline-text"><strong>2026 FIFA World Cup</strong> — 10 apps for Spain, mostly as substitute. Scored decisive winner vs Argentina (semi-final, 1-0). Provided assist vs Portugal (quarter-final, 1-0). Spain reached the World Cup Final.</div>
+        </div>
+        <div class="timeline-item current">
+          <div class="timeline-date">Jul 2026</div>
+          <div class="timeline-text">At <strong>FC Barcelona</strong>. 251 career apps, 57 goals. 61 Spain caps, 24 goals. Contract until 2027. T3 pending. World Cup 2026 campaign active.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>2017-18</strong></td><td>Valencia</td><td>La Liga</td><td>13</td><td>0</td><td>1</td></tr>
+          <tr><td><strong>2018-19</strong></td><td>Valencia</td><td>La Liga</td><td>24</td><td>2</td><td>1</td></tr>
+          <tr><td><strong>2019-20</strong></td><td>Valencia</td><td>La Liga</td><td>34</td><td>4</td><td>4</td></tr>
+          <tr><td><strong>2020-21</strong></td><td>Man City</td><td>Premier League</td><td>24</td><td>7</td><td>2</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>Man City</td><td>Premier League</td><td>4</td><td>2</td><td>0</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>Barcelona</td><td>La Liga</td><td>18</td><td>4</td><td>4</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>Barcelona</td><td>La Liga</td><td>33</td><td>4</td><td>2</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>Barcelona</td><td>La Liga</td><td>29</td><td>7</td><td>1</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Barcelona</td><td>La Liga</td><td>27</td><td>10</td><td>2</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Barcelona</td><td>La Liga</td><td>33</td><td>16</td><td>2</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="3"><strong>Career Total</strong></td>
+            <td><strong>251</strong></td>
+            <td><strong>57</strong></td>
+            <td><strong>~19</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>National Team</th><th>Years</th><th>Caps</th><th>Goals</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Spain U17</strong></td><td>2016-17</td><td>24</td><td>2</td></tr>
+          <tr><td><strong>Spain U19</strong></td><td>2018-19</td><td>17</td><td>10</td></tr>
+          <tr><td><strong>Spain U21</strong></td><td>2019</td><td>6</td><td>0</td></tr>
+          <tr><td><strong>Spain (Senior)</strong></td><td>2020-</td><td>61</td><td>24</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="2"><strong>Total International</strong></td>
+            <td><strong>108+</strong></td>
+            <td><strong>36</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Honour</th><th>Year</th><th>Club/Nation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Copa del Rey</strong></td><td>2018-19</td><td>Valencia</td></tr>
+          <tr><td><strong>Premier League</strong></td><td>2020-21</td><td>Manchester City</td></tr>
+          <tr><td><strong>EFL Cup</strong></td><td>2020-21</td><td>Manchester City</td></tr>
+          <tr><td><strong>La Liga</strong></td><td>2022-23</td><td>Barcelona</td></tr>
+          <tr><td><strong>Supercopa de España</strong></td><td>2023</td><td>Barcelona</td></tr>
+          <tr><td><strong>UEFA Euro</strong></td><td>2024</td><td>Spain</td></tr>
+          <tr><td><strong>La Liga</strong></td><td>2024-25</td><td>Barcelona</td></tr>
+          <tr><td><strong>Copa del Rey</strong></td><td>2024-25</td><td>Barcelona</td></tr>
+          <tr><td><strong>Supercopa de España</strong></td><td>2025</td><td>Barcelona</td></tr>
+          <tr><td><strong>La Liga</strong></td><td>2025-26</td><td>Barcelona</td></tr>
+          <tr><td><strong>Supercopa de España</strong></td><td>2026</td><td>Barcelona</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">Individual Awards</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Award</th><th>Year</th><th>Context</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Copa del Rey Top Scorer</strong></td><td>2024-25</td><td>6 goals</td></tr>
+          <tr><td><strong>Copa del Rey MVP</strong></td><td>2024-25</td><td>Final vs Real Madrid</td></tr>
+          <tr><td><strong>UEFA Nations League Top Scorer</strong></td><td>2020-21</td><td>6 goals</td></tr>
+          <tr><td><strong>U19 Euro Team of Tournament</strong></td><td>2019</td><td>Armenia</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">183cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">77kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Centre-Forward</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Left Winger / Right Winger</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#7 (Barcelona)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, lean</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Spain</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">✅ No Major Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant long-term injury history. Torres has maintained consistent availability across his career, including a demanding 2025-26 season (33 La Liga apps + 10 European apps + World Cup 2026 campaign).</div>
+        </div>
+        <div style="padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--info);margin-bottom:4px;">ℹ️ Peak Physical Condition</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>26 years old, 183cm, 77kg</strong> — in peak forward physical condition. Good pace, acceleration, and agility. His <strong>83.3% aerial duel success rate</strong> in 2025-26 is notably strong for his build.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Workload Monitoring</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>2025-26 season + World Cup 2026</strong> represents a very high workload. T3 should assess whether physical fatigue is affecting his performance in the latter stages of the World Cup (mostly substitute appearances suggest possible fatigue management).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Elite-level career trajectory (251 apps, 57 goals across La Liga, Premier League, Champions League)</strong> — Proven at the highest club level</li>
+      <li><strong>Career-best 2025-26 season: 33 La Liga apps, 16 goals</strong> — Peak performance at age 26</li>
+      <li><strong>Euro 2024 winner with Spain</strong> — Major international trophy</li>
+      <li><strong>3 La Liga titles with Barcelona (2022-23, 2024-25, 2025-26)</strong> — Domestic dominance</li>
+      <li><strong>Copa del Rey MVP and top scorer 2024-25</strong> — Individual excellence in knockout competition</li>
+      <li><strong>€55M transfer to Barcelona + €1bn buyout clause</strong> — Elite club valuation</li>
+      <li><strong>61 Spain caps, 24 goals</strong> — Established international goalscorer</li>
+      <li><strong>World Cup 2026 decisive performances</strong> — Scored winner vs Argentina (semi-final), assist vs Portugal (quarter-final)</li>
+      <li><strong>Valencia CF academy product</strong> — Developed in one of Spain's best academies</li>
+      <li><strong>Manchester City experience under Guardiola</strong> — Exposure to elite tactical coaching</li>
+      <li><strong>Versatile across forward positions</strong> — CF, LW, RW capability</li>
+      <li><strong>Strong pressing intensity and work rate</strong> — Fits modern high-press systems</li>
+      <li><strong>Good disciplinary record</strong> — 2 yellows in 33 apps, 0 red cards in career</li>
+      <li><strong>Consistent goal output improvement</strong> — 4 → 7 → 10 → 16 La Liga goals season-on-season</li>
+      <li><strong>Big-game mentality</strong> — Copa del Rey final MVP, World Cup semi-final winner</li>
+      <li><strong>Age 26 — peak forward years</strong> — Physical prime with room for further development</li>
+      <li><strong>Contract until 2027</strong> — Long-term stability at Barcelona</li>
+      <li><strong>Agent: LEADERBROCK</strong> — Professional representation</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Limited creative output (2 assists in 33 La Liga apps 2025-26)</strong> — Primarily a finisher, not a creator</li>
+      <li><strong>Low shot volume (14 shots in 33 apps)</strong> — Only 0.42 shots per game, very selective</li>
+      <li><strong>Moderate shot accuracy (4/14 on target, 29%)</strong> — Below elite conversion efficiency</li>
+      <li><strong>Overperforming xG (2.32 xG vs 16 actual goals)</strong> — Unsustainable conversion rate or elite finishing?</li>
+      <li><strong>Limited dribbling success (33.3%)</strong> — Not a player who beats defenders 1v1 regularly</li>
+      <li><strong>Low duel success (35.3%)</strong> — Struggles in physical battles</li>
+      <li><strong>Mostly substitute at World Cup 2026</strong> — Not first choice for Spain; limited to 14-45 min appearances</li>
+      <li><strong>Only 2 goals in 43 European apps for Barcelona</strong> — Underwhelming Champions League output</li>
+      <li><strong>Never a consistent starter at Manchester City</strong> — Sold after 28 PL apps; not trusted by Guardiola long-term</li>
+      <li><strong>Modest Valencia output (6 goals in 71 apps)</strong> — Took time to develop as a finisher</li>
+      <li><strong>System-dependent player</strong> — Thrives in possession-dominant, positional systems; less effective in direct play</li>
+      <li><strong>Not a natural #9</strong> — Better as a second striker or inside winger; lacks hold-up play of classic centre-forward</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>All 16 T3 metrics pending</strong> — Zero validated video assessments. Full scout review required</li>
+      <li><strong>Off-ball intelligence (OBI)</strong> — Does he make elite-level ghost runs and space creation? T3 must assess</li>
+      <li><strong>Finishing under pressure</strong> — Is his 16-goal season repeatable, or was it an outlier? T3 must validate</li>
+      <li><strong>Big-game consistency</strong> — Copa del Rey MVP and World Cup semi-final winner, but mostly substitute. Can he deliver as a starter in elite matches? Unknown</li>
+      <li><strong>Aerial ability</strong> — 83.3% aerial duel success in 2025-26 is strong, but sample is small (5 duels). T3 must assess</li>
+      <li><strong>Link-up play quality</strong> — 66 passes at 75% completion is modest. Can he play as a false 9 or linking forward? T3 must assess</li>
+      <li><strong>Pressing effectiveness</strong> — Work rate is present, but does his pressing lead to turnovers? Unvalidated</li>
+      <li><strong>1v1 dribbling in tight spaces</strong> — 33.3% success suggests limitations. T3 must assess</li>
+      <li><strong>Decision-making speed</strong> — Does he think two seconds ahead (Cruyffian) or react to play? Unknown</li>
+      <li><strong>Physical duels against elite defenders</strong> — 35.3% duel success is concerning. T3 must assess against top-tier CBs</li>
+      <li><strong>Champions League performance</strong> — Only 2 goals in 42 European apps for Barcelona. Is this a mental block or tactical limitation? T3 must assess</li>
+      <li><strong>Leadership and mentality</strong> — Does he command the forward line and lift teammates? Unvalidated</li>
+      <li><strong>Coachability and adaptability</strong> — Failed to establish at Man City; took 3+ seasons to peak at Barcelona. T3 must assess</li>
+      <li><strong>Comparison to elite forwards</strong> — Does he offer what Haaland, Mbappé, or Vini Jr. offer? T3 must assess ceiling</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--accent);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROXY FGA 7.8 — ELITE SPANISH FORWARD with T3 validation required.</strong> Ferran Torres is a <strong>26-year-old established elite forward</strong> with a proven track record at the highest level: <strong>251 career apps, 57 goals, Euro 2024 winner, 3 La Liga titles, Copa del Rey MVP, and 61 Spain caps with 24 goals</strong>. His <strong>2025-26 season (33 La Liga apps, 16 goals)</strong> represents a career-best domestic campaign and confirms his development into a top-tier finisher. His <strong>World Cup 2026 performances</strong> — scoring the decisive winner vs Argentina in the semi-final and providing a crucial assist vs Portugal in the quarter-final — demonstrate <strong>big-game mentality and clutch performance</strong>. However, his <strong>entire T3 profile is unvalidated</strong> — no video-based micro-assessments have been completed. His <strong>limited creative output (2 assists), low shot volume, moderate duel success, and predominantly substitute role at the World Cup</strong> suggest he is a <strong>specialist finisher and movement player rather than a complete, world-class forward</strong>. His <strong>overperformance of xG (2.32 vs 16 goals)</strong> raises questions about sustainability. At 26, he is in his <strong>peak forward years</strong> — T3 must assess whether he has the <strong>technical completeness, physical dominance, and mental consistency</strong> to reach the truly world-class tier (FGA 8.5+), or whether he plateaus as a very good squad player in elite systems. <strong>Best deployed as a centre-forward or inside-left winger in a possession-dominant, positional system</strong> that values his movement, finishing, and pressing intensity. <strong>Less effective as a lone #9 or in counter-attacking systems.</strong> <strong>Validate T3 before any elite recruitment assessment. Focus on finishing under pressure, off-ball intelligence, aerial duels, 1v1 dribbling, and big-game consistency. If T3 confirms elite-level fundamentals across all metrics, he could reach FGA 8.5+; if gaps are identified in creativity, physical duels, or decision-making, he likely remains a 7.5-8.0 player.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-wc">
+    <span>🏆</span> <strong>2 Video Links Provided — T3 Pending.</strong> Both links are Spain international matches from the 2026 FIFA World Cup campaign. Torres featured in both fixtures (Spain vs Austria and Portugal vs Spain). T3 verification is required to confirm his specific participation and assess performance across all 16 metrics.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Video Links — T3 Assessment</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/cguvyc7lunb8zf3umhmsd/Spain-Austria.mp4?rlkey=0h9evpdsgz4oandrcr29gy4xi&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Spain vs Austria</div>
+        <div class="match-meta">
+          <span class="match-badge badge-wc">🏆 World Cup 2026</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>World Cup 2026 — Round of 16 (July 2, 2026).</strong> Spain won 3-0. Torres played 19 minutes as a substitute. T3 scout to assess his forward performance across all 16 metrics: OBI, SII, DMA, SOA, SPI, CLM, DYN, CRK, CHR, MCS, CRS, OMS. Focus on off-ball movement, finishing attempts, and pressing intensity in limited minutes.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/iru2nn9xb1ryg0xx9ltio/Portugal-Spain.mp4?rlkey=6ollcigamxkevtvoq2ectttk4&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Portugal vs Spain</div>
+        <div class="match-meta">
+          <span class="match-badge badge-wc">🏆 World Cup 2026</span>
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>World Cup 2026 — Quarter-Final (July 6, 2026).</strong> Spain won 1-0. Torres played 15 minutes as a substitute and provided a crucial assist. T3 scout to assess his forward performance across all 16 metrics. Focus on decision-making in a high-stakes knockout match, link-up play, and contribution to the winning goal.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Scout Assessment Notes</h3>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Physical Identity Card</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Height</span><span class="value">183cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">77kg</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">#7 (Barcelona) / #11 (Spain)</span></div>
+          <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, lean</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Centre-Forward</span></div>
+          <div class="physical-item"><span class="label">Alt Pos</span><span class="value">Left Winger / Right Winger</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">Spain</span></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Forward-Specific Focus Areas</h4>
+        <ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Off-Ball Intelligence (OBI):</strong> Does he make runs that create space for teammates, or only for himself?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Finishing Under Pressure:</strong> Quality of shot selection and execution in high-stakes World Cup knockout matches</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Link-Up Play:</strong> Can he combine effectively with Lamine Yamal, Nico Williams, and Pedri in Spain's system?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Pressing Intensity:</strong> Does he trigger effective presses, or is his work rate cosmetic?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>1v1 Dribbling:</strong> Can he beat defenders in tight spaces against elite international defenders?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Aerial Ability:</strong> Does his 83.3% aerial success translate to international level against bigger CBs?</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:16px;margin-bottom:0;">
+      <span>ℹ️</span> <strong>Verification note:</strong> Only 2 video links provided for T3 assessment — both from the <strong>2026 FIFA World Cup</strong> where Torres was primarily a substitute (15-19 minute appearances). With <strong>251 career apps across La Liga, Premier League, and Champions League</strong>, additional match footage is <strong>strongly recommended</strong> for comprehensive T3 validation. Priority footage: <strong>Barcelona matches from 2025-26</strong> (his career-best season), <strong>Copa del Rey final vs Real Madrid (April 2025)</strong>, and <strong>Spain Euro 2024 matches</strong>. The limited minutes in the provided World Cup footage may not be sufficient to validate all 16 metrics. If you have additional match data or metadata, reply and I'll update the card. When your scout completes the video assessment, reply with the validated scores and I'll update the card to <strong>T3_STATUS = SCOUT_VALIDATED</strong>.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.8;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#ffc400';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Forward Radar
+(function() {
+  var el = document.getElementById('fwRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Finishing','Positioning','Pace','Dribbling','Passing','Physicality','Aerial','Work Rate'],
+      datasets: [{
+        label: 'Torres (Proxy)',
+        data: [8.0, 8.0, 7.0, 6.5, 7.0, 6.5, 6.5, 7.0],
+        backgroundColor: 'rgba(196,30,58,0.2)',
+        borderColor: '#c41e3a',
+        pointBackgroundColor: '#c41e3a',
+        pointBorderColor: '#fff',
+        pointRadius: 3,
+        borderWidth: 2
+      }, {
+        label: 'Elite Forward Average',
+        data: [8.5, 8.0, 7.5, 7.5, 7.5, 7.5, 7.0, 7.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 4, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Finishing','Passing','First Touch','Ball Control','Dribbling','Positioning','Decision Making','Discipline','Work Rate','Composure'],
+      datasets: [{
+        label: 'Torres (Proxy)',
+        data: [8.0, 7.0, 7.0, 7.0, 6.5, 8.0, 7.0, 6.5, 7.0, 7.5],
+        backgroundColor: 'rgba(196,30,58,0.2)',
+        borderColor: '#c41e3a',
+        pointBackgroundColor: '#c41e3a',
+        pointBorderColor: '#fff',
+        pointRadius: 3,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 4, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Guardiola Positional','Spanish Positional','Cruyff Intelligence','Total Football','Wenger Development','Tuchel Structure','Bielsa Intensity','Ferguson Drive','Mourinho Pragmatism','Simeone Intensity'],
+    datasets: [{
+      label: 'Torres',
+      data: [8.2, 8.0, 7.8, 7.6, 7.4, 7.2, 7.0, 6.8, 6.6, 6.4],
+      backgroundColor: 'rgba(196,30,58,0.2)',
+      borderColor: '#c41e3a',
+      pointBackgroundColor: '#c41e3a',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 4, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive','T2 Proxy','T3 Pending'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

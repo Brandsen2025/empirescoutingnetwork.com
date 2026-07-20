@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandon Borrello | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #04060c; --bg-card: #080c16; --bg-card-hover: #0d1220;
+  --border-subtle: rgba(255,255,255,0.06); --border-medium: rgba(255,255,255,0.1);
+  --text-primary: #e8ecf4; --text-secondary: #8b92a8; --text-tertiary: #5a6070;
+  --accent: #cc0000; --accent-dim: rgba(204,0,0,0.15); --accent-glow: rgba(204,0,0,0.4);
+  --success: #00d084; --warning: #ffb800; --danger: #ff3b3b; --info: #3b82f6;
+  --tier1: #00d084; --tier2: #ffb800; --tier3: #ff3b3b; --pending: #5a6070;
+  --font-display: 'Oswald', sans-serif; --font-heading: 'Rajdhani', sans-serif; --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+.hero { position: relative; height: 520px; overflow: hidden; border-bottom: 1px solid var(--border-subtle); }
+.hero-photo { position: absolute; inset: 0; background: url('https://i.nextmedia.com.au/Utils/ImageResizer.ashx?n=https%3A%2F%2Fi.nextmedia.com.au%2FNews%2Fimages_(20).jpeg&h=338&w=600&c=1&s=1') center 20% / cover no-repeat; filter: brightness(0.45) saturate(0.85); transition: transform 8s ease; }
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,6,12,0.2) 0%, rgba(4,6,12,0.75) 60%, var(--bg-primary) 100%); }
+.hero-branding { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--accent) 50%, #ffffff 50%); z-index: 10; }
+.hero-content { position: relative; z-index: 5; max-width: 1200px; margin: 0 auto; padding: 40px 24px 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.jersey-watermark { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); font-family: var(--font-display); font-size: 220px; font-weight: 700; color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none; z-index: 2; }
+.club-badge-strip { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.badge-item { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); padding: 2px 7px; border-radius: 100px; border: 1px solid var(--border-subtle); font-family: var(--font-heading); font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.badge-item .arrow { color: var(--text-tertiary); font-size: 0.6rem; }
+.hero-name { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.05; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 8px; background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.hero-meta span { font-family: var(--font-heading); font-size: 0.95rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.hero-meta .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+.hero-meta .flag { font-size: 1.1rem; }
+.hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 32px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { padding: 5px 12px; border-radius: 6px; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(204,0,0,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-gold { background: rgba(249,232,20,0.1); color: #f9e814; border: 1px solid rgba(249,232,20,0.2); }
+
+.fga-dial-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.fga-dial-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.fga-dial-inner .fga-label { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); }
+.fga-dial-inner .fga-score { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.fga-dial-inner .fga-status { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--warning); margin-top: 2px; }
+
+.tier-pills { display: flex; gap: 8px; margin-top: 12px; }
+.tier-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(255,59,59,0.12); color: var(--tier3); border: 1px solid rgba(255,59,59,0.2); }
+
+.tab-bar { position: sticky; top: 0; z-index: 100; background: rgba(4,6,12,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+.tab-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; }
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn { flex: 1; min-width: 110px; padding: 16px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-tertiary); font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%); }
+
+.content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-title .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s, background 0.2s; }
+.card:hover { background: var(--bg-card-hover); border-color: var(--border-medium); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+.banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; }
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(249,232,20,0.06); border: 1px solid rgba(249,232,20,0.2); color: #f9e814; }
+
+.stat-hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-hero { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+.stat-hero:hover { transform: translateY(-2px); border-color: var(--border-medium); }
+.stat-hero .value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.stat-hero .label { font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-top: 6px; }
+
+.career-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.career-node { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
+.career-node.current { background: var(--accent-dim); border-color: rgba(204,0,0,0.3); color: var(--accent); }
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+.attr-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; }
+.attr-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; color: var(--text-primary); }
+.attr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-secondary); }
+.attr-row .score { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.ac-green { color: var(--success); } .ac-yellow { color: var(--warning); } .ac-red { color: var(--danger); } .ac-pend { color: var(--pending); }
+.circle { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.circle-green { background: var(--success); } .circle-yellow { background: var(--warning); } .circle-red { background: var(--danger); } .circle-pend { background: var(--pending); }
+
+.progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+.t1-metric-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 700; color: var(--accent); width: 50px; flex-shrink: 0; text-transform: uppercase; }
+.t1-metric-desc { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
+.t1-metric-bar-wrap { width: 100px; flex-shrink: 0; }
+.t1-metric-val { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); width: 70px; text-align: right; flex-shrink: 0; }
+
+.t1-highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.t1-hl-box { background: linear-gradient(135deg, rgba(204,0,0,0.18), rgba(249,232,20,0.06)); border: 2px solid rgba(204,0,0,0.4); border-radius: 6px; padding: 12px; position: relative; overflow: hidden; }
+.t1-hl-box.gold { background: linear-gradient(135deg, rgba(249,232,20,0.12), rgba(204,0,0,0.06)); border-color: rgba(249,232,20,0.5); }
+.t1-hl-code { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+.t1-hl-val { font-family: var(--font-display); font-size: 1.65rem; font-weight: 500; color: var(--accent); line-height: 1; }
+.t1-hl-box.gold .t1-hl-val { color: #f9e814; }
+.t1-hl-pct { font-size: 0.58rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
+.t1-hl-bar { height: 3px; background: rgba(204,0,0,0.1); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.t1-hl-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+.t1-hl-box.gold .t1-hl-bar-fill { background: #f9e814; }
+
+.t1-group { margin-bottom: 14px; }
+.t1-group-head { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); padding: 6px 0; border-bottom: 1px solid rgba(204,0,0,0.08); margin-bottom: 8px; }
+
+.philo-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.philo-row:last-child { border-bottom: none; }
+.philo-rank { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-tertiary); width: 28px; text-align: center; }
+.philo-name { flex: 1; font-family: var(--font-body); font-size: 0.85rem; color: var(--text-primary); }
+.philo-score { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--accent); width: 36px; text-align: right; }
+.philo-bar-wrap { width: 120px; }
+
+.match-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.match-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; display: block; }
+.match-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(204,0,0,0.1); }
+.match-thumb { height: 140px; background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.match-thumb::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(204,0,0,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat; }
+.match-thumb .play-icon { width: 48px; height: 48px; background: rgba(204,0,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; transition: transform 0.2s, background 0.2s; }
+.match-card:hover .play-icon { transform: scale(1.1); background: var(--accent); }
+.play-icon svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
+.match-meta { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-tertiary); display: flex; gap: 8px; flex-wrap: wrap; }
+.match-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-hist { background: rgba(0,208,132,0.12); color: var(--success); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.data-table th { text-align: left; padding: 10px 12px; font-family: var(--font-heading); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-medium); background: rgba(255,255,255,0.02); }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+.scout-box { border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.scout-box h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(204,0,0,0.2); }
+.scout-verdict h4 { color: var(--accent); }
+.scout-box ul { list-style: none; padding: 0; margin: 0; }
+.scout-box li { padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); display: flex; gap: 8px; }
+.scout-box li::before { content: '—'; color: var(--text-tertiary); flex-shrink: 0; }
+
+.physical-card { background: linear-gradient(135deg, rgba(204,0,0,0.08) 0%, rgba(4,6,12,0.5) 100%); border: 1px solid rgba(204,0,0,0.15); border-radius: 12px; padding: 20px; }
+.physical-card h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.physical-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.physical-item { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border-subtle); border-radius: 1px; }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); z-index: 2; }
+.timeline-item.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(204,0,0,0.4); }
+.timeline-item.hist::before { background: var(--success); border-color: var(--success); }
+.timeline-date { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.timeline-item.hist .timeline-date { color: var(--success); }
+.timeline-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+.timeline-text strong { color: var(--text-primary); }
+
+.radar-container { width: 100%; max-width: 520px; margin: 0 auto; aspect-ratio: 500/450; position: relative; }
+.radar-container canvas { width: 100% !important; height: 100% !important; }
+
+@media (max-width: 768px) {
+  .hero { height: 440px; }
+  .jersey-watermark { font-size: 140px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .fga-dial-wrap { width: 110px; height: 110px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: 1fr; }
+  .t1-metric-bar-wrap { width: 60px; }
+  .t1-metric-val { width: 50px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="jersey-watermark">26</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Salisbury Villa</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Western Strikers</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Modbury Jets</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Brisbane Roar (2013)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Kaiserslautern (2017)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">SC Freiburg (2018)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Dusseldorf (Loan)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Dynamo Dresden (2021)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">WS Wanderers (2022)</div>
+    </div>
+    <h1 class="hero-name">Brandon Borrello</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇦🇺</span> Australia (Italy)</span>
+      <span class="dot"></span>
+      <span>30 years</span>
+      <span class="dot"></span>
+      <span>178cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Right Winger / Forward</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Proxy</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-club">Western Sydney Wanderers · #26</span>
+          <span class="tag tag-value">€750K Value</span>
+          <span class="tag tag-gold">⭐ Alex Tobin Medal 2022-23</span>
+          <span class="tag tag-gold">⭐ PFA TOTY 2022-23</span>
+          <span class="tag tag-gold">⭐ A-League Premiership 2013-14</span>
+          <span class="tag tag-info">214 Career Apps</span>
+          <span class="tag tag-info">37 Career Goals</span>
+          <span class="tag tag-info">16 Australia Caps</span>
+          <span class="tag tag-info">Contract until 2027</span>
+          <span class="tag tag-info">JB Sports2Business</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Proxy FGA</div>
+          <div class="fga-score">7.0</div>
+          <div class="fga-status">PROXY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> PROXY FGA 7.0 — Tier 3 video metrics pending scout validation. All T3 assessments marked ⏳ PENDING. Likely featured in both provided WSW match videos (regular starter, 14 starts in 14 apps 2025-26).
+  </div>
+  <div class="banner banner-gold">
+    <span>⭐</span> ALEX TOBIN MEDAL 2022-23 — Won the Alex Tobin Medal as the A-League Men Player of the Year. Named PFA Team of the Season 2022-23. WSW Player of the Year, Golden Boot, Media Player of the Year, and Members Player of the Year in debut WSW season. A-League Premiership with Brisbane Roar 2013-14.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> WESTERN SYDNEY WANDERERS (2022-27) — Signed two-year deal in July 2022, extended until 30 June 2027. 82+ apps, 21+ goals for WSW. 16 caps, 2 goals for Australia Socceroos. Dual Australian-Italian citizenship. Agent: JB Sports2Business.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Brisbane Roar (2013)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Kaiserslautern (2017)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">SC Freiburg (2018)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Dusseldorf (Loan)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Dynamo Dresden (2021)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">WS Wanderers (2022)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">214</div>
+      <div class="label">Career Apps</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">37</div>
+      <div class="label">Career Goals</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">33</div>
+      <div class="label">Career Assists</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">0.17</div>
+      <div class="label">Goals Per App</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">16</div>
+      <div class="label">Australia Caps</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">€750K</div>
+      <div class="label">Market Value</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        A <strong>30-year-old Australian-Italian forward/winger</strong> born in Adelaide, South Australia. Developed through local Adelaide clubs <strong>Salisbury Villa, Western Strikers, and Modbury Jets</strong> before joining the <strong>Brisbane Roar youth academy in 2011</strong>. Made his A-League debut in November 2013 and won the <strong>A-League Premiership in 2013-14</strong>. Spent <strong>5 years in Germany</strong> (Kaiserslautern, SC Freiburg, Fortuna Düsseldorf loan, Dynamo Dresden) before returning to Australia with <strong>Western Sydney Wanderers in July 2022</strong>. In his debut WSW season (2022-23), he won <strong>six awards including the Alex Tobin Medal</strong> (A-League Player of the Year), PFA Team of the Season, WSW Player of the Year, Golden Boot, Media Player of the Year, and Members Player of the Year. Has made <strong>16 appearances for the Australia Socceroos</strong>, scoring 2 goals. Dual Australian-Italian citizenship. Contract with WSW until <strong>30 June 2027</strong>. Agent: <strong>JB Sports2Business</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 metrics validated.</strong> All physical, technical micro-assessments, and video-based evaluations are pending scout review. Borrello is a <strong>proven A-League star with 214 career apps, 37 goals, and 16 Australia caps</strong>, but his T3 profile is entirely unvalidated. T3 should focus on <strong>dribbling technique, crossing accuracy, finishing under pressure, off-ball movement, pressing intensity, physical duels, and decision-making in the final third</strong>. His <strong>37 yellow cards in 214 career apps</strong> (1 per 5.8 apps) is a notable disciplinary pattern. At 30, he is in his <strong>prime years</strong> but his market value (€750K) is modest for his pedigree. T3 must assess whether his <strong>A-League dominance translates to higher-level competition</strong>. <strong>2 video links provided for T3 assessment — both WSW home fixtures where Borrello, as a regular starter (14 starts in 14 apps 2025-26), is highly likely to have featured.</strong>
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--accent);">PROXY FGA 7.0 — AUSTRALIAN-ITALIAN WINGER/FORWARD with T3 validation required.</strong> Brandon Borrello is a <strong>proven A-League star with 214 career apps, 37 goals, 16 Australia caps, and the Alex Tobin Medal</strong> (A-League Player of the Year 2022-23). His <strong>5-year stint in Germany</strong> (2. Bundesliga, Bundesliga) demonstrates he can compete in European leagues, though his output there was modest (48 apps, 4 goals). His <strong>return to Australia has been spectacular</strong> — 82+ WSW apps, 21+ goals, multiple individual awards, and Socceroos recognition. However, his <strong>entire T3 profile is unvalidated</strong> — no video-based micro-assessments have been completed. His <strong>37 yellow cards in 214 apps</strong> (1 per 5.8) suggest a disciplinary pattern that needs T3 confirmation. At 30, he is in his <strong>prime with a contract until 2027</strong>, but his <strong>€750K market value</strong> suggests limited external interest despite his pedigree. <strong>Best deployed as a versatile forward/winger in a high-intensity system</strong> that values his work rate, pressing, and goal threat. <strong>Validate T3 before any recruitment decision. Focus on physical intensity, decision-making under pressure, finishing quality, and disciplinary control. If T3 confirms elite-level quality, he could be a top-tier A-League asset or a squad player in a mid-tier European league; if not, he remains a strong domestic-level player only.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row">
+        <div class="philo-rank">1</div>
+        <div class="philo-name">Ferguson Drive</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div>
+        <div class="philo-name">Bielsa Intensity</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div>
+        <div class="philo-name">Dutch School Total Football</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div>
+        <div class="philo-name">Tuchel Structure</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div>
+        <div class="philo-name">Guardiola Positional</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.6</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Forward/Winger Percentile Radar <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="fwRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero">
+        <div class="value">14</div>
+        <div class="label">A-League Apps (WSW)</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">14</div>
+        <div class="label">Starts</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2</div>
+        <div class="label">Goals</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2</div>
+        <div class="label">Assists</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">6.8</div>
+        <div class="label">Sofascore Rating</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">42</div>
+        <div class="label">Shots</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">10</div>
+        <div class="label">Shots on Target</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1</div>
+        <div class="label">Yellow Cards</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Borrello's <strong>2025-26 season at Western Sydney Wanderers</strong> has seen him maintain his status as an <strong>undisputed starter</strong> with <strong>14 appearances (all starts), 2 goals, 2 assists, 42 shots (10 on target), and 1 yellow card</strong> as of early 2026. His <strong>Sofascore rating averages 6.8</strong>, indicating solid but not spectacular performances. He has <strong>0 red cards</strong> this season, a positive disciplinary indicator. His <strong>42 shots with 10 on target</strong> (23.8% accuracy) suggests he is actively involved in the attack but his finishing efficiency could improve. At 30, he is in his prime years and his <strong>contract runs until June 2027</strong>, providing stability. T3 must assess whether his <strong>physical intensity, pressing, and goal-scoring threat</strong> remain at elite levels and whether his <strong>A-League dominance</strong> could translate to higher-level competition.
+    </p>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Dribbling</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Crossing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Finishing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">First Touch</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Passing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Ball Control</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Composure</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Discipline</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5</span></div>
+      <div class="attr-row"><span class="name">Work Rate</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Leadership</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Pace</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Acceleration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Agility</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Jumping</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Real Data Metrics</h3>
+
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Career</div>
+          <div class="t1-hl-val">214</div>
+          <div class="t1-hl-pct">Total senior apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Gls</div>
+          <div class="t1-hl-val">37</div>
+          <div class="t1-hl-pct">37 goals in 214 apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:17%"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Ast</div>
+          <div class="t1-hl-val">33</div>
+          <div class="t1-hl-pct">33 assists in 214 apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:15%"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">25-26</div>
+          <div class="t1-hl-val">14</div>
+          <div class="t1-hl-pct">WSW A-League apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:7%;background:var(--warning)"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">AUS</div>
+          <div class="t1-hl-val">16</div>
+          <div class="t1-hl-pct">Australia caps, 2 goals</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:7%;background:var(--info)"></div></div>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">⚽ Season Output</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">League</span>
+          <span class="t1-metric-desc">A-League Men apps (WSW)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:7%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">14</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Gls</span>
+          <span class="t1-metric-desc">Goals scored</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:8%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Ast</span>
+          <span class="t1-metric-desc">Assists</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:8%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Shots</span>
+          <span class="t1-metric-desc">Total shots (10 on target)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">42</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cup</span>
+          <span class="t1-metric-desc">Australia Cup apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">—</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cont</span>
+          <span class="t1-metric-desc">Continental apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🟨 Discipline</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">YC</span>
+          <span class="t1-metric-desc">Yellow cards (career)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:17%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">37</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">RC</span>
+          <span class="t1-metric-desc">Red cards (career)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--success)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🏆 Pedigree / Tenure</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Born</span>
+          <span class="t1-metric-desc">Birth date</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">25 Jul 1995</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Debut</span>
+          <span class="t1-metric-desc">A-League debut</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">Nov 2013</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Contract</span>
+          <span class="t1-metric-desc">WSW contract</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">Until 2027</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Value</span>
+          <span class="t1-metric-desc">Market value</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:8%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">€750K</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">📋 Career Totals</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">BRI</span>
+          <span class="t1-metric-desc">Brisbane Roar (2013-17)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:33%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">71 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">GER</span>
+          <span class="t1-metric-desc">Germany (2017-22)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:22%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">48 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">WSW</span>
+          <span class="t1-metric-desc">Western Sydney (2022-)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:38%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">82+ apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Career</span>
+          <span class="t1-metric-desc">Total senior apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">214</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">POI — Positional IQ</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.0 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Complexity</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.0 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Grit</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.5 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Athleticism</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.0 ⏳</span>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With Tier 3 at 0/16, these are proxy estimates based on Tier 1 data patterns and positional averages.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;">
+          <canvas id="fgaDonut"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Season-by-Season Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">2013-14 · Brisbane Roar</strong><br>
+          <strong style="color:var(--text-primary);">6 apps, 0 goals</strong> · A-League debut at 18<br><br>
+          <strong style="color:var(--text-primary);">2014-15 · Brisbane Roar</strong><br>
+          <strong style="color:var(--text-primary);">22 apps, 4 goals</strong> · Breakthrough season<br><br>
+          <strong style="color:var(--text-primary);">2015-16 · Brisbane Roar</strong><br>
+          <strong style="color:var(--text-primary);">22 apps, 5 goals</strong> · Established starter<br><br>
+          <strong style="color:var(--text-primary);">2016-17 · Brisbane Roar</strong><br>
+          <strong style="color:var(--text-primary);">25 apps, 4 goals</strong> · A-League Premiership winner<br><br>
+          <strong style="color:var(--text-primary);">2017-18 · 1. FC Kaiserslautern</strong><br>
+          <strong style="color:var(--text-primary);">19 apps, 3 goals</strong> · 2. Bundesliga debut<br><br>
+          <strong style="color:var(--text-primary);">2018-19 · SC Freiburg</strong><br>
+          <strong style="color:var(--text-primary);">7 apps, 0 goals</strong> · Bundesliga<br><br>
+          <strong style="color:var(--text-primary);">2019-20 · SC Freiburg</strong><br>
+          <strong style="color:var(--text-primary);">0 apps</strong> · Limited playing time<br><br>
+          <strong style="color:var(--text-primary);">2020-21 · Fortuna Dusseldorf (Loan)</strong><br>
+          <strong style="color:var(--text-primary);">22 apps, 1 goal</strong> · 2. Bundesliga<br><br>
+          <strong style="color:var(--text-primary);">2021-22 · Dynamo Dresden</strong><br>
+          <strong style="color:var(--text-primary);">16 apps, 0 goals</strong> · 2. Bundesliga<br><br>
+          <strong style="color:var(--text-primary);">2022-23 · Western Sydney Wanderers</strong><br>
+          <strong style="color:var(--text-primary);">27 apps, 13 goals</strong> · Alex Tobin Medal, PFA TOTY, 6 WSW awards<br><br>
+          <strong style="color:var(--text-primary);">2023-24 · Western Sydney Wanderers</strong><br>
+          <strong style="color:var(--text-primary);">15 apps, 1 goal</strong> · Injury-affected season<br><br>
+          <strong style="color:var(--text-primary);">2024-25 · Western Sydney Wanderers</strong><br>
+          <strong style="color:var(--text-primary);">26 apps, 6 goals</strong> · 11 assists<br><br>
+          <strong style="color:var(--text-primary);">2025-26 · Western Sydney Wanderers</strong><br>
+          <strong style="color:var(--text-primary);">14 apps, 2 goals, 2 assists</strong> · 42 shots, 10 on target
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Proxy FGA Rating — 7.0 / 10 · Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. With Tier 2/3 both empty, this 7.0 is a <strong style="color:var(--text-primary);">substitute</strong> built from public Tier 1 numbers. The score reflects 214 career apps, 37 goals, Alex Tobin Medal, PFA TOTY, 16 Australia caps, 5-year German experience, and contract until 2027, balanced against modest market value (€750K), 37 yellow cards, and modest German output (48 apps, 4 goals).</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Career Pedigree</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">214 apps, Alex Tobin Medal, PFA TOTY, 16 AUS caps, A-League Premiership</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">7.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Current Output</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">14 apps, 2 goals, 2 assists. Undisputed starter at WSW</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">25%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Technical/Distribution</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">37 goals, 33 assists, 42 shots this season, 10 on target</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Discipline</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">37 yellows in 214 apps (1 per 5.8). 0 red cards</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Age / Ceiling</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">30 years old — in prime. Contract until 2027</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Physical</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">178cm, 79kg. Physical, athletic build. Right-footed</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">International</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">16 Australia caps, 2 goals. Dual AUS-ITA citizenship</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">5%</span>
+      </div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:180px;font-size:0.9rem;">Weighted Proxy Total</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--accent);">7.0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row">
+        <div class="philo-rank">1</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--accent);"></div></div></div><div class="philo-score">7.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div><div class="philo-score">7.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div><div class="philo-name">Dutch School Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div><div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent);"></div></div></div><div class="philo-score">6.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">6</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--warning);"></div></div></div><div class="philo-score">6.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">7</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--warning);"></div></div></div><div class="philo-score">6.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">8</div><div class="philo-name">Spanish Positional Superiority</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning);"></div></div></div><div class="philo-score">6.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">9</div><div class="philo-name">Beenhakker Technique</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--warning);"></div></div></div><div class="philo-score">5.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">10</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--warning);"></div></div></div><div class="philo-score">5.6</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--accent);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Australian Pressing Forward"</strong> — A versatile, high-energy forward/winger who has developed through the Australian and German football systems. Borrello combines <strong>physical intensity, work rate, and goal-scoring ability</strong> with <strong>5 years of European experience</strong> in Germany (2. Bundesliga, Bundesliga). His <strong>Alex Tobin Medal-winning 2022-23 season at WSW</strong> (27 apps, 13 goals, 6 individual awards) demonstrated his peak ability at A-League level. However, his <strong>modest output in Germany (48 apps, 4 goals)</strong> raises questions about his ability to translate A-League dominance to higher European levels. At 30, he is in his <strong>prime with a contract until 2027</strong>, but his <strong>€750K market value</strong> suggests limited external interest. Best deployed as a <strong>versatile forward/winger in a high-intensity pressing system</strong> that values his work rate, physicality, and goal threat. His <strong>both-footed ability (though primarily right-footed)</strong> and <strong>experience across multiple positions</strong> (RW, CF, LW) make him tactically flexible. <strong>T3 must assess whether his physical attributes and pressing intensity remain at elite levels and whether his finishing quality is sufficient for higher-level competition.</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Right Winger</span>
+          <span class="tag tag-club">Centre-Forward</span>
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-club">WSW #26</span>
+          <span class="tag tag-club">Alex Tobin Medal</span>
+          <span class="tag tag-club">PFA TOTY</span>
+          <span class="tag tag-club">Australia Socceroos</span>
+          <span class="tag tag-club">German Experience</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">7.0</div>
+      <div class="label">British School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.8</div>
+      <div class="label">German School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">6.5</div>
+      <div class="label">Dutch School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.9</div>
+      <div class="label">Spanish School</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item">
+          <div class="timeline-date">25 Jul 1995</div>
+          <div class="timeline-text">Born in <strong>Adelaide, South Australia, Australia</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">~2005-2011</div>
+          <div class="timeline-text">Youth career at <strong>Salisbury Villa, Western Strikers, and Modbury Jets</strong> in Adelaide.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2011</div>
+          <div class="timeline-text">Joined <strong>Brisbane Roar youth academy</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Nov 2013</div>
+          <div class="timeline-text"><strong>A-League debut</strong> for Brisbane Roar. Age 18.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2013-14</div>
+          <div class="timeline-text"><strong>6 apps, 0 goals</strong> for Brisbane Roar. Won <strong>A-League Premiership</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2014-15</div>
+          <div class="timeline-text"><strong>22 apps, 4 goals</strong> for Brisbane Roar. Breakthrough season.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2015-16</div>
+          <div class="timeline-text"><strong>22 apps, 5 goals</strong> for Brisbane Roar. Established as first-choice.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2016-17</div>
+          <div class="timeline-text"><strong>25 apps, 4 goals</strong> for Brisbane Roar. Departed after 71 apps, 13 goals for the club.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jun 2017</div>
+          <div class="timeline-text">Joined <strong>1. FC Kaiserslautern</strong> in 2. Bundesliga.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2017-18</div>
+          <div class="timeline-text"><strong>19 apps, 3 goals</strong> for Kaiserslautern in 2. Bundesliga.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jun 2018</div>
+          <div class="timeline-text">Joined <strong>SC Freiburg</strong> in Bundesliga.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2018-19</div>
+          <div class="timeline-text"><strong>7 apps, 0 goals</strong> for SC Freiburg in Bundesliga.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2019-20</div>
+          <div class="timeline-text"><strong>0 apps</strong> for SC Freiburg. Limited playing time.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2020</div>
+          <div class="timeline-text">Loaned to <strong>Fortuna Dusseldorf</strong> in 2. Bundesliga.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2020-21</div>
+          <div class="timeline-text"><strong>22 apps, 1 goal</strong> for Fortuna Dusseldorf.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2021</div>
+          <div class="timeline-text">Joined <strong>Dynamo Dresden</strong> in 2. Bundesliga.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2021-22</div>
+          <div class="timeline-text"><strong>16 apps, 0 goals</strong> for Dynamo Dresden. Departed after 48 total apps, 4 goals in Germany.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2022</div>
+          <div class="timeline-text">Signed <strong>two-year contract with Western Sydney Wanderers</strong> in A-League Men.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2022-23</div>
+          <div class="timeline-text"><strong>27 apps, 13 goals</strong> for WSW. Won <strong>Alex Tobin Medal, PFA TOTY, WSW Player of the Year, Golden Boot, Media Player of the Year, Members Player of the Year</strong> — 6 awards in debut season.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2023-24</div>
+          <div class="timeline-text"><strong>15 apps, 1 goal</strong> for WSW. Injury-affected season.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2024-25</div>
+          <div class="timeline-text"><strong>26 apps, 6 goals, 11 assists</strong> for WSW. Strong return to form.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2025-26</div>
+          <div class="timeline-text"><strong>14 apps, 2 goals, 2 assists</strong> for WSW. 42 shots, 10 on target. 1 yellow card.</div>
+        </div>
+        <div class="timeline-item current">
+          <div class="timeline-date">Jul 2026</div>
+          <div class="timeline-text">At <strong>Western Sydney Wanderers</strong>. 82+ WSW apps, 21+ goals. 214 career apps, 37 goals. 16 Australia caps, 2 goals. Contract until 2027. T3 pending.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>2013-14</strong></td><td>Brisbane Roar</td><td>A-League</td><td>6</td><td>0</td><td>~0</td></tr>
+          <tr><td><strong>2014-15</strong></td><td>Brisbane Roar</td><td>A-League</td><td>22</td><td>4</td><td>~0</td></tr>
+          <tr><td><strong>2015-16</strong></td><td>Brisbane Roar</td><td>A-League</td><td>22</td><td>5</td><td>~3</td></tr>
+          <tr><td><strong>2016-17</strong></td><td>Brisbane Roar</td><td>A-League</td><td>25</td><td>4</td><td>~4</td></tr>
+          <tr><td><strong>2017-18</strong></td><td>Kaiserslautern</td><td>2. Bundesliga</td><td>19</td><td>3</td><td>~2</td></tr>
+          <tr><td><strong>2018-19</strong></td><td>SC Freiburg</td><td>Bundesliga</td><td>7</td><td>0</td><td>~0</td></tr>
+          <tr><td><strong>2019-20</strong></td><td>SC Freiburg</td><td>Bundesliga</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2020-21</strong></td><td>Fortuna Dusseldorf</td><td>2. Bundesliga</td><td>22</td><td>1</td><td>~1</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>Dynamo Dresden</td><td>2. Bundesliga</td><td>16</td><td>0</td><td>~0</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>WS Wanderers</td><td>A-League</td><td>27</td><td>13</td><td>~5</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>WS Wanderers</td><td>A-League</td><td>15</td><td>1</td><td>~4</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>WS Wanderers</td><td>A-League</td><td>26</td><td>6</td><td>11</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>WS Wanderers</td><td>A-League</td><td>14</td><td>2</td><td>2</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="3"><strong>Career Total</strong></td>
+            <td><strong>214</strong></td>
+            <td><strong>37</strong></td>
+            <td><strong>~33</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>National Team</th><th>Years</th><th>Caps</th><th>Goals</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Australia U20</strong></td><td>2013-2015</td><td>~10</td><td>~2</td></tr>
+          <tr><td><strong>Australia U23</strong></td><td>2015-2016</td><td>~5</td><td>~1</td></tr>
+          <tr><td><strong>Australia (Socceroos)</strong></td><td>2018-2025</td><td>16</td><td>2</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="2"><strong>Total International</strong></td>
+            <td><strong>~31</strong></td>
+            <td><strong>~5</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">178cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">79kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Right Winger</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Centre-Forward, Left Winger</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#26 (WSW)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, compact</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Australia / Italy</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Injury-Affected 2023-24 Season</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>15 apps, 1 goal in 2023-24</strong> — a significant drop from 27 apps, 13 goals the previous season. Suggests an injury or fitness issue that limited his availability. This is a <strong>notable concern</strong> for a player in his late 20s. T3 must assess whether this was an isolated incident or part of a <strong>durability pattern</strong>.</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">✅ Strong Recovery 2024-25</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>26 apps, 6 goals, 11 assists in 2024-25</strong> — a strong return to form after the injury-affected 2023-24. This demonstrates <strong>resilience and professional recovery</strong>. However, the 2025-26 output (14 apps, 2 goals, 2 assists) is more modest, suggesting he may be <strong>settling into a consistent but not spectacular level</strong>.</div>
+        </div>
+        <div style="padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--info);margin-bottom:4px;">ℹ️ Physical Profile Assessment</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>178cm, 79kg</strong> — athletic, compact build. Physicality and work rate are key assets. At 30, his <strong>pace and acceleration</strong> may be slightly declining but his <strong>strength and stamina</strong> should remain strong. T3 should assess whether his <strong>physical intensity and pressing ability</strong> are still at the elite level that won him the Alex Tobin Medal.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>214 career apps by age 30</strong> — Proven durability across Australian and German leagues</li>
+      <li><strong>Alex Tobin Medal 2022-23</strong> — Official A-League Men Player of the Year award</li>
+      <li><strong>PFA Team of the Season 2022-23</strong> — Selected by fellow players as one of the league's best</li>
+      <li><strong>6 WSW individual awards in debut season (2022-23)</strong> — Player of the Year, Golden Boot, Media Player of the Year, Members Player of the Year</li>
+      <li><strong>A-League Premiership 2013-14</strong> — Won with Brisbane Roar at age 18</li>
+      <li><strong>16 Australia Socceroos caps, 2 goals</strong> — Established international career</li>
+      <li><strong>5 years in Germany</strong> — Kaiserslautern, SC Freiburg (Bundesliga), Fortuna Dusseldorf, Dynamo Dresden. European experience</li>
+      <li><strong>Bundesliga experience</strong> — 7 apps for SC Freiburg in Germany's top division</li>
+      <li><strong>2. Bundesliga experience</strong> — 41 apps across Kaiserslautern, Dusseldorf, Dresden</li>
+      <li><strong>Consistent A-League goal output</strong> — 37 goals in 214 apps (0.17 per app), including 13-goal season at WSW</li>
+      <li><strong>Undisputed starter at WSW</strong> — 14 starts in 14 apps in 2025-26. Immediately established</li>
+      <li><strong>Contract until 2027</strong> — Club invested long-term. Stability</li>
+      <li><strong>Dual Australian-Italian citizenship</strong> — No work permit issues in EU</li>
+      <li><strong>Agent: JB Sports2Business</strong> — Professional representation</li>
+      <li><strong>Strong recovery from injury-affected 2023-24</strong> — 26 apps, 6 goals, 11 assists in 2024-25</li>
+      <li><strong>Versatile across forward positions</strong> — Right winger, centre-forward, left winger</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Modest market value (€750K)</strong> — Despite Alex Tobin Medal, 16 Australia caps, and 5 years in Germany. Suggests limited external interest</li>
+      <li><strong>Poor output in Germany (48 apps, 4 goals)</strong> — Failed to establish himself in 2. Bundesliga or Bundesliga. 0.08 goals per app in Germany</li>
+      <li><strong>0 apps for SC Freiburg in 2019-20</strong> — Completely frozen out. Significant red flag</li>
+      <li><strong>0 goals for Dynamo Dresden (2021-22)</strong> — 16 apps, 0 goals in 2. Bundesliga</li>
+      <li><strong>37 yellow cards in 214 career apps</strong> — 1 yellow per 5.8 apps. Consistent disciplinary pattern</li>
+      <li><strong>Injury-affected 2023-24 season</strong> — 15 apps, 1 goal. Significant drop from 27 apps, 13 goals</li>
+      <li><strong>Modest 2025-26 output</strong> — 14 apps, 2 goals, 2 assists. Not matching 2022-23 peak</li>
+      <li><strong>42 shots, only 10 on target (23.8%)</strong> in 2025-26 — Poor shot accuracy</li>
+      <li><strong>No European continental experience</strong> — Never played in UEFA competitions or AFC Champions League</li>
+      <li><strong>A-League level only since 2022</strong> — Has not been tested against top-tier international competition since returning from Germany</li>
+      <li><strong>Age 30, limited upside</strong> — In prime but market value suggests scouts see him as a finished product</li>
+      <li><strong>0 T3 validation</strong> — No video-based micro-assessments. True technical ceiling entirely unknown</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>All 16 T3 metrics pending</strong> — Zero validated video assessments. Full scout review required</li>
+      <li><strong>Finishing quality</strong> — 42 shots, 10 on target (23.8%) in 2025-26. Is this a pattern or anomaly?</li>
+      <li><strong>Dribbling technique under pressure</strong> — Can he beat defenders 1v1 at elite level? Failed in Germany</li>
+      <li><strong>Crossing accuracy</strong> — 11 assists in 2024-25 suggests quality, but consistency unvalidated</li>
+      <li><strong>Pressing intensity</strong> — High work rate praised but can he sustain intensity in high-press systems vs elite opposition?</li>
+      <li><strong>Physical duels</strong> — 178cm, 79kg. Can he win physical battles against stronger defenders?</li>
+      <li><strong>Decision-making in final third</strong> — 42 shots with low accuracy suggests poor shot selection</li>
+      <li><strong>Defensive work rate</strong> — Wingers in modern systems must press and track back. T3 must assess</li>
+      <li><strong>Recovery from injury</strong> — 2023-24 injury. Has he fully recovered? Is he prone to recurring issues?</li>
+      <li><strong>Top-5 league readiness</strong> — Failed in Germany. Can he compete at European elite level?</li>
+      <li><strong>Leadership and maturity</strong> — 30 years old, 214 apps. Can he organize and command a forward line?</li>
+      <li><strong>Aerial ability</strong> — 178cm. Limited aerial threat. Set-piece contribution unvalidated</li>
+      <li><strong>Left foot quality</strong> — Right-footed. Left foot quality when cutting inside or playing on left unvalidated</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--accent);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROXY FGA 7.0 — AUSTRALIAN-ITALIAN FORWARD/WINGER with T3 validation required.</strong> Brandon Borrello is a <strong>proven A-League star with 214 career apps, 37 goals, 16 Australia caps, and the Alex Tobin Medal</strong> (A-League Player of the Year 2022-23). His <strong>5-year stint in Germany</strong> (2. Bundesliga, Bundesliga) demonstrates he has European experience, though his output there was modest (48 apps, 4 goals). His <strong>return to Australia has been spectacular</strong> — 82+ WSW apps, 21+ goals, multiple individual awards, and Socceroos recognition. However, his <strong>entire T3 profile is unvalidated</strong> — no video-based micro-assessments have been completed. His <strong>modest market value (€750K), poor German output, 37 yellow cards, and injury-affected 2023-24</strong> are significant concerns for any club considering recruitment outside Australia. At 30, he is in his <strong>prime with a contract until 2027</strong>, but his <strong>upside appears limited</strong> — he is a known quantity in the A-League rather than a developmental prospect. <strong>Best deployed as a versatile forward/winger in a high-intensity system</strong> that values his work rate, pressing, and goal threat. The <strong>2 video links provided (WSW vs Adelaide United, WSW vs Melbourne City FC)</strong> are valuable for T3 assessment — Borrello, as a regular starter (14 starts in 14 apps 2025-26), is highly likely to feature in these matches. <strong>Validate T3 before any recruitment decision. Focus on physical intensity, decision-making under pressure, finishing quality, and shot selection. If he passes T3, he could be a reliable squad player in a mid-tier European league or a star in the A-League; if not, he remains an A-League-level asset only.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>2 Video Links Provided — T3 Pending.</strong> Brandon Borrello is a regular starter for Western Sydney Wanderers (14 starts in 14 apps in 2025-26 A-League Men). Both video links are WSW home fixtures, and he is <strong>highly likely to have featured</strong> in these matches. T3 verification is required to confirm his specific participation and assess performance across all 16 metrics.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Video Links — T3 Assessment</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/38ei58wr9hs364xe2sf0t/Western-Sydney-Wanderers-Adela-de-United.mp4?rlkey=lp9wtmblyuis18559zao30qxm&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Western Sydney Wanderers vs Adelaide United</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+          <span class="match-badge badge-comp">A-League Men</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          A-League Men fixture featuring Western Sydney Wanderers. Borrello is a regular starter (14 starts in 14 apps 2025-26) and is highly likely to have featured in this match. T3 scout to assess his performance across all 16 metrics: OBI, SII, DMA, SOA, SPI, CLM, DYN, CRK, CHR, MCS, CRS, OMS.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/hr9pa2lplxqo98zl6kbv0/Western-Sydney-Wanderers-Melbourne-City-Football-Club.mp4?rlkey=l2jdieo54tdpjrvt3zkqv21a7&raaw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Western Sydney Wanderers vs Melbourne City FC</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+          <span class="match-badge badge-comp">A-League Men</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          A-League Men fixture featuring Western Sydney Wanderers. Note: This same match link was also provided for Angus Thurgate (WSW teammate). Both players may feature in the same footage. T3 scout to assess Borrello's performance across all 16 metrics. Focus on his forward/winger play, pressing intensity, and finishing.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Scout Assessment Notes</h3>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Physical Identity Card</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Height</span><span class="value">178cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">79kg</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">#26 (WSW)</span></div>
+          <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, compact</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Right Winger</span></div>
+          <div class="physical-item"><span class="label">Alt Pos</span><span class="value">CF, Left Winger</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">Australia / Italy</span></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Forward/Winger-Specific Focus Areas</h4>
+        <ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Finishing Quality:</strong> 42 shots, 10 on target (23.8%) in 2025-26 — assess shot selection and composure</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Pressing Intensity:</strong> High work rate praised — validate intensity and effectiveness</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>1v1 Dribbling:</strong> Can he beat defenders? Failed to establish in Germany</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Crossing/Assists:</strong> 11 assists in 2024-25 — validate delivery quality and consistency</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Discipline:</strong> 37 yellows in 214 apps — assess cause (tactical, late, dissent)</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Physical Duels:</strong> 178cm, 79kg — strength and aerial ability vs defenders</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:16px;margin-bottom:0;">
+      <span>ℹ️</span> <strong>Verification note:</strong> Only 2 video links provided for T3 assessment. With <strong>214 career apps across 5 clubs and 16 Australia caps</strong>, additional match footage is recommended for comprehensive T3 validation. Focus on matches vs top A-League opposition (Melbourne Victory, Sydney FC, Central Coast Mariners) and matches where Borrello played in different positions (RW, CF, LW). If you have additional match data or metadata, reply and I'll update the card. When your scout completes the video assessment, reply with the validated scores and I'll update the card to <strong>T3_STATUS = SCOUT_VALIDATED</strong>.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Hero Dial
+const heroCanvas = document.getElementById('heroDial');
+const heroCtx = heroCanvas.getContext('2d');
+const heroScore = 7.0;
+const heroMax = 10;
+const heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+heroCtx.strokeStyle = '#cc0000';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+
+// Forward/Winger Radar
+const fwCtx = document.getElementById('fwRadar').getContext('2d');
+new Chart(fwCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Dribbling','Crossing','Pace','Finishing','Physicality','Work Rate','Positioning','Creativity'],
+    datasets: [{
+      label: 'Borrello (Proxy)',
+      data: [7.0, 6.5, 7.0, 7.0, 7.0, 7.5, 7.0, 6.5],
+      backgroundColor: 'rgba(204,0,0,0.2)',
+      borderColor: '#cc0000',
+      pointBackgroundColor: '#cc0000',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }, {
+      label: 'A-League FW Average',
+      data: [6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.3, 5.5],
+      backgroundColor: 'rgba(255,255,255,0.05)',
+      borderColor: 'rgba(255,255,255,0.2)',
+      pointRadius: 0,
+      borderWidth: 1,
+      borderDash: [4,4]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+    }
+  }
+});
+
+// Attribute Radar
+const attrCtx = document.getElementById('attrRadar').getContext('2d');
+new Chart(attrCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Dribbling','Crossing','Finishing','First Touch','Passing','Ball Control','Composure','Decisions','Discipline','Work Rate'],
+    datasets: [{
+      label: 'Borrello (Proxy)',
+      data: [7.0, 6.5, 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 5.5, 7.5],
+      backgroundColor: 'rgba(204,0,0,0.2)',
+      borderColor: '#cc0000',
+      pointBackgroundColor: '#cc0000',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Philosophy Radar
+const philoData = {
+  labels: ['Ferguson Drive','Bielsa Intensity','Total Football','Tuchel Structure','Guardiola Positional','Wenger Development','Cruyff Intelligence','Spanish Positional','Beenhakker Technique','Mourinho Pragmatism'],
+  datasets: [{
+    label: 'Borrello',
+    data: [7.4, 7.2, 7.0, 6.8, 6.6, 6.4, 6.2, 6.0, 5.8, 5.6],
+    backgroundColor: 'rgba(204,0,0,0.2)',
+    borderColor: '#cc0000',
+    pointBackgroundColor: '#cc0000',
+    pointBorderColor: '#fff',
+    pointRadius: 3,
+    borderWidth: 2
+  }]
+};
+const philoOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    r: {
+      min: 3, max: 10,
+      ticks: { display: false, stepSize: 1 },
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      angleLines: { color: 'rgba(255,255,255,0.06)' },
+      pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+    }
+  },
+  plugins: { legend: { display: false } }
+};
+new Chart(document.getElementById('philosophyRadar').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+new Chart(document.getElementById('philosophyRadar2').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+
+// FGA Donut
+new Chart(document.getElementById('fgaDonut').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['T1 Extensive','T2 Proxy','T3 Pending'],
+    datasets: [{
+      data: [20, 30, 50],
+      backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
