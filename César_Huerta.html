@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>César Huerta | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #04060c;
+  --bg-card: #080c16;
+  --bg-card-hover: #0d1220;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.1);
+  --text-primary: #e8ecf4;
+  --text-secondary: #8b92a8;
+  --text-tertiary: #5a6070;
+  --accent: #660099;
+  --accent-dim: rgba(102,0,153,0.15);
+  --accent-glow: rgba(102,0,153,0.4);
+  --success: #00d084;
+  --warning: #ffb800;
+  --danger: #ff3b3b;
+  --info: #3b82f6;
+  --tier1: #00d084;
+  --tier2: #ffb800;
+  --tier3: #ff3b3b;
+  --pending: #5a6070;
+  --font-display: 'Oswald', sans-serif;
+  --font-heading: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+/* HERO */
+.hero {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSgIZYoYK1S4e3fMwRDhrjpeMj38Hm5O3huWN5R14ZrOaBmQ3krMLHEk0&s=10') center 20% / cover no-repeat;
+  filter: brightness(0.45) saturate(0.85);
+  transition: transform 8s ease;
+}
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4,6,12,0.2) 0%, rgba(4,6,12,0.75) 60%, var(--bg-primary) 100%);
+}
+.hero-branding {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--accent) 50%, #ffffff 50%);
+  z-index: 10;
+}
+.hero-content {
+  position: relative;
+  z-index: 5;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.jersey-watermark {
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 220px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.04);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+}
+.club-badge-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.badge-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-item .arrow {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+}
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.hero-meta span {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-meta .dot {
+  width: 4px; height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.hero-meta .flag {
+  font-size: 1.1rem;
+}
+.hero-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 32px;
+}
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(102,0,153,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-gold { background: rgba(249,232,20,0.1); color: #f9e814; border: 1px solid rgba(249,232,20,0.2); }
+.tag-hist { background: rgba(0,208,132,0.08); color: var(--success); border: 1px solid rgba(0,208,132,0.15); }
+
+/* FGA DIAL */
+.fga-dial-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+.fga-dial-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.fga-dial-inner .fga-label {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+}
+.fga-dial-inner .fga-score {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.fga-dial-inner .fga-status {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--warning);
+  margin-top: 2px;
+}
+
+/* TIER PILLS */
+.tier-pills {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tier-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(255,59,59,0.12); color: var(--tier3); border: 1px solid rgba(255,59,59,0.2); }
+
+/* STICKY TABS */
+.tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(4,6,12,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tab-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 0;
+}
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1;
+  min-width: 110px;
+  padding: 16px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%);
+}
+
+/* CONTENT */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title .line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* CARDS & GRIDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-medium);
+}
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+/* BANNERS */
+.banner {
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(249,232,20,0.06); border: 1px solid rgba(249,232,20,0.2); color: #f9e814; }
+.banner-hist { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); color: var(--success); }
+
+/* STAT HERO */
+.stat-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-hero:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-medium);
+}
+.stat-hero .value {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.stat-hero .label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+/* CAREER PATH */
+.career-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.career-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.career-node.current {
+  background: var(--accent-dim);
+  border-color: rgba(102,0,153,0.3);
+  color: var(--accent);
+}
+.career-node.hist {
+  background: rgba(0,208,132,0.08);
+  border-color: rgba(0,208,132,0.2);
+  color: var(--success);
+}
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+/* ATTRIBUTE CARDS */
+.attr-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+.attr-card h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+.attr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.attr-row .score {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ac-green { color: var(--success); }
+.ac-yellow { color: var(--warning); }
+.ac-red { color: var(--danger); }
+.ac-pend { color: var(--pending); }
+.circle {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.circle-green { background: var(--success); }
+.circle-yellow { background: var(--warning); }
+.circle-red { background: var(--danger); }
+.circle-pend { background: var(--pending); }
+
+/* PROGRESS BARS */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+/* T1 METRIC ROWS */
+.t1-metric-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 50px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.t1-metric-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  flex: 1;
+}
+.t1-metric-bar-wrap {
+  width: 100px;
+  flex-shrink: 0;
+}
+.t1-metric-val {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  width: 70px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.t1-metric-ctx {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+
+/* T1 HIGHLIGHT BOXES */
+.t1-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.t1-hl-box {
+  background: linear-gradient(135deg, rgba(102,0,153,0.18), rgba(249,232,20,0.06));
+  border: 2px solid rgba(102,0,153,0.4);
+  border-radius: 6px;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.t1-hl-box.gold {
+  background: linear-gradient(135deg, rgba(249,232,20,0.12), rgba(102,0,153,0.06));
+  border-color: rgba(249,232,20,0.5);
+}
+.t1-hl-code {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.t1-hl-val {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+}
+.t1-hl-box.gold .t1-hl-val { color: #f9e814; }
+.t1-hl-pct {
+  font-size: 0.58rem;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.t1-hl-bar {
+  height: 3px;
+  background: rgba(102,0,153,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.t1-hl-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+}
+.t1-hl-box.gold .t1-hl-bar-fill { background: #f9e814; }
+.t1-hl-source {
+  font-family: var(--font-heading);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  color: rgba(102,0,153,0.35);
+  text-transform: uppercase;
+  margin-top: 6px;
+  display: block;
+}
+
+/* T1 GROUP */
+.t1-group { margin-bottom: 14px; }
+.t1-group-head {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(102,0,153,0.08);
+  margin-bottom: 8px;
+}
+
+/* PHILOSOPHY */
+.philo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.philo-row:last-child { border-bottom: none; }
+.philo-rank {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 28px;
+  text-align: center;
+}
+.philo-name {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.philo-score {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 36px;
+  text-align: right;
+}
+.philo-bar-wrap {
+  width: 120px;
+}
+
+/* MATCH CARDS */
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.match-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.match-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(102,0,153,0.1);
+}
+.match-card.excluded {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+.match-card.excluded:hover {
+  transform: none;
+  border-color: var(--border-subtle);
+  box-shadow: none;
+}
+.match-card.unverified {
+  opacity: 0.75;
+}
+.match-card.unverified:hover {
+  border-color: var(--warning);
+  box-shadow: 0 8px 24px rgba(255,184,0,0.08);
+}
+.match-thumb {
+  height: 140px;
+  background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.match-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(102,0,153,0.15)" stroke-width="2"/></svg>') center / 80px no-repeat;
+}
+.match-thumb .play-icon {
+  width: 48px; height: 48px;
+  background: rgba(102,0,153,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s, background 0.2s;
+}
+.match-card:hover .play-icon {
+  transform: scale(1.1);
+  background: var(--accent);
+}
+.match-card.excluded .play-icon {
+  background: rgba(90,96,112,0.5);
+}
+.match-card.excluded:hover .play-icon {
+  background: rgba(90,96,112,0.5);
+  transform: none;
+}
+.match-card.unverified .play-icon {
+  background: rgba(255,184,0,0.7);
+}
+.match-card.unverified:hover .play-icon {
+  background: var(--warning);
+}
+.play-icon svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.match-meta {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.match-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-excluded { background: rgba(255,59,59,0.12); color: var(--danger); }
+.badge-unverified { background: rgba(255,184,0,0.12); color: var(--warning); }
+.badge-hist { background: rgba(0,208,132,0.12); color: var(--success); }
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.data-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-medium);
+  background: rgba(255,255,255,0.02);
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+/* SCOUTING BOXES */
+.scout-box {
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.scout-box h4 {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(102,0,153,0.2); }
+.scout-verdict h4 { color: var(--accent); }
+.scout-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.scout-box li {
+  padding: 5px 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+}
+.scout-box li::before {
+  content: '—';
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* PHYSICAL CARD */
+.physical-card {
+  background: linear-gradient(135deg, rgba(102,0,153,0.08) 0%, rgba(4,6,12,0.5) 100%);
+  border: 1px solid rgba(102,0,153,0.15);
+  border-radius: 12px;
+  padding: 20px;
+}
+.physical-card h4 {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.physical-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.physical-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--border-subtle);
+}
+.timeline-item { position: relative; padding-bottom: 18px; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -17px; top: 4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+}
+.timeline-item.current::before { background: var(--accent); }
+.timeline-item.hist::before { background: var(--success); border-color: var(--success); }
+.timeline-date {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.timeline-item.hist .timeline-date { color: var(--success); }
+.timeline-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+.timeline-text strong { color: var(--text-primary); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero { height: 440px; }
+  .jersey-watermark { font-size: 140px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .fga-dial-wrap { width: 110px; height: 110px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: 1fr; }
+  .t1-metric-bar-wrap { width: 60px; }
+  .t1-metric-val { width: 50px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="jersey-watermark">21</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Guadalajara</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Zacatepec</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Mazatlán</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Pumas UNAM</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">RSC Anderlecht #21</div>
+    </div>
+    <h1 class="hero-name">César Huerta</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇲🇽</span> Mexico</span>
+      <span class="dot"></span>
+      <span>25 years</span>
+      <span class="dot"></span>
+      <span>172cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Left Winger</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Proxy</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-club">RSC Anderlecht · #21</span>
+          <span class="tag tag-value">€3.5M Value</span>
+          <span class="tag tag-gold">⭐ Gold Cup 2025</span>
+          <span class="tag tag-gold">⭐ World Cup 2026</span>
+          <span class="tag tag-info">179 Career Apps</span>
+          <span class="tag tag-info">30 Career Goals</span>
+          <span class="tag tag-info">Mexico NT (27 caps, 3G)</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Proxy FGA</div>
+          <div class="fga-score">6.7</div>
+          <div class="fga-status">PROXY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> PROXY FGA 6.7 — Tier 3 video metrics pending scout validation. All T3 assessments marked ⏳ PENDING.
+  </div>
+  <div class="banner banner-gold">
+    <span>⭐</span> MEXICO INTERNATIONAL — 27 caps, 3 goals. 2025 CONCACAF Gold Cup winner. 2024–25 CONCACAF Nations League winner. 2026 FIFA World Cup squad. First Mexican player in Anderlecht history. Debut goal vs KV Kortrijk 19 Jan 2025.
+  </div>
+  <div class="banner banner-danger">
+    <span>🚨</span> INJURY-PLAGUED 2025–26 — Hamstring injury Oct 2025 (12 days, 2 games missed). Only 11 Pro League apps, 1 goal. Transfer rumors linking him to Liga MX return (Toluca) as of June 2026.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Guadalajara</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Zacatepec</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Mazatlán</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Pumas UNAM</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">RSC Anderlecht #21</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">11</div>
+      <div class="label">Pro League Apps 25-26</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">1</div>
+      <div class="label">Goals</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">0</div>
+      <div class="label">Assists</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">~680</div>
+      <div class="label">Minutes</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">6.82</div>
+      <div class="label">Proxy Rating</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">4</div>
+      <div class="label">Yellow Cards</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        A <strong>25-year-old Mexican left winger</strong> born in Guadalajara, nicknamed <strong>"Chino"</strong> for his long curly hair. Product of the <strong>Guadalajara (Chivas)</strong> academy, with loan spells at Zacatepec, Morelia, and Mazatlán before breaking through at <strong>Pumas UNAM</strong> (80 apps, 18 goals). Joined <strong>RSC Anderlecht on 10 January 2025</strong> — the first Mexican player in club history — on a four-year deal. Scored on his debut vs KV Kortrijk (19 Jan 2025). <strong>2025–26 season severely disrupted by hamstring injury</strong> (Oct 2025), limiting him to 11 league apps and 1 goal. <strong>27 Mexico caps, 3 goals</strong>, including the 2025 Gold Cup and 2024–25 Nations League. Selected for <strong>2026 FIFA World Cup</strong> hosted on home soil. Transfer rumors linking him to <strong>Toluca</strong> in Liga MX as of June 2026.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 metrics validated.</strong> All physical, technical micro-assessments, and video-based evaluations are pending scout review. Huerta has a <strong>documented hamstring injury history</strong> (Oct 2025, 12 days; minor knock May 2025). T3 should focus on <strong>1v1 dribbling ability, crossing accuracy, finishing under pressure, defensive work rate, pressing intensity, and recovery from injury</strong>. The Mazatlán Copa MX 2020 footage provides historical context for his early-career technique. With only 11 Anderlecht league appearances in 2025–26, T3 must assess whether his limited minutes are due to injury, form, or tactical fit. The potential Liga MX return raises questions about his European adaptation.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--accent);">PROXY FGA 6.7 — MEXICAN INTERNATIONAL WINGER with T3 validation required.</strong> César Huerta arrives with strong Liga MX pedigree (80 Pumas apps, 18 goals) and established Mexico international status (27 caps, Gold Cup winner, World Cup 2026). His Anderlecht spell has been underwhelming — <strong>28 apps, 4 goals in 18 months</strong> — with a hamstring injury severely limiting his 2025–26 campaign (11 league apps, 1 goal). At 25, he is entering his prime but the transfer rumors suggest his European adventure may be short-lived. Best deployed as a <strong>left winger or inverted winger in a system that values his dribbling and creativity</strong>, but his defensive work rate and physical durability are concerns. <strong>Validate T3 before recruitment decision. Monitor Toluca transfer rumors closely.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row">
+        <div class="philo-rank">1</div>
+        <div class="philo-name">Dutch School Total Football</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div>
+        <div class="philo-name">Wenger Development</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div>
+        <div class="philo-name">Cruyff Intelligence</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.5</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div>
+        <div class="philo-name">Guardiola Positional</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div>
+        <div class="philo-name">Ferguson Drive</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.0</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;">
+      <canvas id="philosophyRadar" width="300" height="280"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">LW Percentile Radar <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="lwRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero">
+        <div class="value">11</div>
+        <div class="label">Pro League Apps</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">6</div>
+        <div class="label">Starts</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1</div>
+        <div class="label">Goals</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">0</div>
+        <div class="label">Assists</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">6.82</div>
+        <div class="label">Proxy Rating</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">4</div>
+        <div class="label">Yellow Cards</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">0</div>
+        <div class="label">Red Cards</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">~680</div>
+        <div class="label">Minutes</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Huerta's <strong>2025–26 season was severely disrupted by injury</strong>. A <strong>hamstring injury in October 2025</strong> kept him out for 12 days and 2 matches, and he never fully regained his starting place. He managed only <strong>11 Pro League appearances (6 starts), 1 goal, 0 assists, and approximately 680 minutes</strong>. He added <strong>2 Belgian Cup apps (1 goal) and 4 UEFA Conference League apps (0 goals)</strong>. His discipline was a concern with <strong>4 yellow cards in 11 league apps</strong>. The limited output, combined with transfer rumors linking him to a return to Liga MX (Toluca), suggests his Anderlecht project is in jeopardy. T3 must assess whether the injury was the primary cause of his limited minutes or whether there are deeper tactical/technical concerns.
+    </p>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Dribbling</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0</span></div>
+      <div class="attr-row"><span class="name">Finishing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Crossing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Passing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">First Touch</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Long Shots</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Composure</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Discipline</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0</span></div>
+      <div class="attr-row"><span class="name">Work Rate</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Leadership</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Agility</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0</span></div>
+      <div class="attr-row"><span class="name">Sprint Speed</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0</span></div>
+      <div class="attr-row"><span class="name">Acceleration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Jumping</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Real Data Metrics</h3>
+
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Career</div>
+          <div class="t1-hl-val">179</div>
+          <div class="t1-hl-pct">Total senior apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%"></div></div>
+          <span class="t1-hl-source">Wikipedia</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Gls</div>
+          <div class="t1-hl-val">30</div>
+          <div class="t1-hl-pct">30 goals in 179 apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:50%"></div></div>
+          <span class="t1-hl-source">Wikipedia</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">25-26</div>
+          <div class="t1-hl-val">11</div>
+          <div class="t1-hl-pct">Anderlecht Pro League apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:27%"></div></div>
+          <span class="t1-hl-source">Wikipedia</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Mexico</div>
+          <div class="t1-hl-val">27</div>
+          <div class="t1-hl-pct">Senior caps, 3 goals</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:45%;background:var(--success)"></div></div>
+          <span class="t1-hl-source">National Teams</span>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Pumas</div>
+          <div class="t1-hl-val">80</div>
+          <div class="t1-hl-pct">Pumas apps, 18 goals</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%;background:var(--info)"></div></div>
+          <span class="t1-hl-source">Wikipedia</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">⚽ Season Output</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">League</span>
+          <span class="t1-metric-desc">Belgian Pro League apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:27%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">11</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Gls</span>
+          <span class="t1-metric-desc">Goals scored</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">1</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Ast</span>
+          <span class="t1-metric-desc">Assists</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cup</span>
+          <span class="t1-metric-desc">Belgian Cup apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cont</span>
+          <span class="t1-metric-desc">Conference League apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">4</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🟨 Discipline</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">YC</span>
+          <span class="t1-metric-desc">Yellow cards</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">4</span>
+          <span class="t1-metric-ctx">ESPN</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">RC</span>
+          <span class="t1-metric-desc">Red cards</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--success)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+          <span class="t1-metric-ctx">ESPN</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🏆 Pedigree / Tenure</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Debut</span>
+          <span class="t1-metric-desc">Senior debut (Guadalajara)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">10 Nov 2018</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Joined</span>
+          <span class="t1-metric-desc">Anderlecht transfer</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">10 Jan 2025</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Contract</span>
+          <span class="t1-metric-desc">Anderlecht contract</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">30 Jun 2029</span>
+          <span class="t1-metric-ctx">Transfermarkt</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Value</span>
+          <span class="t1-metric-desc">Market value</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">€3.5M</span>
+          <span class="t1-metric-ctx">Transfermarkt</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">📋 Career Totals</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Pumas</span>
+          <span class="t1-metric-desc">Pumas UNAM</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">80 apps</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Ander</span>
+          <span class="t1-metric-desc">RSC Anderlecht</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:16%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">28 apps</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Career</span>
+          <span class="t1-metric-desc">Total senior apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">179</span>
+          <span class="t1-metric-ctx">Wikipedia</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">POI — Positional IQ</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Complexity</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Grit</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Athleticism</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5 ⏳</span>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With Tier 3 at 0/16, these are proxy estimates based on Tier 1 data patterns and positional averages.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;">
+          <canvas id="fgaDonut"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Season-by-Season Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">2018–19 · Guadalajara</strong><br>
+          <strong style="color:var(--text-primary);">1 app, 0 goals</strong> · Liga MX debut<br><br>
+          <strong style="color:var(--text-primary);">2019–20 · Zacatepec (loan)</strong><br>
+          <strong style="color:var(--text-primary);">13 apps, 4 goals</strong> · Ascenso MX<br><br>
+          <strong style="color:var(--text-primary);">2019–20 · Morelia (loan)</strong><br>
+          <strong style="color:var(--text-primary);">6 apps, 0 goals</strong> · Liga MX<br><br>
+          <strong style="color:var(--text-primary);">2020–21 · Mazatlán (loan)</strong><br>
+          <strong style="color:var(--text-primary);">17 apps, 3 goals</strong> · First official Mazatlán goal<br><br>
+          <strong style="color:var(--text-primary);">2021–22 · Guadalajara</strong><br>
+          <strong style="color:var(--text-primary);">20 apps, 1 goal</strong> · Requested transfer<br><br>
+          <strong style="color:var(--text-primary);">2022–24 · Pumas UNAM</strong><br>
+          <strong style="color:var(--text-primary);">80 apps, 18 goals</strong> · Breakthrough + Liga MX Best XI<br><br>
+          <strong style="color:var(--text-primary);">2024–25 · Anderlecht</strong><br>
+          <strong style="color:var(--text-primary);">17 apps, 3 goals</strong> · Debut goal, Belgian Cup runner-up<br><br>
+          <strong style="color:var(--text-primary);">2025–26 · Anderlecht</strong><br>
+          <strong style="color:var(--text-primary);">11 apps, 1 goal</strong> · Hamstring injury, limited minutes
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Proxy FGA Rating — 6.7 / 10 · Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. With Tier 2/3 both partially empty, this 6.7 is a <strong style="color:var(--text-primary);">substitute</strong> built from public Tier 1 numbers. The score reflects strong Liga MX pedigree and Mexico international status, balanced against a disappointing 2025–26 Anderlecht spell (11 apps, injury issues) and transfer rumors.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Career Pedigree</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Pumas star, Liga MX Best XI, Anderlecht move, Mexico international</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">7.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Current Output</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">11 apps, 1 goal. Injury-disrupted season</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">25%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Technical/Attacking</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">30 career goals, dribbling, creativity</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">6.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Discipline</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">4 yellows in 11 apps. Injury history</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Age / Ceiling</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">25 years old — entering prime, limited upside</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Physical</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">172cm, 68kg, hamstring injury concerns</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">International</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Mexico 27 caps, 3G, Gold Cup, World Cup 2026</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">7.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">5%</span>
+      </div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:180px;font-size:0.9rem;">Weighted Proxy Total</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);">6.7</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row">
+        <div class="philo-rank">1</div><div class="philo-name">Dutch School Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div><div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent);"></div></div></div><div class="philo-score">6.5</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--accent);"></div></div></div><div class="philo-score">6.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent);"></div></div></div><div class="philo-score">6.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">6</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--warning);"></div></div></div><div class="philo-score">5.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">7</div><div class="philo-name">Spanish Positional Superiority</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--warning);"></div></div></div><div class="philo-score">5.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">8</div><div class="philo-name">Beenhakker Technique</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning);"></div></div></div><div class="philo-score">5.5</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">9</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:52%;background:var(--warning);"></div></div></div><div class="philo-score">5.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">10</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:var(--warning);"></div></div></div><div class="philo-score">4.8</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <canvas id="philosophyRadar2" width="300" height="280"></canvas>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--accent);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Creative Mexican Winger"</strong> — A technically gifted left winger who thrives in possession-based systems that grant him freedom to cut inside and create. Huerta is at his best when operating in the half-space, linking with a striker and using his dribbling ability to beat defenders. His time at Pumas showcased his goalscoring potential (18 goals in 80 apps), but his Anderlecht spell has been hampered by injury and adaptation issues. He is not a high-volume defensive contributor and requires a system that covers his defensive workload. Best deployed as an <strong>inverted left winger or second striker in a creative, attacking system</strong> that values his technical ability over physical dominance. His small frame (172cm) and injury history make him unsuited to high-press, high-intensity systems.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-club">Inverted Winger</span>
+          <span class="tag tag-club">Dribbler</span>
+          <span class="tag tag-club">Mexico International</span>
+          <span class="tag tag-club">First Mexican at Anderlecht</span>
+          <span class="tag tag-club">Gold Cup Winner</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.7</div>
+      <div class="label">Dutch School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.5</div>
+      <div class="label">German School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.8</div>
+      <div class="label">Spanish School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.5</div>
+      <div class="label">Italian School</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">3 Dec 2000</div>
+          <div class="timeline-text">Born in <strong>Guadalajara, Jalisco, Mexico</strong>. Nicknamed "Chino" for his long curly hair.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2015–2018</div>
+          <div class="timeline-text">Youth development at <strong>Guadalajara (Chivas)</strong> academy.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">10 Nov 2018</div>
+          <div class="timeline-text"><strong>Senior debut</strong> for Guadalajara vs León.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2019</div>
+          <div class="timeline-text">Loaned to <strong>Zacatepec</strong> (Ascenso MX). 13 apps, 4 goals.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2020</div>
+          <div class="timeline-text">Loaned to <strong>Morelia</strong> then <strong>Mazatlán</strong> (franchise relocation). Scored Mazatlán's first official goal.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2020–21</div>
+          <div class="timeline-text">Mazatlán loan: <strong>17 apps, 3 goals</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2021–22</div>
+          <div class="timeline-text">Returned to Guadalajara: <strong>20 apps, 1 goal</strong>. Unable to secure starting role. Requested transfer.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">1 Jun 2022</div>
+          <div class="timeline-text">Signed for <strong>Pumas UNAM</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2022–24</div>
+          <div class="timeline-text">Pumas breakthrough: <strong>80 apps, 18 goals, 15 assists</strong>. Liga MX Best XI Clausura 2024. Player of the Month Sep 2023.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">9 Sep 2023</div>
+          <div class="timeline-text"><strong>Mexico senior debut</strong> vs Australia. Scored 2–2 equalizer (83').</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2024</div>
+          <div class="timeline-text"><strong>Copa América 2024</strong> with Mexico. <strong>Liga MX All-Star 2024</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">10 Jan 2025</div>
+          <div class="timeline-text">Joined <strong>RSC Anderlecht</strong> on a four-year deal. First Mexican player in club history. Contract until 2029.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">19 Jan 2025</div>
+          <div class="timeline-text"><strong>Anderlecht debut + goal</strong> vs KV Kortrijk (2–0 win).</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">4 May 2025</div>
+          <div class="timeline-text">Started in <strong>Belgian Cup Final</strong> vs Club Brugge (2–1 loss). Substituted in second half.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2024–25</div>
+          <div class="timeline-text">First Anderlecht season: <strong>17 apps, 3 goals</strong>. Belgian Cup runner-up.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2025</div>
+          <div class="timeline-text"><strong>CONCACAF Gold Cup winner</strong> and <strong>Nations League winner</strong> with Mexico.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">16 Oct 2025</div>
+          <div class="timeline-text"><strong>Hamstring injury</strong>. 12 days out, 2 games missed. Season disrupted.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2025–26</div>
+          <div class="timeline-text">Injury-hit season: <strong>11 Pro League apps, 1 goal, 0 assists</strong>. 2 Cup apps (1 goal), 4 Conference League apps.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jun 2026</div>
+          <div class="timeline-text"><strong>2026 FIFA World Cup</strong> squad for Mexico (hosted on home soil). Transfer rumors to <strong>Toluca</strong> in Liga MX.</div>
+        </div>
+        <div class="timeline-item current">
+          <div class="timeline-date">Jul 2026</div>
+          <div class="timeline-text">At <strong>RSC Anderlecht</strong>. Contract until 2029. Future uncertain amid Liga MX return speculation.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Cup</th><th>Other</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>2018–19</strong></td><td>Guadalajara</td><td>Liga MX</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2019–20</strong></td><td>Guadalajara</td><td>Liga MX</td><td>5</td><td>0</td><td>4</td><td>0</td></tr>
+          <tr><td><strong>2019–20</strong></td><td>Zacatepec (loan)</td><td>Ascenso MX</td><td>13</td><td>4</td><td>4</td><td>0</td></tr>
+          <tr><td><strong>2019–20</strong></td><td>Morelia (loan)</td><td>Liga MX</td><td>6</td><td>0</td><td>4</td><td>0</td></tr>
+          <tr><td><strong>2020–21</strong></td><td>Mazatlán (loan)</td><td>Liga MX</td><td>17</td><td>3</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2020–21</strong></td><td>Tapatío (loan)</td><td>Liga Expansión MX</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2021–22</strong></td><td>Guadalajara</td><td>Liga MX</td><td>20</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2022–23</strong></td><td>Pumas</td><td>Liga MX</td><td>26</td><td>2</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2023–24</strong></td><td>Pumas</td><td>Liga MX</td><td>37</td><td>11</td><td>0</td><td>3</td></tr>
+          <tr><td><strong>2024–25</strong></td><td>Pumas</td><td>Liga MX</td><td>17</td><td>5</td><td>0</td><td>4</td></tr>
+          <tr><td><strong>2024–25</strong></td><td>Anderlecht</td><td>Belgian Pro League</td><td>17</td><td>3</td><td>2</td><td>0</td></tr>
+          <tr><td><strong>2025–26</strong></td><td>Anderlecht</td><td>Belgian Pro League</td><td>11</td><td>1</td><td>2</td><td>4</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="3"><strong>Career Total</strong></td>
+            <td><strong>179</strong></td>
+            <td><strong>30</strong></td>
+            <td><strong>16</strong></td>
+            <td><strong>11</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">International Register</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Team</th><th>Years</th><th>Apps</th><th>Goals</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Mexico U17</strong></td><td>2016–2017</td><td>9</td><td>1</td></tr>
+          <tr><td><strong>Mexico</strong></td><td>2023–</td><td>27</td><td>3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">172cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">68kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Left Winger</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#21 (Anderlecht)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Small, agile</span></div>
+        <div class="physical-item"><span class="label">Hair</span><span class="value">Long, curly</span></div>
+        <div class="physical-item"><span class="label">Nickname</span><span class="value">"Chino"</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Hamstring Injury — Oct 2025</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">16 Oct 2025. 12 days out, 2 games missed (RSC Anderlecht). Disrupted 2025–26 season and limited him to 11 league apps.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Minor Knock — May 2025</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">24–29 May 2025. 6 days out, 1 game missed (RSC Anderlecht). Minor issue at end of 2024–25 season.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--danger);margin-bottom:4px;">Durability Concern</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Small frame (172cm/68kg) combined with hamstring issues raises questions about physical durability in European football. T3 must assess injury recurrence risk.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Proven Liga MX goalscorer</strong> — 30 goals in 179 career apps, 18 in 80 Pumas apps</li>
+      <li><strong>Mexico international pedigree</strong> — 27 caps, 3 goals. Gold Cup 2025 winner, Nations League 2024–25 winner</li>
+      <li><strong>2026 FIFA World Cup squad</strong> — Selected for home World Cup. Big-stage exposure</li>
+      <li><strong>First Mexican player at Anderlecht</strong> — Historic signing. Club invested in him</li>
+      <li><strong>Debut goal for Anderlecht</strong> — Scored vs KV Kortrijk 19 Jan 2025 (2–0 win)</li>
+      <li><strong>Liga MX Best XI Clausura 2024</strong> — Recognized as one of Mexico's best</li>
+      <li><strong>Player of the Month Sep 2023</strong> — Liga MX monthly award</li>
+      <li><strong>Liga MX All-Star 2024</strong> — Selected for MLS All-Star game</li>
+      <li><strong>Creative dribbler</strong> — Known for 1v1 ability and flair</li>
+      <li><strong>Contract until 2029</strong> — Long-term Anderlecht commitment</li>
+      <li><strong>Young for experience</strong> — 25 years old with 179+ senior apps</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Injury-plagued 2025–26</strong> — Hamstring Oct 2025. Only 11 league apps, 1 goal</li>
+      <li><strong>Zero assists in 2025–26</strong> — Not creating for others in Belgium</li>
+      <li><strong>4 yellow cards in 11 apps</strong> — Discipline concerns</li>
+      <li><strong>Transfer rumors to Toluca</strong> — June 2026 reports of Liga MX return. European project failing?</li>
+      <li><strong>Small frame</strong> — 172cm, 68kg. Struggles with physicality?</li>
+      <li><strong>Limited European output</strong> — 28 Anderlecht apps, 4 goals in 18 months. Underwhelming</li>
+      <li><strong>Belgian Cup runner-up twice</strong> — 2024–25 and 2025–26 finals. No silverware at Anderlecht</li>
+      <li><strong>Agent: PROSPORT Management</strong> — Monitor transfer ambition</li>
+      <li><strong>Defensive contribution limited</strong> — Not a high-work-rate winger</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>All 16 T3 metrics pending</strong> — Zero validated video assessments; full scout review required</li>
+      <li><strong>1v1 dribbling under European pressure</strong> — Can he beat defenders in tighter spaces?</li>
+      <li><strong>Crossing accuracy</strong> — Delivery quality unvalidated at Anderlecht level</li>
+      <li><strong>Finishing consistency</strong> — 1 goal in 11 apps. Is it injury or technique?</li>
+      <li><strong>Defensive work rate</strong> — Pressing, tracking back, off-ball movement unvalidated</li>
+      <li><strong>Physical durability</strong> — Hamstring recurrence risk. Can he handle 30+ game seasons?</li>
+      <li><strong>Two-footed ability</strong> — Right-footed left winger. Left foot unvalidated</li>
+      <li><strong>Big-game mentality</strong> — Belgian Cup final subbed off. World Cup pressure untested</li>
+      <li><strong>European adaptation</strong> — 18 months in Belgium but still struggling. T3 must assess</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--accent);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROXY FGA 6.7 — MEXICAN INTERNATIONAL WINGER with T3 validation required.</strong> César Huerta is a talented winger with strong Liga MX pedigree and established Mexico international status, but his European adventure at Anderlecht has been underwhelming. His <strong>2025–26 season was derailed by a hamstring injury</strong> that limited him to 11 league apps and 1 goal, and transfer rumors now link him to a return to Liga MX (Toluca). At 25, he still has time to establish himself in Europe, but the trajectory is concerning. He is best suited as a <strong>left winger or inverted winger in a creative, attacking system</strong> that covers his defensive weaknesses and leverages his dribbling. However, his small frame, injury history, and limited European output make him a risky recruitment target. <strong>Validate T3 before any decision. Monitor Toluca transfer rumors — if he returns to Mexico, European recruitment becomes moot.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>21 video links</strong> (20 Anderlecht + 1 Mazatlán Copa MX 2020). Huerta joined Anderlecht <strong>10 January 2025</strong>. All 20 Anderlecht links are from the 2025–26 season and are post-join. <strong>1 historical T3 link</strong> (Mazatlán Copa MX 2020) from his loan spell. With only 11 league + 2 cup + 4 continental appearances in 2025–26, Huerta did NOT feature in all 20 Anderlecht matches. Scout must verify which specific fixtures he played in.
+  </div>
+
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/z5az6yfdcogvqguq4b2m4/Royal-Antwerp-Football-Club-Royal-Sporting-Club-Anderlecht.mp4?rlkey=ag6mqvh10eum28tarrdnn8fsn&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Royal Antwerp FC vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Croky Cup Semi Final</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 12 Feb 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/6hijqc45ing8snszeccdb/Royal-Sporting-Club-Anderlecht-Royal-Association-Athl-tique-de-La-Louvi-re.mp4?rlkey=opp336jh1brh3j1bnl7kd4uqn&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs RAAL La Louvière</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 15 Feb 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/8sqz80ez03rmppym158tx/Royal-Sporting-Club-Anderlecht-Sint-Truiden-Voetbal-Vereniging-STVV.mp4?rlkey=iv3oneozd366he1nd4uxq1rcb&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs STVV</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 21 May 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/bmr9yy52l3eflewl951w9/Full-game_-RSCA-Union-Mauve-TV.mp4?rlkey=w87jn4l7gfvl4fht5doq1t91y&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs Union SG</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 26 Apr 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/mfjtdwisnhli90f0j19dl/Full-game_-Union-RSCA-Mauve-TV.mp4?rlkey=2qwanovubhea8bef7o4i0m3h3&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Union SG vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Croky Cup Final</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 14 May 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/zpqpv0wyeigxng6snly0x/Fotbal-Club-Sheriff-Tiraspol-Royal-Sporting-Club-Anderlecht.mp4?rlkey=hni8xnp5t4lwz057g7e8yudwm&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Sheriff Tiraspol vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Conference League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 14 Aug 2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/igg17740uxvvtuw4i2o7a/Royal-Sporting-Club-Anderlecht-Athlitiki-Enosis-Konstantinoupoleos-AEK.mp4?rlkey=wq1kwa2zl2hl7t0nxlnmi2svn&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs AEK Athens</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Conference League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 21 Aug 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/bfzfmf7s2f39irzunbm6j/Full-game_-RSCA-Club-Brugge-Mauve-TV.mp4?rlkey=z6gh0wcwa6yz2qfmpt74d6753&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs Club Brugge</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 3 May 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/il0tk6d1t257u0jvzwm23/Royal-Union-Saint-Gilloise-Royal-Sporting-Club-Anderlecht.mp4?rlkey=ma1ksce13y0aq5jumveetc0ij&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Union SG vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 24 May 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/ko5oipmddujig1jkft0vx/Full-game_-KAA-Gent-RSCA-Mauve-TV.mp4?rlkey=rlybdfl0yy8xp00jj46o77i55&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">KAA Gent vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 10 May 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/zqqu24e5a2a7cnpxgxzc0/Full-game_-RSCA-KV-Mechelen-Mauve-TV.mp4?rlkey=qo0f7zuk6x1acc1ygskdeu9wr&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs KV Mechelen</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 1 Nov 2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/iz6dm0ocw1xpcnr8q01gh/Koninklijke-Voetbalclub-Mechelen-Royal-Sporting-Club-Anderlecht.mp4?rlkey=xmi60xcq1825e1n09ta6lcuyk&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">KV Mechelen vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 18 Apr 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/9acb99eqbubvpo6urnfoh/Sport-Vereniging-Zulte-Waregem-Royal-Sporting-Club-Anderlecht.mp4?rlkey=l2y1n7w9sw60mwvm4lj8rqie6&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">SV Zulte Waregem vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 22 Feb 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/q1etfcs4fharm5c2p475b/Royal-Sporting-Club-Anderlecht-Oud-Heverlee-Leuven-OHL.mp4?rlkey=bo8ea3yzxs3e8teswwm7xfu7e&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs OH Leuven</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 28 Feb 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/w6zoshznnxy54gxo482mw/Sint-Truiden-Voetbal-Vereniging-STVV-Royal-Sporting-Club-Anderlecht.mp4?rlkey=72bvt3odhi4g8rbzhcst3esv5&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">STVV vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 19 Oct 2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/u78gyx53hhrietw1lab2m/Koninklijke-Voetbalclub-Mechelen-Royal-Sporting-Club-Anderlecht-1.mp4?rlkey=5uztrt671wdzbx1u1tkcz56m5&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">KV Mechelen vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 15 Mar 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/91dp7r5z0oto7si3c86mf/Club-Brugge-Konklijke-Voetbalclub-Royal-Sporting-Club-Anderlecht.mp4?rlkey=garc0ticsce4ckkrletirdykx&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Club Brugge vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 6 Apr 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/1xsp4sm702riyp2wcmrqa/Club-Brugge-Koniklijke-Voetbalvereniging-Royal-Sporting-Club-Anderlecht.mp4?rlkey=og9az0uzw2voe1gnld0ouvgzw&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Club Brugge vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 8 Mar 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/ov2zfcacdny1w8t2cpbew/Royal-Sporting-Club-Anderlecht-Cercle-Brugge-Koninklijke-Sport-Vereniging.mp4?rlkey=oycz42jb2ctz0pq17b1932rer&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">RSC Anderlecht vs Cercle Brugge</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Pro League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 22 Mar 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/id0tgd2r8gzt26pb6qb39/Athlitiki-Enosis-Konstantinoupoleos-AEK-Football-Club-Royal-Sporting-Club-Anderlecht.mp4?rlkey=ezbxza48t89fuo1mmejfwkhrk&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">AEK Athens vs RSC Anderlecht</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Conference League</span>
+          <span class="match-badge badge-verified">✅ Match Verified · 28 Feb 2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Post-join fixture. Metadata confirmed. Scout to verify Huerta involvement from video footage.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/cibu5kl9sn8sr75ov5k35/Atlas-Mazatl-n-Copa-MX.mp4?rlkey=zpuridj8gcadvbibmpg9m94uh&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Atlas vs Mazatlán — Copa MX</div>
+        <div class="match-meta">
+          <span class="match-badge badge-hist">📼 HISTORICAL T3</span>
+          <span class="match-badge badge-comp">Copa MX · 2020</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Historical footage from Huerta's loan spell at Mazatlán (2020). T3 scout to assess early-career technique, dribbling, and finishing from Liga MX era. Pre-Anderlecht, pre-European move.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Scout Assessment Notes</h3>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Physical Identity Card</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Height</span><span class="value">172cm</span></div>
+          <div class="physical-item"><span class="label">Build</span><span class="value">Small, agile</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">#21</span></div>
+          <div class="physical-item"><span class="label">Hair</span><span class="value">Long, curly</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Left Winger</span></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">LW-Specific Focus Areas</h4>
+        <ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> 1v1 dribbling vs European defenders</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Crossing accuracy and delivery quality</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Finishing under pressure in the box</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Defensive work rate and pressing</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Recovery from hamstring injury</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> Left-footed ability (right-footed LW)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:16px;margin-bottom:0;">
+      <span>ℹ️</span> <strong>Verification note:</strong> All 20 Anderlecht video links are from the 2025–26 season and are post-join (Huerta joined 10 Jan 2025). However, with only 11 league + 2 cup + 4 continental appearances in 2025–26, Huerta did NOT feature in all 20 matches. Your scout must verify which specific fixtures he played in from the video footage. The Mazatlán Copa MX 2020 link is historical T3 footage from his loan spell — useful for assessing early-career technique and Liga MX-level performance. If you have additional match data or metadata, reply and I'll update the card. All T3 metrics remain at 0/16 pending scout video assessment. <strong>Monitor Toluca transfer rumors closely.</strong>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Hero Dial
+const heroCanvas = document.getElementById('heroDial');
+const heroCtx = heroCanvas.getContext('2d');
+const heroScore = 6.7;
+const heroMax = 10;
+const heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+heroCtx.strokeStyle = '#660099';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+
+// LW Radar
+const lwCtx = document.getElementById('lwRadar').getContext('2d');
+new Chart(lwCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Dribbling','Finishing','Crossing','Pace','Creativity','Work Rate','Physicality','Defending'],
+    datasets: [{
+      label: 'Huerta (Proxy)',
+      data: [7.0, 6.5, 6.5, 7.0, 6.5, 6.0, 6.0, 5.0],
+      backgroundColor: 'rgba(102,0,153,0.2)',
+      borderColor: '#660099',
+      pointBackgroundColor: '#660099',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }, {
+      label: 'Pro League LW Average',
+      data: [6.2, 6.0, 6.0, 6.5, 6.2, 6.0, 6.5, 5.5],
+      backgroundColor: 'rgba(255,255,255,0.05)',
+      borderColor: 'rgba(255,255,255,0.2)',
+      pointRadius: 0,
+      borderWidth: 1,
+      borderDash: [4,4]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+    }
+  }
+});
+
+// Attribute Radar
+const attrCtx = document.getElementById('attrRadar').getContext('2d');
+new Chart(attrCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Dribbling','Finishing','Crossing','Passing','First Touch','Long Shots','Composure','Decisions','Discipline','Work Rate'],
+    datasets: [{
+      label: 'Huerta (Proxy)',
+      data: [7.0, 6.5, 6.5, 6.5, 6.5, 6.0, 6.5, 6.5, 6.0, 6.0],
+      backgroundColor: 'rgba(102,0,153,0.2)',
+      borderColor: '#660099',
+      pointBackgroundColor: '#660099',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Philosophy Radar
+const philoData = {
+  labels: ['Total Football','Development','Intelligence','Positional','Drive','Structure','Spanish','Technique','Intensity','Pragmatism'],
+  datasets: [{
+    label: 'Huerta',
+    data: [7.0, 6.8, 6.5, 6.2, 6.0, 5.8, 5.6, 5.5, 5.2, 4.8],
+    backgroundColor: 'rgba(102,0,153,0.2)',
+    borderColor: '#660099',
+    pointBackgroundColor: '#660099',
+    pointBorderColor: '#fff',
+    pointRadius: 3,
+    borderWidth: 2
+  }]
+};
+const philoOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    r: {
+      min: 4, max: 10,
+      ticks: { display: false, stepSize: 1 },
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      angleLines: { color: 'rgba(255,255,255,0.06)' },
+      pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }
+    }
+  },
+  plugins: { legend: { display: false } }
+};
+new Chart(document.getElementById('philosophyRadar').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+new Chart(document.getElementById('philosophyRadar2').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+
+// FGA Donut
+new Chart(document.getElementById('fgaDonut').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['T1 Extensive','T2 Proxy','T3 Pending'],
+    datasets: [{
+      data: [20, 30, 50],
+      backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
