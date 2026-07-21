@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UEFA Euro 1988 · ESN FGA Intelligence Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#010209;--surface:#040B1E;--surface2:#070F25;
+  --border:#0D1A3A;--border2:#142244;
+  --blue:#003087;--blue-lt:#1A4BAF;
+  --gold:#C8A96E;--gold-dim:rgba(200,169,110,.12);--gold-lt:#E8C98E;
+  --red:#CC2020;--red-dim:rgba(204,32,32,.12);
+  --ok:#22C55E;--ok-dim:rgba(34,197,94,.10);
+  --text:#D8E8FF;--text-dim:#3A5080;--text-xs:#1A2840;
+  --ff-d:'Bebas Neue',sans-serif;--ff-b:'Inter',system-ui;
+  --radius:3px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--ff-b);font-size:13px;line-height:1.5;min-height:100vh}
+
+/* HEADER */
+.hd{
+  background:linear-gradient(160deg,#01030F 0%,#040B28 60%);
+  border-bottom:1px solid var(--border2);
+  position:relative;overflow:hidden;padding:0;
+}
+.hd-stripe{height:4px;background:linear-gradient(to right,var(--blue) 33%,var(--gold) 33% 66%,var(--blue) 66%)}
+.hd::after{
+  content:'UEFA EURO 1988';position:absolute;right:-20px;top:50%;
+  transform:translateY(-50%);font-family:var(--ff-d);font-size:100px;
+  color:rgba(200,169,110,.04);letter-spacing:4px;pointer-events:none;white-space:nowrap;
+}
+.hd-inner{max-width:1200px;margin:0 auto;padding:20px 24px;display:flex;align-items:center;gap:22px;position:relative}
+
+.trophy{font-size:52px;line-height:1;filter:drop-shadow(0 0 12px rgba(200,169,110,.4));flex-shrink:0}
+
+.tournament-badge{flex-shrink:0}
+.tb-stars{font-size:10px;color:var(--gold);letter-spacing:4px;text-align:center;display:block}
+.tb-label{font-family:var(--ff-d);font-size:11px;letter-spacing:3px;color:var(--gold);text-align:center;display:block;margin-bottom:2px}
+.tb-year{font-family:var(--ff-d);font-size:52px;color:#fff;line-height:1;display:block;text-align:center;letter-spacing:2px}
+.tb-host{font-size:10px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;text-align:center;display:block;margin-top:2px}
+
+.hd-sep{width:1px;height:70px;background:var(--border2);flex-shrink:0}
+
+.hd-info{flex:1}
+.hd-eyebrow{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.hd-title{font-family:var(--ff-d);font-size:30px;letter-spacing:.5px;color:#fff;line-height:1;margin-bottom:6px}
+.hd-sub{font-size:12px;color:var(--text-dim);line-height:1.6}
+.hd-winner{display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border:1px solid var(--gold);border-radius:2px;background:var(--gold-dim);margin-top:8px}
+.hd-winner span{font-size:11px;font-weight:700;color:var(--gold)}
+
+.hd-kpis{display:flex;gap:24px;flex-shrink:0}
+.kpi{text-align:right}
+.kpi-val{font-family:var(--ff-d);font-size:28px;color:var(--gold-lt);letter-spacing:.5px;line-height:1}
+.kpi-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-xs);margin-top:1px}
+
+/* LAYOUT */
+.main{max-width:1200px;margin:0 auto;padding:28px 24px 60px}
+.section-title{font-family:var(--ff-d);font-size:22px;letter-spacing:1px;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* MATCH CARDS */
+.matches-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(370px,1fr));margin-bottom:36px}
+
+.match-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:border-color .15s,box-shadow .15s;
+}
+.match-card:hover{border-color:var(--border2);box-shadow:0 2px 12px rgba(0,48,135,.15)}
+.match-card.has-video{border-left:3px solid var(--gold)}
+.match-card.final{border-color:var(--gold);background:linear-gradient(135deg,#060E20 0%,#0A1430 100%)}
+.match-card.semifinal{border-left:3px solid var(--blue-lt)}
+
+.mc-header{padding:6px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.mc-phase{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim)}
+.mc-date{font-size:10px;color:var(--text-xs);margin-left:auto}
+.mc-esn{font-size:9px;font-weight:700;letter-spacing:.5px;padding:1px 5px;border-radius:2px;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,169,110,.3)}
+.mc-esn.final-badge{background:var(--gold);color:#010209}
+
+.mc-body{padding:14px 16px;display:flex;align-items:center;gap:12px;flex:1}
+.mc-team{flex:1;min-width:0}
+.mc-team.home{text-align:right}
+.mc-team.away{text-align:left}
+.mc-flag{font-size:24px;display:block;margin-bottom:2px}
+.mc-name{font-family:var(--ff-d);font-size:16px;letter-spacing:.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-short{font-size:9px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+
+.mc-score{text-align:center;flex-shrink:0;min-width:72px}
+.score-box{font-family:var(--ff-d);font-size:28px;color:#fff;letter-spacing:2px;line-height:1}
+.score-box.final-score{color:var(--gold);font-size:34px}
+.vs-box{font-size:11px;color:var(--text-dim);letter-spacing:1px}
+
+.mc-footer{padding:8px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.mc-venue{font-size:10px;color:var(--text-xs)}
+.mc-scorers{font-size:10px;color:var(--text-dim);flex:1}
+.mc-scorers em{color:var(--text);font-style:normal}
+
+.watch-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:2px;font-size:11px;font-weight:700;
+  text-decoration:none;transition:all .15s;margin-left:auto;flex-shrink:0;
+}
+.watch-btn.gold{background:var(--gold);color:#010209;border:1px solid var(--gold)}
+.watch-btn.gold:hover{background:var(--gold-lt);box-shadow:0 0 8px rgba(200,169,110,.3)}
+.watch-btn.blue{background:rgba(26,75,175,.15);color:#7090E0;border:1px solid var(--border2)}
+.watch-btn.blue:hover{border-color:var(--blue-lt);color:#A0C0FF}
+.watch-icon{font-size:14px}
+
+/* GROUP TABLES */
+.groups-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:36px}
+.group-table{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.group-table thead{background:var(--surface2)}
+.group-table th{padding:7px 10px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--text-dim);white-space:nowrap}
+.group-table th.c{text-align:center}
+.group-table td{padding:7px 10px;font-size:12px;border-top:1px solid var(--border)}
+.group-table td.c{text-align:center;color:var(--text-dim)}
+.group-table tr.promoted td{color:var(--gold-lt)}
+.group-table .flag{font-size:16px;vertical-align:middle;margin-right:6px}
+
+/* BRACKET */
+.bracket{display:flex;gap:20px;align-items:flex-start;margin-bottom:36px;flex-wrap:wrap}
+.bracket-col{flex:1;min-width:240px}
+.bracket-label{font-family:var(--ff-d);font-size:14px;letter-spacing:1px;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase}
+.bracket-match{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;margin-bottom:8px}
+.bm-team{display:flex;align-items:center;gap:8px;padding:3px 0}
+.bm-team .flag{font-size:14px}
+.bm-team .name{font-size:12px;font-weight:600;flex:1}
+.bm-team .score{font-family:var(--ff-d);font-size:16px;color:#fff;min-width:20px;text-align:right}
+.bm-team.winner .name{color:var(--gold-lt)}
+.bm-team.winner .score{color:var(--gold)}
+.connector{border-left:1px solid var(--border2);height:20px;margin-left:20px}
+
+.footer-note{text-align:center;padding:18px;border-top:1px solid var(--border);font-size:10px;color:var(--text-xs);letter-spacing:.5px;margin-top:20px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+<div class="hd-stripe"></div>
+<div class="hd-inner">
+  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/UEFA_Euro_1988_logo.svg/1280px-UEFA_Euro_1988_logo.svg.png"
+     alt="UEFA Euro 1988"
+     style="height:80px;width:auto;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(200,169,110,.3))"
+     onerror="this.style.display='none'">
+  <div class="tournament-badge">
+    <span class="tb-stars">★ ★ ★</span>
+    <span class="tb-label">UEFA EUROPEAN</span>
+    <span class="tb-year">EURO 88</span>
+    <span class="tb-host">&#127465;&#127466; West Germany · Jun 10–25 1988</span>
+  </div>
+  <div class="hd-sep"></div>
+  <div class="hd-info">
+    <div class="hd-eyebrow">ESN FGA Intelligence · Historical Video Archive</div>
+    <div class="hd-title">UEFA EUROPEAN CHAMPIONSHIP 1988</div>
+    <div class="hd-sub">8 nations · 2 groups · 15 matches · 12 ESN archive files with direct video links<br>Van Basten's volley · Gullit's header · Dasayev's heroics</div>
+    <div class="hd-winner">&#127475;&#127473; <span>NETHERLANDS — CHAMPIONS</span></div>
+  </div>
+  <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+    <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ"
+         alt="ESN FGA"
+         style="height:54px;width:54px;border-radius:4px;object-fit:cover;border:1px solid rgba(200,169,110,.3);box-shadow:0 0 8px rgba(200,169,110,.15)"
+         onerror="this.style.display='none'">
+    <span style="font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-xs);font-weight:700">ESN FGA</span>
+  </div>
+  <div class="hd-sep" style="height:46px"></div>
+  <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-right:4px">
+    <img src="https://yt3.googleusercontent.com/sRK1Gfn9mF_k80vogh3eWDa48ogGvrD14tJbnNdEsTEMLDJtVJIKJPLrE_2pXS098AAErgFRng=s900-c-k-c0x00ffffff-no-rj"
+         alt="ESN FGA" style="height:54px;width:54px;border-radius:4px;object-fit:cover;border:1px solid rgba(200,169,110,.3);box-shadow:0 0 8px rgba(200,169,110,.15)">
+    <span style="font-size:8px;letter-spacing:1.5px;color:var(--text-xs);font-weight:700;text-transform:uppercase">ESN FGA</span>
+  </div>
+  <div style="width:1px;height:46px;background:var(--border2);flex-shrink:0"></div>
+  <div class="hd-kpis">
+    <div class="kpi"><div class="kpi-val">12</div><div class="kpi-lbl">ESN Videos</div></div>
+    <div class="kpi"><div class="kpi-val">15</div><div class="kpi-lbl">Total matches</div></div>
+    <div class="kpi"><div class="kpi-val">80%</div><div class="kpi-lbl">Coverage</div></div>
+  </div>
+</div>
+</header>
+
+<main class="main">
+
+<!-- GROUP TABLES -->
+<div class="section-title">&#128202; Final Standings</div>
+<div class="groups-row">
+
+<table class="group-table">
+<thead><tr>
+  <th colspan="2">Group A</th>
+  <th class="c">P</th><th class="c">W</th><th class="c">D</th><th class="c">L</th>
+  <th class="c">GF</th><th class="c">GA</th><th class="c">Pts</th>
+</tr></thead>
+<tbody>
+  <tr class="promoted"><td><span class="flag">&#127465;&#127466;</span></td><td><strong>West Germany</strong></td><td class="c">3</td><td class="c">2</td><td class="c">1</td><td class="c">0</td><td class="c">5</td><td class="c">1</td><td class="c"><strong>5</strong></td></tr>
+  <tr class="promoted"><td><span class="flag">&#127470;&#127481;</span></td><td><strong>Italy</strong></td><td class="c">3</td><td class="c">2</td><td class="c">1</td><td class="c">0</td><td class="c">4</td><td class="c">1</td><td class="c"><strong>5</strong></td></tr>
+  <tr><td><span class="flag">&#127466;&#127480;</span></td><td>Spain</td><td class="c">3</td><td class="c">0</td><td class="c">0</td><td class="c">3</td><td class="c">2</td><td class="c">7</td><td class="c">0</td></tr>
+  <tr><td><span class="flag">&#127465;&#127472;</span></td><td>Denmark</td><td class="c">3</td><td class="c">1</td><td class="c">0</td><td class="c">2</td><td class="c">5</td><td class="c">7</td><td class="c">2</td></tr>
+</tbody>
+</table>
+
+<table class="group-table">
+<thead><tr>
+  <th colspan="2">Group B</th>
+  <th class="c">P</th><th class="c">W</th><th class="c">D</th><th class="c">L</th>
+  <th class="c">GF</th><th class="c">GA</th><th class="c">Pts</th>
+</tr></thead>
+<tbody>
+  <tr class="promoted"><td><span class="flag">&#127475;&#127473;</span></td><td><strong>Netherlands</strong></td><td class="c">3</td><td class="c">2</td><td class="c">0</td><td class="c">1</td><td class="c">4</td><td class="c">2</td><td class="c"><strong>4</strong></td></tr>
+  <tr class="promoted"><td><span class="flag">&#127480;&#127482;</span></td><td><strong>USSR</strong></td><td class="c">3</td><td class="c">2</td><td class="c">1</td><td class="c">0</td><td class="c">5</td><td class="c">2</td><td class="c"><strong>5</strong></td></tr>
+  <tr><td><span class="flag">&#127470;&#127466;</span></td><td>Rep. of Ireland</td><td class="c">3</td><td class="c">1</td><td class="c">1</td><td class="c">1</td><td class="c">2</td><td class="c">3</td><td class="c">3</td></tr>
+  <tr><td><span class="flag">&#127468;&#127463;</span></td><td>England</td><td class="c">3</td><td class="c">0</td><td class="c">0</td><td class="c">3</td><td class="c">2</td><td class="c">7</td><td class="c">0</td></tr>
+</tbody>
+</table>
+
+</div>
+
+<!-- GROUP A MATCHES -->
+<div class="section-title">&#127465;&#127466; Group A Matches</div>
+<div class="matches-grid">
+
+  <div class="match-card">
+    <div class="mc-header">
+      <span class="mc-phase">Group A · Round 1</span>
+      <span class="mc-date">10 Jun 1988 · Düsseldorf</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127465;&#127466;</span><div class="mc-name">West Germany</div><div class="mc-short">FRG</div></div>
+      <div class="mc-score"><div class="score-box">1–1</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127470;&#127481;</span><div class="mc-name">Italy</div><div class="mc-short">ITA</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Brehme 54'</em> · Mancini 51'</div>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group A · Round 1</span>
+      <span class="mc-date">11 Jun 1988 · Köln</span>
+      <span class="mc-esn">&#128252; E03</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127465;&#127472;</span><div class="mc-name">Denmark</div><div class="mc-short">DEN</div></div>
+      <div class="mc-score"><div class="score-box">3–2</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127466;&#127480;</span><div class="mc-name">Spain</div><div class="mc-short">ESP</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Povlsen 14', Laudrup 29', Eriksen 58'</em> · Michel 63'pen, Butragueño 80'</div>
+      <a href="https://www.dropbox.com/scl/fi/9xebq4c18dx7l280ij03n/Denmark-Spain.mp4?rlkey=wpbwxlrggg96837km0ggh5pbj&st=7159yh1x&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+    </div>
+  </div>
+
+  <div class="match-card">
+    <div class="mc-header">
+      <span class="mc-phase">Group A · Round 2</span>
+      <span class="mc-date">14 Jun 1988 · Gelsenkirchen</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127465;&#127466;</span><div class="mc-name">West Germany</div><div class="mc-short">FRG</div></div>
+      <div class="mc-score"><div class="score-box">2–0</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127465;&#127472;</span><div class="mc-name">Denmark</div><div class="mc-short">DEN</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Völler 27', Klinsmann 60'</em></div>
+    </div>
+  </div>
+
+  <div class="match-card">
+    <div class="mc-header">
+      <span class="mc-phase">Group A · Round 2</span>
+      <span class="mc-date">15 Jun 1988 · Düsseldorf</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127470;&#127481;</span><div class="mc-name">Italy</div><div class="mc-short">ITA</div></div>
+      <div class="mc-score"><div class="score-box">1–0</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127466;&#127480;</span><div class="mc-name">Spain</div><div class="mc-short">ESP</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Mancini 26'</em></div>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group A · Round 3</span>
+      <span class="mc-date">17 Jun 1988 · München</span>
+      <span class="mc-esn">&#128252; E14+E15</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127465;&#127466;</span><div class="mc-name">West Germany</div><div class="mc-short">FRG</div></div>
+      <div class="mc-score"><div class="score-box">2–0</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127466;&#127480;</span><div class="mc-name">Spain</div><div class="mc-short">ESP</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Völler 33', Klinsmann 53'</em></div>
+      <a href="https://www.dropbox.com/scl/fi/kfihapzz4h40csk1oidxg/EURO-1988-R1-GA-17.6.1988-W.Germany-v-Spain_AI_1H.1080p.50fps.-MULTI-.BILD.mp4?rlkey=9kxo0yuvgb995l6b7cmbirxr9&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> 1H</a>
+      <a href="https://www.dropbox.com/scl/fi/x79fskfh6zwhlha9kt3tf/EURO-1988-R1-GA-17.6.1988-W.Germany-v-Spain_AI_2H.1080p.50fps.-MULTI-.BILD.mp4?rlkey=ooesuydi9fzeunzmhk8qnwnoi&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> 2H</a>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group A · Round 3</span>
+      <span class="mc-date">17 Jun 1988 · Frankfurt</span>
+      <span class="mc-esn">&#128252; E12+E13</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127470;&#127481;</span><div class="mc-name">Italy</div><div class="mc-short">ITA</div></div>
+      <div class="mc-score"><div class="score-box">2–0</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127465;&#127472;</span><div class="mc-name">Denmark</div><div class="mc-short">DEN</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>De Agostini 56', Mancini 76'</em></div>
+      <a href="https://www.dropbox.com/scl/fi/xocyn86jzrnxxko79d2pm/EURO-1988-R1-GA-17.6.1988-Italy-v-Denmark.1H.1080p.50fps.-ENG-ITA-STA-.ITV.mp4?rlkey=th5jha23ztdea21gmji1mq1lh&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> 1H</a>
+      <a href="https://www.dropbox.com/scl/fi/hncu5aejaouuvbruya6ta/EURO-1988-R1-GA-17.6.1988-Italy-v-Denmark.2H.1080p.50fps.-ENG-ITA-STA-.ITV.mp4?rlkey=yjp8tfr7cixyi14of9w89tjwu&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> 2H</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- GROUP B MATCHES -->
+<div class="section-title">&#127468;&#127463; Group B Matches</div>
+<div class="matches-grid">
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group B · Round 1</span>
+      <span class="mc-date">12 Jun 1988 · Stuttgart</span>
+      <span class="mc-esn">&#128252; E01</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127468;&#127463;</span><div class="mc-name">England</div><div class="mc-short">ENG</div></div>
+      <div class="mc-score"><div class="score-box">0–1</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127470;&#127466;</span><div class="mc-name">Rep. of Ireland</div><div class="mc-short">IRL</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers">Houghton 6'</div>
+      <a href="https://www.dropbox.com/scl/fi/hz929pl3sbs2mrd1h30d4/England-Republic-of-Ireland.mp4?rlkey=rkw9wc6iivz6m7yj30hwdvk9y&st=8653mypx&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group B · Round 1</span>
+      <span class="mc-date">12 Jun 1988 · Hannover</span>
+      <span class="mc-esn">&#128252; E08</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127480;&#127482;</span><div class="mc-name">USSR</div><div class="mc-short">URS</div></div>
+      <div class="mc-score"><div class="score-box">1–0</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127475;&#127473;</span><div class="mc-name">Netherlands</div><div class="mc-short">NED</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Rats 53'</em></div>
+      <a href="https://www.dropbox.com/scl/fi/mpkpvohpp42e24nf6mr27/Netherlands-Union-of-Soviet-Socialist-Republics-USSR.mp4?rlkey=kxexte7cup8b3it7c2uksbfo7&st=ezuhsbgs&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group B · Round 2</span>
+      <span class="mc-date">15 Jun 1988 · Düsseldorf</span>
+      <span class="mc-esn">&#128252; E07</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127468;&#127463;</span><div class="mc-name">England</div><div class="mc-short">ENG</div></div>
+      <div class="mc-score"><div class="score-box">1–3</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127475;&#127473;</span><div class="mc-name">Netherlands</div><div class="mc-short">NED</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers">Robson 53' · <em>Van Basten 44'pen, Gullit 74', Van Basten 76'</em></div>
+      <a href="https://www.dropbox.com/scl/fi/t0j44n0qf8inun7tm38ix/England-Netherlands.mp4?rlkey=cqp7mb6jfa7c8d06i0s9wjz9m&st=39wsdvzu&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group B · Round 2</span>
+      <span class="mc-date">15 Jun 1988 · Hannover</span>
+      <span class="mc-esn">&#128252; E02</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127480;&#127482;</span><div class="mc-name">USSR</div><div class="mc-short">URS</div></div>
+      <div class="mc-score"><div class="score-box">1–1</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127470;&#127466;</span><div class="mc-name">Rep. of Ireland</div><div class="mc-short">IRL</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Protasov 73'</em> · Whelan 38'</div>
+      <a href="https://www.dropbox.com/scl/fi/d4news1fjj0930i5ghwq2/Union-of-Soviet-Socialist-Republics-USSR-Republic-of-Ireland.mp4?rlkey=hap8v6i5hmoji9f0kp3yenwck&st=z96s57fs&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group B · Round 3</span>
+      <span class="mc-date">18 Jun 1988 · Gelsenkirchen</span>
+      <span class="mc-esn">&#128252; E09</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127475;&#127473;</span><div class="mc-name">Netherlands</div><div class="mc-short">NED</div></div>
+      <div class="mc-score"><div class="score-box">1–0</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127470;&#127466;</span><div class="mc-name">Rep. of Ireland</div><div class="mc-short">IRL</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers"><em>Kieft 82'</em></div>
+      <a href="https://www.dropbox.com/scl/fi/v67vdmavuikiorw7ctzf3/Netherlands-Republic-of-Ireland.mp4?rlkey=4mfzpvdtjprn76dyfumn3lmq4&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+    </div>
+  </div>
+
+  <div class="match-card has-video">
+    <div class="mc-header">
+      <span class="mc-phase">Group B · Round 3</span>
+      <span class="mc-date">18 Jun 1988 · Frankfurt</span>
+      <span class="mc-esn">&#128252; E04</span>
+    </div>
+    <div class="mc-body">
+      <div class="mc-team home"><span class="mc-flag">&#127468;&#127463;</span><div class="mc-name">England</div><div class="mc-short">ENG</div></div>
+      <div class="mc-score"><div class="score-box">1–3</div></div>
+      <div class="mc-team away"><span class="mc-flag">&#127480;&#127482;</span><div class="mc-name">USSR</div><div class="mc-short">URS</div></div>
+    </div>
+    <div class="mc-footer">
+      <div class="mc-scorers">Adams 16' · <em>Aleinikov 3', Mikhailichenko 27', Pasulko 73'</em></div>
+      <a href="https://www.dropbox.com/scl/fi/j94cz3oh2jjkll50iitau/England-Union-of-Soviet-Socialist-Republics-USSR.mp4?rlkey=4tsy9h9y3vbk8xw5dinrwqzk3&st=0z51kcev&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- KNOCKOUT STAGE -->
+<div class="section-title">&#128081; Knockout Stage</div>
+
+<div class="bracket">
+  <div class="bracket-col">
+    <div class="bracket-label">Semi-finals</div>
+
+    <div style="margin-bottom:6px;font-size:10px;color:var(--text-dim)">21 Jun 1988 · Hamburg</div>
+    <div class="bracket-match" style="border-left:3px solid var(--gold)">
+      <div class="bm-team"><span class="flag">&#127465;&#127466;</span><span class="name">West Germany</span><span class="score">1</span></div>
+      <div class="bm-team winner"><span class="flag">&#127475;&#127473;</span><span class="name">Netherlands</span><span class="score">2</span></div>
+      <div style="margin-top:6px;font-size:10px;color:var(--text-dim)">Matthäus 55' · <span style="color:var(--gold-lt)">Koeman 74'pen, Van Basten 88'</span></div>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        <a href="https://www.dropbox.com/scl/fi/e38ezhcvigkvw673rw9hx/EURO-1988-SF-21.6.1988-West-Germany-v-Netherlands_AI_1H.1080p-50fps.-MULTI-.BILD.mp4?rlkey=erdiijrmwojhs7jzc13pc98h6&raw=1" target="_blank" class="watch-btn gold" style="display:inline-flex"><span class="watch-icon">&#9654;</span> 1H</a>
+        <a href="https://www.dropbox.com/scl/fi/pzjxxc0waoi1jorjakxpi/EURO-1988-SF-21.6.1988-West-Germany-v-Netherlands_AI_2H.1080p-50fps.-MULTI-.BILD.mp4?rlkey=hxp9ewlbid332w2fillqvb5vy&raw=1" target="_blank" class="watch-btn gold" style="display:inline-flex"><span class="watch-icon">&#9654;</span> 2H</a>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;margin-bottom:6px;font-size:10px;color:var(--text-dim)">22 Jun 1988 · Stuttgart</div>
+    <div class="bracket-match" style="border-left:3px solid var(--gold)">
+      <div class="bm-team"><span class="flag">&#127470;&#127481;</span><span class="name">Italy</span><span class="score">0</span></div>
+      <div class="bm-team winner"><span class="flag">&#127480;&#127482;</span><span class="name">USSR</span><span class="score">2</span></div>
+      <div style="margin-top:6px;font-size:10px;color:var(--text-dim)"><span style="color:var(--gold-lt)">Litovchenko 59', Protasov 63'</span></div>
+      <div style="margin-top:8px">
+        <a href="https://www.dropbox.com/scl/fi/th8hqhwtbglxub4okd397/Union-of-Soviet-Socialist-Republics-USSR-Italy.mp4?rlkey=44vygaotx88oaw31gxf9nbc8j&st=s1cz6sdk&raw=1" target="_blank" class="watch-btn gold" style="display:inline-flex"><span class="watch-icon">&#9654;</span> E05 — Watch USSR vs Italy</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="bracket-col" style="max-width:420px">
+    <div class="bracket-label">&#127941; Final · 25 Jun 1988 · München</div>
+    <div class="match-card final" style="border-width:1px">
+      <div class="mc-header" style="background:rgba(200,169,110,.08)">
+        <span class="mc-phase" style="color:var(--gold)">&#127941; FINAL — Olympiastadion, München · 71,765</span>
+        <span class="mc-esn final-badge">&#128252; E06 · FULL MATCH</span>
+      </div>
+      <div class="mc-body" style="padding:20px">
+        <div class="mc-team home"><span class="mc-flag" style="font-size:32px">&#127475;&#127473;</span><div class="mc-name" style="font-size:20px;color:var(--gold-lt)">Netherlands</div><div class="mc-short">NED</div></div>
+        <div class="mc-score" style="min-width:90px"><div class="score-box final-score">2 – 0</div><div style="font-size:9px;color:var(--text-dim);margin-top:4px;letter-spacing:1px">CHAMPIONS</div></div>
+        <div class="mc-team away"><span class="mc-flag" style="font-size:32px">&#127480;&#127482;</span><div class="mc-name" style="font-size:20px">USSR</div><div class="mc-short">URS</div></div>
+      </div>
+      <div style="padding:10px 16px;background:rgba(200,169,110,.06);border-top:1px solid rgba(200,169,110,.2)">
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">
+          <span style="color:var(--gold-lt)">Gullit 32'</span> (Rijkaard assist) ·
+          <span style="color:var(--gold-lt)">Van Basten 54'</span> (Impossible volley from Arnold Mühren cross)
+        </div>
+        <a href="https://www.dropbox.com/scl/fi/ifhlffe7a6hnavw7pfons/Union-of-Soviet-Socialist-Republics-USSR-Netherlands.mp4?rlkey=8o7ikm1fcvzrcpwm3qyycixxz&st=vyqv6dyj&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch the Final</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESN ARCHIVE INDEX -->
+
+<!-- FGA MATCH REPORT: ENGLAND vs NETHERLANDS -->
+<div class="section-title">&#128203; FGA Match Report — England vs Netherlands (E07)</div>
+
+<div style="background:var(--surface);border:1px solid var(--gold);border-radius:var(--radius);margin-bottom:36px;overflow:hidden">
+
+  <!-- Report header -->
+  <div style="padding:14px 18px;background:linear-gradient(135deg,rgba(200,169,110,.08),rgba(0,48,135,.06));border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div>
+      <div style="font-family:var(--ff-d);font-size:20px;color:#fff;letter-spacing:.5px">&#127468;&#127463; England 1–3 Netherlands &#127475;&#127473;</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Group B R2 · 15 Jun 1988 · Rheinstadion, Düsseldorf · 63,000 · Ref: Paolo Casarin (ITA)</div>
+      <div style="font-size:11px;color:var(--gold-lt);margin-top:2px">Van Basten 44' 71' 75' (hat-trick) · Robson 53'</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:18px;text-align:right">
+      <div><div style="font-family:var(--ff-d);font-size:24px;color:var(--gold-lt);line-height:1">320</div><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-xs)">Events logged</div></div>
+      <div><div style="font-family:var(--ff-d);font-size:24px;color:var(--gold-lt);line-height:1">28</div><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-xs)">Players tagged</div></div>
+      <div><div style="font-family:var(--ff-d);font-size:24px;color:var(--gold-lt);line-height:1">12/16</div><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-xs)">Metric codes used</div></div>
+    </div>
+  </div>
+
+  <!-- Analyst + method row -->
+  <div style="padding:8px 18px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap;font-size:10px;color:var(--text-dim)">
+    <span>&#128100; Analyst: <b style="color:var(--text)">Jim Totime</b></span>
+    <span>&#128197; Started: 3 Jul 2026</span>
+    <span>&#127909; Method: ffmpeg 10-sec segments · MATCH_FULL (all players, all qualifying metrics)</span>
+    <span>&#9888;&#65039; 1988 single-camera broadcast — blind-side gaps expected on both back lines</span>
+  </div>
+
+  <!-- Event distribution -->
+  <div style="padding:14px 18px;display:grid;grid-template-columns:1fr 1fr;gap:20px;border-bottom:1px solid var(--border)">
+    <div>
+      <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Event share per team</div>
+      <div style="display:flex;height:26px;border-radius:2px;overflow:hidden;border:1px solid var(--border2)">
+        <div style="width:65.3%;background:linear-gradient(to right,#E87000,#FF8C1A);display:flex;align-items:center;padding-left:10px;font-size:11px;font-weight:700;color:#fff">&#127475;&#127473; 209 (65%)</div>
+        <div style="width:34.7%;background:linear-gradient(to right,#B01030,#CC2040);display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-size:11px;font-weight:700;color:#fff">111 (35%) &#127468;&#127463;</div>
+      </div>
+      <div style="font-size:10px;color:var(--text-xs);margin-top:6px">The Dutch dominance in the event log mirrors the match: nearly 2 of every 3 qualifying FGA actions came from Netherlands players.</div>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Top metric codes (match-wide)</div>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="min-width:36px;color:var(--gold-lt);font-weight:700">DMA</span><div style="flex:1;height:12px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:100%;height:100%;background:var(--gold)"></div></div><span style="min-width:26px;text-align:right;color:var(--text-dim)">94</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="min-width:36px;color:var(--gold-lt);font-weight:700">OMS</span><div style="flex:1;height:12px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:43%;height:100%;background:#B08A50"></div></div><span style="min-width:26px;text-align:right;color:var(--text-dim)">40</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="min-width:36px;color:var(--gold-lt);font-weight:700">CRK</span><div style="flex:1;height:12px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:39%;height:100%;background:#B08A50"></div></div><span style="min-width:26px;text-align:right;color:var(--text-dim)">37</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="min-width:36px;color:var(--gold-lt);font-weight:700">OBI_S</span><div style="flex:1;height:12px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:24%;height:100%;background:#8A6A40"></div></div><span style="min-width:26px;text-align:right;color:var(--text-dim)">23</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="min-width:36px;color:var(--gold-lt);font-weight:700">SII_A / CHR</span><div style="flex:1;height:12px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:23%;height:100%;background:#8A6A40"></div></div><span style="min-width:26px;text-align:right;color:var(--text-dim)">22</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player leaderboard -->
+  <div style="padding:14px 18px">
+    <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px">Player event leaderboard — Top 10 by logged volume</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border2)">
+          <th style="padding:5px 8px;text-align:left;font-size:9px;letter-spacing:.9px;text-transform:uppercase;color:var(--text-xs)">#</th>
+          <th style="padding:5px 8px;text-align:left;font-size:9px;letter-spacing:.9px;text-transform:uppercase;color:var(--text-xs)">Player</th>
+          <th style="padding:5px 8px;text-align:left;font-size:9px;letter-spacing:.9px;text-transform:uppercase;color:var(--text-xs)">Team</th>
+          <th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.9px;text-transform:uppercase;color:var(--text-xs)">Events</th>
+          <th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.9px;text-transform:uppercase;color:var(--text-xs)">Avg Quality</th>
+          <th style="padding:5px 8px;text-align:left;font-size:9px;letter-spacing:.9px;text-transform:uppercase;color:var(--text-xs)">Dominant metrics</th>
+        </tr>
+      </thead>
+      <tbody style="font-size:12px">
+        <tr style="border-bottom:1px solid var(--border);background:rgba(200,169,110,.05)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--gold)">1</td>
+          <td style="padding:6px 8px;font-weight:700;color:var(--gold-lt)">Ruud Gullit</td>
+          <td style="padding:6px 8px">&#127475;&#127473; NED</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">71</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--gold-lt)">7.17</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">DMA (28) · SPI (14) · OBI_S (13)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);background:rgba(200,169,110,.05)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--gold)">2</td>
+          <td style="padding:6px 8px;font-weight:700;color:var(--gold-lt)">Marco van Basten</td>
+          <td style="padding:6px 8px">&#127475;&#127473; NED</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">39</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--gold-lt)">7.13</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">CLM (13) · OBI_P (5) · SII_A (5) — hat-trick</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">3</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">Bryan Robson</td>
+          <td style="padding:6px 8px">&#127468;&#127463; ENG</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">32</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--text-dim)">6.50</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">DMA (16) · CRK (5) · SII_A (4) — England's engine</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">4</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">Arnold Mühren</td>
+          <td style="padding:6px 8px">&#127475;&#127473; NED</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">27</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--text-dim)">6.81</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">CRK (20!) · DMA (7) — creative passing hub at 37 y/o</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">5</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">Peter Shilton</td>
+          <td style="padding:6px 8px">&#127468;&#127463; ENG</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">24</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--gold-lt)">7.50</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">OMS (23) — highest avg quality in the match</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">6</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">Frank Rijkaard</td>
+          <td style="padding:6px 8px">&#127475;&#127473; NED</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">17</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--text-dim)">6.59</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">DMA (8) · CHR (5)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">7</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">Hans van Breukelen</td>
+          <td style="padding:6px 8px">&#127475;&#127473; NED</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">17</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--gold-lt)">7.35</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">OMS (17)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">8</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">Gary Lineker</td>
+          <td style="padding:6px 8px">&#127468;&#127463; ENG</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">14</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--red)" title="Lowest avg among top-10">5.79</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">OBI_T (6) · SII_A (4) — isolated, starved of service</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">9</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">John Barnes</td>
+          <td style="padding:6px 8px">&#127468;&#127463; ENG</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">11</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--text-dim)">6.73</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">DMA (8)</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 8px;font-family:var(--ff-d);color:var(--text-dim)">10</td>
+          <td style="padding:6px 8px;font-weight:600;color:#fff">Ronald Koeman</td>
+          <td style="padding:6px 8px">&#127475;&#127473; NED</td>
+          <td style="padding:6px 8px;text-align:center;font-family:var(--ff-d);font-size:16px;color:#fff">9</td>
+          <td style="padding:6px 8px;text-align:center;color:var(--text-dim)">6.78</td>
+          <td style="padding:6px 8px;color:var(--text-dim)">CRK (3) · SOA (3)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Analysis notes -->
+  <div style="padding:12px 18px;background:rgba(0,0,0,.2);border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div style="font-size:11px;color:var(--text-dim);line-height:1.6">
+      <b style="color:var(--gold-lt)">Key reading — Gullit over Van Basten.</b> The hat-trick belongs to Van Basten but the event log belongs to Gullit: 71 logged events vs 39, nearly double. Van Basten's value concentrates in CLM (13 calm finishing/composure events) — efficient, clinical, low-volume. Gullit is everywhere: DMA, SPI, OBI_S. Two different profiles of dominance in one match.
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);line-height:1.6">
+      <b style="color:var(--gold-lt)">Confidence rule applies.</b> All composite scores from this workbook carry the MATCH_SPREAD_PENDING flag by design — FGA requires 3 separate matches per sub-component before a score is transferable. This is 1 of 3. Mühren's CRK (20 events) and Shilton's OMS (23) are the strongest single-match samples.
+    </div>
+  </div>
+
+  <!-- Download link -->
+  <div style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px">
+    <span style="font-size:11px;color:var(--text-xs)">&#128196; Source workbook: Empire_FGA_NED_ENG_Euro88.xlsx · 320 events · 9 sheets · EVENT_LOG A1:J603</span>
+    <span style="margin-left:auto;font-size:10px;color:var(--text-xs)">Analyst: Jim Totime · ESN FGA</span>
+  </div>
+
+</div>
+
+<div class="section-title">&#128252; ESN Archive Index — All 15 Files</div>
+<div class="matches-grid">
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E01</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">England vs Rep. of Ireland</div>
+      <div style="font-size:10px;color:var(--text-dim)">Group B R1 · 12 Jun 1988 · 0–1</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/hz929pl3sbs2mrd1h30d4/England-Republic-of-Ireland.mp4?rlkey=rkw9wc6iivz6m7yj30hwdvk9y&st=8653mypx&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E02</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">USSR vs Rep. of Ireland</div>
+      <div style="font-size:10px;color:var(--text-dim)">Group B R2 · 15 Jun 1988 · 1–1</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/d4news1fjj0930i5ghwq2/Union-of-Soviet-Socialist-Republics-USSR-Republic-of-Ireland.mp4?rlkey=hap8v6i5hmoji9f0kp3yenwck&st=z96s57fs&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E03</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">Denmark vs Spain</div>
+      <div style="font-size:10px;color:var(--text-dim)">Group A R1 · 11 Jun 1988 · 3–2</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/9xebq4c18dx7l280ij03n/Denmark-Spain.mp4?rlkey=wpbwxlrggg96837km0ggh5pbj&st=7159yh1x&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E04</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">England vs USSR</div>
+      <div style="font-size:10px;color:var(--text-dim)">Group B R3 · 18 Jun 1988 · 1–3</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/j94cz3oh2jjkll50iitau/England-Union-of-Soviet-Socialist-Republics-USSR.mp4?rlkey=4tsy9h9y3vbk8xw5dinrwqzk3&st=0z51kcev&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--blue-lt);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:#8090D0;min-width:32px">E05</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">USSR vs Italy <span style="font-size:9px;color:#8090D0;margin-left:4px">SEMI-FINAL</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Semi-final · 22 Jun 1988 · 2–0</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/th8hqhwtbglxub4okd397/Union-of-Soviet-Socialist-Republics-USSR-Italy.mp4?rlkey=44vygaotx88oaw31gxf9nbc8j&st=s1cz6sdk&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#060E20,#0A1430);border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold);min-width:32px">E06</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:var(--gold-lt)">Netherlands vs USSR 🏆 <span style="font-size:9px;background:var(--gold);color:#010209;padding:1px 5px;border-radius:2px;margin-left:4px">FINAL</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Final · 25 Jun 1988 · 2–0 · Van Basten's volley</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/ifhlffe7a6hnavw7pfons/Union-of-Soviet-Socialist-Republics-USSR-Netherlands.mp4?rlkey=8o7ikm1fcvzrcpwm3qyycixxz&st=vyqv6dyj&raw=1" target="_blank" class="watch-btn gold"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E07</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">England vs Netherlands</div>
+      <div style="font-size:10px;color:var(--text-dim)">Group B R2 · 15 Jun 1988 · 1–3</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/t0j44n0qf8inun7tm38ix/England-Netherlands.mp4?rlkey=cqp7mb6jfa7c8d06i0s9wjz9m&st=39wsdvzu&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E08</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">USSR vs Netherlands</div>
+      <div style="font-size:10px;color:var(--text-dim)">Group B R1 · 12 Jun 1988 · 1–0</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/mpkpvohpp42e24nf6mr27/Netherlands-Union-of-Soviet-Socialist-Republics-USSR.mp4?rlkey=kxexte7cup8b3it7c2uksbfo7&st=ezuhsbgs&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E09</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">Netherlands vs Rep. of Ireland</div>
+      <div style="font-size:10px;color:var(--text-dim)">Group B R3 · 18 Jun 1988 · 1–0</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/v67vdmavuikiorw7ctzf3/Netherlands-Republic-of-Ireland.mp4?rlkey=4mfzpvdtjprn76dyfumn3lmq4&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#060E20,#0A1430);border:1px solid var(--border2);border-left:3px solid var(--blue-lt);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:#8090D0;min-width:32px">E10</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">West Germany vs Netherlands <span style="font-size:9px;color:#8090D0;margin-left:4px">SEMI-FINAL · 1H</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Semi-final · 21 Jun 1988 · 1080p 50fps</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/e38ezhcvigkvw673rw9hx/EURO-1988-SF-21.6.1988-West-Germany-v-Netherlands_AI_1H.1080p-50fps.-MULTI-.BILD.mp4?rlkey=erdiijrmwojhs7jzc13pc98h6&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#060E20,#0A1430);border:1px solid var(--border2);border-left:3px solid var(--blue-lt);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:#8090D0;min-width:32px">E11</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">West Germany vs Netherlands <span style="font-size:9px;color:#8090D0;margin-left:4px">SEMI-FINAL · 2H</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Semi-final · 21 Jun 1988 · 1–2 final · 1080p 50fps</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/pzjxxc0waoi1jorjakxpi/EURO-1988-SF-21.6.1988-West-Germany-v-Netherlands_AI_2H.1080p-50fps.-MULTI-.BILD.mp4?rlkey=hxp9ewlbid332w2fillqvb5vy&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E12</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">Italy vs Denmark <span style="font-size:9px;color:var(--text-dim);margin-left:4px">1H</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Group A R3 · 17 Jun 1988 · ITV broadcast</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/xocyn86jzrnxxko79d2pm/EURO-1988-R1-GA-17.6.1988-Italy-v-Denmark.1H.1080p.50fps.-ENG-ITA-STA-.ITV.mp4?rlkey=th5jha23ztdea21gmji1mq1lh&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E13</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">Italy vs Denmark <span style="font-size:9px;color:var(--text-dim);margin-left:4px">2H</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Group A R3 · 17 Jun 1988 · 2–0 · ITV broadcast</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/hncu5aejaouuvbruya6ta/EURO-1988-R1-GA-17.6.1988-Italy-v-Denmark.2H.1080p.50fps.-ENG-ITA-STA-.ITV.mp4?rlkey=yjp8tfr7cixyi14of9w89tjwu&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E14</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">West Germany vs Spain <span style="font-size:9px;color:var(--text-dim);margin-left:4px">1H</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Group A R3 · 17 Jun 1988 · BILD broadcast</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/kfihapzz4h40csk1oidxg/EURO-1988-R1-GA-17.6.1988-W.Germany-v-Spain_AI_1H.1080p.50fps.-MULTI-.BILD.mp4?rlkey=9kxo0yuvgb995l6b7cmbirxr9&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:var(--ff-d);font-size:18px;color:var(--gold-lt);min-width:32px">E15</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px;color:#fff">West Germany vs Spain <span style="font-size:9px;color:var(--text-dim);margin-left:4px">2H</span></div>
+      <div style="font-size:10px;color:var(--text-dim)">Group A R3 · 17 Jun 1988 · 2–0 · BILD broadcast</div>
+    </div>
+    <a href="https://www.dropbox.com/scl/fi/x79fskfh6zwhlha9kt3tf/EURO-1988-R1-GA-17.6.1988-W.Germany-v-Spain_AI_2H.1080p.50fps.-MULTI-.BILD.mp4?rlkey=ooesuydi9fzeunzmhk8qnwnoi&raw=1" target="_blank" class="watch-btn blue"><span class="watch-icon">&#9654;</span> Watch</a>
+  </div>
+
+</div>
+
+<!-- MISSING -->
+<div class="section-title">&#10060; Not In Archive (1 match)</div>
+<div style="display:grid;gap:7px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));margin-bottom:36px">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;opacity:.55">
+    <span style="font-size:10px;color:var(--text-dim)">Group A R1 · 10 Jun</span>
+    <div style="font-size:12px;font-weight:600;color:var(--text-dim)">&#127465;&#127466; West Germany 1–1 Italy &#127470;&#127481;</div>
+  </div>
+</div>
+
+</main>
+
+<div class="footer-note">ESN · Brandsen Sports (KvK 86810189) · Rijswijk · UEFA Euro 1988 FGA Archive · 8/15 matches · All results verified · 2026</div>
+</body>
+</html>
