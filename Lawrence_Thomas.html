@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lawrence Thomas | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #04060c; --bg-card: #080c16; --bg-card-hover: #0d1220;
+  --border-subtle: rgba(255,255,255,0.06); --border-medium: rgba(255,255,255,0.1);
+  --text-primary: #e8ecf4; --text-secondary: #8b92a8; --text-tertiary: #5a6070;
+  --accent: #cc0000; --accent-dim: rgba(204,0,0,0.15); --accent-glow: rgba(204,0,0,0.4);
+  --success: #00d084; --warning: #ffb800; --danger: #ff3b3b; --info: #3b82f6;
+  --tier1: #00d084; --tier2: #ffb800; --tier3: #ff3b3b; --pending: #5a6070;
+  --font-display: 'Oswald', sans-serif; --font-heading: 'Rajdhani', sans-serif; --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+.hero { position: relative; height: 520px; overflow: hidden; border-bottom: 1px solid var(--border-subtle); }
+.hero-photo { position: absolute; inset: 0; background: url('https://wswanderersfc.com.au/wp-content/uploads/sites/10/2025/04/GettyImages-2205202269-1.jpg?w=1200') center 20% / cover no-repeat; filter: brightness(0.45) saturate(0.85); transition: transform 8s ease; }
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,6,12,0.2) 0%, rgba(4,6,12,0.75) 60%, var(--bg-primary) 100%); }
+.hero-branding { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--accent) 50%, #ffffff 50%); z-index: 10; }
+.hero-content { position: relative; z-index: 5; max-width: 1200px; margin: 0 auto; padding: 40px 24px 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.jersey-watermark { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); font-family: var(--font-display); font-size: 220px; font-weight: 700; color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none; z-index: 2; }
+.club-badge-strip { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.badge-item { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); padding: 2px 7px; border-radius: 100px; border: 1px solid var(--border-subtle); font-family: var(--font-heading); font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.badge-item .arrow { color: var(--text-tertiary); font-size: 0.6rem; }
+.hero-name { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.05; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 8px; background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.hero-meta span { font-family: var(--font-heading); font-size: 0.95rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.hero-meta .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+.hero-meta .flag { font-size: 1.1rem; }
+.hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 32px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { padding: 5px 12px; border-radius: 6px; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(204,0,0,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-gold { background: rgba(249,232,20,0.1); color: #f9e814; border: 1px solid rgba(249,232,20,0.2); }
+
+.fga-dial-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.fga-dial-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.fga-dial-inner .fga-label { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); }
+.fga-dial-inner .fga-score { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.fga-dial-inner .fga-status { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--warning); margin-top: 2px; }
+
+.tier-pills { display: flex; gap: 8px; margin-top: 12px; }
+.tier-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(255,59,59,0.12); color: var(--tier3); border: 1px solid rgba(255,59,59,0.2); }
+
+.tab-bar { position: sticky; top: 0; z-index: 100; background: rgba(4,6,12,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+.tab-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; }
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn { flex: 1; min-width: 110px; padding: 16px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-tertiary); font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%); }
+
+.content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-title .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s, background 0.2s; }
+.card:hover { background: var(--bg-card-hover); border-color: var(--border-medium); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+.banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; }
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(249,232,20,0.06); border: 1px solid rgba(249,232,20,0.2); color: #f9e814; }
+
+.stat-hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-hero { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+.stat-hero:hover { transform: translateY(-2px); border-color: var(--border-medium); }
+.stat-hero .value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.stat-hero .label { font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-top: 6px; }
+
+.career-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.career-node { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
+.career-node.current { background: var(--accent-dim); border-color: rgba(204,0,0,0.3); color: var(--accent); }
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+.attr-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; }
+.attr-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; color: var(--text-primary); }
+.attr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-secondary); }
+.attr-row .score { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.ac-green { color: var(--success); } .ac-yellow { color: var(--warning); } .ac-red { color: var(--danger); } .ac-pend { color: var(--pending); }
+.circle { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.circle-green { background: var(--success); } .circle-yellow { background: var(--warning); } .circle-red { background: var(--danger); } .circle-pend { background: var(--pending); }
+
+.progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+.t1-metric-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 700; color: var(--accent); width: 50px; flex-shrink: 0; text-transform: uppercase; }
+.t1-metric-desc { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
+.t1-metric-bar-wrap { width: 100px; flex-shrink: 0; }
+.t1-metric-val { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); width: 70px; text-align: right; flex-shrink: 0; }
+
+.t1-highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.t1-hl-box { background: linear-gradient(135deg, rgba(204,0,0,0.18), rgba(249,232,20,0.06)); border: 2px solid rgba(204,0,0,0.4); border-radius: 6px; padding: 12px; position: relative; overflow: hidden; }
+.t1-hl-box.gold { background: linear-gradient(135deg, rgba(249,232,20,0.12), rgba(204,0,0,0.06)); border-color: rgba(249,232,20,0.5); }
+.t1-hl-code { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+.t1-hl-val { font-family: var(--font-display); font-size: 1.65rem; font-weight: 500; color: var(--accent); line-height: 1; }
+.t1-hl-box.gold .t1-hl-val { color: #f9e814; }
+.t1-hl-pct { font-size: 0.58rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
+.t1-hl-bar { height: 3px; background: rgba(204,0,0,0.1); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.t1-hl-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+.t1-hl-box.gold .t1-hl-bar-fill { background: #f9e814; }
+
+.t1-group { margin-bottom: 14px; }
+.t1-group-head { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); padding: 6px 0; border-bottom: 1px solid rgba(204,0,0,0.08); margin-bottom: 8px; }
+
+.philo-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.philo-row:last-child { border-bottom: none; }
+.philo-rank { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-tertiary); width: 28px; text-align: center; }
+.philo-name { flex: 1; font-family: var(--font-body); font-size: 0.85rem; color: var(--text-primary); }
+.philo-score { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--accent); width: 36px; text-align: right; }
+.philo-bar-wrap { width: 120px; }
+
+.match-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.match-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; display: block; }
+.match-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(204,0,0,0.1); }
+.match-thumb { height: 140px; background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.match-thumb::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(204,0,0,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat; }
+.match-thumb .play-icon { width: 48px; height: 48px; background: rgba(204,0,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; transition: transform 0.2s, background 0.2s; }
+.match-card:hover .play-icon { transform: scale(1.1); background: var(--accent); }
+.play-icon svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
+.match-meta { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-tertiary); display: flex; gap: 8px; flex-wrap: wrap; }
+.match-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-hist { background: rgba(0,208,132,0.12); color: var(--success); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.data-table th { text-align: left; padding: 10px 12px; font-family: var(--font-heading); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-medium); background: rgba(255,255,255,0.02); }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+.scout-box { border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.scout-box h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(204,0,0,0.2); }
+.scout-verdict h4 { color: var(--accent); }
+.scout-box ul { list-style: none; padding: 0; margin: 0; }
+.scout-box li { padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); display: flex; gap: 8px; }
+.scout-box li::before { content: '&#8212;'; color: var(--text-tertiary); flex-shrink: 0; }
+
+.physical-card { background: linear-gradient(135deg, rgba(204,0,0,0.08) 0%, rgba(4,6,12,0.5) 100%); border: 1px solid rgba(204,0,0,0.15); border-radius: 12px; padding: 20px; }
+.physical-card h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.physical-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.physical-item { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border-subtle); border-radius: 1px; }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); z-index: 2; }
+.timeline-item.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(204,0,0,0.4); }
+.timeline-item.hist::before { background: var(--success); border-color: var(--success); }
+.timeline-date { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.timeline-item.hist .timeline-date { color: var(--success); }
+.timeline-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+.timeline-text strong { color: var(--text-primary); }
+
+.radar-container { width: 100%; max-width: 520px; margin: 0 auto; aspect-ratio: 500/450; position: relative; }
+.radar-container canvas { width: 100% !important; height: 100% !important; }
+
+@media (max-width: 768px) {
+  .hero { height: 440px; }
+  .jersey-watermark { font-size: 140px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .fga-dial-wrap { width: 110px; height: 110px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: 1fr; }
+  .t1-metric-bar-wrap { width: 60px; }
+  .t1-metric-val { width: 50px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="jersey-watermark">20</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Sheffield Utd (Youth)</div>
+      <div class="badge-item"><span class="arrow">&#8594;</span></div>
+      <div class="badge-item">Melbourne Victory (9yr)</div>
+      <div class="badge-item"><span class="arrow">&#8594;</span></div>
+      <div class="badge-item">S&#248;nderjyske (Denmark)</div>
+      <div class="badge-item"><span class="arrow">&#8594;</span></div>
+      <div class="badge-item current">WSW (2023-)</div>
+    </div>
+    <h1 class="hero-name">Lawrence Thomas</h1>
+    <div class="hero-meta">
+      <span><span class="flag">&#127462;&#127482;</span> Australia / <span class="flag">&#127470;&#127481;</span> Italy</span>
+      <span class="dot"></span>
+      <span>34 years</span>
+      <span class="dot"></span>
+      <span>187cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Goalkeeper</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Proxy</div>
+          <div class="tier-pill t3">0/16 T3 &#9203;</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-club">Western Sydney Wanderers &#183; #20</span>
+          <span class="tag tag-value">~&#8364;280K Value</span>
+          <span class="tag tag-info">A-League Men</span>
+          <span class="tag tag-info">Contract until 2027</span>
+          <span class="tag tag-gold">2&#215; A-League Champion</span>
+          <span class="tag tag-gold">Joe Marston Medal 2018</span>
+          <span class="tag tag-gold">Australia Cup 2015</span>
+          <span class="tag tag-info">Aus/Italy Dual Nationality</span>
+          <span class="tag tag-info">Socceroos</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Proxy FGA</div>
+          <div class="fga-score">6.3</div>
+          <div class="fga-status">PROXY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>&#9888;&#65039;</span> PROXY FGA 6.3 &#8212; Tier 3 video metrics pending scout validation. All T3 assessments marked &#9203; PENDING. Lawrence Thomas is a veteran Australian goalkeeper with extensive A-League and Danish Superliga experience. Four video links provided for T3 assessment &#8212; all WSW fixtures where he is the established starting goalkeeper (24 matches, 2,160 minutes in 2025-26).
+  </div>
+  <div class="banner banner-info">
+    <span>&#8505;&#65039;</span> WESTERN SYDNEY WANDERERS (2023-2027) &#8212; Rejoined Australian football in 2023 after 9 years at Melbourne Victory (151 apps, 3 titles) and 2 years at S&#248;nderjyske (Denmark, 49 Superliga apps). 34-year-old Australian-Italian dual national goalkeeper. 187cm, right-footed. Wears #20. Contract until 2027. Socceroos representative. 2025-26: 24 matches, 2,160 minutes, 6.73 FotMob rating, 5 clean sheets, 69% save percentage, 87 saves, 39 goals conceded (0.34 goals prevented).
+  </div>
+  <div class="banner banner-gold">
+    <span>&#127942;</span> MELBOURNE VICTORY LEGACY &#8212; 9 years at Victory (2011-2020), 151 appearances in all competitions. Won <strong>A-League Premiership-Championship double 2014/15</strong>, <strong>A-League Championship 2017/18</strong>, and <strong>Australia Cup 2015</strong>. Awarded <strong>Joe Marston Medal 2018</strong> as best-on-field in the Grand Final win over Newcastle Jets (2 vital saves). Debuted November 2011, became first-choice in 2014/15 after Nathan Coe injury.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Sheffield Utd (Youth)</div>
+    <div class="career-arrow">&#8594;</div>
+    <div class="career-node">Melbourne Victory (151 apps)</div>
+    <div class="career-arrow">&#8594;</div>
+    <div class="career-node">S&#248;nderjyske (49 apps)</div>
+    <div class="career-arrow">&#8594;</div>
+    <div class="career-node current">WSW (2023-)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">~220+</div>
+      <div class="label">Career Apps</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">5</div>
+      <div class="label">Clean Sheets (25-26)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">69%</div>
+      <div class="label">Save % (25-26)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">87</div>
+      <div class="label">Saves (25-26)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">34</div>
+      <div class="label">Age</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">~&#8364;280K</div>
+      <div class="label">Market Value</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">3</div>
+      <div class="label">Major Titles</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">24</div>
+      <div class="label">A-League Apps (25-26)</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        A <strong>34-year-old Australian goalkeeper</strong> born on May 9, 1992, in Sydney, New South Wales. Began his career in the <strong>Sheffield United youth system</strong> in England before returning to Australia. Spent <strong>9 years at Melbourne Victory (2011-2020)</strong>, making <strong>151 appearances in all competitions</strong> and winning <strong>3 major titles</strong>: A-League Premiership-Championship double 2014/15, A-League Championship 2017/18, and Australia Cup 2015. Awarded the <strong>Joe Marston Medal in 2018</strong> as best-on-field in the Grand Final victory over Newcastle Jets, making two vital saves. Moved to <strong>Denmark in 2020</strong>, joining S&#248;nderjyske in the Danish Superliga for 2 seasons (49 apps, 10 clean sheets). Returned to Australia in <strong>2023</strong>, signing for <strong>Western Sydney Wanderers</strong> where he has been the <strong>first-choice goalkeeper</strong>. <strong>187cm, right-footed</strong>, with <strong>Australian-Italian dual nationality</strong> (Italian passport via his mother). Wears <strong>#20</strong> with a contract until <strong>2027</strong>. At 34, he is a <strong>veteran presence</strong> in the A-League with extensive experience at domestic and European levels. His <strong>market value of ~&#8364;280K</strong> reflects his established status as a reliable but aging goalkeeper.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 metrics validated.</strong> All physical, technical micro-assessments, and video-based evaluations are pending scout review. Thomas is a <strong>veteran goalkeeper with extensive A-League and Danish Superliga experience</strong> (~220+ career apps). T3 should focus on <strong>shot-stopping technique, positioning, distribution (short and long), command of area, aerial ability, 1v1 situations, reflexes, and physical maintenance at age 34</strong>. Having played in <strong>A-League and Danish Superliga</strong>, he has faced diverse tactical systems and opposition quality. At 34, he is in the <strong>late-career phase for a goalkeeper</strong> &#8212; T3 must assess whether his <strong>experience and game reading compensate for declining reflexes and physical capacity</strong>, or whether age-related decline is evident in his shot-stopping and distribution. <strong>4 video links provided for T3 assessment &#8212; all WSW fixtures where Thomas is the established starting goalkeeper.</strong>
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--accent);">PROXY FGA 6.3 &#8212; VETERAN AUSTRALIAN GOALKEEPER with T3 validation required.</strong> Lawrence Thomas is a <strong>34-year-old goalkeeper with extensive A-League and Danish Superliga experience</strong> (~220+ career apps). His <strong>2 A-League titles, Australia Cup, Joe Marston Medal, and 9 years at Melbourne Victory</strong> demonstrate proven quality at the highest domestic level. However, his <strong>entire T3 profile is unvalidated</strong> &#8212; no video-based micro-assessments have been completed. His <strong>modest market value (~&#8364;280K), age (34), and declining value trend (&#8364;280K &#8594; &#8364;210K &#8594; &#8364;140K &#8594; &#8364;70K)</strong> suggest he is in the late-career phase. His <strong>2025-26 statistics (69% save rate, 5 clean sheets in 24 matches, 39 goals conceded, 0.34 goals prevented)</strong> indicate solid but unspectacular performance. At 34, he is at a <strong>critical late-career juncture</strong> &#8212; T3 must assess whether his <strong>experience, positioning, and game reading</strong> compensate for declining reflexes, or whether physical decline is accelerating. <strong>Best deployed as a starting goalkeeper in a structured defensive system</strong> that values his experience, communication, and shot-stopping. <strong>Validate T3 before any recruitment or retention decision. Focus on reflexes, positioning, distribution quality, command of area, and physical maintenance.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row">
+        <div class="philo-rank">1</div>
+        <div class="philo-name">Mourinho Pragmatism</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div>
+        <div class="philo-name">Ferguson Drive</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div>
+        <div class="philo-name">Tuchel Structure</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div>
+        <div class="philo-name">Guardiola Positional</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div>
+        <div class="philo-name">Bielsa Intensity</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.0</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Goalkeeper Percentile Radar <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="gkRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero">
+        <div class="value">24</div>
+        <div class="label">A-League Matches</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">2160</div>
+        <div class="label">Minutes (FotMob)</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">5</div>
+        <div class="label">Clean Sheets</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">87</div>
+        <div class="label">Saves</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">69%</div>
+        <div class="label">Save %</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">39</div>
+        <div class="label">Goals Conceded</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">6.73</div>
+        <div class="label">FotMob Rating</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">0</div>
+        <div class="label">Yellow/Red Cards</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Lawrence Thomas's <strong>2025-26 season at Western Sydney Wanderers</strong> has seen him as the <strong>established starting goalkeeper</strong>. His <strong>24 matches, 2,160 minutes, 5 clean sheets, and 87 saves at a 69% save rate</strong> (FotMob) indicate consistent selection and solid shot-stopping. He has conceded <strong>39 goals from 129 shots faced</strong> (xGOT faced: 39.33), with <strong>0.34 goals prevented</strong> &#8212; slightly positive shot-stopping performance. His <strong>6.73 FotMob rating</strong> is respectable for a goalkeeper in a mid-table team. Notable performances include an <strong>8.6 rating vs Macarthur FC (Feb 28, 2026)</strong> and <strong>7.7 vs Wellington Phoenix (Feb 13, 2026)</strong>. However, his <strong>2 errors leading to goals</strong> and <strong>0/1 penalty saves</strong> are areas of concern. At 34, he is in the <strong>late-career phase for a goalkeeper</strong> &#8212; T3 must assess whether his <strong>experience and positioning compensate for any decline in reflexes and physical capacity</strong>. His <strong>48.3% accurate long balls</strong> and <strong>83.5% pass accuracy</strong> suggest solid distribution, though not elite. His <strong>28 high claims</strong> and <strong>8 sweeper actions</strong> indicate moderate command of the area.
+    </p>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Shot Stopping</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Positioning</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Distribution (Short)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Distribution (Long)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Handling</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">1v1 Situations</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 &#9203;</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Command of Area</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Communication</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Discipline</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5</span></div>
+      <div class="attr-row"><span class="name">Leadership</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Reflexes</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Agility</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Jumping</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+      <div class="attr-row"><span class="name">Aerial Ability</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 &#9203;</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 &#8212; Real Data Metrics</h3>
+
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Career</div>
+          <div class="t1-hl-val">~220+</div>
+          <div class="t1-hl-pct">Total senior apps (A-League + Denmark)</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">25-26</div>
+          <div class="t1-hl-val">24</div>
+          <div class="t1-hl-pct">WSW A-League matches (FotMob)</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:12%;background:var(--warning)"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Saves</div>
+          <div class="t1-hl-val">87</div>
+          <div class="t1-hl-pct">87 saves at 69% rate (2025-26)</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:69%;background:var(--info)"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Clean</div>
+          <div class="t1-hl-val">5</div>
+          <div class="t1-hl-pct">5 clean sheets in 24 matches</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:21%;background:var(--success)"></div></div>
+        </div>
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Titles</div>
+          <div class="t1-hl-val">3</div>
+          <div class="t1-hl-pct">2&#215; A-League + 1&#215; Australia Cup</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%;background:#f9e814"></div></div>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">&#9917; Season Output (2025-26)</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Matches</span>
+          <span class="t1-metric-desc">A-League Men matches (WSW)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:12%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">24</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Min</span>
+          <span class="t1-metric-desc">Minutes played (FotMob)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:24%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">2160</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Saves</span>
+          <span class="t1-metric-desc">Total saves</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:69%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">87</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Save%</span>
+          <span class="t1-metric-desc">Save percentage</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:69%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">69%</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">GC</span>
+          <span class="t1-metric-desc">Goals conceded</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:39%;background:var(--danger)"></div></div></div>
+          <span class="t1-metric-val">39</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">xGOT</span>
+          <span class="t1-metric-desc">xGOT faced</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:39%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">39.33</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">&#129349; Distribution</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Pass%</span>
+          <span class="t1-metric-desc">Pass accuracy</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:84%;background:var(--success)"></div></div></div>
+          <span class="t1-metric-val">83.5%</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Long%</span>
+          <span class="t1-metric-desc">Accurate long balls %</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">48.3%</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Long</span>
+          <span class="t1-metric-desc">Accurate long balls</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">97</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">xA</span>
+          <span class="t1-metric-desc">Expected assists</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:1%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">0.01</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">&#127942; Pedigree / Tenure</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Born</span>
+          <span class="t1-metric-desc">Birth date</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">9 May 1992</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Debut</span>
+          <span class="t1-metric-desc">Professional debut</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">Nov 2011</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Contract</span>
+          <span class="t1-metric-desc">WSW contract</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">Until 2027</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Value</span>
+          <span class="t1-metric-desc">Market value (declining)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:3%;background:var(--warning)"></div></div></div>
+          <span class="t1-metric-val">~&#8364;280K</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">&#128203; Career Breakdown</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">SHU</span>
+          <span class="t1-metric-desc">Sheffield United (youth)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">Youth</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">MVC</span>
+          <span class="t1-metric-desc">Melbourne Victory (2011-20)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:69%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">151 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">SON</span>
+          <span class="t1-metric-desc">S&#248;nderjyske (2020-22)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:22%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">49 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">WSW</span>
+          <span class="t1-metric-desc">WSW (2023-)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:11%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">~24 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Career</span>
+          <span class="t1-metric-desc">Total senior apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">~220+</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 &#8212; Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">POI &#8212; Positional IQ</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5 &#9203;</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CPX &#8212; Complexity</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.0 &#9203;</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">MOB &#8212; Mobility</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0 &#9203;</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">GRI &#8212; Grit</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5 &#9203;</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">AMS &#8212; Athleticism</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0 &#9203;</span>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">&#9888;&#65039; Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With Tier 3 at 0/16, these are proxy estimates based on Tier 1 data patterns and positional averages for a 34-year-old goalkeeper with extensive A-League and Danish Superliga experience.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;">
+          <canvas id="fgaDonut"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Season-by-Season Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">~2000s &#183; Sheffield United (Youth)</strong><br>
+          <strong style="color:var(--text-primary);">Youth system</strong> &#183; Developed in England before returning to Australia.<br><br>
+          <strong style="color:var(--text-primary);">2011-20 &#183; Melbourne Victory (9 years)</strong><br>
+          <strong style="color:var(--text-primary);">151 apps in all competitions</strong> &#183; Debut Nov 2011. Became first-choice in 2014/15 after Nathan Coe injury. Won A-League Premiership-Championship double 2014/15, A-League Championship 2017/18, Australia Cup 2015. <strong>Joe Marston Medal 2018</strong> (Grand Final MOTM).<br><br>
+          <strong style="color:var(--text-primary);">2020-22 &#183; S&#248;nderjyske (Denmark)</strong><br>
+          <strong style="color:var(--text-primary);">49 apps, 10 clean sheets</strong> &#183; Danish Superliga. Moved to Europe for new challenge. Defended by teammates after costly errors. 49th Superliga match in Feb 2022.<br><br>
+          <strong style="color:var(--text-primary);">2023- &#183; Western Sydney Wanderers</strong><br>
+          <strong style="color:var(--text-primary);">~24 apps (2025-26)</strong> &#183; 2160 minutes, 5 clean sheets, 69% save rate, 87 saves, 39 goals conceded. Contract until 2027.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Proxy FGA Rating &#8212; 6.3 / 10 &#183; Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">&#9888;&#65039; Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 50% Tier 3 / 30% Tier 2 / 20% Tier 1. With Tier 2/3 both empty, this 6.3 is a <strong style="color:var(--text-primary);">substitute</strong> built from public Tier 1 numbers. The score reflects extensive senior career data (~220+ apps, 2 A-League titles, Australia Cup, Joe Marston Medal), modest market value (~&#8364;280K, declining), age (34), and goalkeeper positional profile. Balanced against 69% save rate, 5 clean sheets in 24 matches, 2 errors leading to goals, and declining value trend.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Career Pedigree</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">~220+ apps, 2&#215; A-League champion, Australia Cup, Joe Marston Medal, Denmark experience</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">7.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Current Output</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">24 matches, 69% save rate, 5 clean sheets, 87 saves. Starting GK at WSW</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">25%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Shot-Stopping</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">69% save rate, 0.34 goals prevented, 39 goals from 39.33 xGOT. Solid but not elite</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Discipline</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">0 yellows, 0 reds in 2025-26. 2 errors leading to goals</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Age / Ceiling</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">34 years old &#8212; late career for GK. Contract until 2027</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">4.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Physical</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">187cm. Reflexes and agility likely declining at 34</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">International</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Socceroos representative. Italian passport via mother</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">5%</span>
+      </div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:180px;font-size:0.9rem;">Weighted Proxy Total</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--accent);">6.3</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row">
+        <div class="philo-rank">1</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent);"></div></div></div><div class="philo-score">7.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent);"></div></div></div><div class="philo-score">7.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div><div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--accent);"></div></div></div><div class="philo-score">6.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent);"></div></div></div><div class="philo-score">6.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">6</div><div class="philo-name">Dutch School Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--warning);"></div></div></div><div class="philo-score">5.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">7</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--warning);"></div></div></div><div class="philo-score">5.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">8</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:var(--warning);"></div></div></div><div class="philo-score">5.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">9</div><div class="philo-name">Spanish Positional Superiority</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:52%;background:var(--warning);"></div></div></div><div class="philo-score">5.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">10</div><div class="philo-name">Beenhakker Technique</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--warning);"></div></div></div><div class="philo-score">5.0</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--accent);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Veteran Australian Shot-Stopper"</strong> &#8212; A 34-year-old goalkeeper with <strong>extensive A-League and Danish Superliga experience</strong> across 3 clubs and 2 countries. Thomas combines <strong>shot-stopping reliability, positional discipline, and leadership</strong> with <strong>declining physical capacity</strong> typical of a goalkeeper in the late-career phase. His <strong>2 A-League titles with Melbourne Victory, Australia Cup, and Joe Marston Medal</strong> demonstrate proven quality at the highest domestic level. At 34, he is transitioning from a <strong>peak performer to a steady veteran presence</strong> at Western Sydney Wanderers. His <strong>Australian-Italian dual nationality</strong> (Italian passport via mother) provided European pathway opportunities. <strong>Best deployed as a starting goalkeeper in a structured, pragmatic defensive system</strong> that values his experience, communication, and shot-stopping consistency. <strong>Not suited to high-pressing systems requiring aggressive sweeper-keeper actions</strong> given age-related physical limitations. His <strong>83.5% pass accuracy and 48.3% accurate long balls</strong> suggest solid but not elite distribution. <strong>T3 must assess whether his game reading and positioning compensate for declining reflexes and agility.</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Goalkeeper</span>
+          <span class="tag tag-club">WSW #20</span>
+          <span class="tag tag-club">2&#215; A-League Champion</span>
+          <span class="tag tag-club">Joe Marston Medal</span>
+          <span class="tag tag-club">Australia Cup</span>
+          <span class="tag tag-club">Aus/Italy Dual</span>
+          <span class="tag tag-club">Veteran Presence</span>
+          <span class="tag tag-club">Socceroos</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.5</div>
+      <div class="label">British School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.3</div>
+      <div class="label">German School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.8</div>
+      <div class="label">Dutch School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.5</div>
+      <div class="label">Spanish School</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item">
+          <div class="timeline-date">9 May 1992</div>
+          <div class="timeline-text">Born in <strong>Sydney, New South Wales, Australia</strong>. Mother of Italian descent &#8212; holds Italian passport.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">~2000s</div>
+          <div class="timeline-text">Youth career in <strong>Sheffield United youth system</strong> in England. Developed as a goalkeeper before returning to Australia.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Nov 2011</div>
+          <div class="timeline-text">Senior debut for <strong>Melbourne Victory</strong> at age 19. Initially backup goalkeeper behind Nathan Coe and Tando Velaphi.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2014-15</div>
+          <div class="timeline-text">Became <strong>first-choice goalkeeper</strong> after Nathan Coe injury. Won <strong>A-League Premiership-Championship double</strong> with Victory. Established as one of A-League's top goalkeepers.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2015</div>
+          <div class="timeline-text">Won <strong>Australia Cup (FFA Cup) 2015</strong> with Melbourne Victory.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2017-18</div>
+          <div class="timeline-text">Won <strong>A-League Championship 2017/18</strong> with Melbourne Victory. Awarded <strong>Joe Marston Medal</strong> as best-on-field in Grand Final victory over Newcastle Jets (2 vital saves).</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2011-20</div>
+          <div class="timeline-text"><strong>151 appearances in all competitions</strong> for Melbourne Victory across 9 years. Established as club legend and one of A-League's most consistent goalkeepers.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2020</div>
+          <div class="timeline-text">Moved to <strong>Denmark, joining S&#248;nderjyske</strong> in Danish Superliga. Sought new challenge after 9 years at Victory.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2020-22</div>
+          <div class="timeline-text"><strong>49 Superliga appearances, 10 clean sheets</strong> for S&#248;nderjyske. Defended by teammates after costly errors. 49th Superliga match in February 2022.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2023</div>
+          <div class="timeline-text">Returned to Australia, signed for <strong>Western Sydney Wanderers</strong>. Became first-choice goalkeeper.</div>
+        </div>
+        <div class="timeline-item current">
+          <div class="timeline-date">2025-26</div>
+          <div class="timeline-text"><strong>24 matches, 2,160 minutes, 5 clean sheets, 69% save rate, 87 saves</strong> for WSW. 39 goals conceded from 129 shots faced. 2 errors leading to goals. Contract until 2027. T3 pending.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Clean Sheets</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>2011-12</strong></td><td>Melbourne Victory</td><td>A-League</td><td>1</td><td>0</td></tr>
+          <tr><td><strong>2012-13</strong></td><td>Melbourne Victory</td><td>A-League</td><td>2</td><td>0</td></tr>
+          <tr><td><strong>2013-14</strong></td><td>Melbourne Victory</td><td>A-League</td><td>4</td><td>0</td></tr>
+          <tr><td><strong>2014-15</strong></td><td>Melbourne Victory</td><td>A-League</td><td>26</td><td>8</td></tr>
+          <tr><td><strong>2015-16</strong></td><td>Melbourne Victory</td><td>A-League</td><td>26</td><td>6</td></tr>
+          <tr><td><strong>2016-17</strong></td><td>Melbourne Victory</td><td>A-League</td><td>26</td><td>7</td></tr>
+          <tr><td><strong>2017-18</strong></td><td>Melbourne Victory</td><td>A-League</td><td>28</td><td>8</td></tr>
+          <tr><td><strong>2018-19</strong></td><td>Melbourne Victory</td><td>A-League</td><td>26</td><td>6</td></tr>
+          <tr><td><strong>2019-20</strong></td><td>Melbourne Victory</td><td>A-League</td><td>16</td><td>3</td></tr>
+          <tr><td><strong>2020-21</strong></td><td>S&#248;nderjyske</td><td>Danish Superliga</td><td>22</td><td>5</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>S&#248;nderjyske</td><td>Danish Superliga</td><td>27</td><td>5</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>WS Wanderers</td><td>A-League</td><td>~20</td><td>~4</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>WS Wanderers</td><td>A-League</td><td>~22</td><td>~4</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>WS Wanderers</td><td>A-League</td><td>~24</td><td>~5</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>WS Wanderers</td><td>A-League</td><td>24</td><td>5</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="3"><strong>Career Total</strong></td>
+            <td><strong>~220+</strong></td>
+            <td><strong>~50+</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Honour</th><th>Year</th><th>Club</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>A-League Premiership</strong></td><td>2014/15</td><td>Melbourne Victory</td></tr>
+          <tr><td><strong>A-League Championship</strong></td><td>2014/15</td><td>Melbourne Victory</td></tr>
+          <tr><td><strong>Australia Cup (FFA Cup)</strong></td><td>2015</td><td>Melbourne Victory</td></tr>
+          <tr><td><strong>A-League Championship</strong></td><td>2017/18</td><td>Melbourne Victory</td></tr>
+          <tr><td><strong>Joe Marston Medal</strong></td><td>2018</td><td>Individual (Grand Final MOTM)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">187cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">&#8212;</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Goalkeeper</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#20 (WSW)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, solid</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Australia / Italy</span></div>
+        <div class="physical-item"><span class="label">Reach</span><span class="value">&#8212;</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury &amp; Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">&#9989; No Major Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant long-term injury history reported. Thomas has maintained relatively consistent availability across his ~220+ career appearances. However, at 34, physical monitoring is essential for a goalkeeper.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">&#9888;&#65039; Age-Related Decline</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>34 years old</strong> &#8212; natural physical decline expected for reflexes, agility, and recovery speed. His 2025-26 statistics (69% save rate, 2 errors leading to goals) suggest some decline from peak performance. Market value declining from &#8364;280K &#8594; &#8364;210K &#8594; &#8364;140K &#8594; &#8364;70K confirms this trajectory.</div>
+        </div>
+        <div style="padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--info);margin-bottom:4px;">&#8505;&#65039; Goalkeeper-Specific Physical Profile</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>187cm</strong> is a solid height for a goalkeeper. T3 must assess whether his <strong>reflexes, agility, and diving range</strong> remain sufficient at A-League level, or whether younger alternatives offer better value. His <strong>28 high claims and 8 sweeper actions</strong> in 2025-26 indicate moderate command of the area but limited aggressive sweeping.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">&#10003;</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Extensive A-League experience (9 years at Melbourne Victory, 151 apps)</strong> &#8212; Proven durability and consistency at highest domestic level</li>
+      <li><strong>2&#215; A-League Champion (2014/15 double, 2017/18)</strong> &#8212; Won at the highest domestic level in Australia</li>
+      <li><strong>Australia Cup winner 2015</strong> &#8212; Domestic cup success</li>
+      <li><strong>Joe Marston Medal 2018</strong> &#8212; Best-on-field in Grand Final (2 vital saves vs Newcastle Jets)</li>
+      <li><strong>49 Danish Superliga appearances for S&#248;nderjyske</strong> &#8212; European experience in competitive league</li>
+      <li><strong>10 clean sheets in 49 Superliga matches</strong> &#8212; Solid performance in Denmark</li>
+      <li><strong>Socceroos representative</strong> &#8212; International recognition</li>
+      <li><strong>Italian passport via mother</strong> &#8212; European flexibility and work permit advantages</li>
+      <li><strong>Contract until 2027</strong> &#8212; Stability and commitment from WSW</li>
+      <li><strong>24 matches, 2160 minutes in 2025-26</strong> &#8212; Consistent starting role at WSW</li>
+      <li><strong>69% save rate, 87 saves in 2025-26</strong> &#8212; Solid shot-stopping numbers</li>
+      <li><strong>83.5% pass accuracy</strong> &#8212; Reliable distribution from the back</li>
+      <li><strong>0 yellow/red cards in 2025-26</strong> &#8212; Excellent disciplinary record</li>
+      <li><strong>Strong performances vs top opponents</strong> &#8212; 8.6 rating vs Macarthur FC, 7.7 vs Wellington Phoenix</li>
+      <li><strong>Veteran leadership presence</strong> &#8212; Commands defensive line and mentors younger players</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">&#9888;</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Age 34 &#8212; late career phase for goalkeeper</strong> &#8212; Natural reflex and agility decline expected</li>
+      <li><strong>Declining market value trend</strong> &#8212; &#8364;280K &#8594; &#8364;210K &#8594; &#8364;140K &#8594; &#8364;70K (FotMob trend)</li>
+      <li><strong>2 errors leading to goals in 2025-26</strong> &#8212; Concentration lapses at critical moments</li>
+      <li><strong>0/1 penalty saves</strong> &#8212; No penalty save success in 2025-26</li>
+      <li><strong>39 goals conceded in 24 matches</strong> &#8212; 1.63 goals per match &#8212; below elite standard</li>
+      <li><strong>Only 5 clean sheets in 24 matches</strong> &#8212; 20.8% clean sheet rate &#8212; modest for starting GK</li>
+      <li><strong>Limited sweeper-keeper actions (8 in 2025-26)</strong> &#8212; Not suited to high defensive line systems</li>
+      <li><strong>48.3% accurate long balls</strong> &#8212; Below elite distribution standard</li>
+      <li><strong>Left Melbourne Victory after 9 years</strong> &#8212; Could not maintain role at former club</li>
+      <li><strong>Defended by teammates after costly errors at S&#248;nderjyske</strong> &#8212; Suggests confidence issues or inconsistent form</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">&#10007;</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>All 16 T3 metrics pending</strong> &#8212; Zero validated video assessments. Full scout review required</li>
+      <li><strong>Reflexes and reaction time</strong> &#8212; At 34, has shot-stopping speed declined? T3 must assess</li>
+      <li><strong>1v1 situations</strong> &#8212; Success rate, decision-making, body positioning. Unvalidated</li>
+      <li><strong>Command of area</strong> &#8212; 28 high claims in 24 matches. Is this sufficient for A-League standard? Unknown</li>
+      <li><strong>Aerial ability</strong> &#8212; 187cm height. Can he dominate in crowded penalty areas? Unvalidated</li>
+      <li><strong>Distribution under pressure</strong> &#8212; Short passing accuracy, decision-making when pressed. Unknown</li>
+      <li><strong>Cross claiming</strong> &#8212; Aggression, timing, success rate on crosses. Unvalidated</li>
+      <li><strong>Sweeper-keeper ability</strong> &#8212; Only 8 sweeper actions in 2025-26. Can he play in high line? Unknown</li>
+      <li><strong>Penalty saving</strong> &#8212; 0/1 in 2025-26. Historical penalty save record? Unknown</li>
+      <li><strong>Concentration and consistency</strong> &#8212; 2 errors leading to goals. Is this a pattern? T3 must assess</li>
+      <li><strong>Leadership and communication</strong> &#8212; Does he organize the defensive line effectively? Unknown</li>
+      <li><strong>Recovery from errors</strong> &#8212; Mental resilience after mistakes. T3 must assess</li>
+      <li><strong>Comparison to A-League goalkeeper standards</strong> &#8212; Does he offer significantly more than other A-League GKs? T3 must assess</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--accent);">&#9670;</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROXY FGA 6.3 &#8212; VETERAN AUSTRALIAN GOALKEEPER with T3 validation required.</strong> Lawrence Thomas is a <strong>34-year-old goalkeeper with extensive A-League and Danish Superliga experience</strong> (~220+ career apps). His <strong>2 A-League titles, Australia Cup, Joe Marston Medal, and 9 years at Melbourne Victory</strong> demonstrate proven quality at the highest domestic level. However, his <strong>entire T3 profile is unvalidated</strong> &#8212; no video-based micro-assessments have been completed. His <strong>modest market value (~&#8364;280K, declining), age (34), and 2025-26 statistics (69% save rate, 5 clean sheets in 24 matches, 2 errors leading to goals, 39 goals conceded)</strong> suggest he is in the late-career phase with some decline evident. His <strong>83.5% pass accuracy and 48.3% accurate long balls</strong> indicate solid but not elite distribution. At 34, he is at a <strong>critical late-career juncture</strong> &#8212; T3 must assess whether his <strong>experience, positioning, and game reading compensate for declining reflexes and physical capacity</strong>, or whether physical decline is accelerating. <strong>Best deployed as a starting goalkeeper in a structured, pragmatic defensive system</strong> that values his experience, communication, and shot-stopping consistency. <strong>Not suited to high-pressing systems requiring aggressive sweeper-keeper actions</strong> given age-related physical limitations and limited sweeper actions (8 in 2025-26). <strong>Validate T3 before any recruitment or retention decision. Focus on reflexes, positioning, distribution quality, command of area, and physical maintenance. If T3 confirms solid fundamentals, he remains a valuable starting goalkeeper; if physical decline is evident, succession planning should be accelerated.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-info">
+    <span>&#8505;&#65039;</span> <strong>4 Video Links Provided &#8212; T3 Pending.</strong> Lawrence Thomas is the established starting goalkeeper for Western Sydney Wanderers. All four video links are WSW fixtures, and he is <strong>highly likely to feature</strong> in these matches given his consistent starting role (24 matches, 2,160 minutes in 2025-26). T3 verification is required to confirm his specific participation and assess performance across all 16 metrics.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Video Links &#8212; T3 Assessment</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/oztpmboyhc5wooxpedl72/Brisbane-Roar-Western-Sydney-Wanderers-im-On-Demand-Videostream.mp4?rlkey=ev801h4hzjw0pk7d1insqezok&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Brisbane Roar vs Western Sydney Wanderers</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">&#9203; T3 PENDING</span>
+          <span class="match-badge badge-comp">A-League Men</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          A-League Men fixture featuring Western Sydney Wanderers. Thomas is the established starting goalkeeper and is highly likely to feature in this match. T3 scout to assess his performance across all 16 metrics: OBI, SII, DMA, SOA, SPI, CLM, DYN, CRK, CHR, MCS, CRS, OMS. Focus on shot-stopping, positioning, distribution, and command of area.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/38ei58wr9hs364xe2sf0t/Western-Sydney-Wanderers-Adela-de-United.mp4?rlkey=lp9wtmblyuis18559zao30qxm&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Western Sydney Wanderers vs Adelaide United</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">&#9203; T3 PENDING</span>
+          <span class="match-badge badge-comp">A-League Men</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          A-League Men fixture featuring Western Sydney Wanderers. Thomas is the established starting goalkeeper and is highly likely to feature in this match. T3 scout to assess his goalkeeper performance across all 16 metrics, with focus on shot-stopping under pressure, distribution accuracy, and defensive organization.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/wyu85bgms4fze4o6z3a71/Western-Sydney-Wanderers-Football-Club-Melbourne-Victory.mp4?rlkey=lphny240w6sgoakpr51yik5op&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Western Sydney Wanderers vs Melbourne Victory</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">&#9203; T3 PENDING</span>
+          <span class="match-badge badge-comp">A-League Men</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          A-League Men fixture featuring Western Sydney Wanderers vs Melbourne Victory &#8212; Thomas's former club of 9 years. This match carries emotional significance and will test his concentration and mental resilience. Melbourne Victory is a top-tier opponent that will test his shot-stopping against quality attackers. T3 scout to assess composure, decision-making, and leadership against elite opposition.
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.dropbox.com/scl/fi/0rbaiuy0jmwgj4cmoqkzb/Western-Sydney-Wanderers-Football-Club-Sydney-Football-Club.mp4?rlkey=jnpcn4jv65zov3e16c9aboznm&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Western Sydney Wanderers vs Sydney FC</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">&#9203; T3 PENDING</span>
+          <span class="match-badge badge-comp">A-League Men</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          A-League Men fixture &#8212; <strong>Sydney Derby</strong>. The most intense fixture of the A-League calendar. Thomas will face maximum pressure and scrutiny in this high-stakes environment. This match will test his mental resilience, concentration, and leadership under extreme pressure. T3 scout to assess his composure, communication, and shot-stopping in a derby atmosphere. Note: This same match link was also provided for Alex Gersbach and Steven Ugarkovic (WSW teammates).
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Scout Assessment Notes</h3>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Physical Identity Card</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Height</span><span class="value">187cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">&#8212;</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">#20 (WSW)</span></div>
+          <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, solid</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Goalkeeper</span></div>
+          <div class="physical-item"><span class="label">Reach</span><span class="value">&#8212;</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">Australia / Italy</span></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Goalkeeper-Specific Focus Areas</h4>
+        <ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">&#8594;</span> <strong>Shot Stopping:</strong> Reflexes, reaction time, diving technique, hand positioning &#8212; has age-related decline affected these?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">&#8594;</span> <strong>1v1 Situations:</strong> Decision-making, body positioning, success rate against breakaways</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">&#8594;</span> <strong>Command of Area:</strong> High claims, cross collection, communication with defenders &#8212; 28 claims in 24 matches</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">&#8594;</span> <strong>Distribution:</strong> Short pass accuracy (83.5%), long ball accuracy (48.3%), decision-making under pressure</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">&#8594;</span> <strong>Sweeper-Keeper:</strong> Only 8 sweeper actions in 2025-26. Can he play in a high defensive line?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">&#8594;</span> <strong>Concentration:</strong> 2 errors leading to goals. Is this a pattern or isolated incidents?</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:16px;margin-bottom:0;">
+      <span>&#8505;&#65039;</span> <strong>Verification note:</strong> 4 video links provided for T3 assessment. With <strong>~220+ career apps across A-League and Danish Superliga</strong>, additional match footage is recommended for comprehensive T3 validation. Focus on matches vs top A-League opposition (Sydney FC, Melbourne Victory, Melbourne City, Central Coast Mariners) and matches where Thomas faced high shot volumes or penalty situations. Compare his 2025-26 WSW performances to his peak at Melbourne Victory (2014-2018) to assess decline trajectory. If you have additional match data or metadata, reply and I'll update the card. When your scout completes the video assessment, reply with the validated scores and I'll update the card to <strong>T3_STATUS = SCOUT_VALIDATED</strong>.
+    </div>
+  </div>
+</div>
+
+</main>

@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giovani Lo Celso — Empire FGA Intelligence Card v2.0 · PILOT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(0,140,255,.07);
+  --acc:#1a7dc8;--acc-dark:#0d5290;--accL:#60bff0;
+  --accent:#1a7dc8;--accentL:#60bff0;--accentFade:rgba(26,125,200,.1);
+  --betis:#009b4d;--betisL:#4dcc80;--betis-dark:#006b34;
+  --gold:#f0b820;--gold2:#ffd060;--gold3:#7a5800;
+  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
+  --red:#e03030;--redL:#f05050;
+  --arg:#1a7dc8;--arg2:#5aaee8;
+  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(26,125,200,.7) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 90%,rgba(0,155,77,.3) 0%,transparent 50%)}
+
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--betis) 20%,var(--acc) 20% 80%,var(--betis) 80%);z-index:10}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(26,125,200,.12) 0%,transparent 45%,rgba(0,155,77,.06) 100%)}
+.hero-photo{position:relative;overflow:hidden;background:#040810}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  filter:contrast(1.1) saturate(.95);
+  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(26,125,200,.06);line-height:1;pointer-events:none}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.bp-main{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(26,125,200,.9);color:#fff;text-transform:uppercase;border:1px solid rgba(96,191,240,.3)}
+.bp-wc{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.8);color:#040806;text-transform:uppercase}
+.bp-val{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(0,155,77,.7);color:#fff;text-transform:uppercase}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
+.hero-name{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
+.hero-name em{color:var(--accentL);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
+.pos-primary{background:var(--accent);color:#fff}
+.pos-sec{background:rgba(26,125,200,.15);color:var(--accentL);border:1px solid rgba(26,125,200,.35)}
+.pos-league{background:rgba(0,155,77,.12);color:var(--betisL);border:1px solid rgba(0,155,77,.3)}
+.pos-wc{background:rgba(240,184,32,.12);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
+.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
+.htag-blue{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(26,125,200,.28)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
+.htag-betis{background:rgba(0,155,77,.12);color:var(--betisL);border:1px solid rgba(0,155,77,.25)}
+.htag-red{background:rgba(224,48,48,.1);color:var(--redL);border:1px solid rgba(224,48,48,.2)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(26,125,200,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fga-score-num{font-family:'Oswald',sans-serif;font-size:2.4rem;font-weight:500;line-height:1;color:var(--accentL)}
+.fga-score-lbl{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(26,125,200,.08);border:1px solid rgba(26,125,200,.15)}
+.ftr2{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.15)}
+.ftr3{background:rgba(240,184,32,.06);border:1px solid rgba(240,184,32,.14)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(26,125,200,.22);border-radius:2px;width:100%}
+.ca-val{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:500;color:var(--accentL)}
+.ca-info{font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:'Oswald',sans-serif;font-size:.95rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
+.logo-bar img{height:32px;width:auto;object-fit:contain}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sh-blue::before{background:var(--acc)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-red::before{background:var(--red)}.sh-amber::before{background:var(--amber)}.sh-betis::before{background:var(--betis)}
+.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,140,255,.025)}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
+.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
+.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#0a1428}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,140,255,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(224,48,48,.12);color:var(--redL)}.f-est{background:rgba(26,125,200,.12);color:var(--accentL)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,140,255,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+.log-ring{display:flex;align-items:center;gap:14px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:2px;margin-bottom:8px}
+.log-val{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:500;color:var(--gold);line-height:1}
+.log-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.12);color:var(--gold);border:1px solid rgba(240,184,32,.2)}
+.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(0,140,255,.03)}
+.phil-item:last-child{border-bottom:none}
+.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
+.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
+.phi-bar-bg{width:70px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden}
+.phi-bar-fill{height:100%;border-radius:99px}
+.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(26,125,200,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(26,125,200,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(0,140,255,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--betis),var(--acc),var(--gold))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accentL);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--accentL);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,140,255,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(26,125,200,.3)}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(26,125,200,.12);color:var(--accentL);border:1px solid rgba(26,125,200,.22)}
+.dma-box{background:linear-gradient(135deg,rgba(26,125,200,.14),rgba(0,155,77,.1));border:2px solid rgba(26,125,200,.42);border-radius:2px;padding:12px 16px;margin-bottom:14px}
+.dm-head{font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accentL);margin-bottom:5px}
+.wc-flash{background:rgba(240,184,32,.07);border:1px solid rgba(240,184,32,.25);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}
+.inj-warn{background:rgba(224,48,48,.07);border:1px solid rgba(224,48,48,.22);border-radius:2px;padding:10px 14px;margin-bottom:14px}
+.career-path{background:rgba(26,125,200,.07);border:1px solid rgba(26,125,200,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.log-banner{background:linear-gradient(135deg,rgba(26,125,200,.12),rgba(0,155,77,.06));border:1px solid rgba(26,125,200,.25);border-radius:2px;padding:10px 16px;margin-bottom:14px}
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
+.video-link-card:hover{border-color:rgba(26,125,200,.4)}
+.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.pilot-banner{background:linear-gradient(135deg,rgba(224,120,32,.12),rgba(240,184,32,.08));border:2px solid rgba(224,120,32,.35);border-radius:2px;padding:10px 16px;margin-bottom:14px}
+.est-badge{display:inline-flex;align-items:center;gap:4px;font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:2px;background:rgba(224,120,32,.2);color:var(--amber);border:1px solid rgba(224,120,32,.3);text-transform:uppercase;vertical-align:middle}
+.t1-highlight{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.t1-hl{background:linear-gradient(135deg,rgba(26,125,200,.15),rgba(0,155,77,.06));border:2px solid rgba(26,125,200,.35);border-radius:3px;padding:10px 12px;position:relative;overflow:hidden}
+.t1-hl.gold{background:linear-gradient(135deg,rgba(240,184,32,.12),rgba(26,125,200,.06));border-color:rgba(240,184,32,.5)}
+.t1-hl-code{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.t1-hl-val{font-family:'Oswald',sans-serif;font-size:1.65rem;font-weight:500;line-height:1;color:var(--accentL)}
+.t1-hl.gold .t1-hl-val{color:var(--gold)}
+.t1-hl-pct{font-size:.58rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.t1-hl-bar{height:3px;background:rgba(26,125,200,.1);border-radius:99px;overflow:hidden;margin-top:6px}
+.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--acc)}
+.t1-hl.gold .t1-hl-bar-fill{background:var(--gold)}
+.t1-source{font-family:'Rajdhani',sans-serif;font-size:.55rem;letter-spacing:.08em;color:rgba(0,140,255,.25);text-transform:uppercase;margin-top:auto;display:block}
+.t1-group{margin-bottom:12px}
+.t1-group-head{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(26,125,200,.08);margin-bottom:6px}
+.t1-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.t1-code{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--accentL);width:64px;flex-shrink:0}
+.t1-desc{font-size:.72rem;color:var(--muted);flex:1}
+.t1-bar-bg{width:80px;height:4px;background:rgba(26,125,200,.07);border-radius:99px;overflow:hidden;flex-shrink:0}
+.t1-bar-fill{height:100%;border-radius:99px}
+.t1-val{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;width:44px;text-align:right;flex-shrink:0}
+.t1-ctx{font-size:.58rem;color:rgba(0,140,255,.3);width:60px;text-align:right;flex-shrink:0;letter-spacing:.04em}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--gold)">▶ Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--betis)"></span>Real Betis · €8M · LaLiga 2025–26</span>
+    <span class="status-dot"><span class="dot" style="background:var(--gold)"></span>🇦🇷 67 caps · WC2026 ✅ · DMA EST 8.5 · SII_R ⚠️ Injury flag</span>
+    <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>PILOT · T1 ONLY · ESTIMATED FGA 7.7</span>
+  </div>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://legacymedia.sportsplatform.io/img/images/photos/003/803/128/hi-res-a9e5578d377c3b0425d2ef5f4225aac8_crop_north.jpg?1555433183&w=630&h=420" alt="Giovani Lo Celso" onerror="this.style.background='#040810'">
+    <div class="hero-flag">🇦🇷</div>
+    <div class="club-badge">
+      <span class="bp-main">Real Betis · AMF · #20</span>
+      <span class="bp-wc">⭐ WC2026 Squad · Argentina</span>
+      <span class="bp-val">€8M · Contract 2028</span>
+    </div>
+    <div class="hero-num">20</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">AMF/CM · 30yr · 177cm · Rosario · Argentine · Rosario → PSG → Betis → Spurs → Betis</div>
+      <div class="hero-name"><em>Giovani</em><br>Lo Celso</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">AMF</span>
+        <span class="pos-badge pos-sec">CM</span>
+        <span class="pos-badge pos-league">LaLiga · Spain</span>
+        <span class="pos-badge pos-wc">🏆 WC2026 · Argentina</span>
+        <span class="pos-badge pos-wc">Copa Am ×2</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">30</div><div class="hmi-lbl">Born Apr 9 1996</div></div>
+      <div><div class="hmi-val">DMA ~8.5</div><div class="hmi-lbl">⚠️ ESTIMATED · T1 only</div></div>
+      <div><div class="hmi-val">67 caps</div><div class="hmi-lbl">ARG · 4G · 16A</div></div>
+      <div><div class="hmi-val">FGA 7.7</div><div class="hmi-lbl">⚠️ ESTIMATED · no T3</div></div>
+      <div><div class="hmi-val">LOG N/A</div><div class="hmi-lbl">No footage assessed</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-gold">⭐ WC2026 confirmed · First World Cup · Missed Qatar 2022 (hamstring)</span>
+      <span class="htag htag-ok">Copa América 2021 + 2024 champion · Finalissima 2022</span>
+      <span class="htag htag-betis">Betis 2018-19 · 9G 4A · career peak production</span>
+      <span class="htag htag-warn">4 muscle/hamstring injuries since 2022 · SII_R structural concern</span>
+      <span class="htag htag-red">⚠️ PILOT CARD · No T3 footage · All FGA = estimates from T1 data</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">FGA v3 Score <span class="est-badge">EST.</span></div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">—</div>
+        <div class="fga-score-lbl">EST / 10</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">FBref/LaLiga/Opta</span><span class="tw" style="color:var(--green)">Full</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--greenL)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">~7.9</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--gold)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--amber)">⚠️ PENDING</span></div>
+    </div>
+    <div class="hero-ca">
+      <div><div class="ca-val">155</div><div class="ca-info">CA (Empire Est.)<br>LaLiga AMF · T1 only</div></div>
+      <div class="ca-pa">PA ~162</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- ═══ OVERVIEW ═══ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <!-- Pilot banner -->
+  <div class="pilot-banner">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--amber);letter-spacing:.1em;text-transform:uppercase">⚠️ PILOT CARD · T1 DATA ONLY · NO T3 MATCH FOOTAGE ASSESSED · ALL FGA SCORES ARE ESTIMATES DERIVED FROM PUBLIC STATISTICS</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">This is an intelligence pilot for the World Cup 2026 marketing campaign. FGA scores estimated from FBref, Opta, Sofascore, Soccerway, Transfermarkt, FotMob. T3 assessment requires minimum 5 full matches of isolated footage — none completed for Lo Celso as of June 2026. <strong style="color:var(--amber)">Treat all FGA values as directional, not confirmed.</strong></div>
+  </div>
+
+  <!-- Career path -->
+  <div class="career-path">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--betisL);letter-spacing:.1em">🇦🇷</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">Rosario Central</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">PSG <small style="font-size:.65rem;color:var(--muted)">(Ligue 1 · 3 trophies)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">Betis <small style="font-size:.65rem;color:var(--muted)">(€22M · 9G4A 2018-19)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">Tottenham <small style="font-size:.65rem;color:var(--muted)">(PL · Villarreal loan)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--betisL);font-weight:600">Real Betis <small style="font-size:.65rem;color:var(--gold)">(€5M · 2028 · WC2026 ✅)</small></span>
+  </div>
+
+  <!-- DMA centrepiece -->
+  <div class="dma-box">
+    <div class="dm-head">📤 DMA ~8.5 EST — PASSING INTELLIGENCE — MESSI'S CREATIVE PARTNER · 67 ARG CAPS · 16 ASSISTS</div>
+    <div style="font-size:.79rem;color:var(--lite);line-height:1.7">
+      Distribution/Decision Making is Lo Celso's primary FGA metric. His identity at Real Betis — and for Argentina — is built on short-combination play, progressive passing in tight spaces, and creative through balls that create separation for Messi and Álvarez. <strong style="color:var(--accentL)">16 assists in 67 Argentina appearances</strong> is the clearest statistical footprint: roughly one assist every 4 caps at international level across Copa América 2021, Finalissima 2022, Copa América 2024, and qualifying campaigns. At club level: 2025-26 LaLiga 3 assists in 24 apps (7.02 FotMob avg); 2024-25 LaLiga 8 goals + 3 assists (7.3 avg, best club season since his Betis peak). 2018-19 career peak: <strong style="color:var(--gold)">9 goals + 4 assists in 32 LaLiga apps at Betis</strong> — an output only two of his 12 seasons have come close to. DMA 8.5 is an estimate grounded in these numbers; T3 confirmation required to separate passing quality from volume.
+    </div>
+  </div>
+
+  <!-- WC2026 Flash -->
+  <div class="wc-flash">
+    <div style="font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:500;color:var(--gold);line-height:1;flex-shrink:0">⭐<br>WC26</div>
+    <div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:4px">WORLD CUP 2026 — CONFIRMED · First WC in Career · Redemption Arc</div>
+      <div style="font-size:.76rem;color:var(--muted);line-height:1.6">Lo Celso was included in Scaloni's confirmed 26-man Argentina squad for WC2026. This is the defining context of his career in June 2026: he missed Qatar 2022 with a hamstring injury (torn playing for Villarreal vs Athletic Bilbao, October 2022 — Scaloni called him "irreplaceable" at the time). He won Copa América 2021 and 2024 but has never played a World Cup match. After a thigh injury in January 2026 that kept him out 80 days, he returned for Betis vs Osasuna in April, completing his path back to the Argentina squad. <strong style="color:var(--gold)">WC2026 is his first World Cup and the culmination of a 10-year international career.</strong> He arrives as a Copa América ×2 champion with 67 caps — and zero WC appearances.</div>
+    </div>
+  </div>
+
+  <!-- Injury Warning -->
+  <div class="inj-warn">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--redL);text-transform:uppercase;margin-bottom:5px">⚠️ SII_R ~6.0 EST — RECURRING INJURY PATTERN · STRUCTURAL CONCERN</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.6"><strong style="color:var(--lite)">4 documented muscular injuries in 3 seasons:</strong> Hamstring (Oct 2022, surgery, missed Qatar WC) → Muscle Feb 2025 → Muscle May 2025 → Thigh Jan 22 2026 (80 days out). The injury in January 2026 was sustained in a Europa League match against PAOK with just 6 minutes played — consistent with a recurring soft-tissue vulnerability in the right thigh. At 30, this pattern will not disappear. SII_R (recovery/resilience index) is estimated at 6.0 — below threshold. Any club profiling Lo Celso must integrate this as a structural constraint, not an isolated event.</div>
+  </div>
+
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits</div><div class="c-sub"><span class="est-badge">EST.</span></div></div><div class="c-body" id="ov-phil"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">FGA Radar <span class="est-badge">EST.</span></div><div class="c-sub">T1-derived estimates only</div></div><div class="c-body"><canvas id="ovRadar" height="200"></canvas></div></div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Season Ratings</div><div class="c-sub">Soccerway/FotMob avg</div></div>
+      <div class="c-body"><canvas id="seasonChart" height="180"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ATTRIBUTES ═══ -->
+<div id="tab-attributes" class="tab-panel">
+  <div class="pilot-banner" style="margin-bottom:12px">
+    ⚠️ <strong style="color:var(--amber)">All FGA attribute scores are ESTIMATED from Tier 1 statistical data only.</strong> No match footage was assessed. Values are directional proxies for T3 confirmation, not confirmed metrics.
+  </div>
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical <span class="est-badge">EST.</span></div></div><div class="c-body" id="attr-tech"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental <span class="est-badge">EST.</span></div></div><div class="c-body" id="attr-men"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical <span class="est-badge">EST.</span></div><div class="c-sub">SII_R injury flag</div></div><div class="c-body" id="attr-phy"></div></div>
+  </div>
+  <div style="margin-top:14px"><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Attribute Radar <span class="est-badge">EST.</span></div><div class="c-sub">vs LaLiga AMF average (estimated baseline)</div></div><div class="c-body" style="height:310px"><canvas id="attrRadar"></canvas></div></div></div>
+</div>
+
+<!-- ═══ FGA ANALYTICS ═══ -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — FBref · Opta · FotMob · TM</div></div>
+      <div class="c-body" id="t1-metrics"></div>
+    </div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 — Composite Est.</div></div><div class="c-body" id="t2-metrics"></div></div>
+    <div>
+      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Breakdown <span class="est-badge">EST.</span></div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">T3 Status</div></div>
+        <div class="c-body">
+          <div style="padding:10px;background:rgba(224,120,32,.07);border:1px solid rgba(224,120,32,.2);border-radius:2px;margin-bottom:8px">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--amber);letter-spacing:.1em">⚠️ NO T3 FOOTAGE ASSESSED</div>
+            <div style="font-size:.71rem;color:var(--muted);margin-top:4px;line-height:1.6">T3 requires minimum 5 full matches of isolated video. No match footage has been evaluated for Lo Celso under ESN methodology. All metric scores are estimated from T1 (public stats) and T2 (composite). Use as orientation only — not suitable for direct club presentation without T3 confirmation.</div>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.7"><strong style="color:var(--gold)">Recommended assessment context</strong><br><strong style="color:var(--lite)">LaLiga: Betis home matches 2024-25</strong><br><strong style="color:var(--lite)">Europa League: Betis group stage + KO</strong><br><strong style="color:var(--amber)">Argentina: Copa América 2024 footage ideal</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Estimated FGA Metrics — T1 Derived <span class="est-badge">EST.</span></div><div class="c-sub">⚠️ No T3 footage · all values estimated</div></div>
+    <div class="c-body">
+      <div class="g3">
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)">OBI</span>
+              <span style="font-size:.78rem;color:var(--muted)">Off-Ball Intelligence</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--amber);margin-left:auto">~7.93 ⚠️</span>
+            </div>
+            <div id="obi-subs"></div>
+          </div>
+          <div style="font-size:.7rem;color:var(--amber);line-height:1.5">OBI_P EST 8.0 — high sense-of-space rating (241 per platform data), key for Scaloni's Argentina structure. OBI_T EST 7.6 — strong off-ball timing as AMF running off Messi. OBI_S EST 7.8 — confirmed spatial awareness through passing volume and progressive carry data. <strong style="color:var(--amber)">All estimates — T3 required to confirm.</strong></div>
+        </div>
+        <div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)">SII</span>
+              <span style="font-size:.78rem;color:var(--muted)">Sprint Intensity Index</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--redL);margin-left:auto">⚠️ CONCERN</span>
+            </div>
+            <div id="sii-subs"></div>
+          </div>
+          <div style="font-size:.7rem;color:var(--redL);line-height:1.5">SII_A EST 7.5 — acceleration functional but not elite. SII_T EST 6.5 — not a pace player; 177cm left-footed AMF, repositions through reading, not footspeed. <strong style="color:var(--redL)">SII_R EST 6.0 — 4 documented muscular injuries since 2022: hamstring, muscle ×2, thigh. Structural concern at 30.</strong> This is the single most important flag in this pilot card.</div>
+        </div>
+        <div>
+          <div class="section-label">All FGA Metrics <span class="est-badge">EST.</span></div>
+          <div id="all-fga-est"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHILOSOPHY DNA ═══ -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top 10 Philosophy Fits <span class="est-badge">EST.</span></div></div><div class="c-body" id="phil-full"></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">School Averages</div></div><div class="c-body" id="school-avgs"></div></div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px;height:340px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar <span class="est-badge">EST.</span></div></div><div class="c-body" style="height:290px"><canvas id="philRadar"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype</div></div>
+        <div class="c-body">
+          <div class="scout-para">DMA ~8.5 + OBI_P ~8.0 + CRK ~8.0 = the <strong>Scaloni deep-combination AMF archetype</strong>. Lo Celso's game is built around the "third man" principle in Argentina's possession phases: receive in pockets between lines, play quickly through Messi and Álvarez, and recover position immediately. At Betis under Pellegrini, the same principle applied: possession-dominant build-up, directional pressing, and short-combination central midfield. The Guardiola-style "interior" midfielder is the closest European reference — high pass completion, progressive movement, quick combination in tight spaces. The philosophical mismatch is with direct or physical teams: he is not a stamina runner and not built to dominate space by physical presence.</div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px;margin-top:8px">
+            <div class="section-label">Confirmed Tactical DNA</div>
+            <span class="trait-pill">Scaloni Combination AMF</span><span class="trait-pill">Guardiola Interior MF</span>
+            <span class="trait-pill">Messi's Third Man</span><span class="trait-pill">Betis Possession Build-Up</span>
+            <span class="trait-pill">Left-Footed Creative Hub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CAREER ═══ -->
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--betisL)"></div><div class="tl-date">Born Apr 9, 1996 · Rosario, Argentina</div><div class="tl-text"><strong>Rosario formation.</strong> Same city as Lionel Messi. Rosario Central youth academy from 2010, senior debut 2015–16 at 19.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2016–2019 · Paris Saint-Germain · Ligue 1</div><div class="tl-text"><strong>PSG formation + loan peak.</strong> Three seasons at PSG — arrived at 20, rarely played senior minutes until the 2018-19 loan to Betis. Won Ligue 1 2017-18, Coupe de France ×2, Coupe de la Ligue ×2, Trophée des Champions ×2 with PSG. The Betis loan (2018-19) was transformative: 32 LaLiga apps, 9G, 4A — the best attacking output of his career.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--betis)"></div><div class="tl-date">2019–2020 · Real Betis · LaLiga · €22M</div><div class="tl-text"><strong>First permanent Betis stint.</strong> Bought permanently from PSG for €22M following the loan peak. Simultaneously loaned to Tottenham Hotspur from August 2019.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--lite)"></div><div class="tl-date">2019–2024 · Tottenham Hotspur · Premier League</div><div class="tl-text"><strong>Longest European stint — injury disrupted.</strong> 5 years at Spurs across multiple loan/transfer arrangements. 77 Premier League appearances, 3G, 4A. 2022-23 on loan to Villarreal (LaLiga, 22 apps) — hamstring injury Oct 2022 ruled him out of Qatar WC. Worked under Mourinho, Nuno, Conte, Stellini, Postecoglou. Copa América 2021 winner during Spurs tenure.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">Aug 30, 2024 · Real Betis · LaLiga · €5M · 4yr</div><div class="tl-text"><strong>Return to Sevilla — World Cup redemption mission.</strong> €5M from Tottenham, 4-year deal to June 2028. 2024-25 was his best club season since 2018-19: 25 LaLiga apps, 8G, 3A, 7.3 avg. Copa América 2024 winner with Argentina over summer 2024. WC2026 confirmed in squad. Thigh injury Jan 22, 2026 (80 days out) — returned April 12 vs Osasuna. Active at WC2026.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Season Performance Index</div><div class="c-sub">Soccerway/FotMob ratings</div></div><div class="c-body" style="height:175px"><canvas id="seasonRadarChart"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Transfer + Value Ladder</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">PSG → Betis loan</span><span class="ti-val">2018-19 · 9G 4A</span></div>
+          <div class="ti-row"><span class="ti-lbl">PSG → Betis</span><span class="ti-val" style="color:var(--amber)">€22M <span style="font-size:.65rem;color:var(--muted)">(Jul 2019)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Betis → Spurs</span><span class="ti-val">Transfer 2020</span></div>
+          <div class="ti-row"><span class="ti-lbl">Spurs → Betis</span><span class="ti-val" style="color:var(--accentL)">€5M <span style="font-size:.65rem;color:var(--muted)">(Aug 30, 2024)</span></span></div>
+          <div class="ti-row"><span class="ti-lbl">Market Value</span><span class="ti-val" style="color:var(--gold)">€8M (TM · Jun 2026)</span></div>
+          <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Jun 30, 2028</span></div>
+          <div class="ti-row"><span class="ti-lbl">ARG caps/goals</span><span class="ti-val">67 caps · 4G · 16A</span></div>
+          <div class="divider"></div>
+          <div style="font-size:.72rem;color:var(--muted)">Career total club: 263 apps · 32G · 29A · TM as of Jun 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--redL)">Injury Register — Documented Soft Tissue History</div></div>
+    <div class="c-body">
+      <table class="career-table">
+        <thead><tr><th>Date</th><th>Club</th><th>Injury Type</th><th>Duration</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr style="background:rgba(224,48,48,.06)"><td>Oct 30, 2022</td><td>Villarreal (loan from Spurs)</td><td>Hamstring tear · right thigh · surgery required</td><td>~4 months</td><td style="color:var(--redL)">Missed Qatar WC2022 · "irreplaceable" per Scaloni</td></tr>
+          <tr><td>Feb 18, 2025</td><td>Real Betis</td><td>Muscle injury · right thigh</td><td>~27 days</td><td>Missed 5 LaLiga matches</td></tr>
+          <tr><td>May 19, 2025</td><td>Real Betis</td><td>Muscle injury</td><td>~8 days</td><td>Copa América 2024 recovery overlap</td></tr>
+          <tr style="background:rgba(224,48,48,.06)"><td>Jan 22–23, 2026</td><td>Real Betis</td><td>Rectus femoris tear · right thigh (EL vs PAOK, 6 min)</td><td>80 days</td><td style="color:var(--amber)">Missed WC2026 warm-up window · Returned Apr 12 vs Osasuna</td></tr>
+          <tr style="border-top:1px solid rgba(224,48,48,.2)"><td colspan="3" style="font-family:'Rajdhani',sans-serif;font-size:.7rem;color:rgba(240,80,80,.5);letter-spacing:.08em;text-transform:uppercase;padding-top:7px">Pattern: recurring right thigh/rectus femoris · 4 events in 4 seasons · SII_R estimated 6.0</td><td colspan="2" style="text-align:center;padding-top:7px"><span style="font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:500;color:var(--redL)">~6.0</span><br><span style="font-size:.55rem;color:rgba(240,80,80,.7)">SII_R EST</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCOUTING INTEL ═══ -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Intelligence Report — T1 Data <span class="est-badge">PILOT · NO T3</span></div><div class="c-sub">Empire FGA · World Cup 2026 Marketing Series</div></div>
+        <div class="c-body">
+          <div class="scout-para">Giovani Lo Celso, born April 9, 1996, Rosario, Argentina. 30 years old. 177cm, left-footed attacking midfielder. Current club: Real Betis (contract to June 30, 2028, €5M acquisition from Tottenham August 30, 2024). Argentina national team: 67 caps, 4 goals, 16 assists. Transfermarkt value June 2026: €8M. FGA assessment: <strong>PILOT CARD — no T3 footage completed</strong>. All scores derived from public T1 statistical data (FBref, Opta, FotMob, Soccerway, Transfermarkt). This card is built for the ESN World Cup 2026 marketing campaign, not for direct club presentation.</div>
+
+          <div class="scout-para"><strong>DMA (Distribution/Decision Making) — EST 8.5 — Estimated primary metric.</strong> The 16 assists in 67 Argentina appearances is the headline number. That rate — one assist every 4.2 caps — describes a consistent pattern of creative contribution at senior international level across Copa América 2021 (winner), Finalissima 2022 (winner), and Copa América 2024 (winner). At club level, 2024-25 was his best since 2018-19: 8 goals and 3 assists in 25 LaLiga apps (7.3 FotMob avg). His 2018-19 output at Betis on loan from PSG remains the career ceiling: 9G, 4A in 32 LaLiga apps at age 22. The narrative of a technically elite midfielder who was perpetually disrupted by injury context at Tottenham — 77 PL apps in 5 years — is confirmed by the trajectory: when healthy at a possession-dominant club, his numbers justify EST 8.5.</div>
+
+          <div class="scout-para"><strong>OBI_P (Positional Intelligence) — EST 8.0.</strong> Performance platform data registers a "sense of space rating" of 241 for Lo Celso — flagged as above average for AMFs in LaLiga. His role in Argentina's structure is essentially a positioning function: he occupies the space between opposition lines to enable Messi's movement. The consistency with which Scaloni returns to him despite injury absences (he was called back into the WC2026 squad after being left out of Argentina's March 2026 friendlies due to the thigh injury) confirms that his spatial reading is not replaceable in their midfield structure. EST 8.0 reflects this, pending T3 confirmation of OBI_P events.</div>
+
+          <div class="scout-para"><strong>MCS (Mental Competitive Strength) — EST 7.8.</strong> Four documented injury recoveries, each time returning to the Argentina squad when available. Missed Qatar 2022 with a required surgery; returned to win Copa América 2024. Missed January–April 2026 with a thigh tear; returned in time for WC2026. The resilience pattern across the injury history is the primary evidence for MCS 7.8. The Copa América finals context (2021 vs Brazil, 2024 vs Colombia) adds competitive pressure data — he contributed in both campaigns. The counterpoint: yellow card accumulation (4 YC in 24 LaLiga apps 2025-26, 42 career YC) suggests disciplinary edge that T3 would need to evaluate.</div>
+
+          <div class="scout-para"><strong>SII_R (Soft-Tissue Recovery) — EST 6.0 — Structural concern flagged.</strong> This is the single most important negative metric in this pilot card. Four soft-tissue injuries in four seasons — specifically in the rectus femoris of the right thigh — constitute a structural pattern, not an isolated event. The January 2026 injury occurred six minutes into a Europa League match, which is consistent with a recurring vulnerability at the point of initial muscular loading. At 30, this pattern will not resolve without medical intervention. Any club evaluation of Lo Celso must quantify injury probability per 90 minutes, not treat it as a risk checkbox. EST 6.0 is conservative; T3 physical assessment could refine this.</div>
+
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Pilot Assessment <span class="est-badge">T1 ONLY</span></div>
+            <div class="verdict-text"><strong>LaLiga AMF · Copa América ×2 · WC2026 · DMA Elite / SII_R Structural Risk.</strong> Lo Celso's estimated FGA profile (7.7) reflects two things simultaneously: elite technical intelligence (DMA ~8.5, OBI_P ~8.0, CRK ~8.0) and a documented soft-tissue fragility that has cost him three competitive windows in four years, including the Qatar 2022 World Cup. He is at his career peak in terms of tournament wins and international recognition — WC2026 is his first World Cup at age 30. For clubs: the technical profile justifies interest; the injury history demands medical due diligence before any evaluation concludes. <strong>T3 assessment recommended using Copa América 2024 footage (minimum 5 matches) before this card can be used in a professional recruitment context.</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All FGA Estimates <span class="est-badge">T1 ONLY</span></div></div><div class="c-body" id="psych-bars"></div></div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--betisL)"></div><div class="c-title" style="color:var(--betisL)">International Record</div><div class="c-sub">67 caps · 4G · 16A</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">Copa América</span><span class="ti-val" style="color:var(--gold)">✅ 2021 (Brazil) + 2024 (USA)</span></div>
+          <div class="ti-row"><span class="ti-lbl">Finalissima</span><span class="ti-val" style="color:var(--gold)">✅ 2022 vs Italy</span></div>
+          <div class="ti-row"><span class="ti-lbl">Qatar WC2022</span><span class="ti-val" style="color:var(--redL)">❌ MISSED · hamstring surgery</span></div>
+          <div class="ti-row"><span class="ti-lbl">WC2026</span><span class="ti-val" style="color:var(--greenL)">✅ SQUAD CONFIRMED</span></div>
+          <div class="ti-row"><span class="ti-lbl">Total caps</span><span class="ti-val">67 · 4G · 16A · since 2017</span></div>
+          <div class="ti-row"><span class="ti-lbl">Scaloni quote</span><span class="ti-val" style="color:var(--accentL)">"Irreplaceable" (2022)</span></div>
+          <div class="divider"></div>
+          <div style="font-size:.72rem;color:var(--muted)">PSG titles: Ligue 1 ×1, Coupe de France ×2, Coupe de la Ligue ×2, Trophée des Champions ×2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MATCHES ═══ -->
+<div id="tab-links" class="tab-panel">
+  <div style="background:rgba(26,125,200,.07);border:1px solid rgba(26,125,200,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accentL)">ASSESSMENT FOOTAGE — WC2026 MARKETING PILOT</span>
+    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">⚠️ Video highlights only — not a T3 confirmed assessment. FGA scores require isolated full-match footage minimum 5 matches.</span>
+  </div>
+
+  <div class="pilot-banner" style="margin-bottom:12px">
+    ⚠️ <strong style="color:var(--amber)">Highlights pending.</strong> Only 1 video link confirmed. Additional footage will unlock T3 assessment. Video highlights are not sufficient for FGA T3 methodology — full-match footage required for metric confirmation.
+  </div>
+
+  <div class="section-label">AVAILABLE FOOTAGE</div>
+  <div class="g2" style="margin-bottom:14px">
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/tak32kww2t5s6dzk805tl/Argentina-Island.mp4?rlkey=cqf4t020huo708rzw24qeldin&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:rgba(26,125,200,.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div>
+        <div class="vlc-opp">Argentina vs Iceland 🇦🇷</div>
+        <div class="vlc-meta">International friendly · Full match available · T3 potential if isolated</div>
+      </div>
+      <span class="vlc-badge" style="background:rgba(240,184,32,.15);color:var(--gold);border:1px solid rgba(240,184,32,.3)">🇦🇷 Argentina · M1</span>
+    </a>
+    <div class="video-link-card" style="opacity:.45;cursor:default">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">⏳</div>
+      <div><div class="vlc-opp">Video Highlights — Pending</div><div class="vlc-meta">Additional footage required for T3 assessment</div></div>
+      <span class="vlc-badge" style="background:rgba(224,120,32,.15);color:var(--amber);border:1px solid rgba(224,120,32,.3)">PENDING</span>
+    </div>
+    <div class="video-link-card" style="opacity:.45;cursor:default">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">⏳</div>
+      <div><div class="vlc-opp">Copa América 2024 footage — Pending</div><div class="vlc-meta">Recommended primary T3 context · Argentina vs Colombia final</div></div>
+      <span class="vlc-badge" style="background:rgba(224,120,32,.15);color:var(--amber);border:1px solid rgba(224,120,32,.3)">PENDING</span>
+    </div>
+    <div class="video-link-card" style="opacity:.45;cursor:default">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">⏳</div>
+      <div><div class="vlc-opp">Real Betis LaLiga 2024-25 — Pending</div><div class="vlc-meta">8G 3A season · recommended for DMA/CRK confirmation</div></div>
+      <span class="vlc-badge" style="background:rgba(224,120,32,.15);color:var(--amber);border:1px solid rgba(224,120,32,.3)">PENDING</span>
+    </div>
+  </div>
+
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">T3 Assessment Roadmap</div></div>
+    <div class="c-body">
+      <div class="g3">
+        <div>
+          <div class="section-label">Priority 1 — Copa América 2024</div>
+          <div style="font-size:.74rem;color:var(--muted);line-height:1.85">
+            <strong style="color:var(--gold)">vs Colombia (Final)</strong> — Highest pressure context<br>
+            <strong style="color:var(--gold)">vs Canada (Semi)</strong> — Physical test<br>
+            <strong style="color:var(--gold)">vs Ecuador/Chile</strong> — Group stage DMA volume<br>
+            <span style="color:var(--muted)">LOG: ~4.0–4.5 (major senior international)</span>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Priority 2 — Betis LaLiga 2024-25</div>
+          <div style="font-size:.74rem;color:var(--muted);line-height:1.85">
+            <strong style="color:var(--accentL)">8G season footage</strong> — CRK/CRS confirmation<br>
+            <strong style="color:var(--accentL)">Atlético/Real Madrid</strong> — MCS under pressure<br>
+            <strong style="color:var(--accentL)">Betis Europa League</strong> — European LOG context<br>
+            <span style="color:var(--muted)">LOG: ~3.5–4.0 (LaLiga mid-table context)</span>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Priority 3 — Argentina Qualifying</div>
+          <div style="font-size:.74rem;color:var(--muted);line-height:1.85">
+            <strong style="color:var(--betisL)">vs Brazil</strong> — Ultimate LOG test<br>
+            <strong style="color:var(--betisL)">vs Uruguay</strong> — Tactical pressure<br>
+            <strong style="color:var(--betisL)">vs Colombia</strong> — High tempo<br>
+            <span style="color:var(--muted)">LOG: ~4.5 (CONMEBOL)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ── DATA ── */
+const ATTRS={
+  tech:[
+    {n:"DMA Passing / Distribution (EST 8.5)",v:8.5},{n:"OBI_P Positional Intelligence (EST 8.0)",v:8.0},
+    {n:"CRK Creative Risk / Through balls (EST 8.0)",v:8.0},{n:"OBI_S Spatial Architecture (EST 7.8)",v:7.8},
+    {n:"CLM Calmness on the ball (EST 7.8)",v:7.8},{n:"OBI_T Run Timing / Off-ball (EST 7.6)",v:7.6},
+    {n:"SOA Switch of Attack (EST 7.3)",v:7.3},{n:"Pass Completion % 2025-26",v:8.5}
+  ],
+  men:[
+    {n:"MCS Mental Competition (EST 7.8)",v:7.8},{n:"CHR Character / Injury comeback (EST 7.5)",v:7.5},
+    {n:"CRS Clutch Situations (EST 7.5)",v:7.5},{n:"Copa América 2021 + 2024 winner",v:9.0},
+    {n:"DYN Positional Dynamism (EST 7.5)",v:7.5},{n:"Messi creative partnership (67 caps)",v:8.5},
+    {n:"Yellow cards (4 YC in 24 apps 25-26)",v:5.5},{n:"Injury comeback resilience (×4)",v:7.5}
+  ],
+  phy:[
+    {n:"SII_A Acceleration (EST 7.5)",v:7.5},{n:"SII_T Top Speed (EST 6.5 — not pace player)",v:6.5},
+    {n:"SII_R Recovery / Resilience (EST 6.0 ⚠️)",v:6.0},{n:"Height 177cm (medium AMF range)",v:6.5},
+    {n:"Stamina / Minutes load (1,396 min 25-26)",v:7.5},{n:"Left foot dominance (technical asset)",v:8.5},
+    {n:"Thigh injury Jan 2026 (80 days)",v:4.0},{n:"Recurring hamstring pattern (×4 events)",v:4.5}
+  ]
+};
+
+const T1_HIGHLIGHTS=[
+  {code:'G+A',label:'Goals + Assists 2024-25',val:'11',pct:88,pctLabel:'Best club season since 2018-19 Betis',bar:88,gold:true,src:'Soccerway/FotMob'},
+  {code:'Avg',label:'FotMob Rating 2025-26',val:'7.02',pct:71,pctLabel:'Consistent · LaLiga AMF',bar:71,gold:false,src:'FotMob'},
+  {code:'npxG',label:'Non-Penalty xG/90',val:'0.21',pct:74,pctLabel:'Top 74th %ile LaLiga',bar:74,gold:false,src:'FootyStats'},
+  {code:'xA',label:'Assists + xA context',val:'3A · 0.19/90',pct:68,pctLabel:'16 assists · 67 ARG caps',bar:68,gold:false,src:'Opta/FootyStats'},
+  {code:'ARG',label:'International assists',val:'16',pct:85,pctLabel:'per 4.2 caps · Copa Am ×2',bar:85,gold:true,src:'TM/Opta'}
+];
+
+const T1_STATS={
+  creation:[
+    {c:'G+A 25-26',d:'Goals + Assists LaLiga ★',v:'2G+3A',raw:8.0,ctx:'FotMob/Soccerway'},
+    {c:'G+A 24-25',d:'Goals + Assists LaLiga (best recent) ★',v:'8G+3A',raw:9.0,ctx:'FotMob'},
+    {c:'Shots',d:'Shots 2025-26 (24 apps)',v:'29',raw:7.0,ctx:'FootyStats'},
+    {c:'Sht acc',d:'Shot accuracy 2025-26',v:'37.9%',raw:6.5,ctx:'FootyStats'},
+    {c:'npxG/90',d:'Non-penalty xG / 90 ★',v:'0.21',raw:7.5,ctx:'FootyStats'},
+    {c:'G/A 90',d:'Goal involvement per 90',v:'0.32',raw:7.5,ctx:'FootyStats'},
+    {c:'xG tot',d:'xG total 2025-26',v:'3.33',raw:7.0,ctx:'FootyStats'},
+  ],
+  passing:[
+    {c:'Ast/90',d:'Assists per 90 ★',v:'0.19',raw:7.5,ctx:'FootyStats'},
+    {c:'ARG A',d:'Argentina career assists ★',v:'16',raw:9.0,ctx:'Opta Analyst'},
+    {c:'ARG cap',d:'Argentina caps/goals',v:'67/4',raw:8.5,ctx:'TM Jun 2026'},
+    {c:'ARG ast/cap',d:'Argentina assists per cap ratio',v:'1 per 4.2',raw:8.5,ctx:'Opta'},
+    {c:'Fouled',d:'Fouls committed / 90',v:'0.58',raw:6.0,ctx:'FootyStats'},
+    {c:'Pen',d:'Career penalties taken/scored',v:'7 · 4/7 conv',raw:6.0,ctx:'FootyStats'},
+  ],
+  defensive:[
+    {c:'YC',d:'Yellow cards 2025-26 (24 apps)',v:'4',raw:5.0,ctx:'Soccerway'},
+    {c:'YC tot',d:'Career yellow cards total',v:'42',raw:5.0,ctx:'Soccerway'},
+    {c:'Def Idx',d:'Defensive index 2025-26',v:'61.65',raw:6.0,ctx:'1v1.com'},
+    {c:'Atk Thr',d:'Attacking threat rating',v:'79.79',raw:8.0,ctx:'1v1.com'},
+    {c:'Space',d:'Sense of space rating',v:'241',raw:8.5,ctx:'1v1.com'},
+  ],
+  physical:[
+    {c:'Inj 1',d:'Hamstring tear (surgery) · Oct 2022',v:'~4 months',raw:4.0,ctx:'Soccerway/Reports'},
+    {c:'Inj 2',d:'Muscle injury · Feb 2025',v:'~27 days',raw:5.0,ctx:'Soccerway'},
+    {c:'Inj 3',d:'Muscle injury · May 2025',v:'~8 days',raw:5.0,ctx:'Soccerway'},
+    {c:'Inj 4',d:'Thigh (rectus femoris) · Jan 2026 ★',v:'80 days',raw:4.0,ctx:'WST / Reports'},
+    {c:'Height',d:'Height / foot',v:'177cm · Left',raw:6.5,ctx:'Multiple'},
+    {c:'Weight',d:'Weight',v:'75 kg',raw:7.0,ctx:'FotMob'},
+  ],
+  seasons:[
+    {c:'18-19',d:'Real Betis (loan) · LaLiga ★ PEAK',v:'32 apps · 9G · 4A · 7.3',raw:9.5,ctx:'Soccerway'},
+    {c:'19-24',d:'Tottenham · PL (5 seasons, various)',v:'77 PL apps · 3G · 4A',raw:7.0,ctx:'Soccerway'},
+    {c:'24-25',d:'Real Betis · LaLiga ★',v:'25 apps · 8G · 3A · 7.3',raw:9.0,ctx:'FotMob'},
+    {c:'25-26',d:'Real Betis · LaLiga (thigh injury)',v:'24 apps · 2G · 3A · 7.02',raw:7.5,ctx:'FotMob'},
+    {c:'Honours',d:'Copa América ×2 · Finalissima · PSG ×6',v:'11 total titles',raw:9.5,ctx:'FotMob'},
+  ]
+};
+
+const T2=[
+  {c:"DMA",n:"Distribution Intelligence (T1 basis: 16 ARG A + 8G 24-25)",v:8.5,w:"28%"},
+  {c:"OBI",n:"Positional / Space (Space rating 241 + ARG fit)",v:8.0,w:"24%"},
+  {c:"CRK",n:"Creative Risk (xG + G/A + dribble data)",v:8.0,w:"20%"},
+  {c:"MCS",n:"Mental Strength (Copa Am ×2 + injury comeback)",v:7.8,w:"16%"},
+  {c:"SII_R",n:"Recovery / Resilience (4 injuries, age 30)",v:6.0,w:"12%"}
+];
+
+const OBI_EST=[
+  {c:"OBI_P",n:"Positional Anticipation",v:8.0,w:"35%",ok:false,est:true},
+  {c:"OBI_S",n:"Space Architecture",v:7.8,w:"35%",ok:false,est:true},
+  {c:"OBI_T",n:"Run Timing",v:7.6,w:"30%",ok:false,est:true}
+];
+const SII_EST=[
+  {c:"SII_A",n:"Explosive Accel",v:7.5,w:"40%",ok:false,est:true},
+  {c:"SII_T",n:"Top-End Speed",v:6.5,w:"35%",ok:false,warn:true},
+  {c:"SII_R",n:"Recovery Sprint",v:6.0,w:"25%",ok:false,warn:true,inj:true}
+];
+
+const PHIL=[
+  {r:1,n:"Scaloni / Argentina Creative AMF",s:"South American Technical",v:9.4,col:"#1a7dc8"},
+  {r:2,n:"Guardiola Interior Midfielder",s:"Modern Masters",v:9.0,col:"#6CABDD"},
+  {r:3,n:"Pellegrini Betis Possession AMF",s:"South American",v:8.8,col:"#009b4d"},
+  {r:4,n:"Bielsa Dynamic Midfield Engine",s:"South American School",v:8.5,col:"#e07820"},
+  {r:5,n:"Pochettino High-Intensity AMF",s:"Modern Masters",v:8.0,col:"#4a4a6e"},
+  {r:6,n:"Flick / Press-Trigger AMF",s:"German School",v:7.5,col:"#3498db"},
+  {r:7,n:"Ancelotti Structured Central MF",s:"Italian School",v:7.0,col:"#8b1a1a"},
+  {r:8,n:"Cruyff Total Football AMF",s:"Dutch School",v:7.0,col:"#27ae60"},
+  {r:9,n:"Mourinho Compact Block",s:"Modern Masters",v:6.0,col:"#2c3e50"},
+  {r:10,n:"English Direct / Physical",s:"English Direct",v:4.5,col:"#c8102e"}
+];
+
+const SCHOOL_AVGS=[
+  {n:"Scaloni / South American Technical",v:9.2},{n:"Guardiola / Modern Possession",v:8.9},
+  {n:"Bielsa / Dynamic South American",v:8.5},{n:"Pochettino / High-Intensity",v:8.0},
+  {n:"German School / Flick",v:7.5},{n:"Italian / Ancelotti",v:7.0},
+  {n:"Mourinho / Compact Block",v:6.0},{n:"English Direct",v:4.5}
+];
+
+const ALL_FGA_EST=[
+  {n:"DMA · Passing/Distribution",v:8.5},{n:"OBI_P · Positional Intel",v:8.0},
+  {n:"CRK · Creative Risk",v:8.0},{n:"OBI_S · Space Architecture",v:7.8},
+  {n:"MCS · Mental Competition",v:7.8},{n:"CLM · Calmness",v:7.8},
+  {n:"OBI_T · Run Timing",v:7.6},{n:"DYN · Dynamic Positioning",v:7.5},
+  {n:"SII_A · Acceleration",v:7.5},{n:"CHR · Character",v:7.5},
+  {n:"CRS · Clutch Response",v:7.5},{n:"SOA · Switch of Attack",v:7.3},
+  {n:"SII_T · Top Speed",v:6.5},{n:"SII_R · Recovery (⚠️ Injury)",v:6.0}
+];
+
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
+const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
+const pct=v=>Math.round(v*10);
+const fmt=v=>v>0?(v%1!==0?parseFloat(v.toFixed(2)):v):'—';
+function safe(id){return document.getElementById(id)}
+function attrCircle(v){return`<div class="attr-circle ${ac(v)}">${v>0?Math.round(v*2):'?'}</div>`}
+function renderAttrList(el,arr){if(!el)return;el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${pct(a.v)}%;background:${sc(a.v)}"></div></div><span class="attr-val-lbl" style="color:${sc(a.v)}">${a.v>0?a.v:'?'}</span></div>`).join('')}
+function renderPhilList(el,arr){if(!el)return;el.innerHTML=arr.map(p=>`<div class="phil-item"><span class="phi-rank">${p.r}</span><div><div class="phi-name">${p.n}</div><div class="phi-school">${p.s}</div></div><div class="phi-bar-bg"><div class="phi-bar-fill" style="width:${pct(p.v)}%;background:${p.col}"></div></div><span class="phi-score" style="color:${p.col}">${p.v}</span></div>`).join('')}
+function renderSubM(el,arr){if(!el)return;el.innerHTML=arr.map(m=>{
+  const col=m.est?'var(--amber)':m.ok?sc(m.v):m.inj?'var(--redL)':m.warn?'var(--amber)':'var(--amber)';
+  const flag=m.est?'<span class="mflag f-est">EST</span>':m.ok?'<span class="mflag f-ok">✅</span>':m.inj?'<span class="mflag f-p">⚠️INJ</span>':m.warn?'<span class="mflag f-w">⚠️</span>':'<span class="mflag f-w">⚠️</span>';
+  return`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${col}"></div></div><span class="comp-val" style="color:${col}">${m.v>0?fmt(m.v):'—'}</span><span class="comp-wt">${m.w}</span>${flag}</div>`
+}).join('')}
+
+const DFT={
+  scales:{r:{min:0,max:10,grid:{color:'rgba(0,140,255,.06)'},angleLines:{color:'rgba(0,140,255,.06)'},
+    ticks:{stepSize:2,color:'#2a3850',backdropColor:'transparent',font:{size:9}},
+    pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},
+  plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},
+    tooltip:{backgroundColor:'#080c16',borderColor:'rgba(26,125,200,.3)',borderWidth:1,titleColor:'#60bff0',bodyColor:'#f0f6fc'}},
+  responsive:true,maintainAspectRatio:false
+};
+
+function init(){
+  renderAttrList(safe('attr-tech'),ATTRS.tech);
+  renderAttrList(safe('attr-men'),ATTRS.men);
+  renderAttrList(safe('attr-phy'),ATTRS.phy);
+  renderSubM(safe('obi-subs'),OBI_EST);
+  renderSubM(safe('sii-subs'),SII_EST);
+
+  /* T1 metrics render */
+  const t1=safe('t1-metrics');
+  if(t1){
+    let hl='<div class="t1-highlight">';
+    T1_HIGHLIGHTS.forEach(m=>{
+      hl+=`<div class="t1-hl${m.gold?' gold':''}">
+        <div class="t1-hl-code">${m.code}</div>
+        <div class="t1-hl-val">${m.val}</div>
+        <div class="t1-hl-pct">${m.pctLabel}</div>
+        <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${m.bar}%"></div></div>
+        <span class="t1-source">${m.src}</span>
+      </div>`;
+    });
+    hl+='</div>';
+    const grpOrder=[['creation','🎯 Attack / Creation'],['passing','📤 Assists / International'],['defensive','🟡 Discipline / Defensive'],['physical','⚠️ Physical / Injury Register'],['seasons','📋 Season Totals']];
+    grpOrder.forEach(([key,label])=>{
+      hl+=`<div class="t1-group"><div class="t1-group-head">${label}</div>`;
+      T1_STATS[key].forEach(m=>{
+        const col=sc(m.raw);const starred=m.d.includes('★');
+        hl+=`<div class="t1-row">
+          <span class="t1-code" style="color:${starred?'var(--gold)':'var(--accentL)'}">${m.c}</span>
+          <span class="t1-desc">${m.d.replace(' ★','')}</span>
+          <div class="t1-bar-bg"><div class="t1-bar-fill" style="width:${pct(m.raw)}%;background:${col}"></div></div>
+          <span class="t1-val" style="color:${col}">${m.v}</span>
+          <span class="t1-ctx">${m.ctx}</span>
+        </div>`;
+      });
+      hl+='</div>';
+    });
+    t1.innerHTML=hl;
+  }
+
+  const t2=safe('t2-metrics');
+  if(t2)t2.innerHTML=T2.map(m=>`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span class="comp-val" style="color:${sc(m.v)}">${fmt(m.v)}</span><span class="comp-wt">${m.w}</span><span class="mflag f-est">EST</span></div>`).join('');
+
+  renderPhilList(safe('ov-phil'),PHIL.slice(0,5));
+  renderPhilList(safe('phil-full'),PHIL);
+  const sa=safe('school-avgs');
+  if(sa)sa.innerHTML=SCHOOL_AVGS.map(s=>`<div class="comp-row"><span style="font-size:.74rem;color:var(--lite);flex:1">${s.n}</span><div class="comp-bar-bg" style="width:120px"><div class="comp-bar-fill" style="width:${pct(s.v)}%;background:${sc(s.v)}"></div></div><span class="comp-val" style="color:${sc(s.v)}">${s.v}</span></div>`).join('');
+
+  /* All FGA estimates bar list */
+  const afg=safe('all-fga-est');
+  if(afg)afg.innerHTML=ALL_FGA_EST.map(p=>`<div class="mrow"><span class="mcode" style="width:52px;color:var(--muted);font-size:.65rem">${p.n.split('·')[0]}</span><span class="mname" style="font-size:.66rem">${p.n.split('·')[1]||''}</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:${pct(p.v)}%;background:${sc(p.v)}"></div></div><span class="mval" style="color:${sc(p.v)};font-size:.82rem">${p.v}</span><span class="mflag f-est">EST</span></div>`).join('');
+
+  /* Scouting psych-bars */
+  const pb=safe('psych-bars');
+  if(pb)pb.innerHTML=ALL_FGA_EST.map(p=>`<div class="mrow"><span class="mcode" style="width:140px;color:var(--muted);font-size:.67rem">${p.n}</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:${pct(p.v)}%;background:${sc(p.v)}"></div></div><span class="mval" style="color:${sc(p.v)}">${p.v}</span><span class="mflag f-est" style="margin-left:4px">EST</span></div>`).join('');
+
+  /* FGA Dial */
+  const dc=safe('fgaDial');
+  if(dc){
+    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const score=7.7;
+    dctx.clearRect(0,0,120,120);
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
+    dctx.strokeStyle='rgba(0,140,255,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    const grad=dctx.createLinearGradient(14,70,106,70);
+    grad.addColorStop(0,'#009b4d');grad.addColorStop(.45,'#1a7dc8');grad.addColorStop(1,'#f0b820');
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(score/10)*Math.PI);
+    dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    safe('fgaNum').textContent=score.toFixed(1);
+  }
+
+  /* FGA Donut */
+  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 T1 · 40%','Tier 2 Composite · 35%','Tier 3 ⚠️ PENDING · 25%'],
+    datasets:[{data:[40,35,25],backgroundColor:['rgba(26,125,200,.5)','rgba(34,168,90,.45)','rgba(224,120,32,.45)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},
+        tooltip:{backgroundColor:'#080c16',borderColor:'rgba(26,125,200,.3)',borderWidth:1}}}});
+
+  /* OV Radar */
+  new Chart(safe('ovRadar'),{type:'radar',
+    data:{labels:['DMA ★EST','OBI_P EST','CRK EST','MCS EST','SII_A EST','SII_T⚠️','SII_R⚠️'],
+      datasets:[{label:'Lo Celso (EST)',data:[8.5,8.0,8.0,7.8,7.5,6.5,6.0],
+        borderColor:'#1a7dc8',backgroundColor:'rgba(26,125,200,.1)',borderWidth:2,
+        pointBackgroundColor:['#1a7a3a','#1a7a3a','#1a7a3a','#2e9e5a','#5a9e20','#b05a10','#8a1020'],pointRadius:4}]},
+    options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  /* Attr Radar */
+  new Chart(safe('attrRadar'),{type:'radar',
+    data:{labels:['DMA/Passing','OBI_P/Reading','CRK/Creative','MCS/Mental','SII_A/Accel','SII_T/Pace','SII_R/Recovery'],
+      datasets:[
+        {label:'Lo Celso EST (30)',data:[8.5,8.0,8.0,7.8,7.5,6.5,6.0],borderColor:'#1a7dc8',backgroundColor:'rgba(26,125,200,.12)',borderWidth:2.5,pointBackgroundColor:'#f0b820',pointRadius:4},
+        {label:'LaLiga AMF avg',data:[7.0,7.0,7.0,7.0,7.0,7.0,7.5],borderColor:'rgba(0,140,255,.25)',backgroundColor:'rgba(0,140,255,.04)',borderWidth:1.5,pointRadius:3}
+      ]},options:{...DFT,maintainAspectRatio:false}});
+
+  /* Phil Radar */
+  new Chart(safe('philRadar'),{type:'radar',
+    data:{labels:['Scaloni/ARG','Guardiola','Pellegrini','Bielsa','Pochettino','Mourinho'],
+      datasets:[{label:'Philosophy Fit',data:[9.4,9.0,8.8,8.5,8.0,6.0],
+        borderColor:'#f0b820',backgroundColor:'rgba(240,184,32,.12)',borderWidth:2,
+        pointBackgroundColor:['#1a7dc8','#6CABDD','#009b4d','#e07820','#4a4a6e','#2c3e50'],pointRadius:5}]},
+    options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  /* Season performance chart */
+  const seasonData=[7.4,7.2,7.1,7.0,7.1,7.1,7.2,7.3,7.1,7.3,7.1];
+  const seasonLabels=['17-18 PSG','18-19 Betis','19-20 Spurs','20-21 Spurs','21-22 Spurs','21-22 VIL','22-23 VIL','23-24 Spurs','24-25 Betis','25-26 Betis(*)'];
+  new Chart(safe('seasonChart'),{type:'bar',
+    data:{labels:['PSG','Betis*','Spurs1','Spurs2','Spurs3','VIL1','VIL2','Spurs4','Betis2*','Betis3'],
+      datasets:[{label:'Soccerway Rating',data:[7.4,7.3,7.1,7.0,7.1,7.1,7.2,7.1,7.3,7.02],
+        backgroundColor:seasonData.map(v=>v>=7.3?'rgba(26,125,200,.85)':v>=7.1?'rgba(26,125,200,.55)':'rgba(26,125,200,.3)'),
+        borderRadius:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:7}}},
+        y:{min:6.5,max:7.8,grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(26,125,200,.3)',borderWidth:1}}}});
+
+  /* Season radar (career overview) */
+  new Chart(safe('seasonRadarChart'),{type:'radar',
+    data:{labels:['LaLiga G+A','Int Assists','Avg Rating','Appearances','Titles','Fitness'],
+      datasets:[
+        {label:'2024-25 Peak',data:[8.5,8.5,8.5,8.0,9.0,7.0],borderColor:'#f0b820',backgroundColor:'rgba(240,184,32,.1)',borderWidth:2,pointRadius:3},
+        {label:'2025-26',data:[7.5,0,7.5,8.0,9.0,6.0],borderColor:'#1a7dc8',backgroundColor:'rgba(26,125,200,.08)',borderWidth:2,pointRadius:3}
+      ]},options:{...DFT,maintainAspectRatio:false}});
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
