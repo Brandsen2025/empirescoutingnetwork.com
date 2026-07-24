@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mésaque Djú | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#C8102E;--accent-dim:rgba(200,16,46,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;--portugal:#006600;--portugal-dim:rgba(0,102,0,0.15);--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}.hero-photo{position:absolute;inset:0;background:url('https://media.gettyimages.com/id/2224869938/photo/portimao-portugal-mesaque-dju-of-portimonense-sc-reacts-after-missing-a-goal-opportunity.jpg?s=612x612&w=gi&k=20&c=fkl1G3923SoCmcmiZ7uFv94voRN3plwRqj7KSoru1Y4=') center 25%/cover no-repeat;filter:brightness(0.5) saturate(0.9);transition:transform 8s ease;}.hero:hover .hero-photo{transform:scale(1.03);}.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(0,102,0,0.25) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#006600 33%,#C8102E 33%,#C8102E 66%,#006600 66%);z-index:10;}.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,#006600,#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}.champ-badge::before{content:'🇵🇹';font-size:0.8rem;}.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}.hero-meta .flag{font-size:1.1rem;}.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}.tag-club{background:var(--portugal-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}.tag-portugal{background:rgba(0,102,0,0.1);color:#00d084;border:1px solid rgba(0,102,0,0.2);}.tag-youth{background:rgba(251,191,36,0.08);color:var(--gold);border:1px solid rgba(251,191,36,0.2);}
+.fga-dial-wrap{position:relative;width:140px;height:140px;flex-shrink:0;}.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;}.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}.tier-pill.t3{background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}.tab-bar-inner::-webkit-scrollbar{display:none;}.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}.tab-btn:hover{color:var(--text-secondary);}.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--portugal-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}.tab-panel{display:none;}.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}.banner-proxy{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}.banner-portugal{background:rgba(0,102,0,0.08);border:1px solid rgba(0,102,0,0.2);color:#00d084;}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.career-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}.career-node{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}.career-node.current{background:var(--portugal-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}.career-arrow{color:var(--text-tertiary);font-size:0.8rem;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.attr-row:last-child{border-bottom:none;}.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}.ac-green{color:var(--success);}.ac-yellow{color:var(--warning);}.ac-red{color:var(--danger);}.ac-pend{color:var(--pending);}.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}.circle-green{background:var(--success);}.circle-yellow{background:var(--warning);}.circle-red{background:var(--danger);}.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.t1-metric-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.t1-metric-row:last-child{border-bottom:none;}.t1-metric-code{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}.t1-metric-desc{font-size:0.78rem;color:var(--text-secondary);flex:1;}.t1-metric-bar-wrap{width:100px;flex-shrink:0;}.t1-metric-val{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+.t1-highlight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}.t1-hl-box{background:linear-gradient(135deg,rgba(0,102,0,0.18),rgba(251,191,36,0.06));border:2px solid rgba(0,102,0,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}.t1-hl-box.gold{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(0,102,0,0.06));border-color:rgba(251,191,36,0.5);}.t1-hl-code{font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}.t1-hl-val{font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}.t1-hl-box.gold .t1-hl-val{color:var(--gold);}.t1-hl-pct{font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}.t1-hl-bar{height:3px;background:rgba(0,102,0,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--silver);}.t1-hl-box.gold .t1-hl-bar-fill{background:var(--gold);}
+.t1-group{margin-bottom:14px;}.t1-group-head{font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(0,102,0,0.08);margin-bottom:8px;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}.philo-row:last-child{border-bottom:none;}.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(0,102,0,0.1);}.match-thumb{height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}.match-thumb::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(0,102,0,0.15)' stroke-width='2'/></svg>") center/80px no-repeat;}.match-thumb .play-icon{width:48px;height:48px;background:rgba(0,102,0,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}.match-card:hover .play-icon{transform:scale(1.1);background:#006600;}.play-icon svg{width:18px;height:18px;fill:white;margin-left:3px;}.match-info{padding:16px;}.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}.badge-pending{background:rgba(90,96,112,0.12);color:var(--pending);}.badge-champ{background:rgba(0,102,0,0.12);color:var(--silver);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}.scout-verdict{background:var(--portugal-dim);border:1px solid rgba(0,102,0,0.2);}.scout-verdict h4{color:var(--silver);}.scout-box ul{list-style:none;padding:0;margin:0;}.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}.scout-box li::before{content:'—';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(0,102,0,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(0,102,0,0.15);border-radius:12px;padding:20px;}.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}.physical-item .label{color:var(--text-tertiary);}.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}.timeline-item{position:relative;padding-bottom:20px;}.timeline-item:last-child{padding-bottom:0;}.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid #006600;z-index:2;}.timeline-item.current::before{background:#006600;box-shadow:0 0 8px rgba(0,102,0,0.4);}.timeline-item.hist::before{background:var(--success);border-color:var(--success);}.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:#00d084;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}.timeline-item.hist .timeline-date{color:var(--success);}.timeline-item.champ .timeline-date{color:var(--gold);}.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}.radar-container canvas{width:100%!important;height:100%!important;}
+.weighting-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}.weighting-card{text-align:center;padding:14px;border-radius:8px;}.weighting-card.t3w{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.weighting-card.t2w{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.weighting-card.t1w{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);}.weighting-card .w-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-bottom:4px;}.weighting-card .w-value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;}.weighting-card.t3w .w-value{color:var(--success);}.weighting-card.t2w .w-value{color:var(--warning);}.weighting-card.t1w .w-value{color:var(--info);}.weighting-card .w-desc{font-size:0.7rem;color:var(--text-secondary);margin-top:4px;line-height:1.4;}
+@media(max-width:768px){.hero{height:440px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:110px;height:110px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.t1-metric-bar-wrap{width:60px;}.t1-metric-val{width:50px;}.weighting-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Portimonense · Liga Portugal 2 · Portugal Youth Intl</div>
+  <div class="jersey-watermark">19</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Amadora CF</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Benfica Academy (2010-18)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">West Ham (2019-22)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">OFI · Mafra · Oliveirense · Gorica</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Portimonense #19</div>
+    </div>
+    <h1 class="hero-name">Mésaque Djú</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇵🇹</span> Portugal</span>
+      <span class="dot"></span>
+      <span>27 years</span>
+      <span class="dot"></span>
+      <span>178cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>RW / LW / FW</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">T3 Pending</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING · PILOT</span>
+          <span class="tag tag-club">Portimonense · #19</span>
+          <span class="tag tag-club">Contract 2027 (+1yr option)</span>
+          <span class="tag tag-portugal">Portugal U19 Euro 2018 Champion</span>
+          <span class="tag tag-portugal">Portugal U17 Euro 2016 Champion</span>
+          <span class="tag tag-portugal">U19 Euro 2017 Team of Tournament</span>
+          <span class="tag tag-portugal">Born: Bissau, Guinea-Bissau</span>
+          <span class="tag tag-value">~€400K</span>
+          <span class="tag tag-info">Agent: INNER</span>
+          <span class="tag tag-info">Right Winger</span>
+          <span class="tag tag-danger">Career Decline · 12 Goals in 117 Apps</span>
+          <span class="tag tag-danger">West Ham Failure · Released 2022</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">4.2</div>
+          <div class="fga-status">ESTIMATED · T1 ONLY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>ESTIMATED FGA 4.2 — PILOT CARD · T1 DATA ONLY · 0/16 T3 FOOTAGE ASSESSED.</strong> All scores derived from FBref, FotMob, Transfermarkt, Sofascore, ESPN, Wikipedia. No full-match isolated footage evaluated under ESN methodology. Directional estimates pending T3 confirmation. <strong style="color:var(--danger);">This is a career-revival assessment — former elite youth international now in Liga Portugal 2 at age 27.</strong>
+  </div>
+  <div class="banner banner-portugal">
+    <span>🎯</span> <strong>THE BISSAU-PORTUGUESE WINGER — Once the brightest star of Portugal's golden youth generation, now fighting for relevance in Liga Portugal 2.</strong> Born in <strong>Bissau, Guinea-Bissau</strong> on <strong>18 March 1999</strong>. Moved to Portugal as a boy, joining <strong>Amadora CF</strong> before entering the <strong>Benfica academy in 2010 at age 11</strong>. Part of the legendary Portugal U17 squad that won <strong>UEFA Euro 2016</strong> and the U19 squad that won <strong>UEFA Euro 2018</strong>. Named to the <strong>U19 Euro 2017 Team of the Tournament</strong>. Signed for <strong>West Ham United in January 2019</strong> but never made a senior appearance. Released 2022. Since then: <strong>OFI Crete (Greece), Mafra, Oliveirense, Gorica (Croatia), and now Portimonense</strong> — a downward trajectory that raises serious questions about his ceiling.
+  </div>
+  <div class="banner banner-gold">
+    <span>🏆</span> <strong>UEFA U17 EURO 2016 CHAMPION + U19 EURO 2018 CHAMPION + U19 EURO 2017 TEAM OF THE TOURNAMENT.</strong> Djú was part of Portugal's most decorated youth generation alongside players like <strong>Trincão, Félix, Leão, and Dalot</strong>. At U19 Euro 2017, he was named to the Team of the Tournament alongside future stars. The 2018 U19 Euro-winning squad included <strong>Diogo Queirós, Florentino, and Gedson Fernandes</strong>. These honours represent his peak — the question is whether any of that elite youth potential remains at 27.
+  </div>
+  <div class="banner banner-danger">
+    <span>🚨</span> <strong>CAREER DECLINE WARNING — 12 GOALS IN 117 SENIOR APPS (0.10 G/90) · WEST HAM RELEASE (0 APPS) · FIVE CLUBS IN FOUR YEARS.</strong> Djú's career trajectory is concerning. After leaving Benfica B (8 apps, 1 goal), he signed for West Ham in 2019 but <strong>never played a single minute for the first team</strong>. Released in 2022. Since then: OFI (10 apps, 0 goals), Mafra (31 apps, 2 goals), Oliveirense (10 apps, 0 goals), Gorica (6 apps, 0 goals), and now Portimonense (17 apps, 1 goal in 2025-26). <strong>Total senior output: 12 goals in 117 appearances across 8 seasons</strong>. This is not a late bloomer — this is a player whose career has stalled.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Amadora CF</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Benfica (8 yrs)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">West Ham (0 apps)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">OFI · Mafra · Oliveirense · Gorica</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Portimonense</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">4.2</div><div class="label">Est. FGA</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">117</div><div class="label">Career Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">12</div><div class="label">Career Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">1</div><div class="label">2025-26 Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">17</div><div class="label">2025-26 Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">0.10</div><div class="label">Career G/90</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">178cm</div><div class="label">Height</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">~€400K</div><div class="label">Market Value</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Mésaque Geremias Djú</strong> is a <strong>27-year-old Portuguese winger</strong> born in Bissau, Guinea-Bissau on 18 March 1999. At <strong>178cm</strong>, he is a <strong>right-footed, technically gifted wide forward</strong> with experience across multiple leagues and countries. Moved to Portugal as a child, joining <strong>Amadora CF</strong> before entering the <strong>Benfica academy in 2010</strong>. Progressed through every age group, making his <strong>Benfica B debut in 2017</strong> (8 LigaPro apps, 1 goal). Signed for <strong>West Ham United in January 2019</strong> on a free transfer but <strong>never made a senior appearance</strong> — spent 3 years in the U23 squad before release in 2022. Since then: <strong>OFI Crete (Greece, 2022-23)</strong>, <strong>CD Mafra (2023-24)</strong>, <strong>UD Oliveirense (2024-25)</strong>, <strong>HNK Gorica (Croatia, early 2025)</strong>, and now <strong>Portimonense (Liga Portugal 2, 2025-)</strong>. Represents <strong>Portugal at youth level</strong> — U17 Euro 2016 Champion, U19 Euro 2018 Champion, U19 Euro 2017 Team of the Tournament. <strong>Never capped at senior level.</strong> Agent: <strong>INNER</strong>. Contract until <strong>30 June 2027</strong> with club option for +1 year.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0/16 T3 metrics validated.</strong> No full-match isolated footage evaluated under ESN methodology. All 16 Empire FGA T3 metrics — OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, SPI, CLM, CRS, OMS, DYN, CRK, SOA — are pending scout review. <strong>Recommended T3 context:</strong> Portimonense 2025-26 Liga Portugal 2 (LOG ~2.3), UD Oliveirense 2024-25 (LOG ~2.0), HNK Gorica 2025 (LOG ~2.2), CD Mafra 2023-24 (LOG ~2.0). <strong>Priority T3 focus:</strong> DMA (decision-making in final third — low goal output suggests poor selection), CHR (character through West Ham failure and multiple club changes), CLM (composure in front of goal — 0.10 G/90 is extremely low for a winger), OBI_T (run timing as wide forward), SII_A (explosive acceleration — has he lost pace?), COACH (coachability — why has he failed at every stop?).
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 4.2 — Career Revival Assessment · Former Elite Youth International · Liga Portugal 2 Winger · High Risk, Limited Upside.</strong> The T1 data reveals a <strong>27-year-old winger with a decorated youth pedigree but a failed senior career</strong>. His <strong>UEFA U17 and U19 Euro titles</strong> and <strong>Team of the Tournament selection</strong> prove he was once elite at youth level. However, his <strong>senior record is damning: 12 goals in 117 apps (0.10 G/90), zero West Ham first-team minutes, five clubs in four years, and declining output at every stop</strong>. The 2025-26 season at Portimonense (17 apps, 1 goal) suggests he is a <strong>squad player in Portugal's second tier</strong> — not a player with realistic top-flight potential. The <strong>~€400K market value</strong> (down from ~€445K peak) reflects this reality. <strong>T3 validation is critical</strong> — if video reveals he still has the technical quality and off-ball intelligence of his youth, a career revival in a lower-tier league is possible. If not, this is a <strong>terminal decline profile</strong>. <strong>Not recommended for any club seeking immediate impact.</strong> Possible value as a <strong>mentor/depth signing in lower leagues</strong> or <strong>Guinea-Bissau national team option</strong> (he has never represented them).
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — Portimonense (Liga Portugal 2) <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Liga Portugal 2 Apps</strong></td><td>17</td><td>Regular squad player</td><td>Flashscore</td></tr>
+        <tr><td><strong>Goals</strong></td><td>1</td><td>0.06 G/90 — poor for winger</td><td>Flashscore</td></tr>
+        <tr><td><strong>Assists</strong></td><td>0</td><td>0.00 A/90 — no creative output</td><td>Flashscore</td></tr>
+        <tr><td><strong>Minutes</strong></td><td>~1,020</td><td>~60 min/app</td><td>Estimated</td></tr>
+        <tr><td><strong>Yellow Cards</strong></td><td>1</td><td>Good discipline</td><td>Flashscore</td></tr>
+        <tr><td><strong>Red Cards</strong></td><td>0</td><td>—</td><td>Flashscore</td></tr>
+        <tr><td><strong>Career Total Apps</strong></td><td>117</td><td>Across 8 seasons, 8 clubs</td><td>Flashscore</td></tr>
+        <tr><td><strong>Career Total Goals</strong></td><td>12</td><td>0.10 G/90 career average</td><td>Flashscore</td></tr>
+        <tr><td><strong>Career Total Assists</strong></td><td>1</td><td>0.01 A/90 — negligible</td><td>Flashscore</td></tr>
+        <tr><td><strong>West Ham Apps</strong></td><td>0</td><td>Never played for first team</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>Peak Market Value</strong></td><td>~€445K</td><td>2025 (BeSoccer)</td><td>BeSoccer</td></tr>
+        <tr><td><strong>Current Market Value</strong></td><td>~€400K</td><td>Declining trend</td><td>BeSoccer</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">International Career Snapshot <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Team</th><th>Period</th><th>Caps</th><th>Goals</th><th>Honours</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Portugal U17</strong></td><td>2016</td><td>11</td><td>—</td><td><strong style="color:var(--gold);">U17 Euro 2016 Champion</strong></td></tr>
+        <tr><td><strong>Portugal U19</strong></td><td>2017-2018</td><td>22</td><td>—</td><td><strong style="color:var(--gold);">U19 Euro 2018 Champion</strong></td></tr>
+        <tr><td><strong>Portugal U19</strong></td><td>2017</td><td>—</td><td>—</td><td><strong style="color:var(--gold);">U19 Euro 2017 Team of the Tournament</strong></td></tr>
+        <tr><td><strong>Portugal U19</strong></td><td>2017</td><td>—</td><td>—</td><td>U19 Euro 2017 Runner-up</td></tr>
+        <tr><td><strong>Portugal U20</strong></td><td>2019</td><td>11</td><td>—</td><td>FIFA U20 World Cup 2019</td></tr>
+        <tr><td><strong>Portugal U21</strong></td><td>2019</td><td>1</td><td>0</td><td>—</td></tr>
+        <tr><td>Portugal Senior</td><td>—</td><td>0</td><td>0</td><td>Never capped</td></tr>
+        <tr><td>Guinea-Bissau</td><td>—</td><td>0</td><td>0</td><td>Eligible but never called</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Wenger / Development Archetype</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#C60C30;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Cruyff / Total Football Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#C8102E;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola / Positional Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#6CABDD;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Menotti / Artistry</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#C8102E;"></div></div></div><div class="philo-score">5.5</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Santana / Joga Bonito</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:#C8102E;"></div></div></div><div class="philo-score">5.4</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Bielsa / High-Intensity Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#e07820;"></div></div></div><div class="philo-score">5.0</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Mourinho / Pragmatic Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#003366;"></div></div></div><div class="philo-score">4.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Simeone / Counter-Pressing</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:#001C58;"></div></div></div><div class="philo-score">4.2</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Bissau-Portuguese Winger — Technical Talent, Failed Trajectory"</strong> — Djú's highest philosophy fit is <strong>Wenger (6.2)</strong>, reflecting his <strong>developmental background at Benfica and his technical foundation</strong>. Cruyff (6.0) reflects his <strong>youth-level positional versatility and creative potential</strong> — but this is historical, not current. Guardiola (5.8) reflects his <strong>positional discipline within structure</strong> at youth level. His <strong>lowest fits are Mourinho (4.8) and Simeone (4.2)</strong> — he is not a defensive, counter-pressing winger. The critical question: <strong>does he still have the technical quality of his Benfica youth days?</strong> At 27, with 117 senior apps and 12 goals, the evidence suggests the answer is no. His philosophy fits are <strong>suppressed by his senior output</strong> — a player who once projected as a 7.5+ Cruyff fit now scores 6.0 because the end product has never materialized.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Right Winger</span>
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-portugal">Portugal U19 Euro Champion</span>
+          <span class="tag tag-portugal">Portugal U17 Euro Champion</span>
+          <span class="tag tag-portugal">Benfica Academy Product</span>
+          <span class="tag tag-info">Technical Winger</span>
+          <span class="tag tag-danger">West Ham Failure</span>
+          <span class="tag tag-danger">Career Decline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Attacking / Creative · EST</h3>
+      <div class="attr-row"><span class="name">Goals (1 in 17 apps · 0.06 G/90)</span><span class="score ac-red"><span class="circle circle-red"></span> 4.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Assists (0 in 17 apps)</span><span class="score ac-red"><span class="circle circle-red"></span> 3.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Chances Created (low output)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Key Passes (below average for winger)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Shooting (poor conversion)</span><span class="score ac-red"><span class="circle circle-red"></span> 4.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Dribbling (technical base present)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Crossing (inconsistent delivery)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Finishing (0.10 G/90 career)</span><span class="score ac-red"><span class="circle circle-red"></span> 3.5 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Technical / Distribution · EST</h3>
+      <div class="attr-row"><span class="name">Pass Completion (functional)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">First Touch / Close Control (Benfica-trained)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Ball Carries / Progression (limited impact)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Vision / Line-Breaking Passes (not a playmaker)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Set Piece Threat (minimal)</span><span class="score ac-red"><span class="circle circle-red"></span> 4.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Aerial Threat (178cm, not a target)</span><span class="score ac-red"><span class="circle circle-red"></span> 3.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pressing Resistance (fades under pressure)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Tactical Versatility (RW/LW/FW)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Physical · EST</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competence (West Ham failure)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CHR Character (multiple club changes)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (poor finishing under pressure)</span><span class="score ac-red"><span class="circle circle-red"></span> 4.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (poor shot selection)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch Response (no evidence at senior level)</span><span class="score ac-red"><span class="circle circle-red"></span> 4.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">COACH Coachability (failed at every stop)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Physical Presence (178cm, slight build)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Discipline (1 yellow in 17 apps — good)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ⚠️</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="weighting-grid">
+    <div class="weighting-card t3w">
+      <div class="w-label">Tier 3 · Scout Intelligence</div>
+      <div class="w-value">50%</div>
+      <div class="w-desc">Character, discipline, coachability, leadership — scout-observed only</div>
+    </div>
+    <div class="weighting-card t2w">
+      <div class="w-label">Tier 2 · Composite Intelligence</div>
+      <div class="w-value">30%</div>
+      <div class="w-desc">Analytical patterns, cross-league context, development trajectories</div>
+    </div>
+    <div class="weighting-card t1w">
+      <div class="w-label">Tier 1 · Statistical Foundation</div>
+      <div class="w-value">20%</div>
+      <div class="w-desc">FBref, FotMob, Sofascore — automated baseline data</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Flashscore · Transfermarkt · BeSoccer · Liga Portugal 2</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">U19</div><div class="t1-hl-val">🏆</div><div class="t1-hl-pct">U19 Euro 2018 Champion · Portugal</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:95%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">U17</div><div class="t1-hl-val">🏆</div><div class="t1-hl-pct">U17 Euro 2016 Champion · Portugal</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:95%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">TOTY</div><div class="t1-hl-val">⭐</div><div class="t1-hl-pct">U19 Euro 2017 Team of the Tournament</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:90%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Apps</div><div class="t1-hl-val">117</div><div class="t1-hl-pct">Career Senior Apps · 8 Seasons · 8 Clubs</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">G+A</div><div class="t1-hl-val">13</div><div class="t1-hl-pct">12 Goals + 1 Assist · Career Total</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:25%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Attacking / Creative (Career Senior)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Goals</span><span class="t1-metric-desc">Career Goals · 12 (0.10 G/90)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--danger)"></div></div></div><span class="t1-metric-val">12</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Assists</span><span class="t1-metric-desc">Career Assists · 1 (0.01 A/90)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--danger)"></div></div></div><span class="t1-metric-val">1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">25-26</span><span class="t1-metric-desc">2025-26 Goals · 1 in 17 apps</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--danger)"></div></div></div><span class="t1-metric-val">1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">WHU</span><span class="t1-metric-desc">West Ham Apps · 0 (U23 only)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:5%;background:var(--danger)"></div></div></div><span class="t1-metric-val">0</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Youth International (Portugal)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U17</span><span class="t1-metric-desc">U17 Caps · 11 · Euro 2016 Champion</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--success)"></div></div></div><span class="t1-metric-val">11</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U19</span><span class="t1-metric-desc">U19 Caps · 22 · Euro 2018 Champion</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--success)"></div></div></div><span class="t1-metric-val">22</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U20</span><span class="t1-metric-desc">U20 Caps · 11 · World Cup 2019</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--success)"></div></div></div><span class="t1-metric-val">11</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U21</span><span class="t1-metric-desc">U21 Caps · 1 · No senior cap</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--danger)"></div></div></div><span class="t1-metric-val">1</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Estimates</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">DMA — Decision Making (poor shot selection, low output)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">5.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CHR — Character (West Ham failure, 5 clubs in 4 years)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">5.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CLM — Calmness (poor finishing, 0.10 G/90)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">4.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI_T — Run Timing (winger off-ball movement)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">5.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">CRS — Clutch Response (no senior evidence)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">4.0</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Proxy Estimates</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are algorithmic estimates derived from Tier 1 statistical data. With 0/16 T3 metrics confirmed, these are unvalidated proxy scores. The Liga Portugal 2 2025-26 season (LOG ~2.3) is the primary data anchor — his 17 apps and 1 goal at 27 suggest a player who has plateaued well below his youth potential. The UEFA U19 Euro honours validate past technical quality but say nothing about current ability. The composite attempts to weight historical pedigree against damning senior output. All Tier 2 scores are suppressed by the lack of end product.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: ~2.3</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> Liga Portugal 2 (Portugal)<br>
+          <strong style="color:var(--text-primary);">Previous:</strong> HNL (Croatia) · LOG ~2.2<br>
+          <strong style="color:var(--text-primary);">Previous:</strong> Liga Portugal 2 · LOG ~2.0 (Mafra)<br>
+          <strong style="color:var(--text-primary);">Previous:</strong> Super League Greece · LOG ~2.3 (OFI)<br>
+          <strong style="color:var(--text-primary);">Youth Peak:</strong> Benfica B · LigaPro · LOG ~2.5<br>
+          <strong style="color:var(--danger);">Never played in Liga Portugal (top flight)</strong><br><br>
+          <strong style="color:var(--gold);">LOG ~2.3</strong> represents a second-tier level across multiple countries. At 27, Djú has never played in a top-flight league. His career has taken him through Portugal's second tier, Greece's top tier (where he failed), Croatia's top tier (where he failed), and back to Portugal's second tier. The <strong>absence of any top-flight experience at 27</strong> is the defining data point — this is not a player who has been unlucky; this is a player who has been evaluated and rejected by multiple leagues.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · LOG ~2.0-2.3</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_T — PENDING (EST 5.0)</strong><br>
+            <strong style="color:var(--pending);">OBI_S — PENDING (EST 5.0)</strong><br>
+            <strong style="color:var(--pending);">OBI_P — PENDING (EST 5.0)</strong><br>
+            No video events recorded. At youth level, Djú showed good off-ball movement. At senior level, his low goal output (0.10 G/90) suggests he is not finding dangerous positions consistently. T3 must verify whether his off-ball intelligence has degraded or whether he is simply not being used in a role that leverages it.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A — PENDING (EST 5.0)</strong><br>
+            <strong style="color:var(--pending);">SII_T — PENDING (EST 5.0)</strong><br>
+            <strong style="color:var(--pending);">SII_R — PENDING (EST 4.5)</strong><br>
+            No video events recorded. At 27, physical decline is a concern. Djú was never a pace merchant — his game was built on technical quality. T3 must verify whether he still has the first-burst acceleration to beat defenders 1v1, or whether that edge has gone. Recovery sprint frequency is likely low given his slight build and limited defensive contribution.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">✗</span> All 16 metrics pending<br><br>
+            <strong>0/16 metrics confirmed</strong> across 0 matches<br><br>
+            <strong>Recommended:</strong> Portimonense 2025-26 Liga Portugal 2 + UD Oliveirense 2024-25 + HNK Gorica 2025 footage. Priority: DMA (why so few goals?), CHR (character through failure), CLM (composure in front of goal), COACH (why has he not developed?).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> CROSS-LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 4.2. All figures are algorithmic estimates derived from Tier 1 data — no T3 validation has been completed. Liga Portugal 2 (LOG ~2.3) is a second-tier level. <strong>Critical:</strong> Djú is 27 years old. These projections represent his <strong>current level</strong> — there is no developmental upside at this age. This is a <strong>terminal assessment</strong>, not a projection.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality. Djú's <strong style="color:var(--text-primary);">4.2 FGA is an absolute composite estimate</strong> for his current Liga Portugal 2 level — weighted toward his 117 career apps, 12 goals, and decorated youth pedigree, heavily discounted for his failed senior trajectory and lack of top-flight experience. At 27, <strong style="color:var(--danger);">there is no developmental upside</strong>. These projections represent what he would score <strong>if transferred today</strong> — not what he might become.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current — Liga Portugal 2</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇵🇹 Portugal</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">4.2</div>
+      <div class="label">Portimonense 2025-26 · Tier ~2.3</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Liga Portugal</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇵🇹 Portugal</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.0</div>
+      <div class="label">Top flight · Tier 2.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Super League Greece</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇬🇷 Greece</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.5</div>
+      <div class="label">Already failed here · Tier ~2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — HNL (Croatia)</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇭🇷 Croatia</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.8</div>
+      <div class="label">Already failed here · Tier ~2.5</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Netherlands</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.0</div>
+      <div class="label">Tier 2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Belgian Pro League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇪 Belgium</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.2</div>
+      <div class="label">Tier 2.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🚫 Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">2.3</div>
+      <div class="label">Already failed · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🚫 La Liga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">2.3</div>
+      <div class="label">No evidence · Tier 3.7</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Terminal Assessment</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA x (Current League Tier / Target League Tier).<br><br>
+      <strong>Liga Portugal (2.7):</strong> 4.2 x (2.3 / 2.7) = <strong style="color:var(--text-primary);">3.58</strong> → <strong>3.0</strong> (rounded down for lack of top-flight evidence)<br>
+      <strong>Super League Greece (~2.8):</strong> 4.2 x (2.3 / 2.8) = <strong style="color:var(--text-primary);">3.45</strong> → <strong>3.5</strong> (he already failed here)<br>
+      <strong>HNL Croatia (~2.5):</strong> 4.2 x (2.3 / 2.5) = <strong style="color:var(--text-primary);">3.86</strong> → <strong>3.8</strong> (he already failed here)<br>
+      <strong>Eredivisie (2.8):</strong> 4.2 x (2.3 / 2.8) = <strong style="color:var(--text-primary);">3.45</strong> → <strong>3.0</strong><br>
+      <strong>Belgian Pro League (2.6):</strong> 4.2 x (2.3 / 2.6) = <strong style="color:var(--text-primary);">3.72</strong> → <strong>3.2</strong><br>
+      <strong>Premier League (3.7):</strong> 4.2 x (2.3 / 3.7) = <strong style="color:var(--text-primary);">2.61</strong> → <strong>2.3</strong> (already failed at West Ham)<br>
+      <strong>La Liga (3.7):</strong> 4.2 x (2.3 / 3.7) = <strong style="color:var(--text-primary);">2.61</strong> → <strong>2.3</strong><br><br>
+      <strong style="color:var(--danger);">Terminal Assessment — The Djú Reality:</strong><br>
+      At 27, Mésaque Djú is not a developmental prospect. He is a <strong>finished product</strong> — and that product is a <strong>squad player in Portugal's second tier</strong>. The cross-league projections above are not aspirational; they are <strong>warnings</strong>. He has already failed in Greece (Super League) and Croatia (HNL). He has never played in Portugal's top flight. He was released by West Ham without a single first-team minute.<br><br>
+      The <strong>only viable cross-league moves</strong> are:<br>
+      1. <strong>Lower-tier leagues</strong> (Liga 3 Portugal, lower divisions in Scandinavia, USL in USA) where his experience and technical base could be an asset<br>
+      2. <strong>Guinea-Bissau national team</strong> — he has never represented them and would be an immediate squad option<br>
+      3. <strong>Coaching transition</strong> — his Benfica academy background and UEFA youth titles give him credibility as a youth coach<br><br>
+      <strong style="color:var(--danger);">Read before sending to a club:</strong> This is a <strong>terminal decline profile</strong>. Do not present Djú as a player with "untapped potential" or "experience at big clubs." He has <strong>zero top-flight minutes</strong> and a <strong>0.10 G/90 career record</strong>. Any club considering him must understand they are signing a <strong>depth player in a lower league</strong>, not a difference-maker. The youth honours are historical footnotes, not current assets.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Wenger / Development Archetype</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#C60C30;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Cruyff / Total Football Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#C8102E;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola / Positional Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#6CABDD;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Menotti / Artistry</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#C8102E;"></div></div></div><div class="philo-score">5.5</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Santana / Joga Bonito</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:#C8102E;"></div></div></div><div class="philo-score">5.4</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Bielsa / High-Intensity Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#e07820;"></div></div></div><div class="philo-score">5.0</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Mourinho / Pragmatic Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#003366;"></div></div></div><div class="philo-score">4.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Simeone / Counter-Pressing</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:#001C58;"></div></div></div><div class="philo-score">4.2</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Bissau-Portuguese Winger — Technical Talent, Failed Trajectory"</strong> — Djú's highest philosophy fit is <strong>Wenger (6.2)</strong>, reflecting his <strong>developmental background at Benfica and his technical foundation</strong>. Cruyff (6.0) reflects his <strong>youth-level positional versatility and creative potential</strong> — but this is historical, not current. Guardiola (5.8) reflects his <strong>positional discipline within structure</strong> at youth level. His <strong>lowest fits are Mourinho (4.8) and Simeone (4.2)</strong> — he is not a defensive, counter-pressing winger. The critical question: <strong>does he still have the technical quality of his Benfica youth days?</strong> At 27, with 117 senior apps and 12 goals, the evidence suggests the answer is no. His philosophy fits are <strong>suppressed by his senior output</strong> — a player who once projected as a 7.5+ Cruyff fit now scores 6.0 because the end product has never materialized.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Right Winger</span>
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-portugal">Portugal U19 Euro Champion</span>
+          <span class="tag tag-portugal">Portugal U17 Euro Champion</span>
+          <span class="tag tag-portugal">Benfica Academy Product</span>
+          <span class="tag tag-info">Technical Winger</span>
+          <span class="tag tag-danger">West Ham Failure</span>
+          <span class="tag tag-danger">Career Decline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:#C60C30;">6.2</div><div class="label">Wenger / Development</div></div>
+    <div class="stat-hero"><div class="value" style="color:#C8102E;">6.0</div><div class="label">Cruyff / Total Football</div></div>
+    <div class="stat-hero"><div class="value" style="color:#6CABDD;">5.8</div><div class="label">Guardiola / Positional</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">4.2</div><div class="label">Simeone / Counter-Press</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items:start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born 18 Mar 1999 · Bissau, Guinea-Bissau</div><div class="timeline-text">Born in <strong>Bissau, Guinea-Bissau</strong>. Moved to Portugal as a child. Began at local club <strong>Amadora CF</strong> before joining Benfica.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2010 · Benfica Academy (Age 11)</div><div class="timeline-text"><strong>Joined Benfica academy.</strong> Progressed through all youth age groups over 8 years. Part of the legendary generation that produced <strong>Trincão, Félix, Leão, and Dalot</strong>.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">May 2016 · U17 Euro Champion</div><div class="timeline-text"><strong>International breakthrough.</strong> Part of the Portugal U17 squad that won <strong>UEFA U17 Euro 2016</strong> in Azerbaijan. 11 U17 caps total.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Jul 2017 · U19 Euro Runner-up + Team of Tournament</div><div class="timeline-text">Portugal U19 reached the <strong>U19 Euro 2017 final</strong>, losing to England. Djú was named to the <strong>Team of the Tournament</strong> — his individual peak.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Jul 2018 · U19 Euro Champion</div><div class="timeline-text">Portugal U19 won <strong>UEFA U19 Euro 2018</strong> in Finland. Djú part of the squad alongside <strong>Diogo Queirós, Florentino, and Gedson Fernandes</strong>. 22 U19 caps total.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2017-2018 · Benfica B</div><div class="timeline-text"><strong>8 LigaPro apps, 1 goal.</strong> Limited playing time at Benfica's B team. Failed to break into the first-team picture despite his youth pedigree.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 2019 · West Ham United</div><div class="timeline-text"><strong>Signed for West Ham on a free transfer.</strong> Joined the U23 squad. <strong>Never made a senior appearance</strong> in 3 years. Released in 2022. The defining failure of his career.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022-2023 · OFI Crete (Greece)</div><div class="timeline-text"><strong>10 Super League apps, 0 goals.</strong> First move after West Ham release. Failed to make an impact in Greece.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2023-2024 · CD Mafra</div><div class="timeline-text"><strong>31 Liga Portugal 2 apps, 2 goals.</strong> Most productive senior season to date, but still modest output for a winger.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024-2025 · UD Oliveirense</div><div class="timeline-text"><strong>10 Liga Portugal 2 apps, 0 goals.</strong> Brief, unproductive spell. Released.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Early 2025 · HNK Gorica (Croatia)</div><div class="timeline-text"><strong>6 HNL apps, 0 goals.</strong> Brief spell in Croatia's top flight. Failed to establish himself. Released.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2025-2026 · Portimonense</div><div class="timeline-text"><strong>17 Liga Portugal 2 apps, 1 goal.</strong> Now at his <strong>8th senior club</strong> in 8 seasons. Contract until 2027 with +1 year option. <strong>0/16 T3 metrics pending.</strong></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2017-2018</strong></td><td>Benfica B</td><td>LigaPro</td><td>8</td><td>1</td><td>First senior football</td></tr>
+          <tr><td><strong>2019-2022</strong></td><td>West Ham</td><td>Premier League</td><td>0</td><td>0</td><td>U23 only, never debuted</td></tr>
+          <tr><td><strong>2022-2023</strong></td><td>OFI Crete</td><td>Super League Greece</td><td>10</td><td>0</td><td>No impact</td></tr>
+          <tr><td><strong>2023-2024</strong></td><td>CD Mafra</td><td>Liga Portugal 2</td><td>31</td><td>2</td><td>Most apps in a season</td></tr>
+          <tr><td><strong>2024-2025</strong></td><td>UD Oliveirense</td><td>Liga Portugal 2</td><td>10</td><td>0</td><td>Brief spell</td></tr>
+          <tr><td><strong>2025</strong></td><td>HNK Gorica</td><td>HNL (Croatia)</td><td>6</td><td>0</td><td>Released</td></tr>
+          <tr><td><strong>2025-2026</strong></td><td>Portimonense</td><td>Liga Portugal 2</td><td>17</td><td>1</td><td>Current club</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>117</strong></td><td><strong>12</strong></td><td>0.10 G/90</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Period</th><th>Caps</th><th>Goals</th><th>Honours</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Portugal U17</strong></td><td>2016</td><td>11</td><td>—</td><td><strong style="color:var(--gold);">U17 Euro 2016 Champion</strong></td></tr>
+          <tr><td><strong>Portugal U19</strong></td><td>2017-2018</td><td>22</td><td>—</td><td><strong style="color:var(--gold);">U19 Euro 2018 Champion</strong></td></tr>
+          <tr><td><strong>Portugal U19</strong></td><td>2017</td><td>—</td><td>—</td><td><strong style="color:var(--gold);">U19 Euro 2017 Team of the Tournament</strong></td></tr>
+          <tr><td>Portugal U20</td><td>2019</td><td>11</td><td>—</td><td>FIFA U20 World Cup 2019</td></tr>
+          <tr><td>Portugal U21</td><td>2019</td><td>1</td><td>0</td><td>—</td></tr>
+          <tr><td>Portugal Senior</td><td>—</td><td>0</td><td>0</td><td>Never capped</td></tr>
+          <tr><td>Guinea-Bissau</td><td>—</td><td>0</td><td>0</td><td>Eligible but never called</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Team</th></tr></thead>
+        <tbody>
+          <tr><td><strong>UEFA U-17 European Championship</strong></td><td>2016</td><td>Portugal U17</td></tr>
+          <tr><td><strong>UEFA U-19 European Championship</strong></td><td>2018</td><td>Portugal U19</td></tr>
+          <tr><td><strong>U19 Euro Team of the Tournament</strong></td><td>2017</td><td>Portugal U19 (Individual)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Physical & Medical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">178cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~70kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">RW / LW / FW</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#19 (Portimonense)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Slight, technical winger build</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Portugal / Guinea-Bissau</span></div>
+        <div class="physical-item"><span class="label">Age</span><span class="value">27 years (born 1999)</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Medical & Durability</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury History (Documented)</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No documented long-term injuries or surgeries. Has maintained availability across 117 career apps. However, his <strong>physical profile is slight</strong> (178cm, ~70kg) and he has never been a physically dominant player. At 27, any loss of pace would be terminal for a winger of his type.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Physical Decline Risk</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">At 27, Djú is at the age where <strong>pace-dependent wingers begin to decline</strong>. His game was never built on explosive power — it was built on technical quality. If that technical quality has eroded (as his goal record suggests), there is no physical attribute to compensate. T3 must verify whether he still has the close control and dribbling ability of his youth, or whether those skills have dulled with years of failure.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--danger);margin-bottom:4px;">Mental Health / Confidence</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">The <strong>psychological toll of repeated failure</strong> cannot be underestimated. West Ham release, Greece failure, Croatia failure, multiple Portuguese second-tier releases — this is a player who has been told "no" by multiple clubs. T3 must assess whether he has the <strong>mental resilience to rebuild</strong> or whether the accumulated failure has created a <strong>confidence crisis</strong> that manifests in poor decision-making and risk aversion on the pitch.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>UEFA U17 Euro 2016 Champion + U19 Euro 2018 Champion — elite youth pedigree</strong> — Part of Portugal's most decorated youth generation. This is not a player who lacked talent at youth level — he was genuinely elite.</li>
+      <li><strong>U19 Euro 2017 Team of the Tournament — individual recognition</strong> — Named alongside future stars. This validates that his youth quality was not just system-dependent — he was individually excellent.</li>
+      <li><strong>Benfica academy product — elite technical foundation</strong> — 8 years in one of Europe's top academies. His close control, first touch, and dribbling were developed at the highest level.</li>
+      <li><strong>Multi-league experience — adaptability (theoretically)</strong> — Has played in Portugal, England (academy), Greece, Croatia. This breadth could be an asset if the quality is still there.</li>
+      <li><strong>Good discipline — 1 yellow in 17 apps in 2025-26</strong> — Not a disciplinary risk. Professional attitude on the pitch appears intact.</li>
+      <li><strong>Contract until 2027 — stability</strong> — Portimonense has him under contract with an option. This suggests the club sees some value in him.</li>
+      <li><strong>Dual nationality (Portugal/Guinea-Bissau) — optionality</strong> — Could represent Guinea-Bissau at senior level, which would be a new chapter and potential motivation.</li>
+      <li><strong>Low market value (~€400K) — minimal financial risk</strong> — For a club in a lower league, the financial outlay is minimal. The risk is sporting, not economic.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>West Ham failure — zero first-team minutes in 3 years</strong> — The single biggest red flag. Signed by a Premier League club and never played. This suggests either a failure to adapt to the physicality, a failure to impress in training, or a character issue. The reason matters enormously.</li>
+      <li><strong>12 goals in 117 senior apps (0.10 G/90) — catastrophic end product</strong> — For a winger, this is not "unlucky" — this is a systematic failure to produce. Even in lower leagues, a technically gifted winger should score more than this.</li>
+      <li><strong>Five clubs in four years — no club has kept him</strong> — OFI, Mafra, Oliveirense, Gorica, Portimonense. None of these clubs fought to keep him. This is a pattern, not a coincidence.</li>
+      <li><strong>Never played in a top-flight league at 27</strong> — At an age when most players have 5+ years of top-flight experience, Djú has zero. This is not a late bloomer — this is a player who has plateaued at second-tier level.</li>
+      <li><strong>Zero senior international caps</strong> — Despite Portugal's youth success, he was never called to the senior squad. Even Guinea-Bissau has not called him. This suggests coaches at multiple levels do not see him as a difference-maker.</li>
+      <li><strong>0/16 T3 metrics confirmed</strong> — No video validation. His "technical quality" is assumed from youth reputation, not verified in senior footage.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>No T3 video assessment completed</strong> — The single biggest gap. Every metric is a guess until a scout watches him play in isolated footage. For a player with 117 senior apps, this is inexcusable — the footage exists, it just hasn't been evaluated.</li>
+      <li><strong>Why did West Ham release him? — the unanswered question</strong> — Was it physical? Technical? Character? Without knowing why a Premier League club gave up on him after 3 years, no accurate risk assessment is possible. This is the first question any serious suitor must answer.</li>
+      <li><strong>No evidence of clutch performance at senior level</strong> — His youth honours are impressive, but at senior level there is no evidence he can perform in high-pressure moments. CRS is theoretical.</li>
+      <li><strong>Coachability unverified — why has he not developed?</strong> — A Benfica academy graduate with his pedigree should have developed more. The fact that he hasn't suggests either poor coachability, poor work ethic, or a fundamental limitation that coaching cannot fix.</li>
+      <li><strong>Mental resilience in question — repeated failure</strong> — The psychological toll of 8 clubs in 8 seasons, zero top-flight minutes, and repeated release is significant. T3 must assess whether he has the mental fortitude to rebuild or whether he is broken.</li>
+      <li><strong>Physical decline at 27 — pace-dependent winger</strong> — If his game was built on technical quality alone, he might age gracefully. But if he needed pace to beat defenders 1v1, 27 is the age where that edge disappears.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 4.2 — Career Revival Assessment · Former Elite Youth International · Liga Portugal 2 Winger · Terminal Decline Profile · High Risk, Limited Upside.</strong> The T1 data reveals a <strong>27-year-old winger with a decorated youth pedigree but a failed senior career</strong>. His <strong>UEFA U17 and U19 Euro titles</strong> and <strong>Team of the Tournament selection</strong> prove he was once elite at youth level. However, his <strong>senior record is damning: 12 goals in 117 apps (0.10 G/90), zero West Ham first-team minutes, five clubs in four years, and declining output at every stop</strong>. The 2025-26 season at Portimonense (17 apps, 1 goal) suggests he is a <strong>squad player in Portugal's second tier</strong> — not a player with realistic top-flight potential. The <strong>~€400K market value</strong> (down from ~€445K peak) reflects this reality. <strong>T3 validation is critical</strong> — if video reveals he still has the technical quality and off-ball intelligence of his youth, a career revival in a lower-tier league is possible. If not, this is a <strong>terminal decline profile</strong>. <strong>Not recommended for any club seeking immediate impact.</strong> Possible value as a <strong>mentor/depth signing in lower leagues</strong> or <strong>Guinea-Bissau national team option</strong> (he has never represented them). For Portimonense: use as squad depth, monitor for coaching transition potential. For external clubs: <strong>extreme caution</strong> — the youth honours are seductive but the senior reality is brutal.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>No Empire FGA Assessment Matches Available.</strong> No full-match isolated footage has been registered in the T3 system. Below are available video resources for future scout registration. Priority: Portimonense 2025-26 Liga Portugal 2 + UD Oliveirense 2024-25 + HNK Gorica 2025 footage. <strong>2 Dropbox links provided by user are clickable below.</strong>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--success);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">📹 Provided Video Resources — Click to Open</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/p04rsttkin11rba2r4hsw/Uni-o-Desportiva-Oliveirense-Portimonense-Sporting-Clube.mp4?rlkey=9uoo9u9oe71vdccqlada6k7ep&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,102,0,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">UD Oliveirense vs Portimonense 🇵🇹</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Liga Portugal 2 2024-25</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Dropbox link provided.</strong> Full match footage available for T3 scout registration. Validates DMA, OBI_T, and SII_A in Liga Portugal 2 context. LOG ~2.0.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/70h1o0ajyd4lnglvmyi7h/Club-Desportivo-Feirense-Portimonense-Sporting-Clube.mp4?rlkey=x6gyz5abewg9rjecnpme6lmde&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,102,0,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">CD Feirense vs Portimonense 🇵🇹</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Liga Portugal 2 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Dropbox link provided.</strong> Full match footage available for T3 scout registration. Validates current-season form, DMA, and CLM. LOG ~2.3.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇵🇹 Portimonense — 2025-26 Season (Liga Portugal 2)</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Portimonense vs [Opponent] 🇵🇹</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Liga Portugal 2 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>2025-26 season — 17 apps, 1 goal.</strong> Current season context for DMA, OBI_T, and SII assessment. LOG ~2.3.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇭🇷 HNK Gorica — 2025 (HNL)</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">HNK Gorica vs [Opponent] 🇭🇷</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">HNL 2025</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>6 apps, 0 goals.</strong> Brief spell in Croatia's top flight. Validates adaptability to different league style. LOG ~2.2.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇬🇷 OFI Crete — 2022-23 (Super League Greece)</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">OFI Crete vs [Opponent] 🇬🇷</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Super League Greece 2022-23</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>10 apps, 0 goals.</strong> First post-West Ham move. Critical for understanding his level after 3 years in England U23s. LOG ~2.3.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇵🇹 CD Mafra — 2023-24 (Liga Portugal 2)</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">CD Mafra vs [Opponent] 🇵🇹</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Liga Portugal 2 2023-24</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>31 apps, 2 goals.</strong> Most productive senior season. Validates whether he can sustain output over a full campaign. LOG ~2.0.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Priority Match Register</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 1 — Provided Footage</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M1:</strong> UD Oliveirense vs Portimonense (Dropbox)<br>
+          <strong style="color:var(--info);">M2:</strong> CD Feirense vs Portimonense (Dropbox)<br><br>
+          <strong>LOG ~2.0-2.3</strong>. The true baseline for his current professional quality. Will determine whether his technical quality still exists and whether his decision-making has improved.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 2 — CD Mafra 2023-24</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">M3:</strong> CD Mafra full season (31 apps, 2 goals)<br><br>
+          <strong>LOG ~2.0</strong>. Critical for understanding his peak senior output. The 31 apps represent his most sustained run — does he show consistent off-ball intelligence and decision-making, or is the low output a reflection of poor quality?
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 3 — OFI Crete 2022-23</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M4:</strong> OFI Crete (Super League Greece, 10 apps)<br><br>
+          <strong>LOG ~2.3</strong>. First post-West Ham move. Validates whether his 3 years in England U23s damaged his development or whether he simply lacked the quality for a higher level.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 4.2;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Goals','Assists','Chances Created','Dribbling','CHR Character','CLM Composure','DMA Decisions','Physical Presence'],
+      datasets: [{
+        label: 'Djú EST (27)',
+        data: [4.0, 3.5, 5.0, 5.5, 5.0, 4.5, 5.0, 5.0],
+        backgroundColor: 'rgba(0,102,0,0.2)',
+        borderColor: '#006600',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Liga Portugal 2 Winger avg',
+        data: [5.5, 5.0, 5.5, 5.5, 6.0, 6.0, 5.5, 6.0],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 2, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Wenger','Cruyff','Guardiola','Menotti','Santana','Bielsa'],
+    datasets: [{
+      label: 'Djú',
+      data: [6.2, 6.0, 5.8, 5.5, 5.4, 5.0],
+      backgroundColor: 'rgba(0,102,0,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#C60C30','#C8102E','#6CABDD','#C8102E','#C8102E','#e07820'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 2, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Foundation 20%','T2 Composite 30%','T3 Scout 50%'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#3b82f6', '#ffb800', '#00d084'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
