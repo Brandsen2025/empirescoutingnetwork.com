@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JJ Gabriel | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#8B0000;--accent-dim:rgba(139,0,0,0.15);--accent-glow:rgba(139,0,0,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://assets.goal.com/images/v3/blt2eafdad106be3383/crop/MM5DINRSGA5DENJZHE5G433XMU5DAORSGQYQ====/GettyImages-2257997964.jpg?auto=webp&format=pjpg&width=3840&quality=60') center 20% / cover no-repeat;filter:brightness(0.45) saturate(0.85);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(139,0,0,0.25) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#8B0000 33%,#fbbf24 33%,#fbbf24 66%,#8B0000 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🏆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(139,0,0,0.1),rgba(251,191,36,0.05));border:1px solid rgba(139,0,0,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(139,0,0,0.18),rgba(251,191,36,0.06));border:2px solid rgba(139,0,0,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(139,0,0,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(139,0,0,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(139,0,0,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(139,0,0,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(139,0,0,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(139,0,0,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(139,0,0,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(139,0,0,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(139,0,0,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(139,0,0,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(139,0,0,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Man United U18 · FA Youth Cup</div>
+  <div class="jersey-watermark">10</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Man United Academy</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Man United U18 (2025-26)</div>
+    </div>
+    <h1 class="hero-name">JJ Gabriel</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> England</span>
+      <span class="dot"></span>
+      <span>17 years</span>
+      <span class="dot"></span>
+      <span>Second Striker / AM</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>ESN Pilot Youth</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">7/12 T3 ⚠️</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">7/12 T3 PARTIAL</span>
+          <span class="tag tag-club">Man United U18</span>
+          <span class="tag tag-gold">CRS 9.7 ⭐</span>
+          <span class="tag tag-gold">OBI 8.14</span>
+          <span class="tag tag-info">FA Youth Cup</span>
+          <span class="tag tag-danger">CLM 5.8 ⚠️</span>
+          <span class="tag tag-info">England U17</span>
+          <span class="tag tag-pending">SII PENDING</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">7.1</div>
+          <div class="fga-status">YOUTH ESTIMATED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-gold">
+    <span>⚠️</span> <strong>CRS 9.67 ✅ — CLUTCH RESPONSE ELITE AT U18 LEVEL.</strong> Three confirmed positive events across 3 matches: penalty conversion vs Liverpool U18 (9/10), incredible solo goal vs Liverpool U18 (10/10), and decisive through-ball vs Sunderland U18 (9/10). All events occurred in high-pressure moments against top-third opposition. This is the standout trait in the assessment.
+  </div>
+  <div class="banner banner-danger">
+    <span>⚠️</span> <strong>CLM 5.75 ⚠️ — CALMNESS BELOW PROFESSIONAL THRESHOLD.</strong> Four events across 3 matches averaging 5.75: control errors under pressure (5), misplaced passes in tight spaces (5), and rushed decisions when pressed. For a second striker operating between the lines, this is the primary developmental concern. Must improve composure before senior transition.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>OBI 8.14 — OFF-BALL INTELLIGENCE STRONG (PARTIAL).</strong> OBI_S 7.75 (4 events, 3 matches) confirms space-creating movement. OBI_P 6.43 (7 events, 3 matches) shows good positional anticipation. OBI_T 10.0 (1 event only) is pending — cannot validate run timing at threshold. Composite is inflated by the single OBI_T event; expect regression to ~7.5 once fully sampled.
+  </div>
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>SII / OMS / DYN — VIDEO PENDING.</strong> Sprint Intensity Index (all 3 sub-metrics), Omschakeling (transition speed), and Dynamism (positional switching) have zero or insufficient events. These are critical for a second striker's senior projection. Cannot evaluate athletic profile or transition intelligence without additional match footage.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Man United Academy</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Man United U18 (2025-26)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">9.67</div><div class="label">CRS · Clutch</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">8.14</div><div class="label">OBI · Partial</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">7.78</div><div class="label">SOA · Speed</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">7.22</div><div class="label">DMA · Decisions</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">7.43</div><div class="label">SPI · Spatial</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--danger);">5.75</div><div class="label">CLM · Calmness</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7/12</div><div class="label">T3 Confirmed</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">17</div><div class="label">Years Old</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Joseph Junior Andreou Gabriel</strong> is a <strong>17-year-old English second striker</strong> at <strong>Manchester United U18</strong>. Assessed as part of the <strong>ESN Pilot Youth</strong> programme across 5 FA Youth Cup and U18 Premier League matches (2025-26). Played against Man City U18, Liverpool U18, Crystal Palace U18, Sunderland U18, and Israel U17. <strong>England U17 international</strong> cap. Right-footed, operates primarily between the lines as a second striker or advanced midfielder. Elite clutch response (CRS 9.67) is the defining trait at this developmental stage. Match balance passed: 3 top-third opponents, 1 away fixture, 3 losing contexts.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--success);">7/12 T3 metrics validated.</strong> DMA 7.22 (27 events), SOA 7.78 (9 events), SPI 7.43 (7 events), CRS 9.67 (3 events), MCS 6.43 (7 events), CLM 5.75 (4 events), and OBI composite 8.14 (partial) are the scored metrics. <strong style="color:var(--danger);">Critical gaps:</strong> SII (0/3 sub-metrics), OMS (0 events), DYN (0 events), CHR (2 events only), CRK (2 matches only). <strong style="color:var(--warning);">OBI_T</strong> has only 1 event — cannot validate run timing. Video completeness threshold met (7/12) but <strong>senior projection is premature</strong> without physical intensity and transition data.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 7.1 — U18 SECOND STRIKER · ELITE CLUTCH + STRONG OFF-BALL · CALMNESS THE DEVELOPMENTAL FLOOR.</strong> JJ Gabriel is a <strong>17-year-old English second striker</strong> whose <strong>clutch response is verified at elite level even at U18</strong> (CRS 9.67). OBI 8.14 and DMA 7.22 confirm he thinks ahead of the ball. However, <strong>CLM 5.75 is below the threshold</strong> for professional transition — composure under pressure must improve. <strong>SII, OMS, and DYN are completely unscored</strong> — without sprint intensity and transition data, senior projection is speculative. Recommended: <strong>continue monitoring with focused scoring on physical intensity metrics</strong>. If CLM improves to 7.0+ and SII validates at 6.5+, projection rises to 7.8+. If CLM stagnates, ceiling is Championship level regardless of clutch quality.
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">5-Match Assessment Register — FA Youth Cup + U18 PL <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>M</th><th>Match</th><th>Context</th><th>Key T3 Events</th><th style="text-align:center">FGA Est.</th></tr></thead>
+      <tbody>
+        <tr><td><strong>M1</strong></td><td>Man City U18 vs Man Utd U18</td><td>Away · U18 PL · LOG ~2.2</td><td>OBI_S 8 (blocks N°8) · DMA 8 (transition) · DMA 5 (missed pass) · MCS 3 (avoids duel) · MCS 3 (loses duel)</td><td style="text-align:center"><strong style="color:var(--warning);">5.4</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">5evt · Away · Losing</span></td></tr>
+        <tr><td><strong>M2</strong></td><td>Man Utd U18 vs Crystal Palace U18</td><td>Home · U18 PL · LOG ~2.0</td><td>OBI_P 8 (recovery) · SPI 8 (between lines) · SPI 7 (depth run) · DMA 8 (combination) · CRS 10 (GOAL)</td><td style="text-align:center"><strong style="color:var(--success);">7.9</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">8evt · Home · Winning</span></td></tr>
+        <tr style="background:rgba(0,208,132,0.04);"><td><strong>M3</strong></td><td>Man Utd U18 vs Sunderland U18</td><td>Home · FA Youth Cup · LOG ~2.0</td><td>CLM 9 (control under pressure) · SPI 8 (between lines) · SOA 7 (turn + shot) · OBI_P 8 (recovery) · DMA 9 (assist) · CRS 9 (decisive pass)</td><td style="text-align:center"><strong style="color:var(--success);">8.1</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">10evt · BEST ⭐</span></td></tr>
+        <tr><td><strong>M4</strong></td><td>England U17 vs Israel U17</td><td>Home · Euro U17 Qual · 28/03/2026 · LOG ~2.0</td><td>OBI_S 8 (crossed run) · OBI_P 6.4 (mixed) · SOA 7 (vision) · MCS 6.4 (mixed) · CLM 5.75 (errors)</td><td style="text-align:center"><strong style="color:var(--warning);">6.7</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">5evt · Mixed</span></td></tr>
+        <tr style="background:rgba(251,191,36,0.04);"><td><strong>M5</strong></td><td>Man Utd U18 vs Liverpool U18</td><td>Home · U18 PL · LOG ~2.2</td><td>CRK 8 (escapes density) · DMA 9 (penalty) · DMA 10 (solo GOAL) · CRS 10 (GOAL) · SOA 8 (turn + shot) · CLM 4 (loses ball under pressure)</td><td style="text-align:center"><strong style="color:var(--success);">8.4</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">9evt · ⚽⚽ Goals</span></td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="4" style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;">Mean across 5 matches · T3 raw event averages · LOG 1.8–2.2 (youth elite)</td><td style="text-align:center"><strong style="color:var(--success);font-size:1.2rem;">7.1</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">5-match mean</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff Intelligence — Spatial Genius</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#fbbf24;"></div></div></div><div class="philo-score">8.8</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Wenger Development — Youth Technician</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27ae60;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola Positional — Between Lines</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#6CABDD;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Bielsa Intensity — High Press SS</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#e07820;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Menotti Artistry — Creative Second Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#3498db;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Ferguson Mental — Clutch Winner</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#c8102e;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Mourinho Tactical — Pragmatic Finisher</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#1a1a1a;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Simeone Cholismo — Work Rate SS</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#9b59b6;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Sacchi Pressing — System Player</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#8b1a1a;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Herrera Catenaccio — Defensive Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:#8b1a1a;"></div></div></div><div class="philo-score">3.5</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">T3 Radar — 7 Confirmed Metrics <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="t3Radar" width="400" height="350"></canvas>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Off-Ball</h3>
+      <div class="attr-row"><span class="name">CRS Clutch Response (9.67 · 3evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 9.67 ✅</span></div>
+      <div class="attr-row"><span class="name">OBI Off-Ball Intel (8.14 · partial)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.14 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SOA Speed on Action (7.78 · 9evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.78 ✅</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (7.22 · 27evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.22 ✅</span></div>
+      <div class="attr-row"><span class="name">SPI Spatial (7.43 · 7evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.43 ✅</span></div>
+      <div class="attr-row"><span class="name">CRK Creative Risk (7.71 · 2mat)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.71 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (5.75 · 4evt)</span><span class="score ac-red"><span class="circle circle-red"></span> 5.75 ⚠️</span></div>
+      <div class="attr-row"><span class="name">OMS Transition (0 events)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — 0evt</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">CRS Clutch (9.67 · goal+pen)</span><span class="score ac-green"><span class="circle circle-green"></span> 9.67 ✅</span></div>
+      <div class="attr-row"><span class="name">CHR Character (7.5 · 2evt)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">MCS Mental Comp. (6.43 · 7evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 6.43 ✅</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (5.75 · pressure)</span><span class="score ac-red"><span class="circle circle-red"></span> 5.75 ⚠️</span></div>
+      <div class="attr-row"><span class="name">OBI_P Anticipation (6.43)</span><span class="score ac-green"><span class="circle circle-green"></span> 6.43 ✅</span></div>
+      <div class="attr-row"><span class="name">OBI_S Space Arch (7.75)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.75 ✅</span></div>
+      <div class="attr-row"><span class="name">OBI_T Run Timing (10.0 · 1evt)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 10.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DYN Dynamism (0 events)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — 0evt</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">SII_A Acceleration (1 event)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed (1 event)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery (0 events)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — 0evt</span></div>
+      <div class="attr-row"><span class="name">SOA Speed on Action (7.78)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.78 ✅</span></div>
+      <div class="attr-row"><span class="name">DYN Positional Switch (0evt)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — 0evt</span></div>
+      <div class="attr-row"><span class="name">Pressing Intensity (unscored)</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+      <div class="attr-row"><span class="name">Stamina (5 matches observed)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Strength (unscored)</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Transfermarkt · Sofascore</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">TM Value</div><div class="t1-hl-val">—</div><div class="t1-hl-pct">Youth player — no market value</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:0%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">SofaScore</div><div class="t1-hl-val">—</div><div class="t1-hl-pct">U18 data limited on platform</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:0%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">GRI</div><div class="t1-hl-val">—</div><div class="t1-hl-pct">Youth — no PrgR data</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:0%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Apps</div><div class="t1-hl-val">5+</div><div class="t1-hl-pct">FA Youth Cup + U18 PL</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:45%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Goals</div><div class="t1-hl-val">2+</div><div class="t1-hl-pct">Confirmed vs Liverpool U18</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Youth Context</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Age</span><span class="t1-metric-desc">Development stage</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:17%;background:var(--accent)"></div></div></div><span class="t1-metric-val">17</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Level</span><span class="t1-metric-desc">FA Youth Cup / U18 PL</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--accent)"></div></div></div><span class="t1-metric-val">U18</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Nat</span><span class="t1-metric-desc">England U17 cap</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">U17</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Scout Video Events</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Events</span><span class="t1-metric-desc">Total scored events</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--gold)"></div></div></div><span class="t1-metric-val">65</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Matches</span><span class="t1-metric-desc">Assessed matches</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">5</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Hours</span><span class="t1-metric-desc">Video analysis time</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--accent)"></div></div></div><span class="t1-metric-val">~12h</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence (OBI 8.14)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">8.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Composure (CLM 5.75)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">5.8</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Anticipatory (OBI_P 6.43)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI — Creative Player (CRK 7.71)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.7</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">MTI — Mental Toughness (MCS 6.43)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.4</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With 7/12 T3 metrics confirmed at youth level, these are developmental estimates. Physical composites (MOB, GRI) cannot be calculated until SII and DYN are scored.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Youth Elite LOG: ~2.0</strong><br>
+          <strong style="color:var(--text-primary);">Competition:</strong> FA Youth Cup + U18 Premier League<br>
+          <strong style="color:var(--text-primary);">Opposition:</strong> Man City U18, Liverpool U18, Crystal Palace U18, Sunderland U18, Israel U17<br>
+          <strong style="color:var(--warning);">Match Balance: PASSED ✅</strong><br><br>
+          <strong style="color:var(--gold);">LOG 2.0</strong> represents youth elite level. All 5 matches were against academy opposition. 3 top-third, 1 away, 3 losing contexts provide balanced assessment. Senior projection requires U21/loan data.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Jim Totime · 5 Matches · 7/12 Confirmed · LOG 1.8–2.2</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--warning);margin-left:auto;">8.14</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">OBI_S 7.75 (4 events · 3 matches)</strong> — space architecture confirmed<br>
+            <strong style="color:var(--success);">OBI_P 6.43 (7 events · 3 matches)</strong> — positional anticipation OK<br>
+            <strong style="color:var(--danger);">OBI_T 10.0 (1 event · 1 match)</strong> — pending threshold<br>
+            <strong style="color:var(--warning);">OBI composite provisional</strong> — will regress when OBI_T sampled
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--danger);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--danger);">SII_A: 1 event only</strong> — cannot validate acceleration<br>
+            <strong style="color:var(--danger);">SII_T: 1 event only</strong> — cannot validate top speed<br>
+            <strong style="color:var(--danger);">SII_R: 0 events</strong> — no recovery sprint data<br>
+            <strong style="color:var(--danger);">CRITICAL GAP:</strong> Physical profile entirely unscored. Cannot project senior level without SII validation.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--success);">✅</span> DMA · SOA · SPI · CLM · CRS · MCS · OBI (partial)<br>
+            <span style="color:var(--warning);">⚠️</span> CHR (2evt) · CRK (2mat) · OBI_T (1evt)<br>
+            <span style="color:var(--danger);">✗</span> SII_A · SII_T · SII_R · OMS · DYN<br><br>
+            <strong>7/12 metrics confirmed</strong> across 5 matches at LOG 1.8–2.2
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border-subtle);margin-top:16px;padding-top:16px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">All 12 Tier 3 Metrics</div>
+      <div class="grid-3">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">DMA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Decision Making</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">7.22</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CHR</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Character</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--warning)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--warning);width:36px;text-align:right;">7.5</span>
+            <span style="font-size:0.6rem;color:var(--warning);">⚠️</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">MCS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Mental Comp.</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">6.43</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SOA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Speed on Action</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">7.78</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SPI</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Spatial Performance</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">7.43</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CLM</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Calmness</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--danger)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--danger);width:36px;text-align:right;">5.75</span>
+            <span style="font-size:0.6rem;color:var(--danger);">⚠️</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CRS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Clutch Response</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:97%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">9.67</span>
+            <span style="font-size:0.6rem;color:var(--success);">⭐</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OMS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Omschakeling</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--danger)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--danger);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--danger);">✗</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">DYN</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Dynamism</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--danger)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--danger);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--danger);">✗</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CRK</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Creative Risk</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:77%;background:var(--warning)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--warning);width:36px;text-align:right;">7.71</span>
+            <span style="font-size:0.6rem;color:var(--warning);">⚠️</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>YOUTH PROJECTION — HIGHLY SPECULATIVE.</strong> These projections are based on a 17-year-old with 7/12 Tier 3 metrics confirmed at youth level only. No senior professional data exists. Treat as developmental trajectory, not confirmed capability. SII, OMS, and DYN are completely unscored — physical and transition profiles are unknown.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues. JJ Gabriel's 7.1 FGA is a <strong style="color:var(--text-primary);">youth-estimated figure</strong> — 7/12 T3 metrics confirmed across 5 U18 matches at LOG 1.8–2.2. These projections carry <strong style="color:var(--danger);">high uncertainty</strong> due to incomplete physical assessment.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 U18 Premier League</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">7.1</div>
+      <div class="label">Youth Estimated (7/12 T3) · LOG ~2.0</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Projection — Championship</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 EFL Championship</div>
+      <div class="value" style="font-size:2.1rem;">5.8</div>
+      <div class="label">LOG-Adjusted · Tier 2.8 (est.)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">Projection — Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+      <div class="value" style="font-size:2.1rem;">5.2</div>
+      <div class="label">LOG-Adjusted · Tier 3.7 (confirmed)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Caveats</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br>
+      Championship: 7.1 × (2.0 ÷ 2.8) = <strong style="color:var(--text-primary);">5.8</strong><br>
+      Premier League: 7.1 × (2.0 ÷ 3.7) = <strong style="color:var(--text-primary);">5.2</strong><br><br>
+      <strong style="color:var(--danger);">Critical caveats for youth projection:</strong><br>
+      1. <strong>Physical profile unknown:</strong> SII (sprint intensity) entirely unscored. A second striker without validated acceleration/top speed cannot project to Premier League with confidence.<br>
+      2. <strong>Transition play unknown:</strong> OMS (attack/defence transition) and DYN (positional switching) have zero events. Senior football demands these at elite level.<br>
+      3. <strong>Calmness deficit:</strong> CLM 5.75 suggests struggles under senior pressure. Championship physicality may expose this further.<br>
+      4. <strong>Developmental runway:</strong> At 17, significant physical and mental development is expected. These projections assume average development — elite development could raise ceiling to 6.5+ Championship / 6.0 Premier League.<br><br>
+      <strong style="color:var(--warning);">Recommendation:</strong> Re-assess at U21/loan level with complete SII, OMS, and DYN scoring before making senior projection claims to clubs.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff Intelligence — Spatial Genius</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#fbbf24;"></div></div></div><div class="philo-score">8.8</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Wenger Development — Youth Technician</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27ae60;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola Positional — Between Lines</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#6CABDD;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Bielsa Intensity — High Press SS</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#e07820;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Menotti Artistry — Creative SS</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#3498db;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Ferguson Mental — Clutch Winner</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#c8102e;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Mourinho Tactical — Pragmatic Finisher</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#1a1a1a;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Simeone Cholismo — Work Rate SS</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#9b59b6;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Sacchi Pressing — System Player</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#8b1a1a;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Herrera Catenaccio — Defensive Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:#8b1a1a;"></div></div></div><div class="philo-score">3.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Cruyffian Second Striker"</strong> — A second striker whose primary tools are off-ball intelligence and clutch execution rather than physical dominance. OBI 8.14 + CRS 9.67 + DMA 7.22 = the creative SS archetype who thinks two seconds ahead and delivers in decisive moments. The Cruyff fit (8.8) is natural: spatial awareness, between-lines positioning, and anticipation are all confirmed. <strong>Wenger (8.5)</strong> reflects his youth technician profile — developed in academy structure with strong technical foundation. <strong>Guardiola (8.2)</strong> confirms positional suitability. The low <strong>Herrera (3.5)</strong> and <strong>Sacchi (5.8)</strong> scores confirm he is not a defensive/system player — his value is in creation and execution, not structure.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Cruyffian SS</span>
+          <span class="tag tag-club">Clutch Executor</span>
+          <span class="tag tag-club">Between-Lines Technician</span>
+          <span class="tag tag-gold">Youth Prospect</span>
+          <span class="tag tag-info">England U17</span>
+          <span class="tag tag-info">Man United Academy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">8.8</div><div class="label">Dutch / Cruyff School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">8.5</div><div class="label">French / Wenger School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">8.2</div><div class="label">Spanish / Guardiola School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7.8</div><div class="label">Argentine / Bielsa School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born ~2008</div><div class="timeline-text">Born in <strong>England</strong>. Joined Manchester United Academy at early age. Developed through United's youth system.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024–25</div><div class="timeline-text"><strong>Manchester United U16/U17</strong> — Early academy progression. Technical foundation and off-ball intelligence first noted by academy coaches. England U17 recognition.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2025–26</div><div class="timeline-text"><strong>Manchester United U18 · FA Youth Cup</strong> — Breakthrough assessment season. ESN Pilot Youth selection. 5-match video assessment by Jim Totime confirms CRS 9.67 (elite clutch), OBI 8.14 (strong off-ball), and CLM 5.75 (calmness concern). Scored 2+ goals including penalty and solo strike vs Liverpool U18. England U17 international cap.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2026–27</div><div class="timeline-text">At <strong>Man United U18/U21</strong>. Next developmental phase requires: (1) SII validation (sprint intensity), (2) CLM improvement (composure), (3) OMS/DYN scoring (transition play). Potential loan or U21 transition.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Assessment Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Events</th><th>Matches</th><th>Score</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DMA</strong></td><td>27</td><td>4</td><td><strong>7.22</strong></td></tr>
+          <tr><td><strong>SOA</strong></td><td>9</td><td>3</td><td><strong>7.78</strong></td></tr>
+          <tr><td><strong>SPI</strong></td><td>7</td><td>3</td><td><strong>7.43</strong></td></tr>
+          <tr><td><strong>MCS</strong></td><td>7</td><td>3</td><td><strong>6.43</strong></td></tr>
+          <tr><td><strong>CLM</strong></td><td>4</td><td>3</td><td><strong style="color:var(--danger);">5.75</strong></td></tr>
+          <tr><td><strong>CRS</strong></td><td>3</td><td>3</td><td><strong style="color:var(--gold);">9.67</strong></td></tr>
+          <tr><td><strong>OBI_S</strong></td><td>4</td><td>3</td><td><strong>7.75</strong></td></tr>
+          <tr><td><strong>OBI_P</strong></td><td>7</td><td>3</td><td><strong>6.43</strong></td></tr>
+          <tr><td><strong>OBI_T</strong></td><td>1</td><td>1</td><td><strong style="color:var(--warning);">10.0 ⚠️</strong></td></tr>
+          <tr><td><strong>CHR</strong></td><td>2</td><td>2</td><td><strong style="color:var(--warning);">7.5 ⚠️</strong></td></tr>
+          <tr><td><strong>CRK</strong></td><td>8</td><td>2</td><td><strong style="color:var(--warning);">7.71 ⚠️</strong></td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Total Events</strong></td><td><strong>5 matches</strong></td><td><strong>65</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours & Recognition</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Context</th></tr></thead>
+        <tbody>
+          <tr><td><strong>England U17 Cap</strong></td><td>2025-26</td><td>International youth recognition</td></tr>
+          <tr><td><strong>ESN Pilot Youth</strong></td><td>2025-26</td><td>Empire FGA assessment selection</td></tr>
+          <tr><td><strong>FA Youth Cup Participant</strong></td><td>2025-26</td><td>Man United U18</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Age</span><span class="value">17</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Second Striker / AM</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Club</span><span class="value">Man United U18</span></div>
+        <div class="physical-item"><span class="label">Nationality</span><span class="value">England</span></div>
+        <div class="physical-item"><span class="label">International</span><span class="value">England U17</span></div>
+        <div class="physical-item"><span class="label">Height</span><span class="value">—</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">—</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Development Notes</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant injury history documented across 5 assessed matches. Maintained availability in FA Youth Cup and U18 Premier League fixtures.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Development Stage: Mid-Adolescent</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>17 years old</strong> — significant physical development expected over next 3-4 years. SII (sprint intensity) cannot be reliably assessed until growth phase stabilises (typically 18-20). Mental metrics (MCS, CHR) are predictive at this age per Lars Hallengren framework. <strong>CLM 5.75 concern:</strong> composure may improve with physical maturity and match experience.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>CRS 9.67 — elite clutch response at U18 level (3 events, all positive)</strong> — Penalty conversion, solo goal, and decisive assist in high-pressure moments vs top-third opposition</li>
+      <li><strong>OBI 8.14 — strong off-ball intelligence (partial)</strong> — OBI_S 7.75 confirms space-creating movement; OBI_P 6.43 confirms positional anticipation</li>
+      <li><strong>DMA 7.22 — good decision-making (27 events, 4 matches)</strong> — Largest event sample in assessment; consistent quality in passing and movement decisions</li>
+      <li><strong>SOA 7.78 — excellent speed on action (9 events, 3 matches)</strong> — Quick execution after receiving, particularly in transition and tight spaces</li>
+      <li><strong>SPI 7.43 — solid spatial performance (7 events, 3 matches)</strong> — Finds pockets between lines, creates overloads through positioning</li>
+      <li><strong>CRK 7.71 — creative risk-taking validated (8 events)</strong> — Attempts innovative solutions, dribbles out of density, not afraid to fail</li>
+      <li><strong>Match balance passed</strong> — 3 top-third opponents, 1 away, 3 losing contexts = robust assessment environment</li>
+      <li><strong>England U17 international</strong> — National team recognition validates base quality</li>
+      <li><strong>Manchester United Academy</strong> — Elite youth development environment</li>
+      <li><strong>65 total events across 5 matches</strong> — Good sample size for youth assessment</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>CLM 5.75 — calmness below professional threshold</strong> — Technical errors under pressure, rushed decisions, loses composure when pressed. Primary developmental concern</li>
+      <li><strong>MCS 6.43 — moderate mental competence (7 events)</strong> — Mixed performance under pressure; avoids duels (MCS 3 events documented), loses physical contests</li>
+      <li><strong>CHR 7.5 — character provisional (2 events only)</strong> — Insufficient sample to validate character assessment. Cannot confirm leadership or mental strength</li>
+      <li><strong>OBI_T 10.0 — run timing based on 1 event only</strong> — Inflated by tiny sample; will regress with more data. Cannot claim elite run timing yet</li>
+      <li><strong>CRK 7.71 — only 2 matches sampled</strong> — Match spread pending; creative risk may vary against different defensive structures</li>
+      <li><strong>Physical profile entirely unknown</strong> — No validated sprint, acceleration, or recovery data. Cannot assess athletic ceiling</li>
+      <li><strong>Defensive contribution minimal</strong> — OBI_S events show some defensive work but OMS/DYN unscored. Work rate in transitions unknown</li>
+      <li><strong>Youth level only</strong> — All data from U18 football. Senior transition is a significant unknown</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>SII: 0/3 sub-metrics validated</strong> — No sprint intensity data. For a second striker, acceleration and top-end speed are critical. Cannot project senior level</li>
+      <li><strong>OMS: 0 events — transition speed unscored</strong> — Attack-to-defence and defence-to-attack transitions are vital for modern second strikers. No data</li>
+      <li><strong>DYN: 0 events — dynamism unscored</strong> — Positional switching, multi-zone effectiveness unknown. Static profile risk</li>
+      <li><strong>Physical intensity (PHYI) unknown</strong> — Lars Hallengren framework: PHYI develops 18-21. But baseline at 17 is needed for projection. Missing entirely</li>
+      <li><strong>Coachability (COACH) unscored</strong> — No training ground observation. Receptivity, retention, initiative unknown</li>
+      <li><strong>Senior pressure untested</strong> — CLM 5.75 at U18 suggests senior pressure could be overwhelming. No evidence he can handle professional intensity</li>
+      <li><strong>Aerial ability unscored</strong> — No heading, jump, or aerial duel events logged. Second strikers often need aerial presence</li>
+      <li><strong>Long-range shooting unscored</strong> — All goals/attempts from inside box or penalties. Outside-the-box threat unknown</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 7.1 — U18 SECOND STRIKER · ELITE CLUTCH + STRONG OFF-BALL · CALMNESS THE DEVELOPMENTAL FLOOR · PHYSICAL PROFILE UNKNOWN.</strong> JJ Gabriel is a <strong>17-year-old English second striker</strong> whose <strong>clutch response (CRS 9.67) and off-ball intelligence (OBI 8.14) are verified at youth elite level</strong>. DMA 7.22 and SOA 7.78 confirm he thinks quickly and executes decisively. However, <strong>CLM 5.75 is below the professional threshold</strong> — composure under pressure is the single biggest barrier to senior transition. <strong>SII, OMS, and DYN are completely unscored</strong> — without sprint intensity and transition data, any senior projection is speculative. <strong>Recommended pathway:</strong> (1) Intensive composure training and match exposure under pressure; (2) Complete SII scoring pass (minimum 3 matches); (3) OMS/DYN assessment in competitive U21/loan football; (4) Re-assess at age 18-19 with full metric complement. <strong>If CLM improves to 7.0+ and SII validates at 6.5+, projection rises to 7.8+ (Championship level). If CLM stagnates, ceiling is League One regardless of clutch quality.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>🏆</span> <strong>5 Matches Assessed — FA Youth Cup + U18 Premier League.</strong> All matches at LOG 1.8–2.2 (youth elite). T3 verification by Jim Totime across 16 metrics. 65 total events logged. Match balance passed.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Assessment Matches <span class="line"></span></div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/pk1lcd2f6hl9qnbl5wfwr/Manchester-City-Football-Club-U18-Manchester-United-Football-Club-U18.mp4?rlkey=hi9z67czrhxvwvy54898wlokz&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Man City U18 vs Man Utd U18 (M1)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">U18 PL · Away</span>
+          <span class="match-badge badge-pending">Losing</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>OBI_S 8, DMA 8/5, MCS 3×2.</strong> Away fixture vs top-third opposition. Mixed mental composure. 5 events.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/vwbre3d6b20mt6gw297iz/Manchester-United-Football-Club-U18-Crystal-Palace-Football-Club-U18.mp4?rlkey=vsliv9sbv3xvsw19vl7xhouo5&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Man Utd U18 vs Crystal Palace U18 (M2)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">U18 PL · Home</span>
+          <span class="match-badge badge-verified">CRS 10 GOAL</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>OBI_P 8, SPI 8/7, CRS 10 GOAL.</strong> Home win vs top-third. Goal confirmed. 8 events.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/99980c713qhfw09314bqt/Manchester-United-Football-Club-U18-Association-Football-Club-Sunderland-U18.mp4?rlkey=wh9n420cu1m4m85flhm3de29j&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Man Utd U18 vs Sunderland U18 (M3)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">FA Youth Cup · Home</span>
+          <span class="match-badge badge-verified">BEST MATCH ⭐</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>CLM 9, SPI 8, DMA 9, CRS 9 assist.</strong> Best match. 10 events. Composure and decision-making peaked.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/gcsghai478qagtma12qa2/England-U17-Israel-U17.mp4?rlkey=goc0tww54hk5mwfpvz3gtkg3a&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">England U17 vs Israel U17 (M4)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Euro U17 Qual · Home</span>
+          <span class="match-badge badge-pending">Mixed</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>OBI_S 8, OBI_P 6.4, CLM 5.75.</strong> Euro U17 Qualification · 28/03/2026. Calmness errors documented. 5 events.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/tzcheovhx0q7r5kiv3lzf/Manchester-United-Football-Club-Liverpool-Football-Club.mp4?rlkey=5huuua2uv2os9k12gu8ozfmjs&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Man Utd U18 vs Liverpool U18 (M5)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">U18 PL · Home</span>
+          <span class="match-badge badge-verified">⚽⚽ 2 GOALS</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>CRS 10, DMA 9/10, CRK 8, CLM 4.</strong> Penalty + incredible solo goal. Clutch showcase. 9 events.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Key Timestamps</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">M3 · Sunderland · Best Match</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--accent);">0'37</strong> — CLM 9: excellent control under pressure<br>
+          <strong style="color:var(--accent);">4'06</strong> — SPI 8: positioning between lines<br>
+          <strong style="color:var(--accent);">7'22</strong> — SOA 7: turn and shot under pressure<br>
+          <strong style="color:var(--accent);">37'49</strong> — OBI_P 8: recovery in midfield<br>
+          <strong style="color:var(--accent);">75'52</strong> — <strong style="color:var(--text-primary);">DMA 9 + CRS 9: decisive assist</strong>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">M5 · Liverpool · ⚽⚽ Goals</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">7'53</strong> — CRK 8: escapes density<br>
+          <strong style="color:var(--gold);">11'34</strong> — CRK 8: beats 4 players<br>
+          <strong style="color:var(--gold);">81'46</strong> — <strong style="color:var(--text-primary);">DMA 9: penalty conversion</strong><br>
+          <strong style="color:var(--gold);">86'05</strong> — <strong style="color:var(--text-primary);">DMA 10 + CRS 10: SOLO GOAL</strong><br>
+          <strong style="color:var(--gold);">88'47</strong> — SOA 7: turn and shot
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">M2 · Crystal Palace · CRS Goal</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--success);">13'15</strong> — OBI_P 8: ball recovery<br>
+          <strong style="color:var(--success);">27'24</strong> — SPI 8: between lines, pivot<br>
+          <strong style="color:var(--success);">36'00</strong> — SPI 3: control error (negative)<br>
+          <strong style="color:var(--success);">76'13</strong> — <strong style="color:var(--text-primary);">CRS 10: GOAL — depth run + finish</strong><br>
+          <strong style="color:var(--success);">81'57</strong> — DMA 8: combination play
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.1;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// T3 Radar
+(function() {
+  var el = document.getElementById('t3Radar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['SPI','OBI','CRS','DMA','SOA','CLM','MCS'],
+      datasets: [{
+        label: 'JJ Gabriel (7/12 confirmed)',
+        data: [7.43, 8.14, 9.67, 7.22, 7.78, 5.75, 6.43],
+        backgroundColor: 'rgba(139,0,0,0.2)',
+        borderColor: '#8B0000',
+        pointBackgroundColor: ['#1a7a3a','#a88010','#1a7a3a','#2e9e5a','#2e9e5a','#8a1020','#a88010'],
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['OBI/Reading','SPI/Spatial','DMA/Passing','CRS/Clutch','SOA/Speed','CLM/Calm','MCS/Mental'],
+      datasets: [{
+        label: 'JJ Gabriel (17)',
+        data: [8.14, 7.43, 7.22, 9.67, 7.78, 5.75, 6.43],
+        backgroundColor: 'rgba(139,0,0,0.2)',
+        borderColor: '#8B0000',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'U18 SS avg',
+        data: [6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Cruyff','Wenger','Guardiola','Bielsa','Menotti','Ferguson'],
+    datasets: [{
+      label: 'JJ Gabriel',
+      data: [8.8, 8.5, 8.2, 7.8, 7.5, 7.4],
+      backgroundColor: 'rgba(139,0,0,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#fbbf24','#27ae60','#6CABDD','#e07820','#3498db','#c8102e'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Scout 50% (7/12)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

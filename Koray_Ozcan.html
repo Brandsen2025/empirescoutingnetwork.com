@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koray Özcan | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;--lux-blue:#1e3a8a;--lux-blue-dim:rgba(30,58,138,0.15);--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}.hero-photo{position:absolute;inset:0;background:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJQC9eWxEkZmiXCzotQW_fY3zlJtTm-J9VMoYIs0xOdKVdVaQ2CruckdM&s=10') center 20%/cover no-repeat;filter:brightness(0.5) saturate(0.9);transition:transform 8s ease;}.hero:hover .hero-photo{transform:scale(1.03);}.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.15) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#FFFFFF 33%,#FFFFFF 66%,#dc2626 66%);z-index:10;}.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,#1e3a8a,#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}.champ-badge::before{content:'🇱🇺';font-size:0.8rem;}.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}.hero-meta .flag{font-size:1.1rem;}.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}.tag-club{background:var(--lux-blue-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}.tag-lux{background:rgba(30,58,138,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);}.tag-transfer{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.25);}
+.fga-dial-wrap{position:relative;width:140px;height:140px;flex-shrink:0;}.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;}.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}.tier-pill.t3{background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}.tab-bar-inner::-webkit-scrollbar{display:none;}.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}.tab-btn:hover{color:var(--text-secondary);}.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--lux-blue-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}.tab-panel{display:none;}.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;line-height:1.55;}.banner-proxy{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}.banner-lux{background:rgba(30,58,138,0.08);border:1px solid rgba(30,58,138,0.2);color:#60a5fa;}.banner-transfer{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.career-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}.career-node{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}.career-node.current{background:var(--lux-blue-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}.career-arrow{color:var(--text-tertiary);font-size:0.8rem;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.attr-row:last-child{border-bottom:none;}.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}.ac-green{color:var(--success);}.ac-yellow{color:var(--warning);}.ac-red{color:var(--danger);}.ac-pend{color:var(--pending);}.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}.circle-green{background:var(--success);}.circle-yellow{background:var(--warning);}.circle-red{background:var(--danger);}.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.t1-metric-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.t1-metric-row:last-child{border-bottom:none;}.t1-metric-code{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}.t1-metric-desc{font-size:0.78rem;color:var(--text-secondary);flex:1;}.t1-metric-bar-wrap{width:100px;flex-shrink:0;}.t1-metric-val{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+.t1-highlight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}.t1-hl-box{background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(30,58,138,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}.t1-hl-box.gold{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}.t1-hl-code{font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}.t1-hl-val{font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}.t1-hl-box.gold .t1-hl-val{color:var(--gold);}.t1-hl-pct{font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}.t1-hl-bar{height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--silver);}.t1-hl-box.gold .t1-hl-bar-fill{background:var(--gold);}
+.t1-group{margin-bottom:14px;}.t1-group-head{font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}.philo-row:last-child{border-bottom:none;}.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}.match-thumb{height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}.match-thumb::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center/80px no-repeat;}.match-thumb .play-icon{width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}.match-card:hover .play-icon{transform:scale(1.1);background:#1e3a8a;}.play-icon svg{width:18px;height:18px;fill:white;margin-left:3px;}.match-info{padding:16px;}.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}.badge-pending{background:rgba(90,96,112,0.12);color:var(--pending);}.badge-champ{background:rgba(30,58,138,0.12);color:var(--silver);}.badge-worldcup{background:rgba(251,191,36,0.12);color:var(--gold);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}.scout-verdict{background:var(--lux-blue-dim);border:1px solid rgba(30,58,138,0.2);}.scout-verdict h4{color:var(--silver);}.scout-box ul{list-style:none;padding:0;margin:0;}.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}.scout-box li::before{content:'—';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}.physical-item .label{color:var(--text-tertiary);}.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}.timeline-item{position:relative;padding-bottom:20px;}.timeline-item:last-child{padding-bottom:0;}.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid #1e3a8a;z-index:2;}.timeline-item.current::before{background:#1e3a8a;box-shadow:0 0 8px rgba(30,58,138,0.4);}.timeline-item.hist::before{background:var(--success);border-color:var(--success);}.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:#1e3a8a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}.timeline-item.hist .timeline-date{color:var(--success);}.timeline-item.champ .timeline-date{color:var(--gold);}.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}.radar-container canvas{width:100%!important;height:100%!important;}
+.weighting-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}.weighting-card{text-align:center;padding:14px;border-radius:8px;}.weighting-card.t3w{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.weighting-card.t2w{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.weighting-card.t1w{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);}.weighting-card .w-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-bottom:4px;}.weighting-card .w-value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;}.weighting-card.t3w .w-value{color:var(--success);}.weighting-card.t2w .w-value{color:var(--warning);}.weighting-card.t1w .w-value{color:var(--info);}.weighting-card .w-desc{font-size:0.7rem;color:var(--text-secondary);margin-top:4px;line-height:1.4;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.transfer-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}.transfer-row:last-child{border-bottom:none;}.transfer-club{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--text-primary);flex:1;}.transfer-status{font-size:0.72rem;color:var(--text-secondary);}.transfer-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tb-active{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}.tb-pending{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}.tb-rejected{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.cohort-box{background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(30,58,138,0.06));border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:16px;margin-bottom:16px;}.cohort-box h4{font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}.cohort-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}.cohort-item{text-align:center;padding:10px;background:rgba(10,10,15,0.4);border-radius:6px;}.cohort-item .c-label{font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}.cohort-item .c-value{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--gold);}.cohort-item .c-desc{font-size:0.65rem;color:var(--text-secondary);margin-top:2px;}
+.gk-metric-card{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;}
+.gk-metric-header{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
+.gk-metric-code{font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);}
+.gk-metric-name{font-size:0.78rem;color:var(--text-secondary);}
+.gk-metric-status{font-family:var(--font-heading);font-size:1.3rem;font-weight:700;margin-left:auto;}
+.gk-metric-body{font-size:0.72rem;color:var(--text-secondary);line-height:1.6;}
+@media(max-width:768px){.hero{height:440px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:110px;height:110px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.t1-metric-bar-wrap{width:60px;}.t1-metric-val{width:50px;}.weighting-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">UNA Strassen · BGL Ligue · Luxembourg</div>
+  <div class="jersey-watermark">67</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Mondorf</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">UNA Strassen #67</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Conference League</div>
+    </div>
+    <h1 class="hero-name">Koray Özcan</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇫🇷</span> France</span>
+      <span class="dot"></span>
+      <span>31 years</span>
+      <span class="dot"></span>
+      <span>176cm</span>
+      <span class="dot"></span>
+      <span>Left-footed</span>
+      <span class="dot"></span>
+      <span>GK</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">T3 Partial</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PARTIAL · 10/12 VALIDATED</span>
+          <span class="tag tag-club">UNA Strassen · #67</span>
+          <span class="tag tag-lux">BGL Ligue · Luxembourg</span>
+          <span class="tag tag-value">~€175K</span>
+          <span class="tag tag-info">Goalkeeper</span>
+          <span class="tag tag-gold">Goal-scoring GK · Mar 2025</span>
+          <span class="tag tag-lux">Conference League 2024–26</span>
+          <span class="tag tag-transfer">Contract until Jun 2028</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v4</div>
+          <div class="fga-score">6.8</div>
+          <div class="fga-status">ESTIMATED · BGL LIGUE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span style="flex-shrink:0;margin-top:2px;">⚠️</span>
+    <div><strong>TIER A ASSESSMENT · T3 PARTIAL · 10/12 GK METRICS VALIDATED — FGA_v3_GK_ESTIMATED.</strong> <strong>SDI (7.6 ✅), DMA (8.0 ✅), CHR (7.7 ✅), AER (8.0 ✅), SWE (8.0 ✅), DST (7.1 ✅), COM (8.7 ✅), CLM (8.3 ✅), CRS (4.0 ✅), CAT (8.0 ✅)</strong> are fully validated across sufficient events and matches. <strong style="color:var(--warning);">GPI composite remains provisional</strong> (GPI_A 6.7 ✅, GPI_P 6.7 ✅, GPI_S 0 events ⚠️). <strong style="color:var(--pending);">PEN (Penalty Intelligence) has 0 events logged.</strong> <strong style="color:var(--success);">MATCH BALANCE CHECK: PASSED ✅</strong> — 3 top-third opposition, 2 away matches, 4 losing-context matches. <strong style="color:var(--success);">FGA 6.8 estimated</strong> — directional assessment for a 31-year-old goalkeeper in Luxembourg's top tier.</div>
+  </div>
+  <div class="banner banner-lux">
+    <span style="flex-shrink:0;margin-top:2px;">🧤</span>
+    <div><strong>THE SWEEPER-KEEPER PROFILE — Left-footed, ball-playing goalkeeper with European experience.</strong> Born in <strong>Thonon-les-Bains, France</strong> on <strong>1 February 1995</strong>. A <strong>1.76m (5'9"), left-footed goalkeeper</strong> who profiles as a <strong>sweeper keeper</strong> and <strong>ball-playing distributor</strong>. Joined <strong>UNA Strassen from US Mondorf-les-Bains in 2021</strong> and has been first-choice since. Recorded <strong>15 clean sheets in 2024–25</strong> as UNA finished <strong>runners-up in the BGL Ligue</strong> — their highest ever finish. Scored a <strong>last-minute equalizer vs US Hostert (March 2025)</strong> — the first goalkeeper goal in the BGL Ligue since 2020. Has <strong>7 European appearances</strong> across three Conference League campaigns (KuPS, Dundee United, La Fiorita, Partizan). Market value <strong>~€175K</strong> (Transfermarkt, Jul 2026). Contract until <strong>30 June 2028</strong>.</div>
+  </div>
+  <div class="banner banner-gold">
+    <span style="flex-shrink:0;margin-top:2px;">⚽</span>
+    <div><strong>GOAL-SCORING GOALKEEPER · EUROPEAN EXPERIENCE · VICE-CHAMPION.</strong> Özcan is one of the few goalkeepers in European football with a <strong>recent senior goal</strong> — a half-volley off the crossbar in the 95th minute to rescue a point vs Hostert. At 31, he is in his <strong>prime goalkeeping years</strong> and has been a key figure in UNA Strassen's rise from mid-table to <strong>vice-champions and European qualifiers</strong>. His distribution (DST 7.1), aerial command (AER 8.0), and communication (COM 8.7) are the standout validated strengths from the video pass.</div>
+  </div>
+  <div class="banner banner-danger">
+    <span style="flex-shrink:0;margin-top:2px;">🚨</span>
+    <div><strong>T3 VALIDATION GAP · 2/12 METRICS PENDING · CRS 4.0 IS A CONCERN.</strong> The GK-specific T3 assessment is <strong>83% complete</strong> but two metrics remain unresolved: <strong>GPI_S (Set-Piece Organisation, 0 events)</strong> and <strong>PEN (Penalty Intelligence, 0 events)</strong>. More critically, <strong>CRS (Clutch Response Score) validated at 4.0</strong> — below professional standard — with evidence including a goal conceded on a free-kick shot in the middle of his goal with no reaction, and a third goal against Partizan where he could not save a header. <strong>Full recruitment recommendation requires context on these clutch-moment failures.</strong></div>
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Mondorf</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">UNA Strassen #67</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Conference League</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6.8</div><div class="label">Est. FGA (Absolute)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">31</div><div class="label">Years Old</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">53+</div><div class="label">UNA Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">15</div><div class="label">Clean Sheets 24/25</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">1</div><div class="label">Goal (GK)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">~€175K</div><div class="label">Market Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">7</div><div class="label">European Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">2028</div><div class="label">Contract Expires</div></div>
+  </div>
+
+  <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a1a3a" stroke="#4a4a7c" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#4a4a7c" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a4a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="50" cy="170" r="16" fill="#1e3a8a" stroke="#fff" stroke-width="2.5"/>
+      <text x="50" y="175" text-anchor="middle" fill="#fff" font-family="Oswald,sans-serif" font-size="14" font-weight="700">1</text>
+      <text x="50" y="200" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">GK — PRIMARY</text>
+      <circle cx="120" cy="170" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="120" y="174" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">2</text>
+      <text x="120" y="150" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">SWEEPER — HIGH LINE</text>
+      <circle cx="50" cy="100" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="50" y="104" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">3</text>
+      <text x="50" y="80" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">BUILD-UP INITIATOR</text>
+      <rect x="18" y="18" width="180" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(30,58,138,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#1e3a8a" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary / observed roles</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: Goalkeeper · Profile: Sweeper-keeper / Ball-playing distributor</div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Koray Özcan</strong> is a <strong>31-year-old French goalkeeper</strong> born in <strong>Thonon-les-Bains, France</strong> on 1 February 1995. At <strong>1.76m (5'9")</strong> and <strong>left-footed</strong>, he is a <strong>sweeper-keeper</strong> who thrives as a <strong>ball-playing distributor</strong> from the back. Joined <strong>UNA Strassen from US Mondorf-les-Bains in 2021</strong> on a free transfer and has been first-choice ever since. In <strong>2024–25 he kept 15 clean sheets</strong> as UNA achieved their <strong>highest-ever BGL Ligue finish (2nd place)</strong> and qualified for the <strong>Conference League</strong>. Scored a dramatic <strong>95th-minute equalizer vs US Hostert in March 2025</strong> — the first goalkeeper goal in the BGL Ligue since 2020. Has <strong>7 European appearances</strong> across three campaigns. Market value <strong>~€175K</strong>. Contract until <strong>30 June 2028</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--success);">10/12 GK metrics fully validated.</strong> <strong>SDI</strong> — 6.9/8.3/7.6 → <strong>7.6 ✅</strong>. <strong>DMA</strong> — 4 events, 4 matches, <strong>8.0 ✅</strong>. <strong>CHR</strong> — 3 events, 3 matches, <strong>7.7 ✅</strong>. <strong>AER</strong> — 4 events, 3 matches, <strong>8.0 ✅</strong>. <strong>SWE</strong> — 3 events, 3 matches, <strong>8.0 ✅</strong>. <strong>DST</strong> — 15 events, 4 matches, <strong>7.1 ✅</strong>. <strong>COM</strong> — 3 events, 3 matches, <strong>8.7 ✅</strong>. <strong>CLM</strong> — 3 events, 3 matches, <strong>8.3 ✅</strong>. <strong>CRS</strong> — 3 events, 3 matches, <strong>4.0 ✅</strong>. <strong>CAT</strong> — 3 events, 2 matches, <strong>8.0 ✅</strong>. <strong style="color:var(--pending);">2 metrics pending:</strong> GPI_S (0 events), PEN (0 events). <strong style="color:var(--warning);">GPI composite provisional:</strong> GPI_A 6.7 ✅, GPI_P 6.7 ✅, GPI_S pending. <strong style="color:var(--success);">VIDEO COMPLETENESS: 10/12 — FGA_v3_GK_Estimated.</strong> <strong style="color:var(--success);">MATCH BALANCE CHECK: PASSED ✅.</strong>
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 6.8 — Luxembourg Goalkeeper Assessment · BGL Ligue Level · T3 83% Complete · Match Balance Passed.</strong> The T1 data reveals a <strong>31-year-old established first-choice goalkeeper</strong> for a vice-champion Luxembourg side with <strong>European experience and a goal-scoring record</strong>. His <strong>T3 validation now covers 10/12 GK metrics</strong> with standout scores in <strong>COM (8.7), CLM (8.3), AER (8.0), SWE (8.0), CAT (8.0), and DMA (8.0)</strong> — confirming excellent communication, calmness, aerial command, sweeper instincts, catching technique, and decision-making. <strong>SDI composite validates at 7.6</strong> (SDI_R 8.3 particularly strong). <strong style="color:var(--success);">VIDEO COMPLETENESS: 10/12 — FGA_v3_GK_Estimated at 6.8.</strong> Set against this: <strong>CRS (Clutch Response) scores 4.0</strong> — a significant concern with evidence of goals conceded in decisive moments without reaction (free-kick in middle of goal, header vs Partizan). <strong>GPI_S (Set-Piece Organisation) and PEN (Penalty Intelligence) remain unvalidated.</strong> At 31, Özcan is a <strong>proven BGL Ligue starter</strong> whose distribution and aerial game could interest higher-LOG clubs seeking a sweeper-keeper, but the CRS score and 1.76m frame are limiting factors. <strong>Priority T3 focus:</strong> Complete GPI_S and PEN scoring. <strong>Recommended for:</strong> BGL Ligue and Conference League-level recruitment intelligence. Caution for clubs requiring elite clutch performance.
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — UNA Strassen (BGL Ligue) <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Current Club</strong></td><td>UNA Strassen</td><td>BGL Ligue (Luxembourg · 1st tier · LOG ~2.0)</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>Joined</strong></td><td>Jul 2021</td><td>Free transfer from US Mondorf-les-Bains</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>Contract</strong></td><td>Until Jun 2028</td><td>Extended through 2028</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>Jersey Number</strong></td><td>#67</td><td>UNA Strassen first-choice GK</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Position</strong></td><td>Goalkeeper</td><td>Left-footed · Sweeper-keeper · Ball-playing</td><td>FootballTransfers</td></tr>
+        <tr><td><strong>Height</strong></td><td>176cm (5'9")</td><td>Transfermarkt consensus</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>Market Value</strong></td><td>~€175K</td><td>Transfermarkt (Jul 2026)</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>2025/26 BGL Apps</strong></td><td>24</td><td>First-choice goalkeeper</td><td>Soccerway</td></tr>
+        <tr><td><strong>2024/25 BGL Apps</strong></td><td>29</td><td>15 clean sheets · Vice-champion</td><td>Mental.lu interview</td></tr>
+        <tr><td><strong>Goals (GK)</strong></td><td>1</td><td>Equalizer vs Hostert · Mar 2025</td><td>RTL Today</td></tr>
+        <tr><td><strong>European Apps</strong></td><td>7</td><td>Conference League 2024–26</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Discipline</strong></td><td>Minimal</td><td>No major incidents flagged</td><td>Soccerway</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Club Career Snapshot <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Period</th><th>Club</th><th>League</th><th>Apps</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2015–2017</strong></td><td>US Mondorf-les-Bains</td><td>BGL Ligue</td><td>2</td><td>Early career</td></tr>
+        <tr><td><strong>2017–2021</strong></td><td>Various / Free agent</td><td>—</td><td>—</td><td>Career gap / lower leagues</td></tr>
+        <tr><td><strong>2021–</strong></td><td>UNA Strassen</td><td>BGL Ligue</td><td>53+</td><td>First-choice GK since arrival</td></tr>
+        <tr><td><strong>2024–25</strong></td><td>UNA Strassen</td><td>BGL Ligue</td><td>29</td><td>15 clean sheets · 2nd place</td></tr>
+        <tr><td><strong>2025–26</strong></td><td>UNA Strassen</td><td>BGL Ligue</td><td>24</td><td>Ongoing</td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Club Career Total (UNA)</strong></td><td><strong>53+</strong></td><td>1 goal · 7 European apps</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Neuer / Sweeper-Keeper</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Van der Sar / Calm Distribution</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.6</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Cruyff / Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Buffon / Tradition</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#1e3a8a;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Schmeichel / Presence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:#1e3a8a;"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Lobanovskyi / Scientific</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#1e3a8a;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Kahn / Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#1e3a8a;"></div></div></div><div class="philo-score">5.8</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Modern Sweeper-Keeper — Distribution-First, Aerial Command"</strong> — Özcan's highest philosophy fit is <strong>Neuer / Sweeper-Keeper (7.8)</strong>, reflecting his comfort outside the box, participation in build-up, and tendency to act as an 11th outfield player. Van der Sar (7.6) reflects his <strong>calm distribution and left-footed passing range</strong>. Cruyff (7.2) and Guardiola (7.0) confirm his value in <strong>positional, ball-playing systems</strong> that require the goalkeeper to initiate attacks. His <strong>lowest fit is Kahn / Intensity (5.8)</strong> — he is not a dominant vocal presence or aggressive line-leader in the Kahn mould. The critical question: <strong>can his shot-stopping (SDI) and clutch response (CRS 4.0) hold at a step up to a higher LOG?</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Sweeper-Keeper</span>
+          <span class="tag tag-club">Ball-Playing GK</span>
+          <span class="tag tag-lux">Left-Footed</span>
+          <span class="tag tag-info">#67</span>
+          <span class="tag tag-gold">Goal-Scoring GK</span>
+          <span class="tag tag-lux">European Experience</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Shot Stopping · EST</h3>
+      <div class="attr-row"><span class="name">SDI_E — Explosive Save Mechanics (6 events, 5 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 6.9 ✅</span></div>
+      <div class="attr-row"><span class="name">SDI_R — Reflex Save Speed (3 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.3 ✅</span></div>
+      <div class="attr-row"><span class="name">SDI_F — Footwork & Base Position (6 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.6 ✅</span></div>
+      <div class="attr-row"><span class="name">SDI COMPOSITE</span><span class="score ac-green"><span class="circle circle-green"></span> 7.6 ✅</span></div>
+      <div class="attr-row"><span class="name">GPI_A — Shot Anticipation (3 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 6.7 ✅</span></div>
+      <div class="attr-row"><span class="name">GPI_P — Positional Coverage (3 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 6.7 ✅</span></div>
+      <div class="attr-row"><span class="name">GPI_S — Set-Piece Organisation (0 events)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⚠️</span></div>
+      <div class="attr-row"><span class="name">GPI COMPOSITE (provisional — S pending)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.4 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Distribution & Aerial · EST</h3>
+      <div class="attr-row"><span class="name">DST — Distribution Accuracy (15 events, 4 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.1 ✅</span></div>
+      <div class="attr-row"><span class="name">AER — Aerial Dominance (4 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">SWE — Sweeper Actions (3 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">CAT — Catching Technique (3 events, 2 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">COM — Communication (3 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.7 ✅</span></div>
+      <div class="attr-row"><span class="name">PEN — Penalty Intelligence (0 events)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — ⚠️</span></div>
+      <div class="attr-row"><span class="name">Build-Up Participation (observed at 30m)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Long Passing Accuracy (mixed results observed)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ✅</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Physical · EST</h3>
+      <div class="attr-row"><span class="name">CHR — Character (3 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.7 ✅</span></div>
+      <div class="attr-row"><span class="name">DMA — Decision Making (4 events, 4 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">CLM — Calmness (3 events, 3 matches ✅)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.3 ✅</span></div>
+      <div class="attr-row"><span class="name">CRS — Clutch Response (3 events, 3 matches ✅)</span><span class="score ac-red"><span class="circle circle-red"></span> 4.0 ✅</span></div>
+      <div class="attr-row"><span class="name">COACH Coachability (anecdotal — seeks improvement)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Durability (no major injuries flagged)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Discipline (clean record)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Leadership / Vocal Command (limited evidence)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="weighting-grid">
+    <div class="weighting-card t3w">
+      <div class="w-label">Tier 3 · Scout Intelligence</div>
+      <div class="w-value">50%</div>
+      <div class="w-desc">Character, discipline, coachability, shot-stopping, distribution — scout-observed only</div>
+    </div>
+    <div class="weighting-card t2w">
+      <div class="w-label">Tier 2 · Composite Intelligence</div>
+      <div class="w-value">30%</div>
+      <div class="w-desc">Analytical patterns, cross-league context, development trajectories</div>
+    </div>
+    <div class="weighting-card t1w">
+      <div class="w-label">Tier 1 · Statistical Foundation</div>
+      <div class="w-value">20%</div>
+      <div class="w-desc">Transfermarkt, FBref, Sofascore — automated baseline</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Transfermarkt · Sofascore · FBref · The Analyst</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">AGE</div><div class="t1-hl-val">31</div><div class="t1-hl-pct">years · Prime GK years</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">APPS</div><div class="t1-hl-val">53+</div><div class="t1-hl-pct">UNA Strassen · BGL Ligue</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:55%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">CS</div><div class="t1-hl-val">15</div><div class="t1-hl-pct">Clean sheets · 2024-25</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">GOALS</div><div class="t1-hl-val">1</div><div class="t1-hl-pct">GK goal · Mar 2025</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:20%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">EURO</div><div class="t1-hl-val">7</div><div class="t1-hl-pct">Conference League apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:35%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">UNA Strassen (2025/26 · BGL Ligue)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">BGL Ligue · 24</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--success)"></div></div></div><span class="t1-metric-val">24</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CS</span><span class="t1-metric-desc">Clean sheets · TBC</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--success)"></div></div></div><span class="t1-metric-val">TBC</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Minutes · 2,160 (25/26)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--info)"></div></div></div><span class="t1-metric-val">2,160</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SV%</span><span class="t1-metric-desc">Save % · 85.7 (25/26)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--success)"></div></div></div><span class="t1-metric-val">85.7</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: ~2.0</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> BGL Ligue (Luxembourg · 1st tier)<br>
+          <strong style="color:var(--text-primary);">Club:</strong> UNA Strassen<br>
+          <strong style="color:var(--text-primary);">Joined:</strong> Jul 2021 (free transfer)<br>
+          <strong style="color:var(--text-primary);">Role:</strong> First-choice goalkeeper, #67<br>
+          <strong style="color:var(--success);">15 clean sheets in 2024-25 vice-champion season</strong><br><br>
+          <strong style="color:var(--gold);">LOG ~2.0</strong> represents the Luxembourg top flight. Combined with Conference League qualifying minutes (LOG ~3.0-3.5), Özcan has step-up-in-level data points. The open question is whether his tools translate to a higher European level given his age (31) and the CRS concern.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Partial · 10/12 GK Metrics Confirmed · LOG ~2.0 · FGA_v3_GK_Estimated</h3>
+    <div class="grid-3">
+      <div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">GPI</span><span class="gk-metric-name">Goal Protection Intelligence</span><span class="gk-metric-status" style="color:var(--warning);">⚠️</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">GPI_A — VALIDATED (3 events, 3 matches) — 6.7</strong><br>
+            <strong style="color:var(--success);">GPI_P — VALIDATED (3 events, 3 matches) — 6.7</strong><br>
+            <strong style="color:var(--pending);">GPI_S — VIDEO_PENDING (0 events)</strong><br>
+            <strong style="color:var(--warning);">GPI COMPOSITE — 6.4 (provisional, GPI_S estimated at 5.0)</strong><br><br>
+            Shot anticipation and positional coverage are validated at competent professional levels. The Partizan match provided strong GPI_A evidence (excellent outing to prevent shot, 9; good save on free-kick, 9). Set-piece organisation remains unobserved.
+          </div>
+        </div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">SDI</span><span class="gk-metric-name">Shot Defence Intensity</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">SDI_E — VALIDATED (6 events, 5 matches) — 6.9</strong><br>
+            <strong style="color:var(--success);">SDI_R — VALIDATED (3 events, 3 matches) — 8.3</strong><br>
+            <strong style="color:var(--success);">SDI_F — VALIDATED (6 events, 3 matches) — 7.6</strong><br>
+            <strong style="color:var(--success);">SDI COMPOSITE — 7.6 ✅</strong><br><br>
+            Reflex save speed is the standout (8.3) — includes an unbelievable save on a volley deflected from a corner (10) and a good reflex on a rebound vs Partizan (8). Footwork and explosive mechanics are solid professional standard.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">AER</span><span class="gk-metric-name">Aerial Dominance</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">AER — VALIDATED (4 events, 3 matches) — 8.0</strong><br><br>
+            Evidence includes: good timing on corners to punch the ball away (8), good presence on a corner with foul committed (8), good timing on a corner to punch away (8), aerial dominance with authority vs Partizan (8). Consistent aerial command across all observed matches.
+          </div>
+        </div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">DST</span><span class="gk-metric-name">Distribution Accuracy</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">DST — VALIDATED (15 events, 4 matches) — 7.1</strong><br><br>
+            Evidence includes: long passes successful (8-9), quick distribution (8), through pass after feint (9), hand-raising distribution (8), but also several inaccurate long passes under no pressure (2-3). Mixed accuracy — functional with flashes of quality. Short distribution under pressure is competent.
+          </div>
+        </div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">SWE</span><span class="gk-metric-name">Sweeper Actions</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">SWE — VALIDATED (3 events, 3 matches) — 8.0</strong><br><br>
+            Evidence includes: build-up participation at 30m shouting at teammates to play forward (8), excellent outing outside his area and clearance (9), build-up participation vs La Fiorita (7). Shows consistent sweeper-keeper instincts across multiple matches.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">COM</span><span class="gk-metric-name">Communication</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">COM — VALIDATED (3 events, 3 matches) — 8.7</strong><br><br>
+            Evidence includes: shouting at teammates to play forward from 30m (9), asking defence to stay quiet (8), instructing teammate to play free (9). Vocal, specific, and directional — not generic "keeper!" calls.
+          </div>
+        </div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">CLM</span><span class="gk-metric-name">Calmness</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">CLM — VALIDATED (3 events, 3 matches) — 8.3</strong><br><br>
+            Evidence includes: excellent through pass after feint under pressure (9), hand-raising distribution after aborted action (8), asking defence to stay quiet (8). Performance unaffected by scoreline or pressure.
+          </div>
+        </div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">CRS</span><span class="gk-metric-name">Clutch Response Score</span><span class="gk-metric-status" style="color:var(--danger);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--danger);">CRS — VALIDATED (3 events, 3 matches) — 4.0</strong><br><br>
+            Evidence includes: stood still on shot that hit post and went in (4), goal against on free-kick in middle of goal with no reaction (4), third goal vs Partizan — could not save header (4). <strong>Consistent pattern of non-reaction in decisive moments.</strong> This is the single biggest concern on the card.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:10px;">
+      <div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">DMA</span><span class="gk-metric-name">Decision Making</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">DMA — VALIDATED (4 events, 4 matches) — 8.0</strong><br><br>
+            Evidence includes: curious decision to clear instead of catch (6), through pass successful (8), through pass successful right foot under pressure (9), long pass successful (9). Generally correct decisions with high-quality distribution choices.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">CHR</span><span class="gk-metric-name">Character</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">CHR — VALIDATED (3 events, 3 matches) — 7.7</strong><br><br>
+            Evidence includes: kept ball in hands despite opponent trying to catch it after goal (7), asked defence to stay quiet (8), first player to comfort Agovic after red card vs Partizan (8). Positive body language and team-first mentality.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="gk-metric-card">
+          <div class="gk-metric-header"><span class="gk-metric-code">CAT</span><span class="gk-metric-name">Catching Technique</span><span class="gk-metric-status" style="color:var(--success);">✅</span></div>
+          <div class="gk-metric-body">
+            <strong style="color:var(--success);">CAT — VALIDATED (3 events, 2 matches) — 8.0</strong><br><br>
+            Evidence includes: good outing to dive and clear ball in throw-in (9), good ball catching (7), aerial dominance with authority (8). Two-handed clean claims. One event marked as anti-indicator but scored highly — likely a data-entry classification issue.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+        <strong style="color:var(--text-primary);">VIDEO COMPLETENESS SUMMARY:</strong><br><br>
+        <span style="color:var(--success);">✓</span> SDI_E — 6 events, 5 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> SDI_R — 3 events, 3 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> SDI_F — 6 events, 3 matches ✅<br>
+        <span style="color:var(--success);">✓</span> GPI_A — 3 events, 3 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> GPI_P — 3 events, 3 matches ✅ &nbsp;&nbsp; <span style="color:var(--pending);">⚠</span> GPI_S — 0 events<br>
+        <span style="color:var(--success);">✓</span> DMA — 4 events, 4 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> CHR — 3 events, 3 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> AER — 4 events, 3 matches ✅<br>
+        <span style="color:var(--success);">✓</span> SWE — 3 events, 3 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> DST — 15 events, 4 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> COM — 3 events, 3 matches ✅<br>
+        <span style="color:var(--success);">✓</span> CLM — 3 events, 3 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> CRS — 3 events, 3 matches ✅ &nbsp;&nbsp; <span style="color:var(--success);">✓</span> CAT — 3 events, 2 matches ✅<br>
+        <span style="color:var(--pending);">⚠</span> PEN — 0 events<br><br>
+        <strong style="color:var(--success);">10/12 GK metrics confirmed</strong> across 5 matches (65 total events)<br><br>
+        <strong style="color:var(--success);">VIDEO COMPLETENESS: 10/12 — FGA_v3_GK_Estimated.</strong><br>
+        <strong style="color:var(--success);">MATCH BALANCE CHECK: PASSED ✅</strong> (3 top-third, 2 away, 4 losing)<br><br>
+        <strong>Recommended:</strong> Complete GPI_S (set-piece organisation) and PEN (penalty intelligence) scoring. These are the final two metrics needed for full FGA unlock.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span style="flex-shrink:0;margin-top:2px;">ℹ️</span>
+    <div>CROSS-LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 6.8 (ABSOLUTE). All figures are algorithmic estimates derived from Tier 1 data and T3 validation — <strong>10 of 12 GK metrics scout-validated</strong>. BGL Ligue (LOG ~2.0) is the Luxembourg top tier. <strong>Critical:</strong> Özcan is 31 with an established physical profile; these projections represent his <strong>current observed level</strong>. The CRS score (4.0) and 1.76m frame are limiting factors for top-5 league projection. <strong style="color:var(--warning);">Downward-move cap:</strong> For target leagues weaker than the player's current level, projected FGA is capped at the base score.</div>
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality. Özcan's <strong style="color:var(--text-primary);">6.8 FGA is an absolute composite estimate</strong> for his current BGL Ligue level — weighted toward his 15 clean sheets in 29 apps, 7 European appearances, and validated T3 metrics (COM 8.7, CLM 8.3, AER 8.0, SDI 7.6, DST 7.1). At 31, <strong style="color:var(--success);">he is at his performance peak</strong>, which means these projections represent his ceiling. The CRS concern (4.0) and height (1.76m) may cap his upward mobility regardless of technical quality. These projections represent what he would score <strong>if transferred today</strong>.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current — BGL Ligue</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇱🇺 Luxembourg</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">6.8</div>
+      <div class="label">UNA Strassen · LOG ~2.0 · 1st tier</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Pro League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇪 Belgium</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.2</div>
+      <div class="label">Tier 2.6 · Distribution fit high</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — 2. Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Germany</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.0</div>
+      <div class="label">Tier 2.7 · Sweeper-keeper friendly</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Netherlands</div>
+      <div class="value" style="font-size:2.1rem;color:var(--warning);">4.9</div>
+      <div class="label">Tier 2.8 · Ball-playing GK demand</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Assessment</h3>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      These projections are <strong>directional T1+T3 estimates</strong>, not scouted verdicts. Unlike a youth prospect, Özcan's file is defined by <strong>current level, not trajectory</strong> — at 31, what you see is largely what you get. His validated distribution (DST 7.1) and aerial command (AER 8.0) suggest competence in leagues that value ball-playing goalkeepers (Netherlands, Belgium, Germany). His <strong>CRS (Clutch Response) at 4.0 is the critical limiting factor</strong> — clubs in higher-LOG leagues demand goalkeepers who rise in decisive moments, and the evidence suggests Özcan does the opposite. His <strong>1.76m height is also below elite European standard</strong> (1.90m+ is the norm for top-5 leagues). <strong style="color:var(--warning);">Recommended next step:</strong> complete GPI_S and PEN scoring before any cross-league recommendation is issued. For a club seeking a <strong>short-term sweeper-keeper in a possession-based system</strong>, the Pro League or 2. Bundesliga could be viable if the CRS concern is contextualised (e.g., defensive organisation around him, not relying on individual heroics).
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Neuer / Sweeper-Keeper</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Van der Sar / Calm Distribution</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.6</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Cruyff / Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#1e3a8a;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Buffon / Tradition</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#1e3a8a;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Schmeichel / Presence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:#1e3a8a;"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Lobanovskyi / Scientific</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#1e3a8a;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Kahn / Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#1e3a8a;"></div></div></div><div class="philo-score">5.8</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        Özcan's philosophy profile is <strong>heavily skewed toward modern sweeper-keeper and distribution systems</strong>. Neuer (7.8) and Van der Sar (7.6) as the top two fits is the ideal profile for a <strong>ball-playing goalkeeper</strong> — it suggests his game is built on <strong>footwork, calm distribution, and comfort outside the box</strong> rather than pure shot-stopping dominance. The Cruyff (7.2) and Guardiola (7.0) fits reflect his capacity to operate as an <strong>11th outfield player in possession-based systems</strong>. His <strong>low Kahn (5.8) and Mourinho (5.2) scores are not weaknesses</strong> — they simply confirm he is a technical distributor, not an aggressive vocal commander or pragmatic defensive organizer. For recruitment purposes: <strong>clubs running possession-based, high-line, or sweeper-keeper systems should prioritize Özcan</strong>; clubs seeking a dominant box commander or aggressive shot-stopper should look elsewhere.
+      </p>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="card">
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      Not yet computed — requires a comparison pool of BGL Ligue goalkeepers with 15+ starts in 2025-26. Recommend building this once T3 scoring reaches 12/12 metrics, so the comparison is scout-validated rather than purely statistical. For European context, recommend cross-referencing with Conference League qualifying goalkeeper data.
+    </p>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline">
+        <div class="timeline-item hist"><div class="timeline-date">1995 · Born</div><div class="timeline-text"><strong>Thonon-les-Bains, France.</strong> French nationality. Left-footed.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2015–2017 · Mondorf</div><div class="timeline-text"><strong>US Mondorf-les-Bains.</strong> Early professional appearances in BGL Ligue. 2 apps recorded.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2017–2021 · Career Gap</div><div class="timeline-text"><strong>Lower leagues / free agent periods.</strong> Limited recorded data. Path back to top-flight football via UNA Strassen.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Jul 2021 · UNA Strassen</div><div class="timeline-text"><strong>Joined UNA Strassen on a free transfer.</strong> Immediately established as first-choice goalkeeper. Became a key figure in the club's rise.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2023–24 · Europe</div><div class="timeline-text"><strong>First European qualification.</strong> UNA Strassen qualified for the Conference League (1st Qualifying Round) after finishing 6th, elevated due to licensing issues at other clubs.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2024–25 · Vice-Champion</div><div class="timeline-text"><strong>UNA Strassen finished 2nd in BGL Ligue.</strong> Özcan kept <strong>15 clean sheets</strong> and scored <strong>1 goal</strong> (equalizer vs Hostert, March 2025). Qualified for Conference League Q2.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2024–25 · Conference League</div><div class="timeline-text"><strong>European debut vs KuPS (Finland).</strong> 0-0 home draw, 0-5 away loss. First taste of European football.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2025–26 · Conference League</div><div class="timeline-text"><strong>Faced Dundee United (Scotland).</strong> Lost 0-2 on aggregate. Higher-quality opposition than previous campaign.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2026–27 · Conference League</div><div class="timeline-text"><strong>Beat La Fiorita (San Marino) 3-0 on aggregate.</strong> Advanced to Q2 vs Partizan Belgrade (0-4 away loss, home leg pending as of Jul 2026).</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Jul 2026 · Contract</div><div class="timeline-text"><strong>Contract runs until 30 June 2028.</strong> Established as UNA's senior GK with European experience. New stadium opened Oct 2025.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Period</th><th>Club</th><th>League</th><th>Apps</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2015–2017</strong></td><td>US Mondorf-les-Bains</td><td>BGL Ligue</td><td>2</td><td>Early career</td></tr>
+          <tr><td><strong>2021–2024</strong></td><td>UNA Strassen</td><td>BGL Ligue</td><td>—</td><td>First-choice GK</td></tr>
+          <tr><td><strong>2024–25</strong></td><td>UNA Strassen</td><td>BGL Ligue</td><td>29</td><td>15 clean sheets · 1 goal</td></tr>
+          <tr><td><strong>2025–26</strong></td><td>UNA Strassen</td><td>BGL Ligue</td><td>24</td><td>Ongoing</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Club Career Total (UNA)</strong></td><td><strong>53+</strong></td><td>1 goal · 7 European apps</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">European Record</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Competition</th><th>Round</th><th>Opponent</th><th>Aggregate</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2024–25</strong></td><td>Conference League</td><td>Q1</td><td>KuPS (Finland)</td><td>0-5</td></tr>
+          <tr><td><strong>2025–26</strong></td><td>Conference League</td><td>Q2</td><td>Dundee United (Scotland)</td><td>0-2</td></tr>
+          <tr><td><strong>2026–27</strong></td><td>Conference League</td><td>Q1</td><td>La Fiorita (San Marino)</td><td>3-0 ✅</td></tr>
+          <tr><td><strong>2026–27</strong></td><td>Conference League</td><td>Q2</td><td>Partizan (Serbia)</td><td>0-4 (pending)</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Physical & Medical Panel</h3>
+      <div class="grid-2">
+        <div class="physical-card">
+          <h4>Physical Profile</h4>
+          <div class="physical-grid">
+            <div class="physical-item"><span class="label">Height</span><span class="value">176cm (5'9")</span></div>
+            <div class="physical-item"><span class="label">Weight</span><span class="value">70kg</span></div>
+            <div class="physical-item"><span class="label">Preferred Foot</span><span class="value">Left</span></div>
+            <div class="physical-item"><span class="label">Position</span><span class="value">Goalkeeper</span></div>
+            <div class="physical-item"><span class="label">Age</span><span class="value">31</span></div>
+            <div class="physical-item"><span class="label">Build</span><span class="value">Athletic / Lean</span></div>
+          </div>
+        </div>
+        <div class="card" style="margin:0;">
+          <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:16px;">Medical & Durability</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+            <strong style="color:var(--success);">Clean injury record through 53+ senior appearances at UNA.</strong> No major injuries, no surgeries flagged. Maintained first-choice status for 4+ consecutive seasons. At 31, he is in his <strong>prime goalkeeping years</strong> with potentially 4-5 seasons remaining at this level. <strong style="color:var(--warning);">Height note:</strong> At 1.76m, he is on the shorter side for elite European goalkeepers (average ~1.90m), which may limit his projection to top-5 leagues regardless of technical quality. Best suited to leagues where distribution and footwork are prioritized over pure aerial dominance.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Established first-choice goalkeeper for a top-half Luxembourg side with European experience.</strong> 53+ apps, 15 clean sheets in a vice-champion season, 7 European appearances — proven durability at his level.</li>
+      <li><strong>Goal-scoring goalkeeper — rare and valuable trait.</strong> His 95th-minute equalizer vs Hostert (March 2025) demonstrates mentality, technique under pressure, and willingness to contribute in attacking moments.</li>
+      <li><strong>European experience across three campaigns.</strong> Conference League qualifiers against KuPS, Dundee United, La Fiorita, and Partizan — genuine step-up-in-level data points.</li>
+      <li><strong>Aerial dominance validated at 8.0 (4 events, 3 matches).</strong> Consistent timing on crosses, punches with purpose, and presence in crowded boxes. Added aerial dominance with authority vs Partizan.</li>
+      <li><strong>Communication validated at 8.7 (3 events, 3 matches).</strong> Vocal, specific, and directional — shouts instructions from 30m, asks defence to stay quiet, instructs teammates to play free. Elite-level communication for his level.</li>
+      <li><strong>Calmness validated at 8.3 (3 events, 3 matches).</strong> Performance unaffected by scoreline or pressure. Excellent through pass after feint under pressure (9) is a high-composure moment.</li>
+      <li><strong>Decision-making validated at 8.0 (4 events, 4 matches).</strong> Generally correct decisions with high-quality distribution choices. Through passes under pressure scored 8-9.</li>
+      <li><strong>Character validated at 7.7 (3 events, 3 matches).</strong> Positive body language, team-first mentality, first to comfort sent-off teammate vs Partizan.</li>
+      <li><strong>SDI_R (Reflex Save Speed) at 8.3 — elite for his level.</strong> Unbelievable save on volley deflected from corner (10) and good reflex on rebound vs Partizan (8).</li>
+      <li><strong>Left-footed — tactical advantage for build-up.</strong> Natural left-footed distribution opens different passing angles and is sought after in modern positional systems.</li>
+      <li><strong>Contract until 2028 — stability and commitment.</strong></li>
+      <li><strong>MATCH BALANCE CHECK passed.</strong> 3 top-third opposition, 2 away, 4 losing-context matches. The register is methodologically sound.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>CRS (Clutch Response Score) validated at 4.0 — below professional standard.</strong> Three events, all scored 4: stood still on shot that hit post and went in; goal conceded on free-kick in middle of goal with no reaction; third goal vs Partizan — could not save header. <strong>Consistent pattern of non-reaction in decisive moments.</strong></li>
+      <li><strong>2/12 GK metrics remain pending: GPI_S and PEN.</strong> Set-piece organisation and penalty intelligence are unvalidated. For a GK assessment, these are significant gaps.</li>
+      <li><strong>GPI composite is provisional (6.4).</strong> Shot anticipation and positional coverage are competent (6.7 each) but set-piece organisation is unknown.</li>
+      <li><strong>1.76m height is below elite European standard.</strong> For top-5 leagues, 1.90m+ is the norm. His aerial game may not translate upward regardless of current AER score.</li>
+      <li><strong>Age 31 — no resale value, short-term asset only.</strong> Any recruitment is for immediate use, not development.</li>
+      <li><strong>European results are poor.</strong> 0-5, 0-2, 0-4 losses in Conference League qualifiers. While team results, they don't suggest individual excellence at the next level.</li>
+      <li><strong>Distribution has negative events.</strong> Multiple inaccurate long passes under no pressure (scores 2-3) suggest technical inconsistency in relaxed moments.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>CRS 4.0 is the single most urgent concern on this card.</strong> For a player already valued at €175K with European monitoring, a clutch response score below professional standard (5.0) is a red flag for any club seeking a reliable goalkeeper. The pattern is consistent across three separate matches — this is not a one-off.</li>
+      <li><strong>GPI_S (Set-Piece Organisation) has 0 events logged.</strong> Despite 5 matches in the register, no set-piece organisational events were captured. Priority for next video pass — especially given the goal conceded on a free-kick (CRS event).</li>
+      <li><strong>PEN (Penalty Intelligence) has 0 events logged.</strong> No penalty situations observed in the 5-match sample. For a GK assessment, this is a significant gap.</li>
+      <li><strong>No club-level footage from higher-LOG leagues.</strong> The Partizan match (LOG ~3.5-4.0) is the highest-LOG footage, but it was a 0-4 loss with multiple goals conceded. Not ideal for showcasing ability.</li>
+      <li><strong>Physical testing data absent.</strong> No GPS, no sprint times, no jump data. For a 31-year-old, baseline physical testing would improve projection accuracy.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 6.8 — Luxembourg Goalkeeper Assessment · BGL Ligue Level · T3 83% Complete · Match Balance Passed.</strong> The T1 data reveals a <strong>31-year-old established first-choice goalkeeper</strong> for a vice-champion Luxembourg side with <strong>European experience and a goal-scoring record</strong>. His <strong>T3 validation covers 10/12 GK metrics</strong> with standout scores in <strong>COM (8.7), CLM (8.3), AER (8.0), SWE (8.0), CAT (8.0), DMA (8.0), and CHR (7.7)</strong> — confirming excellent communication, calmness, aerial command, sweeper instincts, catching technique, decision-making, and character. <strong>SDI composite validates at 7.6</strong> (SDI_R 8.3 particularly strong). <strong style="color:var(--success);">VIDEO COMPLETENESS: 10/12 — FGA_v3_GK_Estimated at 6.8. MATCH BALANCE CHECK: PASSED ✅.</strong> Set against this: <strong>CRS (Clutch Response) scores 4.0</strong> — a significant concern with evidence of goals conceded in decisive moments without reaction. <strong>GPI_S and PEN remain unvalidated.</strong> At 31, Özcan is a <strong>proven BGL Ligue starter</strong> whose distribution and aerial game could interest higher-LOG clubs seeking a sweeper-keeper, but the CRS score and 1.76m frame are limiting factors. <strong>Priority T3 focus:</strong> Complete GPI_S and PEN scoring; investigate CRS pattern — is it a technical issue (reaction speed), a positioning issue, or a mental issue? <strong>Recommended for:</strong> BGL Ligue and Conference League-level recruitment intelligence. Caution for clubs requiring elite clutch performance. Not yet ready for top-tier client-facing recommendation until CRS is contextualised.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span style="flex-shrink:0;margin-top:2px;">⚠️</span>
+    <div><strong>10/12 Empire FGA GK Metrics Validated from Video.</strong> SDI (7.6 ✅), DMA (8.0 ✅), CHR (7.7 ✅), AER (8.0 ✅), SWE (8.0 ✅), DST (7.1 ✅), COM (8.7 ✅), CLM (8.3 ✅), CRS (4.0 ✅), CAT (8.0 ✅) scored from <strong>5 registered matches</strong> (Swift Hesperange, Atert Bissen, La Fiorita, Jeunesse Esch, Partizan) by analyst Jim Totime. <strong style="color:var(--success);">VIDEO COMPLETENESS: 10/12 — FGA_v3_GK_Estimated.</strong> <strong style="color:var(--success);">MATCH BALANCE CHECK: PASSED ✅</strong> — 3 top-third opposition, 2 away, 4 losing. Only GPI_S and PEN remain pending. Below are video links.</div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--success);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">📹 Highlight Reels</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/bfqapzoa65p4lplszjumr/Koray-zcan.mp4?rlkey=1txpvbagfc3qzkfanpj67hxfd&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(30,58,138,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Koray Özcan — Highlights I</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">General Highlights</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          General highlight reel for scouting review.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/x8ckn85ftcat21egui81m/Koray-zcan-II.mp4?rlkey=2vfd0ez23vr3ql1oxfq5g72tz&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(30,58,138,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Koray Özcan — Highlights II</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">General Highlights</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Second highlight reel for scouting review.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--success);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">📹 Match Footage — T3 Register</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/vokq0lxbz231sd5i1mh5d/Juenesse-Esch-UNA-Strassen.mp4?rlkey=8rvbk09f4t3mlgeb81ugoqpho&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(30,58,138,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Jeunesse Esch vs UNA Strassen 🇱🇺</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">BGL Ligue</span>
+          <span class="match-badge badge-verified">M4 · SCORED</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Home fixture.</strong> UNA losing. Middle-third opposition. <strong>8 events logged:</strong> SDI_E, DST (x2), DMA, CLM, GPI_P, SDI_F.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/r8299r6xz07nebwutizur/Football-Club-UNion-Athl-tique-UNA-Strassen-Football-Club-Atert-Bissen.mp4?rlkey=gfz6vxs6jhz3fgp95r42rzmub&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(30,58,138,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">UNA Strassen vs Atert Bissen 🇱🇺</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">BGL Ligue</span>
+          <span class="match-badge badge-verified">M2 · SCORED</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Home fixture.</strong> UNA winning. Top-third opposition. <strong>15 events logged:</strong> AER (x2), SWE, COM, DST (x2), SDI_R, SDI_E, CRS, SDI_F, CAT, GPI_P.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/3xh5wke97pr5d5h6xt502/Societ-Polisportiva-La-Fiorita-Football-Club-Union-Athl-tique-UNA-Strassen.mp4?rlkey=y5l789yt0i601ssb1wan88n3l&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(251,191,36,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">La Fiorita vs UNA Strassen 🇸🇲🇱🇺</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">Conference League 2026-27 · Q1</span>
+          <span class="match-badge badge-verified">M3 · SCORED</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Home fixture (for La Fiorita).</strong> UNA losing. Middle-third opposition. <strong>11 events logged:</strong> DST, CLM, CHR, DMA, SDI_F, DST, COM (x2), DST, CLM, SWE. <strong>LOG ~3.0.</strong>
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/zumgek0n5sb24k33tacd2/Sporting-Club-Bettembourg-Football-Club-Union-Athl-tique-UNA-Strassen.mp4?rlkey=q2ck4sm6v2ode1n1n5qfww0jb&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(30,58,138,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Sporting Bettembourg vs UNA Strassen 🇱🇺</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">BGL Ligue</span>
+          <span class="match-badge badge-pending">EXTRA · NOT IN REGISTER</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Additional club footage for supplementary review. Not part of the official 5-match T3 register.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Match Register — Scored vs Pending</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--success);margin-bottom:10px;">✅ Scored — 5 Matches</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--success);">M1:</strong> Swift Hesperange vs UNA Strassen (BGL) — Away · Losing · Top third — <strong>22 events</strong><br>
+          <strong style="color:var(--success);">M2:</strong> UNA Strassen vs Atert Bissen (BGL) — Home · Winning · Top third — <strong>15 events</strong><br>
+          <strong style="color:var(--success);">M3:</strong> La Fiorita vs UNA Strassen (Conference League) — Away · Losing · Middle third — <strong>11 events</strong><br>
+          <strong style="color:var(--success);">M4:</strong> Jeunesse Esch vs UNA Strassen (BGL) — Home · Losing · Middle third — <strong>8 events</strong><br>
+          <strong style="color:var(--success);">M5:</strong> Partizan vs UNA Strassen (Conference League) — Away · Losing · Top third — <strong>9 events</strong><br><br>
+          <strong>Total: 65 events across 5 matches.</strong><br>
+          <strong>Match Balance: PASSED ✅</strong>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--success);margin-bottom:10px;">✅ Match Balance Check — PASSED</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--success);">≥2 matches vs top-third opposition:</strong> ✅ (M1, M2, M5 = 3)<br>
+          <strong style="color:var(--success);">≥1 away match:</strong> ✅ (M1, M3, M5 = 3)<br>
+          <strong style="color:var(--success);">≥1 match where team was losing:</strong> ✅ (M1, M3, M4, M5 = 4)<br>
+          <strong style="color:var(--success);">Minimum 5 matches registered:</strong> ✅ (5/5)<br><br>
+          <strong>Scoring Readiness:</strong> <span style="color:var(--success);">PASSED</span><br><br>
+          The register now meets all methodological requirements for Tier A GK assessment.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">📊 Scoring Summary</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong>Analyst:</strong> Jim Totime<br>
+          <strong>Matches watched:</strong> 5 registered<br>
+          <strong>Total events logged:</strong> 65<br>
+          <strong>GK metrics validated:</strong> 10/12<br>
+          <strong>Sub-metrics with events:</strong> 14/16<br><br>
+          <strong style="color:var(--success);">FGA_v3: ESTIMATED 6.8</strong><br>
+          <strong style="color:var(--success);">Match Balance: PASSED ✅</strong><br><br>
+          <strong>Next pass priority:</strong> GPI_S (set-piece organisation), PEN (penalty intelligence)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.8;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Shot Stopping','Distribution','Aerial','Sweeper','Communication','Calmness','Character','Clutch'],
+      datasets: [{
+        label: 'Özcan EST (31)',
+        data: [7.6, 7.1, 8.0, 8.0, 8.7, 8.3, 7.7, 4.0],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'BGL Ligue GK avg',
+        data: [6.0, 6.0, 6.5, 6.0, 6.0, 6.5, 6.5, 5.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 2, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Neuer','Van der Sar','Cruyff','Guardiola','Buffon','Schmeichel','Lobanovskyi','Kahn'],
+    datasets: [{
+      label: 'Özcan',
+      data: [7.8, 7.6, 7.2, 7.0, 6.8, 6.6, 6.2, 5.8],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#1e3a8a','#1e3a8a','#1e3a8a','#1e3a8a','#1e3a8a','#1e3a8a','#1e3a8a','#1e3a8a'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 2, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Foundation 20%','T2 Composite 30%','T3 Scout 50%'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#3b82f6', '#ffb800', '#00d084'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } , padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
