@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcos Leonardo | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#C8102E;--accent-dim:rgba(200,16,46,0.15);--accent-glow:rgba(200,16,46,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://www.ajax.nl/media/d4jhba15/marcos-header.png?quality=85&rnd=134285004767530000') center 25% / cover no-repeat;filter:brightness(0.5) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(200,16,46,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#C8102E 33%,#009E60 33%,#009E60 66%,#FFD700 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🏆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(200,16,46,0.1),rgba(251,191,36,0.05));border:1px solid rgba(200,16,46,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(200,16,46,0.18),rgba(251,191,36,0.06));border:2px solid rgba(200,16,46,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(200,16,46,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(200,16,46,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(200,16,46,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(200,16,46,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(200,16,46,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(200,16,46,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(200,16,46,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(200,16,46,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(200,16,46,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(200,16,46,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(200,16,46,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">AFC Ajax · Eredivisie · Brazil</div>
+  <div class="jersey-watermark">9</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Santos</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Benfica</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Al-Hilal</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Ajax #9</div>
+    </div>
+    <h1 class="hero-name">Marcos Leonardo</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇧🇷</span> Brazil</span>
+      <span class="dot"></span>
+      <span>23 years</span>
+      <span class="dot"></span>
+      <span>175cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Striker</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">T3 Pending</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING · PILOT</span>
+          <span class="tag tag-club">AFC Ajax · #9</span>
+          <span class="tag tag-gold">CWC Winner vs Man City</span>
+          <span class="tag tag-gold">Hat-trick vs Al-Fateh</span>
+          <span class="tag tag-value">€20.0M</span>
+          <span class="tag tag-info">Contract · Jun 2029</span>
+          <span class="tag tag-gold">109 Career Goals</span>
+          <span class="tag tag-gold">Brazil U20 Top Scorer</span>
+          <span class="tag tag-info">0 Senior Caps</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">7.4</div>
+          <div class="fga-status">ESTIMATED · T1 ONLY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>ESTIMATED FGA 7.4 — PILOT CARD · T1 DATA ONLY · NO T3 FOOTAGE ASSESSED.</strong> All scores derived from FBref, Squawka, StatLineX, FotMob, Transfermarkt, ESPN, and Sofascore. No full-match isolated footage evaluated under ESN methodology. Directional estimates pending T3 confirmation.
+  </div>
+  <div class="banner banner-gold">
+    <span>⚡</span> <strong>THE T1 TWIST — The striker who conquered three continents before turning 23.</strong> 54 goals for Santos (club legend at 20). 8 goals in 17 games for Benfica (instant impact). 47 goals in 79 games for Al-Hilal (Saudi Pro League star). The Club World Cup winner vs Manchester City (2 goals, including extra-time winner). Now at Ajax — the next chapter of a globetrotting goalscorer.
+  </div>
+  <div class="banner banner-info">
+    <span>🔄</span> <strong>AJAX MOVE · 2026 — The Eredivisie gamble.</strong> After rejecting a loan to Atletico Madrid (Feb 2026), Marcos Leonardo made the switch to Amsterdam. At 23, he arrives in a league where his finishing pedigree should translate — but the step down from Saudi wages to Dutch football raises questions about motivation.
+  </div>
+  <div class="banner banner-danger">
+    <span>🛡️</span> <strong>0 BRAZIL SENIOR CAPS — The Seleção door remains closed.</strong> Despite 15 goals in 13 U20 apps and top-scorer status at the 2023 U20 World Cup (5 goals), Dorival Júnior has not called him up. Is he a system striker who thrives in specific tactical setups, or a genuine international-calibre forward?
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Santos</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Benfica</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Al-Hilal</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Ajax</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7.4</div><div class="label">Est. FGA · T1 Only</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">17</div><div class="label">Saudi League Apps 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">10</div><div class="label">Saudi League Goals 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">47</div><div class="label">Total Al-Hilal Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">7.12</div><div class="label">FotMob Rating</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">109</div><div class="label">Career Goals (all clubs)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€20.0M</div><div class="label">Market Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--silver);">0</div><div class="label">Brazil Senior Caps</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Marcos Leonardo Santos Almeida</strong> is a <strong>23-year-old Brazilian striker</strong> born on May 2, 2003, in Itapetinga, Bahia, Brazil. 175cm, <strong>right-footed</strong>. At <strong>AFC Ajax</strong> since 2026, wearing <strong>#9</strong>. Contract until <strong>June 30, 2029</strong>. Career path: <strong>Santos</strong> (2020-2023, 168 apps, 54G, 11A — club legend, "Menino da Vila") → <strong>Benfica</strong> (Jan-Sep 2024, 17 apps, 8G — €18M transfer) → <strong>Al-Hilal</strong> (Sep 2024-2026, 79 apps, 47G — €40M transfer, CWC hero) → <strong>Ajax</strong> (2026-). <strong>Brazil U20</strong> — 13 caps, 15 goals, top scorer at 2023 U20 World Cup (5 goals). <strong>0 senior Brazil caps</strong>. Market value: <strong>€20.0M</strong> (Transfermarkt, Jun 2026). Father <strong>Marcos Coringa</strong> was also a footballer.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0/16 T3 metrics validated.</strong> No full-match isolated footage evaluated under ESN methodology. All 16 Empire FGA T3 metrics — OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, SPI, CLM, CRS, OMS, DYN, CRK, SOA — are pending scout review. <strong>Recommended T3 context:</strong> Al-Hilal 2025-26 vs Al-Ittihad/Al-Nassr (Saudi Pro League elite), Ajax 2026-27 pre-season/Eredivisie, Brazil U20 World Cup 2023 footage. <strong>Priority T3 focus:</strong> OBI_P (off-the-ball movement and positioning in the box), CRK (finishing variety — left foot, right foot, headers, penalties), CHR (big-game temperament — CWC vs Man City, hat-trick vs Al-Fateh), SII_A (explosive acceleration over first 5 yards), CLM (composure in one-on-one situations).
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 7.4 — Multi-League Striker · Proven Goalscorer · CWC Hero · Ajax New Signing · Brazil U20 Star.</strong> The T1 data tells the story of a pure goalscorer: 109 career goals before age 24 across Brazil, Portugal, and Saudi Arabia. 47 goals in 79 Al-Hilal apps (0.59 G/90) is elite output at any level. The <strong>Club World Cup winner vs Manchester City</strong> (2 goals, extra-time winner) is the signature moment that separates him from statistical compilers. But the <strong>0 Brazil senior caps</strong> and the <strong>Saudi Pro League context (LOG ~2.7)</strong> are the confounding variables. Is he a flat-track bully who scores in leagues with defensive weaknesses, or a genuine elite finisher? The Ajax move to Eredivisie (LOG 2.8) will answer this. <strong>Romário / Brazilian poacher archetype first, modern pressing striker second.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — Al-Hilal <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Saudi Pro League Apps</strong></td><td>17</td><td>—</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Saudi Pro League Goals</strong></td><td>10</td><td>0.59 G/90</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Saudi Pro League Assists</strong></td><td>2</td><td>—</td><td>Wikipedia</td></tr>
+        <tr><td><strong>AFC Champions League Apps</strong></td><td>6</td><td>—</td><td>Wikipedia</td></tr>
+        <tr><td><strong>AFC Champions League Goals</strong></td><td>2</td><td>—</td><td>Wikipedia</td></tr>
+        <tr><td><strong>King's Cup Apps</strong></td><td>3</td><td>—</td><td>Wikipedia</td></tr>
+        <tr><td><strong>King's Cup Goals</strong></td><td>2</td><td>—</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Club World Cup Apps</strong></td><td>2+</td><td>—</td><td>The Guardian</td></tr>
+        <tr><td><strong>Club World Cup Goals</strong></td><td>2</td><td>vs Man City (winner)</td><td>The Guardian</td></tr>
+        <tr><td><strong>Hat-trick</strong></td><td>1</td><td>vs Al-Fateh (9-0)</td><td>Desporto ao Minuto</td></tr>
+        <tr><td><strong>Total Al-Hilal Apps 2025-26</strong></td><td>~28</td><td>All comps</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Total Al-Hilal Goals 2025-26</strong></td><td>~16</td><td>All comps</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Career Total Goals</strong></td><td>109</td><td>All clubs</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>Career Total Apps</strong></td><td>~264</td><td>All clubs</td><td>Transfermarkt</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Romário / Brazilian Poacher</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:95%;background:#009E60;"></div></div></div><div class="philo-score">9.5</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Cruyff / Total Football Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#C8102E;"></div></div></div><div class="philo-score">8.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Farioli / Modern Pressing Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#C8102E;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Ancelotti / Target Man</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#00529F;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Guardiola / False Nine</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#6CABDD;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Klopp / Gegenpress Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#3498db;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Simeone / Counter-Attacking Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#e07820;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Ten Hag / Positional Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#C8102E;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Bielsa / High-Intensity Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#e07820;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Mourinho / Defensive Block Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003366;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Attacking / Finishing · EST</h3>
+      <div class="attr-row"><span class="name">Goal Scoring (109 career · 0.41 G/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Finishing Variety (L/R/Head/Penalty)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Box Movement / OBI_P (EST 7.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Hold-Up Play (175cm · stocky)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Aerial Threat (Headers · 175cm)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Link-Up Play (11 career assists)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Dribbling (1v1 in final third)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Set-Piece Threat (Penalties · FK)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical / Athletic · EST</h3>
+      <div class="attr-row"><span class="name">SII_A Explosive Acceleration (EST 7.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed (EST 7.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery / Fitness (EST 7.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Strength / Physical Duels</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Jumping / Aerial Reach (175cm)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Stamina / 90-Minute Output</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Agility / Change of Direction</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Height 175cm · Right-footed</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Tactical · EST</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competitive (EST 7.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CHR Character / Big Games (CWC hero)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (1v1 finishing)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CRK Creative Risk (shot selection)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Offside Discipline</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pressing Trigger / Defensive Work</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DYN Versatility (ST/SS/CF)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Leadership / Captain Potential</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FBref · Squawka · FotMob · Saudi Pro League</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">47G</div><div class="t1-hl-val">47</div><div class="t1-hl-pct">Al-Hilal Goals · 79 Apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:92%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">0.59</div><div class="t1-hl-val">0.59</div><div class="t1-hl-pct">Goals per 90 at Al-Hilal</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:90%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">109</div><div class="t1-hl-val">109</div><div class="t1-hl-pct">Career Goals · 264 Apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:88%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">CWC</div><div class="t1-hl-val">2</div><div class="t1-hl-pct">Goals vs Man City · Winner</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:85%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">HT</div><div class="t1-hl-val">1</div><div class="t1-hl-pct">Hat-trick vs Al-Fateh (9-0)</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:80%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Goal Scoring</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">Saudi Pro League 2025-26</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="t1-metric-val">10</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">G90</span><span class="t1-metric-desc">Goals per 90 (SPL)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:var(--accent)"></div></div></div><span class="t1-metric-val">0.59</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists 2025-26 (SPL)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Career</span><span class="t1-metric-desc">Career goals (all clubs)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:92%;background:var(--gold)"></div></div></div><span class="t1-metric-val">109</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Santos</span><span class="t1-metric-desc">Santos goals (168 apps)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="t1-metric-val">54</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Hilal</span><span class="t1-metric-desc">Al-Hilal goals (79 apps)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--gold)"></div></div></div><span class="t1-metric-val">47</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Big-Game / International</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CWC</span><span class="t1-metric-desc">Club World Cup vs Man City ★</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:95%;background:var(--gold)"></div></div></div><span class="t1-metric-val">2G</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U20</span><span class="t1-metric-desc">U20 World Cup 2023 · Top Scorer</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="t1-metric-val">5G</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Benf</span><span class="t1-metric-desc">Benfica goals (17 apps)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent)"></div></div></div><span class="t1-metric-val">8</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Hatk</span><span class="t1-metric-desc">Hat-tricks (career)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1+</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Estimates</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">Goal Scoring (109G · 0.41 G/90 career · 0.59 at Hilal)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CHR — Character (CWC winner vs Man City · hat-trick)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CLM — Calmness (1v1 finishing · penalty composure)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI_P — Positional Anticipation (box movement)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">SII_A — Explosive Acceleration (first 5 yards)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Proxy Estimates</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are algorithmic estimates derived from Tier 1 statistical data. With 0/16 T3 metrics confirmed, these are unvalidated proxy scores. The Saudi Pro League (LOG ~2.7) and Eredivisie (LOG 2.8) are below top-5 standard — goal output may not translate directly. The CWC performance vs Manchester City (LOG 4.5+) is the most reliable elite-context data point.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: 2.8</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> Eredivisie (Netherlands)<br>
+          <strong style="color:var(--text-primary);">Previous League:</strong> Saudi Pro League (LOG ~2.7)<br>
+          <strong style="color:var(--text-primary);">Peak Context:</strong> Club World Cup vs Man City (LOG ~4.5+)<br>
+          <strong style="color:var(--success);">Confirmed in LOG_Reference</strong><br><br>
+          <strong style="color:var(--gold);">LOG 2.8</strong> represents a developmental/top-8 European tier. His 0.59 G/90 in Saudi Pro League (LOG ~2.7) suggests he should maintain similar output in the Eredivisie. The CWC winner vs Manchester City is the critical elite-context validation point.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · LOG 2.8</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_P — PENDING (EST 7.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_T — PENDING (EST 7.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_S — PENDING (EST 7.0)</strong><br>
+            No video events recorded. T1 proxy from 109 career goals across 3 leagues.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A — PENDING (EST 7.5)</strong><br>
+            <strong style="color:var(--pending);">SII_T — PENDING (EST 7.0)</strong><br>
+            <strong style="color:var(--pending);">SII_R — PENDING (EST 7.5)</strong><br>
+            No video events recorded. No significant injury history.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">✗</span> All 16 metrics pending<br><br>
+            <strong>0/16 metrics confirmed</strong> across 0 matches<br><br>
+            <strong>Recommended:</strong> Al-Hilal vs Al-Ittihad/Al-Nassr + Ajax Eredivisie
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> CROSS-LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 7.4. All figures are algorithmic estimates derived from Tier 1 data — no T3 validation has been completed. The Eredivisie (LOG 2.8) is a confirmed Competition_Tier_Base entry. <strong>Critical:</strong> Multi-league goalscorers carry unique translation uncertainty — scoring in Brazil, Portugal, and Saudi Arabia does not guarantee top-5 output.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality using Empire FGA's Competition_Tier_Base reference. Leonardo's <strong style="color:var(--text-primary);">7.4 FGA is an estimated figure</strong> — 0/16 T3 metrics confirmed, all scores derived from Tier 1 statistical data. This projection carries <strong style="color:var(--danger);">high evidentiary uncertainty</strong> because his goal output is built across three different leagues (Brasileirão LOG 3.4, Primeira Liga LOG 3.0, Saudi Pro League LOG ~2.7) and now a fourth (Eredivisie LOG 2.8). The <strong>Club World Cup performance vs Manchester City (LOG ~4.5+)</strong> is the most reliable elite-context data point — 2 goals including the extra-time winner against elite Premier League opposition.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Eredivisie</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">7.4</div>
+      <div class="label">Est. FGA (0/16 T3) · Tier 2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.6</div>
+      <div class="label">Significant downgrade · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — La Liga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.6</div>
+      <div class="label">Significant downgrade · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Serie A</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇮🇹 Italy</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.8</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Germany</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.8</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Ligue 1</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇫🇷 France</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.8</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Liga Profesional</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇷 Brazil</div>
+      <div class="value" style="font-size:2.1rem;">6.1</div>
+      <div class="label">Moderate downgrade · Tier 3.4</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Saudi Pro League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇸🇦 Saudi Arabia</div>
+      <div class="value" style="font-size:2.1rem;">7.7</div>
+      <div class="label">Upgrade · Tier ~2.7 (confirmed)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br><br>
+      <strong>Premier League (3.7):</strong> 7.4 × (2.8 ÷ 3.7) = <strong style="color:var(--text-primary);">5.60</strong> → <strong>5.6</strong><br>
+      <strong>La Liga (3.7):</strong> 7.4 × (2.8 ÷ 3.7) = <strong style="color:var(--text-primary);">5.60</strong> → <strong>5.6</strong><br>
+      <strong>Serie A (3.6):</strong> 7.4 × (2.8 ÷ 3.6) = <strong style="color:var(--text-primary);">5.76</strong> → <strong>5.8</strong><br>
+      <strong>Bundesliga (3.6):</strong> 7.4 × (2.8 ÷ 3.6) = <strong style="color:var(--text-primary);">5.76</strong> → <strong>5.8</strong><br>
+      <strong>Ligue 1 (3.6):</strong> 7.4 × (2.8 ÷ 3.6) = <strong style="color:var(--text-primary);">5.76</strong> → <strong>5.8</strong><br>
+      <strong>Liga Profesional (3.4):</strong> 7.4 × (2.8 ÷ 3.4) = <strong style="color:var(--text-primary);">6.09</strong> → <strong>6.1</strong><br>
+      <strong>Saudi Pro League (~2.7):</strong> 7.4 × (2.8 ÷ 2.7) = <strong style="color:var(--text-primary);">7.67</strong> → <strong>7.7</strong><br><br>
+      <strong style="color:var(--warning);">Critical caveat — The Multi-League Goalscorer Problem:</strong> Marcos Leonardo has scored prolifically in three different leagues (Brasileirão: 54G/168, Primeira Liga: 8G/17, Saudi Pro League: 47G/79). This suggests his goal-scoring ability is transferable across tactical systems and defensive standards. However, the <strong>top-5 league defensive quality is a significant step up</strong>. His 0.59 G/90 in Saudi Arabia may not translate to 0.59 G/90 in the Premier League. The CWC winner vs Manchester City (2 goals, including extra-time winner) is the most encouraging data point — it proves he can score against elite Premier League defenders (Dias, Akanji, Gvardiol) in high-pressure knockout football. But one match is not a sample. <strong>The Eredivisie (2026-27) will be the true test</strong> — if he maintains 0.50+ G/90 in his first European season, the top-5 projections should be revised upward.<br><br>
+      <strong style="color:var(--danger);">Read before sending to a club:</strong> This projection sits on an estimated base with zero confirmed T3 metrics, derived from a LOG 2.8 league with multi-league context. The margin of error is wide. The top-5 league projections (5.6–5.8) suggest a mid-table starter or impact substitute, not an elite signing. The Saudi Pro League projection (7.7) confirms he was right to dominate there. The Liga Profesional projection (6.1) suggests he would be a very good Brasileirão striker — which he was at Santos. Do not use these figures in any client-facing material without heavy qualification and mandatory T3 validation against elite European opposition.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Romário / Brazilian Poacher</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:95%;background:#009E60;"></div></div></div><div class="philo-score">9.5</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Cruyff / Total Football Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#C8102E;"></div></div></div><div class="philo-score">8.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Farioli / Modern Pressing Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#C8102E;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Ancelotti / Target Man</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#00529F;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Simeone / Counter-Attacking Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#e07820;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Guardiola / False Nine</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#6CABDD;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Klopp / Gegenpress Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#3498db;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Ten Hag / Positional Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#C8102E;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Bielsa / High-Intensity Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#e07820;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Mourinho / Defensive Block Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003366;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Romário Poacher with Global Experience"</strong> — Goal Scoring ~8.5 (109 career goals, 0.59 G/90 at Al-Hilal) + CHR ~8.0 (CWC winner vs Man City, hat-trick vs Al-Fateh) + CLM ~8.0 (composed 1v1 finisher) = the classic Brazilian penalty-box striker archetype. Not a pressing forward, not a false nine — a <strong>pure goalscorer who lives between the posts</strong>. The 175cm frame and stocky build (similar to Romário, Aguero) allow him to shield the ball, turn defenders, and finish from tight angles. His weakness is defensive contribution — he is a striker who scores, not a striker who defends. Romário first. Farioli second (if the pressing demands are moderate). Guardiola never. The Ajax move is logical — the Eredivisie rewards technical finishers with space in the box.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Romário Poacher</span>
+          <span class="tag tag-club">Box Striker</span>
+          <span class="tag tag-club">CWC Hero</span>
+          <span class="tag tag-club">Multi-League Scorer</span>
+          <span class="tag tag-club">Brazil U20 Star</span>
+          <span class="tag tag-info">Ajax #9</span>
+          <span class="tag tag-info">0 Senior Caps</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">9.5</div><div class="label">Romário / Brazilian</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">8.8</div><div class="label">Cruyff / Total Football</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">8.2</div><div class="label">Farioli / Modern</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7.0</div><div class="label">Guardiola / False Nine</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born May 2, 2003 · Itapetinga, Bahia, Brazil</div><div class="timeline-text">Born in <strong>Itapetinga, Bahia, Brazil</strong>. Father <strong>Marcos Coringa</strong> was also a footballer (forward, amateur). Moved to Taubaté, São Paulo in May 2014. Joined <strong>Santos youth setup</strong> in August 2014 after a trial.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Aug 2020 · Santos Professional Debut · vs Sport Recife</div><div class="timeline-text"><strong>First professional appearance at 17.</strong> Substitute for Yeferson Soteldo in 1-0 away win. First goal on Oct 4 vs Goiás (3-2). Copa Libertadores debut vs Olimpia. Became sixth-youngest scorer in Libertadores history vs Defensa y Justicia (Oct 2020).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2021–2023 · Santos · Série A · 168 apps, 54G, 11A</div><div class="timeline-text"><strong>"Menino da Vila" era.</strong> Became undisputed starter from 2022. Renewed contract until 2026. Entered Santos' top 50 all-time goalscorers after winner vs Palmeiras (Oct 2023). 2023: 49 apps, 21 goals — but Santos were <strong>relegated for the first time in history</strong>. Controversy: late arrival/embriagado allegations before Athletico PR match. Emotional farewell: "Serei eternamente um Menino da Vila."</div></div>
+        <div class="timeline-item"><div class="timeline-date">2023 · Brazil U20 World Cup · Argentina</div><div class="timeline-text"><strong>Top scorer for Brazil.</strong> 5 goals in the tournament. Helped Brazil reach knockout stages. Established as one of the most promising Brazilian strikers of his generation.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 2024 · Benfica · Primeira Liga · €18M</div><div class="timeline-text"><strong>European debut.</strong> Signed five-and-a-half-year contract. Release clause: €150M. Scored in each of his first three league games (Rio Ave, Boavista, Estrela da Amadora). 14 league apps, 7 goals. Europa League debut vs Toulouse (won penalty for Di María). Taça de Portugal and Taça da Liga semi-finalist. Primeira Liga runner-up.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Sep 2024 · Al-Hilal · Saudi Pro League · €40M</div><div class="timeline-text"><strong>The Saudi chapter.</strong> Five-year contract. Debut vs Al-Riyadh (3-0). First goal vs Al-Rayyan (3-1, AFC Champions League). <strong>Hat-trick vs Al-Fateh (9-0, Jan 2025)</strong> — penalty, long-range shot, header from Rúben Neves free-kick. Left injured. 79 total apps, 47 goals.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Jun 2025 · Club World Cup · Al-Hilal 4-3 Man City</div><div class="timeline-text"><strong>The defining moment.</strong> Round of 16. Scored twice including the <strong>winning goal in extra-time</strong> as Al-Hilal defeated Manchester City 4-3. The goal that announced him to the global elite. "Al-Hilal strike twice in extra time" — The Guardian.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Feb 2026 · Atletico Madrid Loan Collapse</div><div class="timeline-text"><strong>Almost Spain.</strong> Atletico Madrid agreed a loan with €40M option to buy. Leonardo wanted to impress Carlo Ancelotti before WC2026. Al-Hilal pulled the plug due to Karim Benzema transfer uncertainty.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2026 · Ajax · Eredivisie</div><div class="timeline-text"><strong>The Amsterdam project.</strong> Moved to AFC Ajax for the 2026-27 season. Wears #9. The Eredivisie should suit his finishing — but the step down from Saudi wages and the pressure of replacing departed strikers will test his mentality.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Jul 2026</div><div class="timeline-text">At <strong>AFC Ajax</strong>. Contract until June 30, 2029. <strong>0/16 T3 metrics pending.</strong> Market value: €20.0M. 0 Brazil senior caps. The next chapter begins.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2020</strong></td><td>Santos</td><td>Brasileirão</td><td>18</td><td>4</td><td>~1</td></tr>
+          <tr><td><strong>2021</strong></td><td>Santos</td><td>Brasileirão</td><td>16</td><td>5</td><td>~1</td></tr>
+          <tr><td><strong>2022</strong></td><td>Santos</td><td>Brasileirão</td><td>35</td><td>13</td><td>~3</td></tr>
+          <tr><td><strong>2023</strong></td><td>Santos</td><td>Brasileirão</td><td>31</td><td>13</td><td>~3</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>Benfica</td><td>Primeira Liga</td><td>14</td><td>7</td><td>~1</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Al-Hilal</td><td>Saudi Pro League</td><td>24</td><td>17</td><td>~3</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Al-Hilal</td><td>Saudi Pro League</td><td>17</td><td>10</td><td>~2</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total (est.)</strong></td><td><strong>~264</strong></td><td><strong>~109</strong></td><td><strong>~22</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer Ladder</h3>
+      <table class="data-table">
+        <thead><tr><th>From → To</th><th>Fee</th><th>Year</th></tr></thead>
+        <tbody>
+          <tr><td>Santos Youth → Santos</td><td><strong>—</strong></td><td>2020</td></tr>
+          <tr><td>Santos → Benfica</td><td><strong style="color:var(--gold);">€18M</strong></td><td>Jan 2024</td></tr>
+          <tr><td>Benfica → Al-Hilal</td><td><strong style="color:var(--gold);">€40M</strong></td><td>Sep 2024</td></tr>
+          <tr><td>Al-Hilal → Ajax</td><td><strong style="color:var(--accent);">Undisclosed</strong></td><td>2026</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td><strong>Total career fees</strong></td><td colspan="2"><strong style="color:var(--success);">€58M+ in transfer fees</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Club</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Club World Cup Round of 16 Hero</strong></td><td>2025</td><td>Al-Hilal</td></tr>
+          <tr><td><strong>U20 World Cup Top Scorer (Brazil)</strong></td><td>2023</td><td>Brazil U20</td></tr>
+          <tr><td><strong>Primeira Liga Runner-up</strong></td><td>2023-24</td><td>Benfica</td></tr>
+          <tr><td><strong>King's Cup</strong></td><td>2025-26</td><td>Al-Hilal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">175cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~72kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Striker</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Second Striker</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#9 (Ajax)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Stocky, compact, strong</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Brazil</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Long-Term Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant long-term injuries documented. Minor knock during Al-Hilal vs Al-Fateh hat-trick (Jan 2025) — substituted after third goal. Has maintained consistent availability across his career, including 168 apps for Santos and 79 for Al-Hilal.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Peak Physical Condition</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>23 years old, 175cm, ~72kg</strong> — in peak goalscoring physical condition. Stocky, compact build (similar to Romário, Aguero) allows shielding and turning. Good stamina evidenced by 90-minute appearances. However, <strong>0/16 T3 metrics pending</strong> — physical robustness under isolated video assessment unknown. The 175cm height is slightly below average for a modern target man.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>109 career goals before age 24 — elite goalscoring pedigree</strong> — 0.41 G/90 career average. Scored in Brazil, Portugal, and Saudi Arabia. True multi-league goalscorer.</li>
+      <li><strong>47 goals in 79 Al-Hilal apps (0.59 G/90) — prolific at club level</strong> — One of the most productive strikers in Saudi Pro League history over a two-season span.</li>
+      <li><strong>Club World Cup winner vs Manchester City — 2 goals including extra-time winner</strong> — The signature moment. Scored against Dias, Akanji, Gvardiol in knockout pressure. This is not a flat-track bully moment.</li>
+      <li><strong>Hat-trick vs Al-Fateh (9-0) — finishing variety confirmed</strong> — Penalty, long-range shot, header from set-piece. Three different goal types in one match.</li>
+      <li><strong>Instant impact at Benfica — 7 goals in 14 Primeira Liga apps</strong> — Scored in each of his first three games. Adapted immediately to European football.</li>
+      <li><strong>Santos club legend at 20 — 54 goals in 168 apps</strong> — Entered Santos' top 50 all-time goalscorers. "Menino da Vila" status.</li>
+      <li><strong>Brazil U20 top scorer at 2023 World Cup (5 goals)</strong> — International pedigree at youth level. 15 goals in 13 U20 caps overall.</li>
+      <li><strong>Right-footed striker with two-footed finishing ability</strong> — Scores with left foot, right foot, and head. Not predictable.</li>
+      <li><strong>Penalty composure — scored from spot in hat-trick</strong> — Mental strength in high-pressure set-piece situations.</li>
+      <li><strong>Age 23 — peak goalscoring years ahead</strong> — Strikers typically peak at 25-29. He is entering his prime.</li>
+      <li><strong>€20M market value — reasonable acquisition cost</strong> — Given his goal output, this represents value. Al-Hilal paid €40M; Ajax likely got a discount.</li>
+      <li><strong>No significant injury history — durable</strong> — 264+ career apps by age 23. Reliable availability.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>0 Brazil senior caps at 23 — the Seleção snub</strong> — Dorival Júnior has not called him up despite prolific club form. Either tactical mismatch with Brazil's system or concerns about his all-round game.</li>
+      <li><strong>175cm height — undersized for a modern target man</strong> — Struggles against elite aerial defenders. Not a dominant header of the ball despite the Al-Fateh hat-trick header.</li>
+      <li><strong>Defensive contribution minimal — not a pressing striker</strong> — In modern systems (Guardiola, Klopp, Farioli), strikers must press. Leonardo is a poacher, not a worker.</li>
+      <li><strong>Link-up play limited — 11 career assists in 264 apps</strong> — 0.04 A/90. He is a finisher, not a creator. Requires service.</li>
+      <li><strong>Saudi Pro League context (LOG ~2.7) inflates numbers</strong> — Defensive quality in Saudi Arabia is below European standard. 47 goals there does not equal 47 goals in the Eredivisie.</li>
+      <li><strong>Benfica spell was short (8 months) — sample size small</strong> — 17 apps is not enough to judge European adaptability. Was he a flash in the pan?</li>
+      <li><strong>Santos relegation (2023) — team context concern</strong> — His individual brilliance could not save Santos from Série B. Raises questions about impact in struggling teams.</li>
+      <li><strong>0/16 T3 metrics confirmed</strong> — No video validation of any Empire FGA metric. All assessments are statistical proxies.</li>
+      <li><strong>Atletico Madrid loan collapse (Feb 2026)</strong> — Wanted the move to La Liga. Al-Hilal blocked it. Did this affect his motivation?</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>No T3 video assessment completed</strong> — The single biggest gap. Every metric is a guess until a scout watches him play in isolated footage.</li>
+      <li><strong>Goal Scoring 8.5 is a T1 proxy from lower-tier leagues — not confirmed</strong> — 54 Santos goals in Brasileirão (LOG 3.4) is solid. 47 Al-Hilal goals in SPL (LOG ~2.7) is less impressive. 8 Benfica goals in Primeira Liga (LOG 3.0) is promising but a small sample. T3 must verify finishing quality in isolated footage.</li>
+      <li><strong>No top-5 league minutes</strong> — Every minute of his European career was in Portugal (17 apps) or Saudi Arabia. The step-up to elite European football is unproven over a full season.</li>
+      <li><strong>Physical robustness against elite European CBs unverified</strong> — One CWC match vs Man City is encouraging but not a sample. Can he handle Van Dijk, Dias, Gvardiol, Tomori week in, week out?</li>
+      <li><strong>Pressing and defensive work rate in elite system unknown</strong> — Farioli at Ajax demands high pressing from strikers. Leonardo has never been a pressing forward. Will he adapt or be exposed?</li>
+      <li><strong>Mental resilience after Santos relegation</strong> — The 2023 season ended in personal and professional humiliation (relegation, embriagado allegations). He bounced back at Al-Hilal, but the psychological scar is unassessed.</li>
+      <li><strong>Comparison to elite striker benchmarks</strong> — Haaland, Mbappé, Vlahović, Osimhen all have superior T1 and T3-confirmed profiles. Leonardo's ceiling is "very good Eredivisie striker," not "world-class."</li>
+      <li><strong>Resale value risk</strong> — If he fails at Ajax, his market value could collapse. The €40M Al-Hilal fee is already a sunk cost for them; Ajax's undisclosed fee is the new baseline.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 7.4 — Multi-League Striker · Proven Goalscorer · CWC Hero · Ajax New Signing · Brazil U20 Star.</strong> The T1 data is the most compelling goalscoring profile in the Empire FGA pilot series: 109 career goals before 24, 0.59 G/90 at Al-Hilal, CWC winner vs Manchester City, instant impact at Benfica, Santos legend status. But the <strong>0 Brazil senior caps and the lack of top-5 league minutes are the critical red flags</strong>. Cross-league projections suggest <strong>5.6–5.8 in the top-5 leagues</strong> — a mid-table starter or impact substitute. The <strong>Saudi Pro League projection (7.7) confirms he was right to dominate there</strong>. The <strong>Liga Profesional projection (6.1) confirms his Santos output was genuine</strong>. <strong>T3 assessment is mandatory before any €20M+ valuation.</strong> Priority context: Al-Hilal vs Al-Ittihad/Al-Nassr (Saudi elite), Ajax Eredivisie 2026-27, and the CWC vs Man City match for elite-context validation. Goal Scoring and CHR confirmation likely; pressing ability, aerial dominance, and top-5 translation are the critical unknowns. <strong>Recommended for Ajax as primary striker — the Eredivisie should suit his profile. Not recommended for sale valuation above €15M without T3 confirmation of pressing ability and aerial adequacy in European context.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>No Empire FGA Assessment Matches Available.</strong> No full-match isolated footage has been registered in the T3 system. Below are available video resources for future scout registration. Two matches from Al-Hilal 2025-26 Saudi Pro League season. Priority: Ajax 2026-27 Eredivisie + Al-Hilal vs elite Saudi opposition.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Assessment Footage — Available Video Resources <span class="line"></span></div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/0uzkrpirxiz1oe9ky7r2y/Al-Fayha-Club-Al-Hilal-Saudi-Club.mp4?rlkey=s40z57b5dkodbtb6o8ybdiot0&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Al-Fayha vs Al-Hilal 🇸🇦</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Saudi Pro League 2025-26</span>
+          <span class="match-badge badge-verified">Al-Hilal Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — Al-Hilal league context.</strong> Marcos Leonardo in Saudi Pro League action. Useful for goal-scoring assessment (OBI_P, CRK, CLM) in league context. LOG ~2.7.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/5n6mrrf1clpkbuu1mwq29/Al-Ittihad-Saudi-Arabian-Club-Al-Hilal-Saudi-Arabian-Club.mp4?rlkey=pakqjp2g39j4z8uqcv3osmj2m&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Al-Ittihad vs Al-Hilal 🇸🇦</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Saudi Pro League 2025-26</span>
+          <span class="match-badge badge-verified">Saudi El Clasico</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — High-pressure Saudi fixture.</strong> Al-Ittihad vs Al-Hilal is the biggest match in Saudi football. Validates CHR, CLM, and MCS in maximum domestic pressure. LOG ~2.8.
+        </div>
+      </div>
+    </a>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax 2026-27 Eredivisie — Pending</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">LOG 2.8</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Priority T3 context: Ajax 2026-27 Eredivisie matches. His first European season since Benfica. Critical for validating goal-scoring translation to Dutch football. Register for Jim Totime assessment.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Al-Hilal vs Manchester City — CWC 2025</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Club World Cup</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          The defining match — 2 goals including extra-time winner vs Premier League champions. LOG ~4.5+. Must-watch for any elite-context validation. The single most important match in his career for T3 assessment.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Priority Match Register</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 1 — Ajax Eredivisie 2026-27</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M1:</strong> Ajax vs PSV 2026-27<br>
+          <strong style="color:var(--info);">M2:</strong> Ajax vs Feyenoord 2026-27<br><br>
+          <strong>LOG 3.0</strong> (Eredivisie elite). The true test of his European goal-scoring ability. Must maintain 0.50+ G/90 to validate top-5 potential.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 2 — Al-Hilal Elite Context</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M3:</strong> Al-Hilal vs Al-Ittihad (provided)<br>
+          <strong style="color:var(--info);">M4:</strong> Al-Hilal vs Al-Nassr<br><br>
+          <strong>LOG ~2.8</strong> (Saudi elite). High-pressure domestic fixtures. Validates CHR, CLM, and MCS in intense rivalry context.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 3 — CWC Elite Context</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">M5:</strong> Al-Hilal vs Manchester City (CWC 2025)<br><br>
+          <strong>LOG 4.5+</strong>. The single most important match for T3 validation. 2 goals vs Premier League champions in knockout pressure. Validates all 16 metrics at elite level.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.4;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Goal Scoring','CHR/Big Game','CLM/Composure','OBI_P/Box','SII_A/Acc','SII_R/Fit','MCS/Mental'],
+      datasets: [{
+        label: 'Leonardo EST (23)',
+        data: [8.5, 8.0, 8.0, 7.5, 7.5, 7.5, 7.5],
+        backgroundColor: 'rgba(200,16,46,0.2)',
+        borderColor: '#C8102E',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Multi-league ST avg',
+        data: [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Romario','Cruyff','Farioli','Ancelotti','Simeone','Guardiola'],
+    datasets: [{
+      label: 'Leonardo',
+      data: [9.5, 8.8, 8.2, 7.8, 7.5, 7.0],
+      backgroundColor: 'rgba(200,16,46,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#009E60','#C8102E','#C8102E','#00529F','#e07820','#6CABDD'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 45%','T2 Composite 30%','T3 Pending 25%'],
+      datasets: [{
+        data: [45, 30, 25],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

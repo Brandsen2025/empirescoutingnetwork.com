@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oscar Gloukh | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#C8102E;--accent-dim:rgba(200,16,46,0.15);--accent-glow:rgba(200,16,46,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyVr6BGHv64ELUaoMS16BrhtwXnUkn6GBcoJ0msitTVQ&s=10') center 25% / cover no-repeat;filter:brightness(0.5) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(200,16,46,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#C8102E 33%,#fff 33%,#fff 66%,#0038b8 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🇮🇱';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(200,16,46,0.1),rgba(251,191,36,0.05));border:1px solid rgba(200,16,46,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(200,16,46,0.18),rgba(251,191,36,0.06));border:2px solid rgba(200,16,46,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(200,16,46,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(200,16,46,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(200,16,46,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(200,16,46,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(200,16,46,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(200,16,46,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(200,16,46,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(200,16,46,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(200,16,46,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(200,16,46,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(200,16,46,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">AFC Ajax · Eredivisie · Israel</div>
+  <div class="jersey-watermark">10</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Maccabi Tel Aviv</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Red Bull Salzburg</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Ajax #10</div>
+    </div>
+    <h1 class="hero-name">Oscar Gloukh</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇮🇱</span> Israel</span>
+      <span class="dot"></span>
+      <span>22 years</span>
+      <span class="dot"></span>
+      <span>170cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Attacking Midfielder</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">T3 Pending</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING · PILOT</span>
+          <span class="tag tag-club">AFC Ajax · #10</span>
+          <span class="tag tag-gold">U19 Euro Team of Tournament</span>
+          <span class="tag tag-gold">U19 Euro Goal of Tournament</span>
+          <span class="tag tag-value">€15.0M</span>
+          <span class="tag tag-info">Contract · Jun 2030</span>
+          <span class="tag tag-info">29 Israel Caps · 5 Goals</span>
+          <span class="tag tag-gold">CWC Goal (First Israeli)</span>
+          <span class="tag tag-info">Olympic Goalscorer</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">7.1</div>
+          <div class="fga-status">ESTIMATED · T1 ONLY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>ESTIMATED FGA 7.1 — PILOT CARD · T1 DATA ONLY · NO T3 FOOTAGE ASSESSED.</strong> All scores derived from FBref, Squawka, StatLineX, FotMob, Transfermarkt, ESPN, and Sofascore. No full-match isolated footage evaluated under ESN methodology. Directional estimates pending T3 confirmation.
+  </div>
+  <div class="banner banner-gold">
+    <span>⚡</span> <strong>THE T1 TWIST — The Israeli playmaker who rejected Barcelona for Salzburg, then conquered Amsterdam.</strong> U19 Euro 2022 Team of the Tournament. Goal of the Tournament. Youngest Israeli Champions League scorer. First Israeli to score at the Club World Cup. Olympic goalscorer at 20. Now Ajax's #10 — the spiritual heir to a lineage of creative midfielders.
+  </div>
+  <div class="banner banner-info">
+    <span>🔄</span> <strong>AJAX MOVE · SUMMER 2025 — The €15M gamble on Jewish-Amsterdam footballing heritage.</strong> Ajax has deep roots in Amsterdam's Jewish community. Gloukh, openly proud of his Israeli-Jewish identity, arrives as more than a footballer — he's a cultural bridge. Five-year contract, €1.8M gross annually. The #10 shirt carries weight.
+  </div>
+  <div class="banner banner-danger">
+    <span>🛡️</span> <strong>170CM · SLIGHT BUILD — The physical question mark.</strong> At 170cm and slight frame, Gloukh is smaller than almost every elite attacking midfielder in the top-5 leagues. His agility and balance are exceptional, but can his body survive 50-match seasons against Premier League/Serie A physicality? T3 must verify.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Maccabi Tel Aviv</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Red Bull Salzburg</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Ajax</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7.1</div><div class="label">Est. FGA · T1 Only</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">29</div><div class="label">Eredivisie Apps 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6</div><div class="label">Eredivisie Goals 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6</div><div class="label">Eredivisie Assists 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">7.0</div><div class="label">FotMob Rating (est.)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">29</div><div class="label">Israel Caps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€15.0M</div><div class="label">Transfer Fee</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--silver);">5</div><div class="label">Israel Goals</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Oscar Gloukh</strong> is a <strong>22-year-old Israeli attacking midfielder</strong> born on April 1, 2004, in Rehovot, Israel. 170cm, <strong>right-footed</strong>. At <strong>AFC Ajax</strong> since summer 2025, wearing <strong>#10</strong>. Contract until <strong>June 30, 2030</strong>. Son of <strong>Maxim Gloukh</strong>, a former professional footballer of Russian Jewish descent. Career path: <strong>Maccabi Tel Aviv</strong> youth (2010-2022) → <strong>Maccabi Tel Aviv senior</strong> (2022-2023, 25 apps, 7G) → <strong>Red Bull Salzburg</strong> (Jan 2023-2025, 70 apps, 19G, 23A — €7M record Israeli sale) → <strong>Ajax</strong> (2025-, €15M + bonuses). <strong>Israel senior national team</strong> — 29 caps, 5 goals. <strong>U19 Euro 2022</strong> — Team of the Tournament, Goal of the Tournament, 4 goals. <strong>2024 Olympics</strong> — youngest Israeli Olympic goalscorer. First Israeli to score in the <strong>Club World Cup</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0/16 T3 metrics validated.</strong> No full-match isolated footage evaluated under ESN methodology. All 16 Empire FGA T3 metrics — OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, SPI, CLM, CRS, OMS, DYN, CRK, SOA — are pending scout review. <strong>Recommended T3 context:</strong> Ajax 2025-26 vs PSV/Feyenoord (Eredivisie elite), Ajax UCL 2025-26, Israel national team vs top-50 FIFA opponents, Red Bull Salzburg 2023-24 vs Rapid Wien (provided). <strong>Priority T3 focus:</strong> DMA (decision-making in tight spaces — his signature trait), CHR (character under pressure — U19 Euro final loss, Olympic exit), SII_R (durability — 170cm frame, 50-match season), CLM (composure vs elite pressing), CRK (creative risk in final third).
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 7.1 — Creative Midfielder · Israeli International · Ajax #10 · U19 Euro Star · Salzburg Graduate.</strong> The T1 data reveals a <strong>technically gifted, composed playmaker</strong> with elite youth pedigree and growing senior output. 6 goals and 6 assists in 29 Eredivisie apps (0.21 G/90, 0.21 A/90) is solid but not spectacular for a #10 at Ajax. His <strong>U19 Euro 2022 performance</strong> (4 goals, Team of Tournament, Goal of Tournament) suggests higher ceiling than current output. The <strong>Salzburg chapter</strong> (70 apps, 19G, 23A in 2.5 seasons) proved he can produce in a structured European system. The <strong>€15M fee</strong> is reasonable for a 21-year-old with his trajectory. But the <strong>170cm frame and slight build</strong> are the critical physical constraints. Cross-league projections suggest <strong>5.4–5.5 in top-5 leagues</strong> — a useful squad player or rotational starter, not yet a star. <strong>T3 validation of DMA, CHR, and physical robustness is mandatory before any €20M+ valuation.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — Ajax <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Eredivisie Apps</strong></td><td>29</td><td>14 starts, 15 sub</td><td>ESPN</td></tr>
+        <tr><td><strong>Eredivisie Goals</strong></td><td>6</td><td>0.21 G/90</td><td>ESPN</td></tr>
+        <tr><td><strong>Eredivisie Assists</strong></td><td>6</td><td>0.21 A/90</td><td>ESPN</td></tr>
+        <tr><td><strong>Total Shots</strong></td><td>44</td><td>1.5 per 90</td><td>ESPN</td></tr>
+        <tr><td><strong>Shots On Target</strong></td><td>19</td><td>43.2% accuracy</td><td>ESPN</td></tr>
+        <tr><td><strong>Fouls Committed</strong></td><td>17</td><td>0.6 per 90</td><td>ESPN</td></tr>
+        <tr><td><strong>Fouls Suffered</strong></td><td>3</td><td>Low — doesn't draw contact</td><td>ESPN</td></tr>
+        <tr><td><strong>Yellow Cards</strong></td><td>3</td><td>Disciplined</td><td>ESPN</td></tr>
+        <tr><td><strong>Red Cards</strong></td><td>0</td><td>—</td><td>ESPN</td></tr>
+        <tr><td><strong>Champions League Apps</strong></td><td>6+</td><td>2 goals (incl. first Ajax UCL win)</td><td>i24News</td></tr>
+        <tr><td><strong>Champions League Goals</strong></td><td>2</td><td>MOTM performance</td><td>i24News</td></tr>
+        <tr><td><strong>KNVB Cup Apps</strong></td><td>1</td><td>0 goals</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Career Total Apps</strong></td><td>124</td><td>All clubs</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Career Total Goals</strong></td><td>32</td><td>All clubs</td><td>Wikipedia</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff / Total Football Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:92%;background:#C8102E;"></div></div></div><div class="philo-score">9.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Guardiola / Positional Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#6CABDD;"></div></div></div><div class="philo-score">8.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Wenger / Technical Purity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#EF0107;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Pellegrini / Creative #10</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:83%;background:#6C1D45;"></div></div></div><div class="philo-score">8.3</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Farioli / Modern Ajax Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#C8102E;"></div></div></div><div class="philo-score">8.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Ten Hag / Positional Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#C8102E;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Ancelotti / Flexible Creator</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#00529F;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Bielsa / High-Intensity Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#e07820;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Klopp / Gegenpress Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#3498db;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Mourinho / Defensive Block Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003366;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Attacking / Creative · EST</h3>
+      <div class="attr-row"><span class="name">Goal Scoring (6G · 0.21 G/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Vision / Key Passes (6 assists)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Final Third Passing (EST 8.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Dribbling (1v1 in tight spaces)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Set-Piece Threat (FK · Penalty)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Link-Up Play (combinations)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pressing Resistance</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Finishing Variety (L/R/Head)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical / Athletic · EST</h3>
+      <div class="attr-row"><span class="name">SII_A Explosive Acceleration (EST 7.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed (EST 7.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery / Fitness (EST 7.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Strength / Physical Duels</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Stamina / 90-Minute Output</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Agility / Change of Direction</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Balance / Low Centre of Gravity</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Height 170cm · Right-footed</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Tactical · EST</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competitive (EST 7.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CHR Character / Big Games (U19 Euro)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (tight spaces)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CRK Creative Risk (final third)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (EST 8.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pressing Work Rate / Defensive</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DYN Versatility (AM/LW/RW/#8)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Leadership / Captain Potential</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FBref · Squawka · FotMob · ESPN · Eredivisie</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">6G/6A</div><div class="t1-hl-val">6/6</div><div class="t1-hl-pct">Eredivisie 2025-26 · 29 Apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:75%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">UCL</div><div class="t1-hl-val">2</div><div class="t1-hl-pct">Champions League Goals · MOTM</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:85%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">19G</div><div class="t1-hl-val">19</div><div class="t1-hl-pct">Salzburg Goals · 70 Apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:80%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">23A</div><div class="t1-hl-val">23</div><div class="t1-hl-pct">Salzburg Assists · 70 Apps</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:78%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">U19</div><div class="t1-hl-val">4</div><div class="t1-hl-pct">U19 Euro Goals · Team of Tourn.</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:88%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Attacking Output</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">Eredivisie 2025-26</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">6</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists 2025-26</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">6</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">G90</span><span class="t1-metric-desc">Goals per 90 (Eredivisie)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">0.21</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">A90</span><span class="t1-metric-desc">Assists per 90 (Eredivisie)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">0.21</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Salz</span><span class="t1-metric-desc">Salzburg goals (70 apps)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent)"></div></div></div><span class="t1-metric-val">19</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SAss</span><span class="t1-metric-desc">Salzburg assists (70 apps)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--accent)"></div></div></div><span class="t1-metric-val">23</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">International / Youth</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">ISR</span><span class="t1-metric-desc">Israel caps · 5 goals</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--gold)"></div></div></div><span class="t1-metric-val">29</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U19</span><span class="t1-metric-desc">U19 Euro 2022 · Team of Tourn. ★</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--gold)"></div></div></div><span class="t1-metric-val">4G</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">OLY</span><span class="t1-metric-desc">2024 Olympics · 1 goal</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1G</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CWC</span><span class="t1-metric-desc">Club World Cup · First Israeli scorer</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--gold)"></div></div></div><span class="t1-metric-val">1G</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Estimates</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">DMA — Decision Making (vision · tight-space composure)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CLM — Calmness (1v1 · pressure · ball retention)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">Vision / Key Passing (6 assists · final third entries)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">DYN — Versatility (AM · LW · RW · #8)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">CHR — Character (U19 Euro · Olympics · CWC)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Proxy Estimates</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are algorithmic estimates derived from Tier 1 statistical data. With 0/16 T3 metrics confirmed, these are unvalidated proxy scores. The Eredivisie (LOG 2.8) is a developmental/top-8 European tier. His Salzburg output (19G, 23A in 70 apps) in Austrian Bundesliga (LOG ~2.5) suggests he should maintain creative production in the Eredivisie. The UCL MOTM performance (2 goals) is the most reliable elite-context data point.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: 2.8</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> Eredivisie (Netherlands)<br>
+          <strong style="color:var(--text-primary);">Previous League:</strong> Austrian Bundesliga (LOG ~2.5)<br>
+          <strong style="color:var(--text-primary);">Peak Context:</strong> UCL 2025-26 (LOG ~3.5)<br>
+          <strong style="color:var(--success);">Confirmed in LOG_Reference</strong><br><br>
+          <strong style="color:var(--gold);">LOG 2.8</strong> represents a developmental/top-8 European tier. His Salzburg output (19G, 23A in 70 apps at LOG ~2.5) suggests he should maintain similar creative production in the Eredivisie. The UCL MOTM (2 goals) is the critical elite-context validation point.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · LOG 2.8</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_P — PENDING (EST 7.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_T — PENDING (EST 7.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_S — PENDING (EST 7.0)</strong><br>
+            No video events recorded. T1 proxy from 6 assists and Salzburg creative output.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A — PENDING (EST 7.0)</strong><br>
+            <strong style="color:var(--pending);">SII_T — PENDING (EST 7.0)</strong><br>
+            <strong style="color:var(--pending);">SII_R — PENDING (EST 7.5)</strong><br>
+            No video events recorded. Minor injury history (hand injury Feb 2025, illness Mar 2025).
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">✗</span> All 16 metrics pending<br><br>
+            <strong>0/16 metrics confirmed</strong> across 0 matches<br><br>
+            <strong>Recommended:</strong> Ajax UCL 2025-26 + Israel vs top-50 nations
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> CROSS-LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 7.1. All figures are algorithmic estimates derived from Tier 1 data — no T3 validation has been completed. The Eredivisie (LOG 2.8) is a confirmed Competition_Tier_Base entry. <strong>Critical:</strong> Creative midfielders carry unique translation uncertainty — vision and passing that works in the Eredivisie may not translate to Premier League/Serie A defensive pressure.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality using Empire FGA's Competition_Tier_Base reference. Gloukh's <strong style="color:var(--text-primary);">7.1 FGA is an estimated figure</strong> — 0/16 T3 metrics confirmed, all scores derived from Tier 1 statistical data. This projection carries <strong style="color:var(--danger);">moderate evidentiary uncertainty</strong> because his creative output is built across two different leagues (Austrian Bundesliga LOG ~2.5, Eredivisie LOG 2.8) and now a third context (UCL LOG ~3.5). The <strong>UCL MOTM performance (2 goals)</strong> is the most reliable elite-context data point. The <strong>Israeli Premier League projection (8.6)</strong> reflects his status as an elite player in his home country, though he has only 25 senior apps there.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Eredivisie</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">7.1</div>
+      <div class="label">Est. FGA (0/16 T3) · Tier 2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.4</div>
+      <div class="label">Significant downgrade · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — La Liga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.4</div>
+      <div class="label">Significant downgrade · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Serie A</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇮🇹 Italy</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.5</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Germany</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.5</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Ligue 1</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇫🇷 France</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.5</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Liga Profesional</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇦🇷 Argentina</div>
+      <div class="value" style="font-size:2.1rem;">5.9</div>
+      <div class="label">Moderate downgrade · Tier 3.4</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Israeli Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇮🇱 Israel</div>
+      <div class="value" style="font-size:2.1rem;">8.6</div>
+      <div class="label">Upgrade · Tier ~2.3 (est.)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br><br>
+      <strong>Premier League (3.7):</strong> 7.1 × (2.8 ÷ 3.7) = <strong style="color:var(--text-primary);">5.37</strong> → <strong>5.4</strong><br>
+      <strong>La Liga (3.7):</strong> 7.1 × (2.8 ÷ 3.7) = <strong style="color:var(--text-primary);">5.37</strong> → <strong>5.4</strong><br>
+      <strong>Serie A (3.6):</strong> 7.1 × (2.8 ÷ 3.6) = <strong style="color:var(--text-primary);">5.52</strong> → <strong>5.5</strong><br>
+      <strong>Bundesliga (3.6):</strong> 7.1 × (2.8 ÷ 3.6) = <strong style="color:var(--text-primary);">5.52</strong> → <strong>5.5</strong><br>
+      <strong>Ligue 1 (3.6):</strong> 7.1 × (2.8 ÷ 3.6) = <strong style="color:var(--text-primary);">5.52</strong> → <strong>5.5</strong><br>
+      <strong>Liga Profesional (3.4):</strong> 7.1 × (2.8 ÷ 3.4) = <strong style="color:var(--text-primary);">5.85</strong> → <strong>5.9</strong><br>
+      <strong>Israeli Premier League (~2.3):</strong> 7.1 × (2.8 ÷ 2.3) = <strong style="color:var(--text-primary);">8.64</strong> → <strong>8.6</strong><br><br>
+      <strong style="color:var(--warning);">Critical caveat — The Creative Midfielder Translation Problem:</strong> Gloukh's game is built on vision, tight-space composure, and final-third passing. These traits are <strong>system-dependent and pressure-sensitive</strong>. What works in the Eredivisie (LOG 2.8) — where pressing intensity is moderate and defensive organisation variable — may not translate to the Premier League (LOG 3.7), where every midfielder faces elite athletic pressing. His <strong>170cm frame and slight build</strong> compound this risk. The UCL MOTM (2 goals) is encouraging but a small sample. <strong>The Salzburg chapter is the best predictor</strong> — 19 goals and 23 assists in 70 Austrian Bundesliga apps suggests he can produce in a structured European system, but the Austrian league (LOG ~2.5) is below Eredivisie standard. <strong>T3 validation against elite European opposition is mandatory before any €20M+ transfer recommendation.</strong><br><br>
+      <strong style="color:var(--danger);">Read before sending to a club:</strong> This projection sits on an estimated base with zero confirmed T3 metrics, derived from a LOG 2.8 league with multi-league context. The margin of error is moderate-to-wide. The top-5 league projections (5.4–5.5) suggest a rotational starter or squad player in a big-5 league, not a guaranteed starter. The Israeli Premier League projection (8.6) confirms he would be a star at home. Do not use these figures in any client-facing material without heavy qualification and mandatory T3 validation against elite European opposition.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff / Total Football Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:92%;background:#C8102E;"></div></div></div><div class="philo-score">9.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Guardiola / Positional Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#6CABDD;"></div></div></div><div class="philo-score">8.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Wenger / Technical Purity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#EF0107;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Pellegrini / Creative #10</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:83%;background:#6C1D45;"></div></div></div><div class="philo-score">8.3</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Farioli / Modern Ajax Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#C8102E;"></div></div></div><div class="philo-score">8.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Ten Hag / Positional Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#C8102E;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Ancelotti / Flexible Creator</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#00529F;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Bielsa / High-Intensity Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#e07820;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Klopp / Gegenpress Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#3498db;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Mourinho / Defensive Block Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003366;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Cruyffian Playmaker with Israeli Steel"</strong> — DMA ~8.0 (tight-space decision-making) + CLM ~8.0 (composure) + Vision ~8.0 (6 assists, Salzburg creative output) = the classic Ajax #10 archetype. Not a goalscoring midfielder (only 6G in 29 Eredivisie apps) but a <strong>tempo-controller and chance-creator</strong>. His 170cm frame and low centre of gravity (Balance ~8.0) allow him to operate in congested midfield areas where taller players struggle. Weakness: physical duels (Strength ~6.0) and defensive work rate (Pressing ~6.5). <strong>Cruyff first. Guardiola second. Mourinho never.</strong> The Ajax move is perfect tactical fit — the #10 shirt is logical, not sentimental.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Cruyffian Playmaker</span>
+          <span class="tag tag-club">Ajax #10</span>
+          <span class="tag tag-club">Tempo Controller</span>
+          <span class="tag tag-club">U19 Euro Star</span>
+          <span class="tag tag-club">Israel International</span>
+          <span class="tag tag-info">170cm · Slight Build</span>
+          <span class="tag tag-info">Salzburg Graduate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">9.2</div><div class="label">Cruyff / Total Football</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">8.8</div><div class="label">Guardiola / Positional</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">8.0</div><div class="label">Farioli / Modern Ajax</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7.0</div><div class="label">Klopp / Gegenpress</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Apr 1, 2004 · Rehovot, Israel</div><div class="timeline-text">Born in <strong>Rehovot, Israel</strong>. Grew up in the Sha'arayim neighbourhood, 20km south of Tel Aviv. Son of <strong>Maxim Gloukh</strong>, former professional footballer of Russian Jewish descent who made aliyah at 13. Father played as a forward in Ukraine and Moldova.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2009–2010 · Maccabi Sha'arayim</div><div class="timeline-text">First football steps at local club <strong>Maccabi Sha'arayim</strong> in his neighbourhood.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2010–2022 · Maccabi Tel Aviv Youth Academy</div><div class="timeline-text">Joined <strong>Maccabi Tel Aviv</strong> youth setup at age 6. Rose through all age groups. Developed as attacking midfielder with exceptional vision and composure.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2021–22 · Maccabi Tel Aviv Senior Debut</div><div class="timeline-text"><strong>First professional appearance.</strong> 8 apps, 3 goals in Israeli Premier League. Began to attract European attention.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022–23 · Maccabi Tel Aviv · 25 apps, 7G</div><div class="timeline-text"><strong>Breakthrough season.</strong> 17 league apps, 4 goals. Established as one of Israel's most promising young talents. Total: 25 apps, 7 goals for Maccabi.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Jun 2022 · U19 Euro 2022 · Slovakia</div><div class="timeline-text"><strong>The international breakthrough.</strong> 4 goals (3rd highest scorer), 2 assists. Goal in final vs England. Named in <strong>UEFA Team of the Tournament</strong>. Won <strong>Goal of the Tournament</strong> for strike vs England. ESPN named him one of the tournament's best performers.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 2023 · Red Bull Salzburg · €7M</div><div class="timeline-text"><strong>Record Israeli transfer.</strong> Signed for €7M — a record sale for an Israeli club at the time. Rejected Barcelona to join Salzburg's development pathway. Five-year contract.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022–25 · Red Bull Salzburg · 70 apps, 19G, 23A</div><div class="timeline-text"><strong>Salzburg chapter.</strong> 2022-23: 15 apps, 2 goals. 2023-24: 29 apps, 7 goals. 2024-25: 26 apps, 10 goals. Total: 70 apps, 19 goals, 23 assists. Won Austrian Bundesliga 2022-23. Youngest Israeli Champions League scorer. First Israeli to score at Club World Cup.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jul 2024 · Paris Olympics</div><div class="timeline-text"><strong>Israel Olympic team.</strong> Played all three group games. Scored equalizer vs Paraguay (2-2). Became <strong>Israel's youngest Olympic goalscorer</strong> at 20 years and 3 months.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Nov 2022– · Israel Senior National Team</div><div class="timeline-text"><strong>Senior debut.</strong> Debut vs Zambia (4-2 win). First goal vs Cyprus (3-2 loss). Stoppage-time winner vs Belarus (Euro 2024 qualifying). Total: 29 caps, 5 goals as of June 2026.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Summer 2025 · Ajax · €15M + bonuses</div><div class="timeline-text"><strong>The Amsterdam project.</strong> Five-year contract until 2030. Wears <strong>#10</strong>. €1.8M gross annually. Ajax's Jewish heritage and Gloukh's Israeli identity create unique cultural resonance. Agent: Shachar Greenberg. "Ajax was our first choice."</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2025-26 · Ajax · 29 apps, 6G, 6A</div><div class="timeline-text">First season in Eredivisie. 6 goals, 6 assists in 29 apps. <strong>UCL MOTM</strong> with 2 goals in Ajax's first UCL win of the campaign. <strong>0/16 T3 metrics pending.</strong></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2021-22</strong></td><td>Maccabi Tel Aviv</td><td>Israeli Premier League</td><td>8</td><td>3</td><td>~1</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>Maccabi Tel Aviv</td><td>Israeli Premier League</td><td>17</td><td>4</td><td>~2</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>Red Bull Salzburg</td><td>Austrian Bundesliga</td><td>15</td><td>2</td><td>~3</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>Red Bull Salzburg</td><td>Austrian Bundesliga</td><td>29</td><td>7</td><td>~8</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Red Bull Salzburg</td><td>Austrian Bundesliga</td><td>26</td><td>10</td><td>~12</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Ajax</td><td>Eredivisie</td><td>29</td><td>6</td><td>6</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>124</strong></td><td><strong>32</strong></td><td><strong>~32</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer Ladder</h3>
+      <table class="data-table">
+        <thead><tr><th>From → To</th><th>Fee</th><th>Year</th></tr></thead>
+        <tbody>
+          <tr><td>Maccabi Youth → Maccabi Senior</td><td><strong>—</strong></td><td>2021</td></tr>
+          <tr><td>Maccabi Tel Aviv → Red Bull Salzburg</td><td><strong style="color:var(--gold);">€7M</strong></td><td>Jan 2023</td></tr>
+          <tr><td>Red Bull Salzburg → Ajax</td><td><strong style="color:var(--gold);">€15M + bonuses</strong></td><td>Summer 2025</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td><strong>Total career fees</strong></td><td colspan="2"><strong style="color:var(--success);">€22M+ in transfer fees</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Club/Team</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Austrian Bundesliga Champion</strong></td><td>2022-23</td><td>Red Bull Salzburg</td></tr>
+          <tr><td><strong>U19 Euro Team of the Tournament</strong></td><td>2022</td><td>Israel U19</td></tr>
+          <tr><td><strong>U19 Euro Goal of the Tournament</strong></td><td>2022</td><td>Israel U19</td></tr>
+          <tr><td><strong>U19 Euro Runner-up</strong></td><td>2022</td><td>Israel U19</td></tr>
+          <tr><td><strong>Youngest Israeli Olympic Goalscorer</strong></td><td>2024</td><td>Israel Olympic</td></tr>
+          <tr><td><strong>First Israeli CWC Goalscorer</strong></td><td>2025</td><td>Red Bull Salzburg</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">170cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~63kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Attacking Midfielder</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">LW, RW, #8</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#10 (Ajax)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Slight, low centre of gravity</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Israel</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Minor Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>Hand injury (Feb 2025):</strong> 12 days out (03.02–14.02.2025). <strong>Illness (Mar 2025):</strong> 9 days out (27.03–05.04.2025). <strong>Injury (Apr 2025):</strong> 15 days out (07.04–22.04.2025). No long-term structural damage. Generally durable across 124 career apps by age 22.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--danger);margin-bottom:4px;">Physical Concern — 170cm Frame</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>170cm, ~63kg</strong> — significantly below average for an elite attacking midfielder. Strength in duels is a concern. However, <strong>agility and balance are exceptional</strong> — his low centre of gravity allows tight-space dribbling. The question is whether he can survive 50-match seasons against top-5 league physicality. <strong>0/16 T3 metrics pending</strong> — physical robustness under isolated video assessment unknown.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>U19 Euro 2022 Team of the Tournament — elite youth pedigree</strong> — 4 goals, 2 assists, Goal of the Tournament. One of the best U19 players in Europe at 18.</li>
+      <li><strong>Salzburg creative output — 19 goals, 23 assists in 70 apps</strong> — Proved he can produce in a structured European system. Record Israeli transfer (€7M) at the time.</li>
+      <li><strong>Ajax first season — 6 goals, 6 assists in 29 Eredivisie apps</strong> — Solid transition to Dutch football. UCL MOTM with 2 goals.</li>
+      <li><strong>Israel national team regular — 29 caps, 5 goals at 22</strong> — Senior international experience. Stoppage-time winner vs Belarus (Euro qualifying).</li>
+      <li><strong>First Israeli to score at Club World Cup</strong> — Historic milestone. Proved he can perform on global stage.</li>
+      <li><strong>Youngest Israeli Olympic goalscorer (2024)</strong> — Mental strength at youth international level.</li>
+      <li><strong>Rejected Barcelona for Salzburg — career intelligence</strong> — Chose development pathway over glamour move at 18. Shows maturity.</li>
+      <li><strong>Ajax #10 — cultural and tactical fit</strong> — Jewish-Amsterdam footballing heritage. The shirt means something.</li>
+      <li><strong>Composed in tight spaces — "lifts his head where others can't"</strong> — Signature trait. Vision and calmness under pressure.</li>
+      <li><strong>Versatile — AM, LW, RW, #8</strong> — Can play across midfield and attack. Tactical flexibility.</li>
+      <li><strong>€15M transfer fee — reasonable value</strong> — For a 21-year-old with his trajectory, this represents fair market value.</li>
+      <li><strong>No major long-term injuries</strong> — Minor knocks only. 124 apps by age 22 suggests reliability.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>170cm, ~63kg — undersized for elite European midfield</strong> — Will struggle against physical Premier League/Serie A midfielders. Not a dominant aerial or duel presence.</li>
+      <li><strong>Goal output modest for a #10 — 0.21 G/90 in Eredivisie</strong> — Not a goalscoring midfielder. Relies on creation rather than finishing.</li>
+      <li><strong>Only 14 starts in 29 Eredivisie apps — not yet undisputed</strong> — 15 substitute appearances suggests he's still adapting or competing for minutes.</li>
+      <li><strong>Austrian Bundesliga context (LOG ~2.5) inflates Salzburg numbers</strong> — 19G/23A in Austria is less impressive than equivalent output in Eredivisie.</li>
+      <li><strong>Israeli Premier League sample small — only 25 senior apps</strong> — Home league experience is limited. Most development happened in Austria/Netherlands.</li>
+      <li><strong>Defensive contribution minimal — pressing work rate low</strong> — Not a two-way midfielder. In modern systems, #10s must press. Gloukh is a creator first.</li>
+      <li><strong>0/16 T3 metrics confirmed</strong> — No video validation of any Empire FGA metric. All assessments are statistical proxies.</li>
+      <li><strong>Political/cultural visibility could be distraction</strong> — Openly pro-Israel social media posts, Israeli tattoo, flags at games. In some markets, this is irrelevant; in others, it could affect dressing room dynamics or fan reception.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>No T3 video assessment completed</strong> — The single biggest gap. Every metric is a guess until a scout watches him play in isolated footage.</li>
+      <li><strong>DMA 8.0 is a T1 proxy — not confirmed by scout observation</strong> — His reputation for "seeing passes no one else sees" is anecdotal. T3 must verify creative intelligence in isolated footage.</li>
+      <li><strong>No top-5 league minutes</strong> — Every minute of his European career is in Austria (LOG ~2.5) or Netherlands (LOG 2.8). The step-up to elite European football is unproven over a full season.</li>
+      <li><strong>Physical robustness against elite European midfielders unverified</strong> — One UCL MOTM is encouraging but not a sample. Can he handle Rodri, Kimmich, Barella week in, week out?</li>
+      <li><strong>Defensive work rate in elite system unknown</strong> — Farioli at Ajax demands pressing from all midfielders. Gloukh has never been a defensive worker. Will he adapt or be exposed?</li>
+      <li><strong>Mental resilience after U19 Euro final loss</strong> — Lost 3-1 to England in U19 Euro 2022 final. Scored but couldn't prevent defeat. How does he handle knockout pressure as a senior?</li>
+      <li><strong>Comparison to elite #10 benchmarks</strong> — De Bruyne, Bellingham, Musiala, Wirtz all have superior T1 and T3-confirmed profiles. Gloukh's ceiling is "very good Eredivisie #10," not "world-class."</li>
+      <li><strong>Resale value risk</strong> — If he fails at Ajax, his market value could collapse. The €15M fee is the baseline; any depreciation hurts Ajax's model.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 7.1 — Creative Midfielder · Israeli International · Ajax #10 · U19 Euro Star · Salzburg Graduate.</strong> The T1 data reveals a <strong>technically gifted, composed playmaker</strong> with elite youth pedigree and solid if unspectacular senior output. His 6 goals and 6 assists in 29 Eredivisie apps (0.21 G/90, 0.21 A/90) is respectable for a 21-year-old in his first Dutch season. The <strong>UCL MOTM (2 goals)</strong> is the signature moment that suggests higher ceiling. But the <strong>170cm frame and slight build</strong> are the critical physical constraints. Cross-league projections suggest <strong>5.4–5.5 in the top-5 leagues</strong> — a rotational starter or squad player. The <strong>Israeli Premier League projection (8.6)</strong> confirms he would be a star at home. <strong>T3 assessment is mandatory before any €20M+ valuation.</strong> Priority context: Ajax UCL 2025-26, Israel vs top-50 nations, and Salzburg 2023-24 vs Rapid Wien (provided) for developmental baseline. DMA, CLM, and CHR confirmation likely; physical robustness, defensive work rate, and top-5 translation are the critical unknowns. <strong>Recommended for Ajax as creative #10 — the Eredivisie suits his profile. Not recommended for sale valuation above €15M without T3 confirmation of physical adequacy and defensive contribution in elite context.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>No Empire FGA Assessment Matches Available.</strong> No full-match isolated footage has been registered in the T3 system. Below are available video resources for future scout registration. Five matches from Ajax 2025-26 Eredivisie season + one from Red Bull Salzburg 2022-23 Austrian Bundesliga. Priority: Ajax UCL 2025-26 + Israel national team vs elite opposition.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Assessment Footage — Available Video Resources <span class="line"></span></div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/tzqakzubmjwxu2ezsvsph/Philips-Sport-Vereniging-PSV-Amsterdamsche-Football-Club-Ajax.mp4?rlkey=nx5x17jkyc8nhkb7aeb4yn24m&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">PSV vs Ajax 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-verified">Ajax Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — Eredivisie title race context.</strong> Oscar Gloukh in Ajax's biggest domestic fixture. Useful for DMA, CLM, and CHR assessment under high-stakes Dutch football pressure. LOG ~3.0.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/qmvtevpsg1c1qqasv8lya/Football-Club-Volendam-Amtserdamsche-Football-Club-Ajax.mp4?rlkey=m6u9yz4noa8m090ff6brbsof3&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Volendam vs Ajax 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-verified">Ajax Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — Mid-table opposition, space-available context.</strong> Tests Gloukh's creative output when Ajax dominate possession. LOG ~2.6.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/1kquna7pm7wf0vy5105db/Sparta-Rotterdam-Amsterdamsche-Football-Club-Ajax.mp4?rlkey=3aeplxe19zrnyymk820jcqfpm&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Sparta Rotterdam vs Ajax 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-verified">Ajax Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — Compact block, low-block breakdown test.</strong> Validates DMA and CRK against defensive organisation. LOG ~2.7.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/yhtu9n7e7cbxmjflg3zo6/Amsterdamsche-Football-Club-Ajax-Sport-Club-Telstar.mp4?rlkey=d48b9yae8b0oh8th8erotyxxc&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Telstar vs Ajax 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-verified">Ajax Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — Eredivisie fixture vs Telstar.</strong> Standard league context for baseline creative assessment. LOG ~2.5.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/o44sfavs86qtreitvmsbu/Amsterdamsche-Football-Club-Ajax-Sport-Club-Heerenveen.mp4?rlkey=u002uwbsffjimpcizsx1hfum0&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs Heerenveen 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2023-24</span>
+          <span class="match-badge badge-verified">Ajax Club Context</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — Ajax club context (pre-Gloukh era).</strong> Useful for understanding Ajax tactical system before Gloukh's arrival. Not direct assessment footage. LOG ~2.7.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/pt8tc9yewpqklryxc6dgs/Sport-Klub-Rapid-Wien-Fu-ballclub-Red-Bull-Salzburg-First-Half.mp4?rlkey=q6zx4zlc7weuu4yaahhou9s42&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Rapid Wien vs Red Bull Salzburg 🇦🇹</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Austrian Bundesliga 2022-23</span>
+          <span class="match-badge badge-verified">Salzburg Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>NEW — Salzburg developmental baseline.</strong> Gloukh's first half-season in European football. Early-career DMA, CRK, and CLM assessment. LOG ~2.5.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Priority Match Register</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 1 — Ajax UCL 2025-26</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M1:</strong> Ajax vs [UCL Opponent] 2025-26<br>
+          <strong style="color:var(--info);">M2:</strong> Ajax UCL away fixture<br><br>
+          <strong>LOG 3.5+</strong> (UCL group stage). The true test of his creative intelligence against elite European pressing. The MOTM performance is encouraging but needs replication.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 2 — Israel National Team</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M3:</strong> Israel vs top-50 FIFA nation<br>
+          <strong style="color:var(--info);">M4:</strong> Israel Euro/WC qualifier<br><br>
+          <strong>LOG ~3.0</strong>. International context validates CHR, CLM, and DMA against organised national team defences.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 3 — Salzburg Elite Context</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">M5:</strong> Salzburg vs Rapid Wien (provided)<br><br>
+          <strong>LOG ~2.5</strong>. Developmental baseline from his first European season. Early-career DMA and creative risk assessment.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.1;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Goal Scoring','Vision/Passing','CHR/Big Game','CLM/Composure','OBI_P/Position','SII_A/Acc','SII_R/Fit','MCS/Mental'],
+      datasets: [{
+        label: 'Gloukh EST (22)',
+        data: [7.0, 8.0, 7.5, 8.0, 7.5, 7.0, 7.5, 7.5],
+        backgroundColor: 'rgba(200,16,46,0.2)',
+        borderColor: '#C8102E',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Creative AM avg',
+        data: [7.0, 7.5, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Cruyff','Guardiola','Wenger','Pellegrini','Farioli','Ten Hag'],
+    datasets: [{
+      label: 'Gloukh',
+      data: [9.2, 8.8, 8.5, 8.3, 8.0, 7.8],
+      backgroundColor: 'rgba(200,16,46,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#C8102E','#6CABDD','#EF0107','#6C1D45','#C8102E','#C8102E'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 45%','T2 Composite 30%','T3 Pending 25%'],
+      datasets: [{
+        data: [45, 30, 25],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

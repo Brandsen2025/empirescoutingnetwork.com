@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maher Carrizo | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#C8102E;--accent-dim:rgba(200,16,46,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}.hero-photo{position:absolute;inset:0;background:url('https://cdn.bnmedia.nl/carrizokijkt.jpg?width=732&height=488&format=jpg&quality=85&crop=3543%2C2362%2C0%2C0') center 25%/cover no-repeat;filter:brightness(0.5) saturate(0.9);transition:transform 8s ease;}.hero:hover .hero-photo{transform:scale(1.03);}.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(200,16,46,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#C8102E 33%,#fff 33%,#fff 66%,#6CABDD 66%);z-index:10;}.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}.champ-badge::before{content:'🇦🇷';font-size:0.8rem;}.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}.hero-meta .flag{font-size:1.1rem;}.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}.tag-club{background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}.tag-argentina{background:rgba(108,171,221,0.1);color:#6CABDD;border:1px solid rgba(108,171,221,0.2);}
+.fga-dial-wrap{position:relative;width:140px;height:140px;flex-shrink:0;}.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;}.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}.tier-pill.t3{background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}.tab-bar-inner::-webkit-scrollbar{display:none;}.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}.tab-btn:hover{color:var(--text-secondary);}.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}.tab-panel{display:none;}.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}.banner-proxy{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}.banner-champ{background:linear-gradient(135deg,rgba(200,16,46,0.1),rgba(251,191,36,0.05));border:1px solid rgba(200,16,46,0.2);color:var(--silver);}.banner-argentina{background:rgba(108,171,221,0.08);border:1px solid rgba(108,171,221,0.2);color:#6CABDD;}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.career-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}.career-node{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}.career-node.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}.career-arrow{color:var(--text-tertiary);font-size:0.8rem;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.attr-row:last-child{border-bottom:none;}.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}.ac-green{color:var(--success);}.ac-yellow{color:var(--warning);}.ac-red{color:var(--danger);}.ac-pend{color:var(--pending);}.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}.circle-green{background:var(--success);}.circle-yellow{background:var(--warning);}.circle-red{background:var(--danger);}.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.t1-metric-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.t1-metric-row:last-child{border-bottom:none;}.t1-metric-code{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}.t1-metric-desc{font-size:0.78rem;color:var(--text-secondary);flex:1;}.t1-metric-bar-wrap{width:100px;flex-shrink:0;}.t1-metric-val{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+.t1-highlight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}.t1-hl-box{background:linear-gradient(135deg,rgba(200,16,46,0.18),rgba(251,191,36,0.06));border:2px solid rgba(200,16,46,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}.t1-hl-box.gold{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(200,16,46,0.06));border-color:rgba(251,191,36,0.5);}.t1-hl-code{font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}.t1-hl-val{font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}.t1-hl-box.gold .t1-hl-val{color:var(--gold);}.t1-hl-pct{font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}.t1-hl-bar{height:3px;background:rgba(200,16,46,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--silver);}.t1-hl-box.gold .t1-hl-bar-fill{background:var(--gold);}
+.t1-group{margin-bottom:14px;}.t1-group-head{font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(200,16,46,0.08);margin-bottom:8px;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}.philo-row:last-child{border-bottom:none;}.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(200,16,46,0.1);}.match-thumb{height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}.match-thumb::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(200,16,46,0.15)' stroke-width='2'/></svg>") center/80px no-repeat;}.match-thumb .play-icon{width:48px;height:48px;background:rgba(200,16,46,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}.match-card:hover .play-icon{transform:scale(1.1);background:var(--accent);}.play-icon svg{width:18px;height:18px;fill:white;margin-left:3px;}.match-info{padding:16px;}.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}.badge-pending{background:rgba(90,96,112,0.12);color:var(--pending);}.badge-champ{background:rgba(200,16,46,0.12);color:var(--silver);}.badge-velez{background:rgba(108,171,221,0.12);color:#6CABDD;}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}.scout-verdict{background:var(--accent-dim);border:1px solid rgba(200,16,46,0.2);}.scout-verdict h4{color:var(--silver);}.scout-box ul{list-style:none;padding:0;margin:0;}.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}.scout-box li::before{content:'—';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(200,16,46,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(200,16,46,0.15);border-radius:12px;padding:20px;}.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}.physical-item .label{color:var(--text-tertiary);}.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}.timeline-item{position:relative;padding-bottom:20px;}.timeline-item:last-child{padding-bottom:0;}.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(200,16,46,0.4);}.timeline-item.hist::before{background:var(--success);border-color:var(--success);}.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}.timeline-item.hist .timeline-date{color:var(--success);}.timeline-item.champ .timeline-date{color:var(--gold);}.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}.radar-container canvas{width:100%!important;height:100%!important;}
+@media(max-width:768px){.hero{height:440px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:110px;height:110px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.t1-metric-bar-wrap{width:60px;}.t1-metric-val{width:50px;}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">AFC Ajax · Eredivisie · Argentina U20</div>
+  <div class="jersey-watermark">7</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Sarmiento (La Banda)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Vélez Sarsfield</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Ajax #7</div>
+    </div>
+    <h1 class="hero-name">Maher Carrizo</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇦🇷</span> Argentina</span>
+      <span class="dot"></span>
+      <span>20 years</span>
+      <span class="dot"></span>
+      <span>180cm</span>
+      <span class="dot"></span>
+      <span>Left-footed</span>
+      <span class="dot"></span>
+      <span>RW / CF / RM</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">T3 Pending</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING · PILOT</span>
+          <span class="tag tag-club">AFC Ajax · #7</span>
+          <span class="tag tag-argentina">Argentina U20</span>
+          <span class="tag tag-argentina">Liga Profesional Champion</span>
+          <span class="tag tag-gold">Inverted Winger</span>
+          <span class="tag tag-value">~€8.0M</span>
+          <span class="tag tag-info">Contract · Jun 2030</span>
+          <span class="tag tag-info">Signed Feb 2026</span>
+          <span class="tag tag-info">Fee: €6.0M</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">6.3</div>
+          <div class="fga-status">ESTIMATED · T1 ONLY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>ESTIMATED FGA 6.3 — PILOT CARD · T1 DATA ONLY · NO T3 FOOTAGE ASSESSED.</strong> All scores derived from FBref, Squawka, StatLineX, FotMob, Transfermarkt, ESPN, and Sofascore. No full-match isolated footage evaluated under ESN methodology. Directional estimates pending T3 confirmation.
+  </div>
+  <div class="banner banner-argentina">
+    <span>🎯</span> <strong>ARGENTINE INVADER — The €6.0M Santiago del Estero gamble.</strong> Signed from Vélez Sarsfield in February 2026 on a four-and-a-half-year contract until 2030. A left-footed inverted winger who broke through in the Liga Profesional 2024 title-winning campaign and the 2025 Supercopa. <strong>32 Eredivisie minutes</strong> so far — integration phase active.
+  </div>
+  <div class="banner banner-info">
+    <span>🔄</span> <strong>VELEZ SARSFIELD PEDIGREE — 42+ apps, 5 goals, 3 titles.</strong> Emerged from Club Atlético Sarmiento (La Banda) youth system before joining Vélez. Won Liga Profesional 2024, Supercopa 2025, and Super Copa International 2025. Copa Libertadores experience at 18-19. Argentina U20 international.
+  </div>
+  <div class="banner banner-danger">
+    <span>🛡️</span> <strong>INJURY HISTORY — Three documented layoffs 2024-25.</strong> Sept-Oct 2024 (significant, ~1 month), plus two minor injuries in April 2025. No red flags but durability monitoring essential during European adaptation. Physical robustness in Dutch winter conditions unproven.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Sarmiento (La Banda)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Vélez Sarsfield</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Ajax #7</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6.3</div><div class="label">Est. FGA · T1 Only</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">42+</div><div class="label">Vélez Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">5</div><div class="label">Vélez Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">4</div><div class="label">Ajax Apps 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">6.18</div><div class="label">FotMob Rating</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">~€8M</div><div class="label">Market Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--silver);">180cm</div><div class="label">Height</div></div>
+    <div class="stat-hero"><div class="value" style="color:#6CABDD;">🇦🇷 U20</div><div class="label">Argentina Youth</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Maher Mauricio Carrizo</strong> is a <strong>20-year-old Argentine inverted winger</strong> born on 19 February 2006, in Santiago del Estero, Argentina. 180cm, <strong>left-footed</strong>. A product of <strong>Club Atlético Sarmiento (La Banda)</strong> youth academy before joining <strong>Vélez Sarsfield</strong>, where he won the <strong>Liga Profesional 2024</strong>, <strong>Supercopa 2025</strong>, and <strong>Super Copa International 2025</strong>. Signed by <strong>AFC Ajax</strong> on <strong>3 February 2026</strong> for a reported <strong>€6.0M</strong> on a contract until <strong>30 June 2030</strong>. Wears <strong>#7</strong>. <strong>Argentina U20 international</strong> — also represented U17. Agent: <strong>Eleven Talent Group</strong>. Primary position: <strong>Right Winger</strong> (inverted), secondary: Centre-Forward, Right Midfield. Known for cutting inside from the right onto his stronger left foot.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0/16 T3 metrics validated.</strong> No full-match isolated footage evaluated under ESN methodology. All 16 Empire FGA T3 metrics — OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, SPI, CLM, CRS, OMS, DYN, CRK, SOA — are pending scout review. <strong>Recommended T3 context:</strong> Vélez Sarsfield 2024-25 Liga Profesional (LOG 3.4), Copa Libertadores 2025 (LOG 3.5+), Ajax Eredivisie 2025-26 (LOG 2.8), Argentina U20 competitive fixtures. <strong>Priority T3 focus:</strong> OBI_T (run timing off the right flank), SII_A (explosive acceleration from inverted position), DMA (decision-making when cutting inside), CHR (character during European adaptation), CLM (composure in front of goal), CRK (creative risk — shooting vs passing).
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 6.3 (Absolute) — Inverted Winger · Argentina U20 · Vélez Sarsfield Champion · Ajax New Signing · Integration Phase.</strong> The T1 data reveals a <strong>technically gifted, left-footed wide forward</strong> with proven output in the Liga Profesional (LOG 3.4) but extremely limited European data. His <strong>5 goals in 22 apps in 2025</strong> for Vélez show attacking instincts, while his <strong>81% shot attempt trait and 68% chance creation</strong> (FotMob) suggest an aggressive, direct winger. However, <strong>only 32 Eredivisie minutes</strong> means his Ajax integration is in early stages. The <strong>€6.0M fee</strong> reflects potential rather than proven production. Cross-league projections suggest <strong>~4.8 in top-5 leagues</strong> at current level, but this is highly speculative given the small sample. <strong>T3 validation of SII_A, OBI_T, and DMA is mandatory before any starting XI projection.</strong> This is a <strong>develop and monitor</strong> asset — the four-year contract suggests Ajax see long-term value. For the Empire FGA system: this card sits in the <strong>"young professional with unproven European ceiling"</strong> category.
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — Ajax (Integration Phase) <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Eredivisie Apps</strong></td><td>4</td><td>All substitute, 0 starts</td><td>FotMob / ESPN</td></tr>
+        <tr><td><strong>Eredivisie Goals</strong></td><td>0</td><td>0.00 G/90 — early integration</td><td>FotMob</td></tr>
+        <tr><td><strong>Eredivisie Assists</strong></td><td>0</td><td>0.00 A/90</td><td>FotMob</td></tr>
+        <tr><td><strong>Minutes</strong></td><td>32</td><td>~8 min/app</td><td>FotMob</td></tr>
+        <tr><td><strong>FotMob Rating</strong></td><td>6.18</td><td>Small sample baseline</td><td>FotMob</td></tr>
+        <tr><td><strong>Shots</strong></td><td>1</td><td>1 shot in 32 min</td><td>FotMob</td></tr>
+        <tr><td><strong>xG</strong></td><td>0.04</td><td>Minimal attacking output</td><td>FotMob</td></tr>
+        <tr><td><strong>Yellow Cards</strong></td><td>0</td><td>Disciplined</td><td>FotMob</td></tr>
+        <tr><td><strong>Red Cards</strong></td><td>0</td><td>—</td><td>FotMob</td></tr>
+        <tr><td><strong>Friendly Goal</strong></td><td>1</td><td>vs Volendam (Mar 2026)</td><td>ESPN</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">2025 Season Snapshot — Vélez Sarsfield (Last Full Season) <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Liga Profesional Apps</strong></td><td>22</td><td>Regular squad player</td><td>Flashscore</td></tr>
+        <tr><td><strong>Liga Profesional Goals</strong></td><td>5</td><td>0.23 G/90 — solid winger output</td><td>Flashscore</td></tr>
+        <tr><td><strong>Liga Profesional Assists</strong></td><td>0</td><td>—</td><td>Flashscore</td></tr>
+        <tr><td><strong>Total Vélez Apps</strong></td><td>42+</td><td>2023-2026 cumulative</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>Total Vélez Goals</strong></td><td>5</td><td>All in 2025 season</td><td>Flashscore</td></tr>
+        <tr><td><strong>Yellow Cards</strong></td><td>3</td><td>Moderate discipline</td><td>Flashscore</td></tr>
+        <tr><td><strong>Red Cards</strong></td><td>0</td><td>—</td><td>Flashscore</td></tr>
+        <tr><td><strong>Titles Won</strong></td><td>3</td><td>Liga Prof 2024, Supercopa 2025, Super Copa Int. 2025</td><td>FotMob</td></tr>
+        <tr><td><strong>Copa Libertadores</strong></td><td>Yes</td><td>2025 campaign</td><td>FotMob</td></tr>
+        <tr><td><strong>Argentina U20</strong></td><td>Yes</td><td>International youth level</td><td>Transfermarkt</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Guardiola / Inverted Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#6CABDD;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Bielsa / High-Intensity Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#e07820;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Cruyff / Total Football Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#C8102E;"></div></div></div><div class="philo-score">8.0</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Ten Hag / Positional Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#C8102E;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Simeone / Counter-Attacking Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:#e07820;"></div></div></div><div class="philo-score">7.6</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Klopp / Direct Wide Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#3498db;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Menotti / Artistic Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#e07820;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Ancelotti / Organised Wide Player</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#00529F;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Mourinho / Low-Block Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#003366;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Conte / Wing-Back</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#001C58;"></div></div></div><div class="philo-score">5.8</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Attacking / Creative · EST</h3>
+      <div class="attr-row"><span class="name">Finishing (5 goals · 0.23/90 at Vélez)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Shot Attempts (81% FotMob trait)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Chance Creation (68% FotMob trait)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.8 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Dribbling / 1v1 (Inverted winger profile)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Key Passes (EST 6.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Aerial Duels (59% FotMob trait)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Off-Ball Movement (OBI_T EST 6.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pressing Contribution (41% defensive)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical / Athletic · EST</h3>
+      <div class="attr-row"><span class="name">SII_A Explosive Acceleration (EST 6.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed (EST 6.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery / Fitness (EST 6.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Strength / Physical Duels (180cm)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Stamina / 90-Minute Output</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Agility / Change of Direction</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Injury Resilience (3 layoffs)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Height 180cm · Left-footed</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Tactical · EST</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competence (EST 6.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CHR Character / Adaptation (U20)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (under press)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (EST 6.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CRK Creative Risk (shoot vs pass)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pressing Trigger / Defensive Work</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DYN Versatility (RW/CF/RM)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">COACH Coachability (EST 6.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FotMob · Transfermarkt · Flashscore · Eredivisie</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">5G</div><div class="t1-hl-val">5</div><div class="t1-hl-pct">Vélez Goals 2025 · 0.23/90</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:78%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">3</div><div class="t1-hl-val">3</div><div class="t1-hl-pct">Titles · Liga Prof + Supercopa + SCI</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:85%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">81%</div><div class="t1-hl-val">81</div><div class="t1-hl-pct">Shot Attempt Trait · FotMob</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:75%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">68%</div><div class="t1-hl-val">68</div><div class="t1-hl-pct">Chance Creation Trait · FotMob</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">€6M</div><div class="t1-hl-val">6.0</div><div class="t1-hl-pct">Transfer Fee · Ajax investment</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:72%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Attacking (Vélez 2025)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">Goals 2025 (Liga Profesional)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--accent)"></div></div></div><span class="t1-metric-val">5</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Appearances 2025</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent)"></div></div></div><span class="t1-metric-val">22</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists 2025</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--accent)"></div></div></div><span class="t1-metric-val">0</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">YC</span><span class="t1-metric-desc">Yellow Cards</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--accent)"></div></div></div><span class="t1-metric-val">3</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Ajax Integration (2025-26)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Eredivisie Appearances</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--gold)"></div></div></div><span class="t1-metric-val">4</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Minutes Played</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--gold)"></div></div></div><span class="t1-metric-val">32</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Rat</span><span class="t1-metric-desc">FotMob Rating</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--gold)"></div></div></div><span class="t1-metric-val">6.18</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">xG</span><span class="t1-metric-desc">Expected Goals</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--gold)"></div></div></div><span class="t1-metric-val">0.04</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Estimates</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">DMA — Decision Making (shooting tendency · 0 assists · cut-inside profile)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CHR — Character (U20 Argentina · title winner · European adaptation)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CLM — Calmness (5 goals in 22 apps · 0 assists suggests shoot-first)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI_T — Run Timing (inverted winger · left-footed on right)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">DYN — Versatility (RW/CF/RM · 3 positions at Vélez + Ajax)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Proxy Estimates</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are algorithmic estimates derived from Tier 1 statistical data. With 0/16 T3 metrics confirmed, these are unvalidated proxy scores. The Liga Profesional (LOG 3.4) is a strong South American tier — his 5 goals in 22 apps there are the primary data anchor. The Eredivisie sample (32 minutes) is too small for reliable statistical inference. All Ajax-era scores are extrapolated from Vélez data with a league-adjustment factor.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: 2.8</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> Eredivisie (Netherlands)<br>
+          <strong style="color:var(--text-primary);">Previous League:</strong> Liga Profesional Argentina (LOG 3.4)<br>
+          <strong style="color:var(--text-primary);">International Context:</strong> Argentina U20 (LOG ~2.5)<br>
+          <strong style="color:var(--success);">Confirmed in LOG_Reference</strong><br><br>
+          <strong style="color:var(--gold);">LOG 2.8</strong> represents a developmental/top-8 European tier. Carrizo moved from a <strong style="color:var(--text-primary);">LOG 3.4 league</strong> (Liga Profesional) to a <strong style="color:var(--text-primary);">LOG 2.8 league</strong> (Eredivisie). On paper, this is a competitive step down in raw league quality — but the European tactical and physical demands represent a different kind of challenge. His 5 goals in Argentina (LOG 3.4) translate to a higher expected output in the Eredivisie if adaptation is successful. The small sample (32 mins) prevents any meaningful Ajax-era statistical conclusion.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · LOG 2.8</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_P — PENDING (EST 6.0)</strong><br>
+            <strong style="color:var(--pending);">OBI_T — PENDING (EST 6.0)</strong><br>
+            <strong style="color:var(--pending);">OBI_S — PENDING (EST 5.5)</strong><br>
+            No video events recorded. T1 proxy from 0 assists and inverted winger profile. Does he create space for teammates when cutting inside, or only for himself?
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">SII_T — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">SII_R — PENDING (EST 6.0)</strong><br>
+            No video events recorded. Inverted wingers rely heavily on first-burst acceleration to beat defenders on the cut-inside. This is a critical unknown for his ceiling.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">✗</span> All 16 metrics pending<br><br>
+            <strong>0/16 metrics confirmed</strong> across 0 matches<br><br>
+            <strong>Recommended:</strong> Vélez Sarsfield 2025 Liga Profesional + Copa Libertadores + Ajax Eredivisie 2025-26 footage
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> CROSS-LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 6.3. All figures are algorithmic estimates derived from Tier 1 data — no T3 validation has been completed. The Eredivisie (LOG 2.8) is a confirmed Competition_Tier_Base entry. <strong>Critical:</strong> This player has only 32 minutes in the Eredivisie. The base FGA is heavily anchored to Liga Profesional (LOG 3.4) performance. Cross-league projections carry <strong style="color:var(--danger);">very high evidentiary uncertainty</strong>.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality using Empire FGA's Competition_Tier_Base reference. Carrizo's <strong style="color:var(--text-primary);">6.3 FGA is an estimated figure</strong> — 0/16 T3 metrics confirmed, all scores derived from Tier 1 statistical data. His primary data anchor is <strong style="color:var(--text-primary);">Vélez Sarsfield in Liga Profesional 2025 (LOG 3.4)</strong>, not Ajax. The projections below assume his Vélez level translates to other leagues. His actual Ajax adaptation is unproven.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Previous Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇦🇷 Liga Profesional</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">6.3</div>
+      <div class="label">Est. FGA (0/16 T3) · Tier 3.4</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Netherlands</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">5.2</div>
+      <div class="label">Projected · Tier 2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">4.8</div>
+      <div class="label">Significant downgrade · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — La Liga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">4.8</div>
+      <div class="label">Significant downgrade · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Serie A</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇮🇹 Italy</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">4.9</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Germany</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">4.9</div>
+      <div class="label">Significant downgrade · Tier ~3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,59,59,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Ligue 1</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇫🇷 France</div>
+      <div class="value" style="font-size:2.1rem;color:var(--danger);">4.9</div>
+      <div class="label">Significant downgrade · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Liga Profesional</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇦🇷 Argentina</div>
+      <div class="value" style="font-size:2.1rem;">6.3</div>
+      <div class="label">Base context · Tier 3.4</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA x (Current League Tier / Target League Tier).<br><br>
+      <strong>Eredivisie (2.8):</strong> 6.3 x (3.4 / 2.8) = <strong style="color:var(--text-primary);">7.65</strong> → <strong>5.2</strong> (capped for integration uncertainty)<br>
+      <strong>Premier League (3.7):</strong> 6.3 x (3.4 / 3.7) = <strong style="color:var(--text-primary);">5.79</strong> → <strong>4.8</strong><br>
+      <strong>La Liga (3.7):</strong> 6.3 x (3.4 / 3.7) = <strong style="color:var(--text-primary);">5.79</strong> → <strong>4.8</strong><br>
+      <strong>Serie A (3.6):</strong> 6.3 x (3.4 / 3.6) = <strong style="color:var(--text-primary);">5.95</strong> → <strong>4.9</strong><br>
+      <strong>Bundesliga (~3.6):</strong> 6.3 x (3.4 / 3.6) = <strong style="color:var(--text-primary);">5.95</strong> → <strong>4.9</strong><br>
+      <strong>Ligue 1 (3.6):</strong> 6.3 x (3.4 / 3.6) = <strong style="color:var(--text-primary);">5.95</strong> → <strong>4.9</strong><br>
+      <strong>Liga Profesional (3.4):</strong> 6.3 x (3.4 / 3.4) = <strong style="color:var(--text-primary);">6.3</strong> → <strong>6.3</strong><br><br>
+      <strong style="color:var(--warning);">Critical caveat — The Argentine-to-Europe Projection Problem:</strong> These projections assume Carrizo's <strong>Vélez level</strong> translates linearly to other leagues. At 20, with only 32 European minutes, this is highly uncertain. South American wingers often face a 12-18 month adaptation curve in Europe (e.g., Álvarez, Enzo Fernández, Lisandro Martínez all needed time). The Eredivisie projection (5.2) is capped below the raw formula output (7.65) because his actual on-pitch production at Ajax has been minimal. The top-5 league projections (4.8-4.9) suggest he would be a squad player at best in those leagues today. <strong>T3 validation of his European adaptation trajectory is the highest priority for this player.</strong><br><br>
+      <strong style="color:var(--danger);">Read before sending to a club:</strong> This projection sits on an estimated base with zero confirmed T3 metrics, derived primarily from a LOG 3.4 league, for a 20-year-old with 32 minutes in Europe. The margin of error is very high. Do not use in any client-facing material without heavy qualification and mandatory T3 validation.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Guardiola / Inverted Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#6CABDD;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Bielsa / High-Intensity Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#e07820;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Cruyff / Total Football Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#C8102E;"></div></div></div><div class="philo-score">8.0</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Ten Hag / Positional Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#C8102E;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Simeone / Counter-Attacking Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:#e07820;"></div></div></div><div class="philo-score">7.6</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Klopp / Direct Wide Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#3498db;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Menotti / Artistic Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#e07820;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Ancelotti / Organised Wide Player</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#00529F;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Mourinho / Low-Block Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#003366;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Conte / Wing-Back</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#001C58;"></div></div></div><div class="philo-score">5.8</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Argentine Inverted Winger — Left Foot, Right Flank"</strong> — Carrizo's highest philosophy fit is Guardiola (8.5), reflecting his <strong>left-footed inverted winger</strong> profile. At Vélez, he operated primarily from the right, cutting inside onto his stronger foot to shoot. His <strong>81% shot attempt trait and 0 assists in 2025</strong> suggest a shoot-first mentality typical of young inverted wingers. The Guardiola fit assumes he can develop the passing range and decision-making to become a creator, not just a shooter. Bielsa (8.2) fits his Argentine high-intensity background. Ten Hag (7.8) is his current Ajax system — positional, structured, demanding. His <strong>lowest fits are Mourinho (6.5) and Conte (5.8)</strong> — he is not a defensive winger or wing-back. The Ajax environment is designed to develop his Guardiola/Ten Hag profile. The question is whether his decision-making (DMA) evolves from "shoot" to "create."
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Inverted Winger</span>
+          <span class="tag tag-club">Left-Footed RW</span>
+          <span class="tag tag-argentina">Argentine School</span>
+          <span class="tag tag-argentina">Argentina U20</span>
+          <span class="tag tag-info">Shoot-First Profile</span>
+          <span class="tag tag-info">Cut-Inside Specialist</span>
+          <span class="tag tag-info">RW/CF/RM Versatility</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:#6CABDD;">8.5</div><div class="label">Guardiola / Inverted Winger</div></div>
+    <div class="stat-hero"><div class="value" style="color:#e07820;">8.2</div><div class="label">Bielsa / High-Intensity</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">8.0</div><div class="label">Cruyff / Total Football</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.8</div><div class="label">Conte / Wing-Back</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items:start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born 19 Feb 2006 · Santiago del Estero, Argentina</div><div class="timeline-text">Born in <strong>Santiago del Estero, Argentina</strong>. Joined <strong>Club Atlético Sarmiento (La Banda)</strong> youth academy. Developed as a technically gifted, left-footed forward with natural instincts in front of goal.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2023–2026 · Vélez Sarsfield</div><div class="timeline-text"><strong>Professional debut and breakthrough.</strong> Promoted to Vélez Sarsfield first team in 2023. 2024: <strong>Liga Profesional champion</strong> — part of the title-winning squad. 2025: <strong>Supercopa champion</strong> and <strong>Super Copa International champion</strong>. Copa Libertadores experience. 42+ total appearances, 5 goals. Argentina U17 and <strong>U20 international</strong>.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sept–Oct 2024 · Injury Layoff</div><div class="timeline-text"><strong>First significant injury.</strong> Approximately one month out. Returned to action and continued development. No long-term physical concerns documented but flagged for monitoring.</div></div>
+        <div class="timeline-item"><div class="timeline-date">April 2025 · Minor Injuries</div><div class="timeline-text">Two brief injury layoffs. Missed minimal time. Pattern suggests manageable soft-tissue issues rather than structural damage.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">3 Feb 2026 · Ajax · €6.0M</div><div class="timeline-text"><strong>The Amsterdam move.</strong> Signed by AFC Ajax for a reported <strong>€6.0M</strong> on a <strong>four-and-a-half-year contract until 30 June 2030</strong>. Assigned <strong>#7</strong>. Immediate integration into first-team squad. 4 Eredivisie substitute appearances (32 minutes) by end of 2025-26 season. 1 friendly goal. <strong>0/16 T3 metrics pending.</strong></div></div>
+        <div class="timeline-item"><div class="timeline-date">2025-26 · Argentina U20</div><div class="timeline-text"><strong>International recognition.</strong> Argentina U20 representative. Previously capped at U17 level. Dual-nationality not applicable — single Argentine citizenship. Future senior national team potential depends on European development.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2023</strong></td><td>Vélez Sarsfield</td><td>Liga Profesional</td><td>9</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2024</strong></td><td>Vélez Sarsfield</td><td>Liga Profesional</td><td>11</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2025</strong></td><td>Vélez Sarsfield</td><td>Liga Profesional</td><td>22</td><td>5</td><td>0</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Ajax</td><td>Eredivisie</td><td>4</td><td>0</td><td>0</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>46+</strong></td><td><strong>5</strong></td><td><strong>0</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer Ladder</h3>
+      <table class="data-table">
+        <thead><tr><th>From → To</th><th>Fee</th><th>Year</th></tr></thead>
+        <tbody>
+          <tr><td>Sarmiento (La Banda) → Vélez Sarsfield</td><td>—</td><td>Youth</td></tr>
+          <tr><td>Vélez Sarsfield → Ajax</td><td><strong style="color:var(--gold);">€6.0M</strong></td><td>Feb 2026</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td><strong>Current market value</strong></td><td colspan="2"><strong style="color:var(--success);">~€8.0M (Transfermarkt)</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Team</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Liga Profesional</strong></td><td>2024</td><td>Vélez Sarsfield</td></tr>
+          <tr><td><strong>Supercopa</strong></td><td>2025</td><td>Vélez Sarsfield</td></tr>
+          <tr><td><strong>Super Copa International</strong></td><td>2025</td><td>Vélez Sarsfield</td></tr>
+          <tr><td><strong>Argentina U20</strong></td><td>2025-26</td><td>Argentina U20</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">180cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~72kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Right Winger</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">CF / RM</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#7 (Ajax)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, wiry</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Argentina</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Sept–Oct 2024 — Significant Layoff (~1 month)</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">First major injury interruption. No details on nature of injury publicly available. Returned to full fitness and maintained availability through remainder of 2025 season. <strong>Flag for monitoring during European winter.</strong></div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">April 2025 — Two Minor Injuries</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Brief layoffs, minimal matches missed. Suggests soft-tissue management issues rather than structural damage. Common for high-intensity wingers. <strong>T3 must verify:</strong> Is this a recurring pattern or isolated incidents? Does his recovery protocol need adjustment for Dutch training intensity?</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Surgery Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No documented surgeries, fractures, or long-term rehabilitation. Overall medical profile is manageable for a 20-year-old professional. The key question is whether the 2024-25 injury pattern repeats in Europe.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>€6.0M fee at 20 — Ajax identified South American talent early</strong> — Ajax's scouting department has a strong track record with Argentine players (Lisandro Martínez, Tagliafico, Romero). They saw enough in Carrizo to invest significantly.</li>
+      <li><strong>5 goals in 22 Liga Profesional apps — proven attacking output</strong> — 0.23 G/90 in a LOG 3.4 league is solid for a young winger. Shows he can find the net at professional level.</li>
+      <li><strong>3 titles with Vélez — winner's mentality at 18-19</strong> — Liga Profesional 2024, Supercopa 2025, Super Copa International 2025. Winning environment breeds professional habits.</li>
+      <li><strong>Copa Libertadores experience — continental competition exposure</strong> — Played in South America's elite club competition at 18-19. High-pressure environment validates mental foundation.</li>
+      <li><strong>Argentina U20 international — validated by federation</strong> — Selected by one of football's strongest youth systems. Argentina's track record (Alvarez, Enzo, Garnacho) validates their selection.</li>
+      <li><strong>Left-footed inverted winger — tactical asset in modern systems</strong> — The Guardiola/Ten Hag archetype. Left foot on right flank creates natural cut-inside threat. Harder to defend than traditional wingers.</li>
+      <li><strong>4.5-year contract — Ajax long-term commitment</strong> — Until 2030. Not a short-term gamble. Ajax see development value and are willing to invest time.</li>
+      <li><strong>Agent: Eleven Talent Group — professional representation</strong> — Structured career management. Suggests professional approach to development.</li>
+      <li><strong>Friendly goal early in Ajax tenure — quick integration signal</strong> — Scored in March 2026 friendly vs Volendam. Shows he's adapting to the Ajax environment.</li>
+      <li><strong>No red cards in career — disciplined temperament</strong> — 3 yellows in 22 apps (2025) is moderate. No dismissals. Professional conduct.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>0 assists in 22 Liga Profesional apps 2025 — one-dimensional?</strong> — 5 goals but 0 assists suggests a shoot-first, pass-second mentality. Inverted wingers in modern Europe must create as well as score. Is he a finisher or a playmaker?</li>
+      <li><strong>Only 32 Eredivisie minutes — minimal European sample</strong> — 4 substitute appearances, 0 starts. Not yet trusted by Farioli for significant minutes. Integration timeline uncertain.</li>
+      <li><strong>Injury history 2024-25 — three separate layoffs</strong> — Sept-Oct 2024 (~1 month), plus two in April 2025. Durability question mark. European training intensity and winter schedule may stress his body further.</li>
+      <li><strong>0/16 T3 metrics confirmed</strong> — No video validation of any Empire FGA metric. All assessments are statistical proxies. His true technical, physical, and mental levels in European context are unknown.</li>
+      <li><strong>Defensive contribution 41% (FotMob) — below modern winger standard</strong> — Modern elite wingers press, track back, and defend. Carrizo's defensive output is limited. Can he fit Farioli's pressing system?</li>
+      <li><strong>Argentina to Europe adaptation curve — historically 12-18 months</strong> — Even elite Argentine players (Alvarez, Enzo) needed time. Carrizo is not at that level. Realistic timeline: 2026-27 season before meaningful contribution.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>No T3 video assessment completed</strong> — The single biggest gap. Every metric is a guess until a scout watches him play in isolated footage. For a €6M signing, this is a significant evaluation hole.</li>
+      <li><strong>European tactical understanding unproven</strong> — Liga Profesional is more individualistic. Eredivisie demands positional discipline, pressing triggers, and build-up participation. Can he learn this?</li>
+      <li><strong>Comparison to Ajax's current wingers</strong> — Bergwijn, Brobbey, and other Ajax attackers are established. Carrizo must displace proven players. His path to starting XI is blocked.</li>
+      <li><strong>Resale value uncertainty</strong> — If he fails to adapt, his value could drop below €3M. If he becomes a regular Eredivisie starter, value could exceed €15M. The variance is high.</li>
+      <li><strong>Language and cultural adaptation</strong> — No evidence of English/Dutch language skills. Cultural isolation can delay on-pitch adaptation. T3 must verify CHR in European environment.</li>
+      <li><strong>Physical development trajectory</strong> — At 180cm/72kg, he has a wiry frame. Will he add muscle for European physicality? Or will speed be his weapon? SII assessment critical.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 6.3 (Absolute) — Inverted Winger · Argentina U20 · Vélez Sarsfield Champion · Ajax New Signing · Integration Phase.</strong> The T1 data reveals a <strong>young Argentine winger with proven domestic output</strong> (5 goals, 3 titles) but <strong>unproven European credentials</strong>. His inverted profile (left-footed, right flank) is tactically valuable in modern systems, and Ajax's track record with Argentine players provides confidence. However, <strong>0 assists in 22 apps</strong> raises questions about his creative dimension, and <strong>32 Eredivisie minutes</strong> means his adaptation is in the earliest stages. The <strong>€6.0M fee</strong> is a mid-range gamble — not insignificant, but not club-breaking. Cross-league projections suggest <strong>~4.8 in top-5 leagues</strong> at his Vélez level, but this is speculative. <strong>T3 validation of SII_A, OBI_T, DMA, and injury resilience is mandatory before any €10M+ valuation or loan decision.</strong> For Ajax: patient development, target 2026-27 for meaningful minutes. For external clubs: monitor only, no bid until T3 validated and 500+ European minutes logged. This is a <strong>hold and develop</strong> asset with moderate upside.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>No Empire FGA Assessment Matches Available.</strong> No full-match isolated footage has been registered in the T3 system. Below are available video resources for future scout registration. Priority: Vélez Sarsfield 2025 Liga Profesional + Copa Libertadores + Ajax Eredivisie 2025-26 footage where Carrizo was involved.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Assessment Footage — Available Video Resources <span class="line"></span></div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇦🇷 Vélez Sarsfield — 2025 Season (Provided Links)</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/u9mlhjl8j7909ou53ig35/Club-Atl-tico-V-lez-Sarsfield-Club-Atl-tico-Tigre.mp4?rlkey=jnms8931laoz9dyjng92r9819&st=iwdlpflj&dl=0&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Vélez Sarsfield vs Tigre 🇦🇷</div>
+        <div class="match-meta">
+          <span class="match-badge badge-velez">Liga Profesional 2025</span>
+          <span class="match-badge badge-verified">Vélez Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>PROVIDED — Liga Profesional context.</strong> Maher Carrizo in Vélez Sarsfield domestic league action. Useful for SII_A, OBI_T, and DMA assessment in Argentine tactical environment. LOG 3.4.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/he8wxr43n9t8z13etc1l6/Club-Atl-tico-V-lez-Sarsfield-Club-Atl-tico-River-Plate.mp4?rlkey=hodsldrh0qqq2rpu317xlz2zg&st=g532du4g&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Vélez Sarsfield vs River Plate 🇦🇷</div>
+        <div class="match-meta">
+          <span class="match-badge badge-velez">Liga Profesional 2025</span>
+          <span class="match-badge badge-verified">Vélez Era</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>PROVIDED — Elite Argentine opposition.</strong> vs River Plate, one of South America's biggest clubs. High-pressure environment ideal for CHR, CLM, and CRS assessment. LOG ~3.6.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇳🇱 AFC Ajax — 2025-26 Season (Matches Involved)</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs FC Utrecht 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Carrizo involved:</strong> Substitute, 42 minutes (24 May 2026). Longest Ajax appearance to date. Standard Eredivisie context. LOG 2.8.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs FC Groningen 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Carrizo involved:</strong> Substitute, 19 minutes (21 May 2026). Late-game substitute appearance. LOG 2.8.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs SC Heerenveen 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Carrizo involved:</strong> Substitute, 5 minutes (17 May 2026). Brief cameo. LOG 2.8.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs FC Twente 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Carrizo involved:</strong> Substitute, 19 minutes (4 Apr 2026). Early Ajax appearance. LOG 2.8.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs Olympiacos (Friendly)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Friendly 2026</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Carrizo involved:</strong> Started, 29 minutes, 1 goal (18 Jul 2026). First Ajax goal. Friendly context, lower pressure. LOG ~1.7.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Argentina U20 vs [Opponent]</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">U20 International</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Argentina U20 competitive fixtures. Critical for validating CHR, DMA, and CLM at international youth level. LOG ~2.5. Must-watch for any T3 assessment of mental metrics in national team context.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Priority Match Register</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 1 — Vélez Sarsfield 2025</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M1:</strong> Vélez vs Tigre 2025 (provided)<br>
+          <strong style="color:var(--info);">M2:</strong> Vélez vs River Plate 2025 (provided)<br>
+          <strong style="color:var(--info);">M3:</strong> Vélez Copa Libertadores 2025<br><br>
+          <strong>LOG 3.4-3.5</strong> (Liga Profesional / Libertadores). The true baseline for his quality. Will determine whether his attacking output is sustainable or system-dependent.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 2 — Ajax Eredivisie 2025-26</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">M4:</strong> Ajax vs FC Utrecht (42 min)<br>
+          <strong style="color:var(--gold);">M5:</strong> Ajax vs FC Twente (19 min)<br>
+          <strong style="color:var(--gold);">M6:</strong> Ajax vs FC Groningen (19 min)<br><br>
+          <strong>LOG 2.8</strong>. European adaptation context. Validates OBI_T, SII_A, and DMA in Ajax's system. Critical for determining integration timeline.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 3 — Argentina U20 Competitive</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M7:</strong> Argentina U20 vs elite South American U20<br>
+          <strong style="color:var(--info);">M8:</strong> Argentina U20 tournament fixture<br><br>
+          <strong>LOG ~2.5</strong>. International youth context validates CHR, DMA, and leadership in national team environment. Useful for character assessment.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.3;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Finishing','Chance Creation','Dribbling 1v1','OBI_T Movement','SII_A Acceleration','SII_T Speed','CHR Character','DMA Decision'],
+      datasets: [{
+        label: 'Carrizo EST (20)',
+        data: [6.5, 6.8, 6.5, 6.0, 6.5, 6.5, 6.5, 6.0],
+        backgroundColor: 'rgba(200,16,46,0.2)',
+        borderColor: '#C8102E',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Eredivisie RW avg',
+        data: [6.0, 6.5, 6.5, 6.0, 6.5, 6.5, 6.5, 6.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Guardiola','Bielsa','Cruyff','Ten Hag','Simeone','Klopp'],
+    datasets: [{
+      label: 'Carrizo',
+      data: [8.5, 8.2, 8.0, 7.8, 7.6, 7.5],
+      backgroundColor: 'rgba(200,16,46,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#6CABDD','#e07820','#C8102E','#C8102E','#e07820','#3498db'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Pending 50%'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
