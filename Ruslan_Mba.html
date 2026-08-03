@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruslan Mba — Empire FGA Intelligence Card (Proxy · U16)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(0,77,152,.07);
+  --barca-blue:#004d98;--barca-red:#a50044;--barca-gold:#edbb00;
+  --accent:#004d98;--accentL:#4d9eff;--accentFade:rgba(0,77,152,.1);
+  --gold:#f0b820;--gold2:#ffd060;--gold3:#7a5800;
+  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
+  --red:#e03030;--redL:#f05050;
+  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
+  --ucl:#1e40af;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(0,77,152,.7) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 90%,rgba(165,0,68,.3) 0%,transparent 50%)}
+
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--barca-blue) 20%,var(--barca-red) 20% 80%,var(--barca-blue) 80%);z-index:10}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(0,77,152,.12) 0%,transparent 45%,rgba(165,0,68,.06) 100%)}
+.hero-photo{position:relative;overflow:hidden;background:#040810}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  filter:contrast(1.1) saturate(.95);
+  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(0,77,152,.06);line-height:1;pointer-events:none}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.bp-barca{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(0,77,152,.9);color:#fff;text-transform:uppercase;border:1px solid rgba(77,158,255,.3)}
+.bp-masia{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(165,0,68,.8);color:#fff;text-transform:uppercase}
+.bp-contract{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(237,187,0,.8);color:#000;text-transform:uppercase}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
+.hero-name{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
+.hero-name em{color:var(--accentL);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
+.pos-primary{background:var(--accent);color:#fff}
+.pos-sec{background:rgba(0,77,152,.15);color:var(--accentL);border:1px solid rgba(0,77,152,.35)}
+.pos-league{background:rgba(0,77,152,.1);color:var(--gold);border:1px solid rgba(0,77,152,.25)}
+.pos-ucl{background:rgba(30,64,175,.2);color:#80a4f8;border:1px solid rgba(30,64,175,.4)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
+.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
+.htag-blue{background:var(--accentFade);color:var(--accentL);border:1px solid rgba(0,77,152,.28)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-red{background:rgba(224,48,48,.12);color:var(--redL);border:1px solid rgba(224,48,48,.25)}
+.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(0,77,152,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fga-score-num{font-family:'Oswald',sans-serif;font-size:2.4rem;font-weight:500;line-height:1;color:var(--accentL)}
+.fga-score-lbl{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(0,77,152,.08);border:1px solid rgba(0,77,152,.15)}
+.ftr2{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.15)}
+.ftr3{background:rgba(240,184,32,.06);border:1px solid rgba(240,184,32,.14)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(0,77,152,.22);border-radius:2px;width:100%}
+.ca-val{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:500;color:var(--accentL)}
+.ca-info{font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:'Oswald',sans-serif;font-size:.95rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
+.logo-bar img{height:32px;width:auto;object-fit:contain}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sh-blue::before{background:var(--barca-blue)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-red::before{background:var(--red)}.sh-amber::before{background:var(--amber)}
+.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,77,152,.025)}
+.attr-row:last-child{border-bottom:none}
+.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
+.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
+.attr-bar-bg{width:80px;height:5px;background:rgba(0,77,152,.06);border-radius:99px;overflow:hidden}
+.attr-bar-fill{height:100%;border-radius:99px}
+.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
+.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
+.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#0a1428}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,77,152,.03)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(0,77,152,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(224,48,48,.12);color:var(--redL)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,77,152,.03)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(0,77,152,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
+.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
+.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(0,77,152,.03)}
+.phil-item:last-child{border-bottom:none}
+.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
+.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
+.phi-bar-bg{width:70px;height:5px;background:rgba(0,77,152,.06);border-radius:99px;overflow:hidden}
+.phi-bar-fill{height:100%;border-radius:99px}
+.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(0,77,152,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(0,77,152,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(0,77,152,.03);color:var(--lite)}
+.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
+.career-table .ucl-row td{background:rgba(30,64,175,.06)}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--barca-blue),var(--barca-red),var(--accentL))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accentL);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--accentL);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,77,152,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(0,77,152,.3)}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(0,77,152,.12);color:var(--accentL);border:1px solid rgba(0,77,152,.22)}
+.proxy-banner{background:rgba(224,48,48,.08);border:1px solid rgba(224,48,48,.25);border-radius:2px;padding:10px 14px;margin-bottom:14px}
+.career-path{background:rgba(0,77,152,.07);border:1px solid rgba(0,77,152,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
+.video-link-card:hover{border-color:rgba(0,77,152,.4)}
+.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes',this)">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga',this)">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy',this)">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career',this)">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting',this)">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links',this)" style="color:var(--gold)">▶ Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--barca-blue)"></span>FC Barcelona · La Masia · U16</span>
+    <span class="status-dot"><span class="dot" style="background:var(--red)"></span>0/16 T3 ⏳ · PROXY ONLY</span>
+    <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>🇪🇸 Spain U16 · 🇬🇶 Equatorial Guinea</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://estaticos-cdn.prensaiberica.es/clip/884f45fc-0be0-4ff9-892a-e5d0348085ee_alta-libre-aspect-ratio_default_0.jpg" alt="Ruslan Mba" onerror="this.style.background='#040810'">
+    <div class="hero-flag">🇪🇸 🇬🇶</div>
+    <div class="club-badge">
+      <span class="bp-barca">FC Barcelona · La Masia · LW</span>
+      <span class="bp-masia">New contract · Jun 2026</span>
+      <span class="bp-contract">🇪🇸 Spain U16 · Sep 2024</span>
+    </div>
+    <div class="hero-num">15</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">LW · U16 · 165cm · Barcelona · Spanish-Equatoguinean · Horta → La Masia</div>
+      <div class="hero-name"><em>Ruslan</em><br>Mba</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">LW</span>
+        <span class="pos-badge pos-sec">RW</span>
+        <span class="pos-badge pos-league">La Masia · U16</span>
+        <span class="pos-badge pos-ucl">🇪🇸 Spain U16</span>
+        <span class="pos-badge pos-ucl">🇬🇶 Equatorial Guinea</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">15</div><div class="hmi-lbl">Born Feb 27 2010</div></div>
+      <div><div class="hmi-val">6.3</div><div class="hmi-lbl">Proxy FGA · U16</div></div>
+      <div><div class="hmi-val">0/16</div><div class="hmi-lbl">T3 Pending</div></div>
+      <div><div class="hmi-val">165cm</div><div class="hmi-lbl">Height</div></div>
+      <div><div class="hmi-val">PROXY</div><div class="hmi-lbl">T3 Status</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-red">⏳ T3 NOT VALIDATED — PROXY ESTIMATES ONLY</span>
+      <span class="htag htag-blue">La Masia · Professional contract Jun 2026</span>
+      <span class="htag htag-gold">"Looks more and more like Lamine" — Diario AS</span>
+      <span class="htag htag-blue">Spain U16 debut vs Italy · Sep 2024</span>
+      <span class="htag htag-warn">Left foot · Both flanks · Electric pace</span>
+      <span class="htag htag-warn">Equatoguinean descent · dual eligibility</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-label">Proxy FGA v3</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num" id="fgaNum">—</div>
+        <div class="fga-score-lbl">/ 10.0</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">TM/BeSoccer/Flashscore</span><span class="tw" style="color:var(--amber)">Limited</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--greenL)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">Proxy</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--gold)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--redL)">0/16 ⏳</span></div>
+    </div>
+    <div class="hero-ca">
+      <div><div class="ca-val">—</div><div class="ca-info">CA (Empire Equiv.)<br>U16 LW · pending</div></div>
+      <div class="ca-pa">PA TBD</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+<!-- ═══ OVERVIEW ═══ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="proxy-banner">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--redL);letter-spacing:.1em;text-transform:uppercase">⚠️ PROXY ESTIMATE CARD — U16 YOUTH · TIER 3 NOT VALIDATED</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">All attributes below are algorithmic projections based on youth scouting reports, media coverage, age-cohort norms, and extremely limited Tier 1 data. No Empire scout has validated behavioral evidence. This card is for internal tracking only and must not be used for recruitment decisions until T3_STATUS = SCOUT_VALIDATED. U16 players require dual-scoring (absolute + cohort percentile) per Lars Hallengren framework.</div>
+  </div>
+
+  <div class="career-path">
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--barca-blue);letter-spacing:.1em">🇪🇸🇬🇶</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--muted)">Horta</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--accentL);font-weight:600">FC Barcelona <small style="font-size:.65rem;color:var(--gold)">(La Masia · U16)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--lite)">Spain U16 <small style="font-size:.65rem;color:var(--muted)">(Sep 2024 debut)</small></span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--gold)">New contract <small style="font-size:.65rem;color:var(--muted)">(Jun 2026 · Alesanco)</small></span>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-blue"><div class="sh-val">6.3</div><div class="sh-lbl">Proxy FGA</div><div class="sh-delta dneu">U16 · hype-adjusted</div></div>
+    <div class="sh-box sh-amber"><div class="sh-val">0/16</div><div class="sh-lbl">T3 Confirmed</div><div class="sh-delta dneg">↓ Pending</div></div>
+    <div class="sh-box sh-grn"><div class="sh-val">15</div><div class="sh-lbl">Years old</div><div class="sh-delta dpos">U16 cohort</div></div>
+    <div class="sh-box sh-gold"><div class="sh-val">165</div><div class="sh-lbl">cm · Small frame</div><div class="sh-delta dneu">Low centre</div></div>
+    <div class="sh-box sh-red"><div class="sh-val">PROXY</div><div class="sh-lbl">OBI_P</div><div class="sh-delta dneg">⏳ No video</div></div>
+    <div class="sh-box sh-red"><div class="sh-val">PROXY</div><div class="sh-lbl">SII</div><div class="sh-delta dneg">⏳ No video</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Profile</div></div>
+      <div class="c-body" style="font-size:.76rem">
+        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Ruslan Mba Hernando</span></div>
+        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">Feb 27, 2010 · Barcelona 🇪🇸</span></div>
+        <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--accentL)">165cm</span></div>
+        <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--accentL)">FC Barcelona · La Masia · U16</span></div>
+        <div class="ti-row"><span class="ti-lbl">Position</span><span class="ti-val">LW / RW (both flanks)</span></div>
+        <div class="ti-row"><span class="ti-lbl">Foot</span><span class="ti-val">Left</span></div>
+        <div class="ti-row"><span class="ti-lbl">Joined La Masia</span><span class="ti-val">Jul 1, 2025 (from Horta)</span></div>
+        <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val">Until Jun 30, 2026</span></div>
+        <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val">🇪🇸 Spain · 🇬🇶 Equatorial Guinea</span></div>
+        <div class="ti-row"><span class="ti-lbl">NT</span><span class="ti-val">🇪🇸 Spain U16 (1 cap)</span></div>
+        <div class="ti-row"><span class="ti-lbl">Recruiter</span><span class="ti-val">Albert Puig Alcaide</span></div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Tier 3 Status</div><div class="c-sub">0/16 validated</div></div>
+      <div class="c-body">
+        <div class="section-label">All Metrics Pending</div>
+        <div style="font-size:.72rem;color:var(--muted);line-height:1.7">
+          <strong style="color:var(--redL)">OBI_P:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">OBI_T:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">OBI_S:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">SPI:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">DMA:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">SII_A:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">SII_T:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">SII_R:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">CRS:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">CLM:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">CHR:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">MCS:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">DYN:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">CRK:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">OMS:</strong> ⏳ PENDING — No video evidence<br>
+          <strong style="color:var(--redL)">SOA:</strong> ⏳ PENDING — No video evidence
+        </div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">Ruslan Mba is a 15-year-old Spanish-Equatoguinean left-footed winger at FC Barcelona's La Masia (U16). He joined from Horta in summer 2025, beat Espanyol for his signature, and has since signed a new professional contract (Jun 2026) and debuted for Spain U16 (Sep 2024 vs Italy). Media comparisons to Lamine Yamal and descriptions of "electric change of pace" and "dribbling specialist" have generated significant hype. All Empire FGA Tier 3 metrics remain pending.</div>
+        <div class="verdict-box" style="background:rgba(224,48,48,.08);border-color:rgba(224,48,48,.3)">
+          <div class="verdict-label" style="color:var(--redL)">Empire FGA Verdict</div>
+          <div class="verdict-text"><strong>PROXY ONLY — U16 YOUTH · HIGH HYPE, ZERO VALIDATED BEHAVIOR.</strong> Tier 1 data is extremely limited at U16 level. Media reports (Sport, AS, Yahoo) describe a left-footed winger with elite pace, dribbling, and 1v1 ability — a profile that fits the Lamine Yamal archetype. However, the 165cm frame is small for a winger, and no behavioral evidence (OBI, SII, DMA, CHR, MCS) has been validated. The Lamine comparison is a positive filter but also creates hype risk. Complete video assessment of all three provided match links before any scouting or recruitment use.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits (Proxy)</div></div><div class="c-body" id="ov-phil"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">U16 LW Percentile (Spain)</div><div class="c-sub">Age-cohort proxy · Dual scoring</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Media Scouting Summary</div><div class="c-sub">Sport · AS · Yahoo · Unvalidated</div></div>
+      <div class="c-body">
+        <div style="font-size:.77rem;color:var(--muted);line-height:1.7">
+          <strong style="color:var(--accentL)">Sport (Sep 2024):</strong><br>
+          "Ruslan's power and speed are very difficult to stop because the former Horta player is a specialist in dribbling and driving forward with an electric change of pace."<br><br>
+          <strong style="color:var(--accentL)">Diario AS (Nov 2025):</strong><br>
+          "Ruslan Mba se parece cada vez más a Lamine" — looks more and more like Lamine Yamal.<br><br>
+          <strong style="color:var(--accentL)">Yahoo Sports (Jun 2026):</strong><br>
+          "His pace, direct dribbling and ability to attack defenders in one-on-one situations have made him one of the standout performers in Barcelona's youth setup."<br><br>
+          <strong style="color:var(--redL)">⚠️ All media reports are unvalidated hype.</strong> No Empire scout has independently verified these claims. The Lamine comparison is a positive filter but also a significant hype risk at U16 level.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ATTRIBUTES ═══ -->
+<div id="tab-attributes" class="tab-panel">
+  <div style="background:rgba(224,48,48,.05);border:1px solid rgba(224,48,48,.18);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
+    ⚠️ <strong style="color:var(--redL)">ALL ATTRIBUTES ARE PROXY ESTIMATES.</strong> Derived from media scouting reports + U16 LW cohort norms. No scout validation. Greyed circles = pending confirmation. Dual scoring (absolute + cohort percentile) required per Lars Hallengren framework.
+  </div>
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical / Offensive</div></div><div class="c-body" id="attr-tech"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div><div class="c-body" id="attr-men"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div><div class="c-sub">Proxy estimates · 165cm frame</div></div><div class="c-body" id="attr-phy"></div></div>
+  </div>
+  <div style="margin-top:14px"><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Attribute Radar</div><div class="c-sub">Proxy vs U16 LW Spain average · All pending validation</div></div><div class="c-body" style="height:310px"><canvas id="attrRadar"></canvas></div></div></div>
+</div>
+
+<!-- ═══ FGA ANALYTICS ═══ -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — Transfermarkt · BeSoccer · Flashscore · Wikipedia</div></div>
+      <div class="c-body" style="font-size:.74rem;color:var(--muted);line-height:1.7">
+        <strong style="color:var(--lite)">Transfermarkt:</strong> <a href="https://www.transfermarkt.com/ruslan-mba/profil/spieler/1242154" style="color:var(--accentL)">Profile #1242154</a><br>
+        <strong style="color:var(--lite)">BeSoccer:</strong> <a href="https://www.besoccer.com/player/ruslan-mba-3534567" style="color:var(--accentL)">Profile #3534567</a><br>
+        <strong style="color:var(--lite)">Wikipedia:</strong> Born 27 Feb 2010, Barcelona, Equatoguinean descent, Horta → Barcelona<br>
+        <strong style="color:var(--lite)">Flashscore:</strong> 2 total appearances, 1 goal (youth level)<br>
+        <strong style="color:var(--lite)">Yahoo Sports:</strong> New professional contract Jun 2026<br><br>
+        <strong style="color:var(--redL)">Data limitations (U16 youth):</strong><br>
+        · No FBref advanced metrics (youth level)<br>
+        · No FotMob senior match ratings<br>
+        · Transfermarkt: basic biographical only<br>
+        · BeSoccer: limited youth stats<br>
+        · Flashscore: 2 apps, 1 goal (minimal sample)<br>
+        · No market value established<br>
+        · No GPS/tracking data available<br><br>
+        <strong style="color:var(--lite)">Available signals:</strong><br>
+        · La Masia selection = elite academy filter<br>
+        · Barcelona beat Espanyol for signature = recruitment competition<br>
+        · New professional contract (Jun 2026) = club investment<br>
+        · Spain U16 debut (Sep 2024 vs Italy) = NT recognition<br>
+        · Media hype (Lamine comparison) = attention filter<br>
+        · Left-footed, both flanks = positional versatility
+      </div>
+    </div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 — Composite (Proxy)</div></div>
+      <div class="c-body" style="font-size:.74rem;color:var(--muted);line-height:1.7">
+        <strong style="color:var(--lite)">POI (Position Intelligence):</strong> Proxy 5.5 — LW positional discipline inferred from La Masia selection; off-ball work unknown<br><br>
+        <strong style="color:var(--lite)">CPX (Composure):</strong> Proxy 5.5 — "calm" receiving inferred from media reports; pressure context unvalidated<br><br>
+        <strong style="color:var(--lite)">MOB (Mobility):</strong> Proxy 6.5 — "electric pace" + "power and speed" per media; 165cm frame = low centre of gravity advantage<br><br>
+        <strong style="color:var(--lite)">GRI (Ghost Run Index):</strong> Proxy 5.0 — Off-ball movement unknown; winger position typically involves wide-channel runs<br><br>
+        <strong style="color:var(--lite)">AMS (Anticipatory Movement):</strong> Proxy 5.0 — "driving forward" suggests some reading; 1v1 focus may limit off-ball anticipation<br><br>
+        <strong style="color:var(--redL)">All Tier 2 composites flagged:</strong> T2_PROXY_ESTIMATE — derived from media reports + U16 norms, no video confirmation.
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Breakdown</div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">T3 Warning · U16 Context</div></div>
+        <div class="c-body">
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.7">
+            <strong style="color:var(--redL)">T3_STATUS: PENDING_VALIDATION</strong><br><br>
+            · 0 of 16 Tier 3 metrics confirmed<br>
+            · No Empire scout video assessment<br>
+            · No behavioral evidence logged<br>
+            · U16 level = Lars Hallengren dual-scoring required<br>
+            · Absolute score (vs seniors) will understate potential<br>
+            · Cohort percentile (vs U16) is the relevant metric<br>
+            · Media hype (Lamine comparison) = confirmation bias risk<br><br>
+            <strong style="color:var(--redL)">DO NOT use for recruitment until T3 validated.</strong><br><br>
+            <strong style="color:var(--lite)">Lars Framework note:</strong><br>
+            MI (Mental Intensity) is predictive at 14-16.<br>
+            PHYI (Physical Intensity) develops 18-21.<br>
+            Mba's 165cm frame at 15 = potential growth spurt remaining.<br>
+            Physical development trajectory is uncertain.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHILOSOPHY DNA ═══ -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits (Proxy)</div></div><div class="c-body" id="phil-full"></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">School Averages (Proxy)</div></div><div class="c-body" id="school-avgs"></div></div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px;height:340px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar</div></div><div class="c-body" style="height:290px"><canvas id="philRadar"></canvas></div></div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype (Proxy)</div></div>
+        <div class="c-body">
+          <div class="scout-para">Proxy projection: La Masia inverted left-footed winger archetype — direct dribbler with electric pace, 1v1 specialist, capable on both flanks. The Lamine Yamal comparison suggests a similar profile: left-footed right-winger who cuts inside, or left-winger who drives to the byline. The 165cm frame and "power and speed" description suggest a low-centre-of-gravity dribbler rather than a physical winger. Without video validation, no specific philosophy alignment can be confirmed. The Guardiola inverted winger and Wenger development fits are speculative based on La Masia positional culture alone.</div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px;margin-top:8px">
+            <div class="section-label">Proxy Tactical DNA</div>
+            <span class="trait-pill">La Masia Inverted Winger</span><span class="trait-pill">1v1 Dribble Specialist</span>
+            <span class="trait-pill">Electric Pace</span><span class="trait-pill">Lamine Archetype</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CAREER ═══ -->
+<div id="tab-career" class="tab-panel">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--barca-blue)"></div><div class="tl-date">Born Feb 27, 2010 · Barcelona, Spain 🇪🇸</div><div class="tl-text"><strong>Spanish-Equatoguinean heritage.</strong> Born in Barcelona to Equatoguinean father. Eligible for both Spain and Equatorial Guinea at senior level.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Youth · Horta</div><div class="tl-text"><strong>Early football.</strong> Started at local club Horta in Barcelona before attracting La Masia scouts.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--barca-red)"></div><div class="tl-date">Summer 2025 · FC Barcelona · La Masia</div><div class="tl-text"><strong>La Masia move.</strong> Joined FC Barcelona from Horta. Barcelona beat local rivals Espanyol for his signature, with Albert Puig Alcaide playing a key role in convincing Mba and his family. Assigned to U16 (Cadete) level.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">Sep 17, 2024 · Spain U16 debut</div><div class="tl-text"><strong>International debut.</strong> Debuted for Spain U16 during a 3–2 away friendly win over Italy U16. First cap for Spanish youth system.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--barca-gold)"></div><div class="tl-date">Jun 2026 · New professional contract</div><div class="tl-text"><strong>Contract extension.</strong> Signed new professional contract in presence of José Ramón Alesanco (Director of Youth Football). Barcelona's long-term faith in the 16-year-old winger confirmed. Contract until 2026+.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--barca-blue)"></div><div class="tl-date">2024–2026 · Media recognition</div><div class="tl-text"><strong>Hype build.</strong> Sport (Sep 2024): "electric change of pace." AS (Nov 2025): "looks more and more like Lamine." Yahoo (Jun 2026): "one of the standout performers in Barcelona's youth setup."</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">International Register</div><div class="c-sub">Spain U16 · 1 cap</div></div>
+        <div class="c-body">
+          <table class="career-table">
+            <thead><tr><th>Date</th><th>Team</th><th>Opponent</th><th>Result</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr class="hl"><td><strong>Sep 17, 2024</strong></td><td>Spain U16</td><td>Italy U16 (A)</td><td>W 3-2</td><td>Debut · Friendly</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:8px;line-height:1.6">
+            <strong style="color:var(--redL)">Dual-nationality status:</strong> Spain U16 capped. Equatorial Guinea eligible through father. No senior competitive cap yet — one-time switch still possible before senior competitive debut. Spain actively engaged through youth system.
+          </div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Development Path</div></div>
+        <div class="c-body">
+          <div class="ti-row"><span class="ti-lbl">Horta</span><span class="ti-val">Youth club</span></div>
+          <div class="ti-row"><span class="ti-lbl">FC Barcelona</span><span class="ti-val" style="color:var(--accentL)">La Masia · U16</span></div>
+          <div class="ti-row"><span class="ti-lbl">Spain U16</span><span class="ti-val">1 cap · Sep 2024</span></div>
+          <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--gold)">Pro · Jun 2026+</span></div>
+          <div class="ti-row"><span class="ti-lbl">Next step</span><span class="ti-val" style="color:var(--gold)">Juvenil (U17-U18) · 2026-27</span></div>
+          <div class="divider"></div>
+          <div style="font-size:.72rem;color:var(--muted)">Horta → La Masia = significant jump. Beat Espanyol for signature. Next progression: Juvenil C → B → A. Lamine Yamal path: Cadete → Juvenil → Barça Atlètic → First Team at 16.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCOUTING INTEL ═══ -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title" style="color:var(--red)">Scouting Report (Proxy)</div><div class="c-sub">No validated behavioral evidence · Media reports only</div></div>
+        <div class="c-body">
+          <div class="scout-para">Ruslan Mba is a 15-year-old Spanish-Equatoguinean left-footed winger at FC Barcelona's La Masia (U16). He joined from Horta in summer 2025, beat Espanyol for his signature, and has since signed a new professional contract (Jun 2026) and debuted for Spain U16 (Sep 2024 vs Italy). Media reports describe him as a "dribbling specialist" with "electric change of pace" and have drawn Lamine Yamal comparisons. All Empire FGA Tier 3 metrics remain pending.</div>
+
+          <div class="scout-para"><strong style="color:var(--redL)">TIER 3 STATUS: PENDING_VALIDATION</strong> — No Empire scout has assessed Ruslan Mba via video or live observation. All metrics below are algorithmic projections or media report summaries. This report cannot be used for recruitment decisions.</div>
+
+          <div class="scout-para"><strong>What media reports tell us (positive filters — UNVALIDATED):</strong><br>
+          · "Electric change of pace" = SII potential above cohort average<br>
+          · "Dribbling specialist" = technical baseline above cohort average<br>
+          · "Power and speed" = physical tools present despite 165cm frame<br>
+          · "1v1 ability" = CRK/DMA potential for winger position<br>
+          · La Masia selection = elite academy filter (top-3 global youth system)<br>
+          · Barcelona beat Espanyol = recruitment competition validates potential<br>
+          · New professional contract = club investment and long-term faith<br>
+          · Spain U16 debut = national youth recognition<br>
+          · Lamine Yamal comparison = archetype fit (left-footed, pace, dribble)<br>
+          · Both flanks capable = positional versatility</div>
+
+          <div class="scout-para"><strong>What the data flags (caution signals):</strong><br>
+          · 165cm at 15 = small frame; may grow or may stay compact<br>
+          · 2 youth appearances, 1 goal (Flashscore) = minimal statistical sample<br>
+          · Media hype (Lamine comparison) = confirmation bias risk at U16<br>
+          · No senior or semi-professional minutes = zero competitive pressure data<br>
+          · Only 1 Spain U16 cap = limited international exposure<br>
+          · No behavioral evidence for CHR, MCS, CLM = character unknown<br>
+          · "Power and speed" may not translate to elite SII_T vs senior defenders<br>
+          · Left-footed winger on right flank = inverted role requires decision-making validation</div>
+
+          <div class="scout-para"><strong>What we do not know (critical gaps):</strong><br>
+          · OBI_P (positional anticipation): No video evidence — does he find space before the ball arrives?<br>
+          · OBI_T (run timing): No video evidence — are his runs anticipatory or reactive?<br>
+          · OBI_S (space architecture): No video evidence — does he create for teammates without the ball?<br>
+          · SII_A (explosive acceleration): No video evidence — "electric pace" is media claim, not scout-validated<br>
+          · SII_T (top-end speed): No video evidence — can he separate from U16 elite defenders?<br>
+          · SII_R (recovery sprint): No video evidence — does he track back defensively?<br>
+          · DMA (decision-making): No video evidence — when to dribble, when to pass, when to shoot?<br>
+          · CHR (character/leadership): No scout observation — how does he respond to mistakes, pressure?<br>
+          · MCS (mental competence): No behavioral evidence — does he maintain focus across 90 minutes?<br>
+          · CLM (calmness): No pressure-event log — how does he perform in high-stakes moments?</div>
+
+          <div class="verdict-box" style="background:rgba(224,48,48,.08);border-color:rgba(224,48,48,.3)">
+            <div class="verdict-label" style="color:var(--redL)">Empire FGA Proxy Assessment</div>
+            <div class="verdict-text"><strong>PROXY ONLY — U16 YOUTH · HIGH HYPE, ZERO VALIDATED BEHAVIOR.</strong> Media reports describe a left-footed winger with elite pace and dribbling — a profile that fits the Lamine Yamal archetype and generates significant recruitment interest. However, the 165cm frame is small for a winger, the statistical sample is minimal (2 youth apps, 1 goal), and no behavioral evidence has been validated by Empire scouts. The Lamine comparison is a positive filter but also a hype risk. Priority action: complete video assessment of all three provided match links (Spain U16 vs Qatar, Spain U16 vs Sweden, Barcelona U16 vs River Plate U16) to validate OBI, SII, DMA, and CHR before any scouting or recruitment use.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All T3 Scores (Pending)</div></div>
+        <div class="c-body">
+          <div class="mrow"><span class="mcode">OBI_P</span><span class="mname">Positional Anticipation</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">OBI_T</span><span class="mname">Run Timing</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">OBI_S</span><span class="mname">Space Architecture</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">SPI</span><span class="mname">Spatial Performance</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">DMA</span><span class="mname">Decision Making</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">SII_A</span><span class="mname">Explosive Accel</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">SII_T</span><span class="mname">Top-End Speed</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">SII_R</span><span class="mname">Recovery Sprint</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">CRS</span><span class="mname">Clutch Response</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">CLM</span><span class="mname">Calmness</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">CHR</span><span class="mname">Character</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">MCS</span><span class="mname">Mental Comp.</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">DYN</span><span class="mname">Dynamism</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">CRK</span><span class="mname">Creative Risk</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">OMS</span><span class="mname">Omschakeling</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+          <div class="mrow"><span class="mcode">SOA</span><span class="mname">Speed on Action</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:0%;background:#0a1428"></div></div><span class="mval" style="color:var(--muted)">—</span><span class="mflag f-p">⏳</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MATCHES TAB ═══ -->
+<div id="tab-links" class="tab-panel">
+  <div style="background:rgba(0,77,152,.07);border:1px solid rgba(0,77,152,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accentL)">ASSESSMENT MATCHES — U16 INTERNATIONAL + ACADEMY</span>
+    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">Video links provided for Tier 3 validation. All metrics remain pending until scout assessment complete. U16 footage requires physical identity card per AI Player Identification Protocol.</span>
+  </div>
+
+  <div class="section-label">VIDEO ASSESSMENT FILES</div>
+  <div class="g2">
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/67v6d0pzrxohi27glcg52/Spain-U16-Qatar-U16.mp4?rlkey=me0z0g9gjh50xnic9pvez5e66&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--barca-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Spain U16 vs Qatar U16</div><div class="vlc-meta">International friendly · T3 assessment pending · Spain NT context · Mba potential appearance</div></div>
+      <span class="vlc-badge" style="background:rgba(0,77,152,.2);color:var(--accentL);border:1px solid rgba(0,77,152,.3)">Int'l · ⏳ T3</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/35hto51n0seetdw566pkd/Spain-U16-Sweden-U16.mp4?rlkey=1bohs5171i1jp9yua5msb5czi&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--barca-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">Spain U16 vs Sweden U16</div><div class="vlc-meta">International friendly · T3 assessment pending · European opposition · Mba potential appearance</div></div>
+      <span class="vlc-badge" style="background:rgba(0,77,152,.2);color:var(--accentL);border:1px solid rgba(0,77,152,.3)">Int'l · ⏳ T3</span>
+    </a>
+    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/q3zoi87ls31m25k4zenro/Football-Club-Barcelona-U16-Club-Atl-tico-River-Plate-U16.mp4?rlkey=7192z64y5dmr47mzk1n63pip4&raw=1" target="_blank">
+      <div style="width:36px;height:36px;border-radius:2px;background:var(--barca-red);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+      <div><div class="vlc-opp">FC Barcelona U16 vs River Plate U16</div><div class="vlc-meta">Academy friendly · T3 assessment pending · South American elite opposition · La Masia home context</div></div>
+      <span class="vlc-badge" style="background:rgba(165,0,68,.2);color:#f07070;border:1px solid rgba(165,0,68,.3)">Academy · ⏳ T3</span>
+    </a>
+  </div>
+
+  <div class="c" style="margin-top:14px">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Scout Assessment Notes · U16 Protocol</div></div>
+    <div class="c-body">
+      <div style="font-size:.77rem;color:var(--muted);line-height:1.7">
+        <strong style="color:var(--lite)">Physical Identity Card (pre-watch):</strong><br>
+        · Ruslan Mba: 165cm, small/compact frame, likely one of the smaller players on pitch<br>
+        · Hair: dark, short (verify from photo)<br>
+        · Build: low centre of gravity, compact, explosive-looking<br>
+        · Shirt: Spain U16 or Barcelona U16 kit; left-footed winger<br>
+        · Distinguishing trait: left-footed, dribbles with pace, likely #7 or #11 position<br>
+        · Note: May play LW or RW; media says "both flanks" — verify actual position in each match<br><br>
+        <strong style="color:var(--lite)">Required for T3 validation:</strong><br>
+        · Minimum 2 Empire scouts to review all three video files<br>
+        · Minimum 3 evidence instances per sub-metric (OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, CLM, CRS, DYN, CRK, OMS, SOA, SPI)<br>
+        · Timestamped event log for each observed behavior<br>
+        · Confidence tags: Confirmed / Deduced / Uncertain per AI Player Identification Protocol<br>
+        · Physical identity card: hair, build, skin tone, gear (Mba vs teammates)<br>
+        · Cross-reference position before confirming identity — LW/RW #7/11<br><br>
+        <strong style="color:var(--redL)">Current status:</strong> Video files loaded. Awaiting scout assignment. DO NOT generate proxy scores from these links without full rubric assessment.<br><br>
+        <strong style="color:var(--lite)">Specific U16 LW focus areas:</strong><br>
+        · 1v1 dribbling quality — body feints, change of pace, success rate vs defenders<br>
+        · Off-ball movement — does he make runs behind the line? Check for offside timing?<br>
+        · Defensive work — does he track back? Press? Or stay high?<br>
+        · Decision-making — when to dribble vs pass vs shoot? End product?<br>
+        · Left-footed bias — does he cut inside from right? Or go outside from left?<br>
+        · Physical duels — how does 165cm frame handle physical contact?<br>
+        · Mentality — body language after mistakes, coach interaction, frustration signs<br>
+        · Composure — does he rush decisions under pressure? Or maintain control?
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const ATTRS={
+  tech:[
+    {n:"OBI_P Positional (⏳ pending)",v:0},{n:"OBI_T Run Timing (⏳ pending)",v:0},
+    {n:"SPI Spatial (⏳ pending)",v:0},{n:"DMA Passing (⏳ pending)",v:0},
+    {n:"CRK Creative (⏳ pending)",v:0},{n:"DYN Dynamism (⏳ pending)",v:0},
+    {n:"OBI_S Space (⏳ pending)",v:0},{n:"1v1 Dribbling (⏳ pending)",v:0}
+  ],
+  men:[
+    {n:"CRS Clutch (⏳ pending)",v:0},{n:"CLM Calmness (⏳ pending)",v:0},
+    {n:"CHR Character (⏳ pending)",v:0},{n:"MCS Mental (⏳ pending)",v:0},
+    {n:"OMS Transition (⏳ pending)",v:0},{n:"Focus/complacency (⏳ pending)",v:0},
+    {n:"Discipline (⏳ pending)",v:0},{n:"Pressure response (⏳ pending)",v:0}
+  ],
+  phy:[
+    {n:"SII_A Acceleration (⏳ pending)",v:0},{n:"SII_T Top Speed (⏳ pending)",v:0},
+    {n:"SII_R Recovery (⏳ pending)",v:0},{n:"Height 165cm (confirmed)",v:5.5},
+    {n:"Low centre of gravity (⏳ pending)",v:0},{n:"Physical duels (⏳ pending)",v:0},
+    {n:"Stamina (⏳ pending)",v:0},{n:"Strength (⏳ pending)",v:0}
+  ]
+};
+
+const PHIL=[
+  {r:1,n:"Guardiola Inverted Winger",s:"Modern Masters",v:6.5,col:"#6CABDD"},
+  {r:2,n:"La Masia Wide Player",s:"Spanish School",v:6.5,col:"#004d98"},
+  {r:3,n:"Wenger Development",s:"French School",v:6.0,col:"#27ae60"},
+  {r:4,n:"Lamine Yamal Archetype",s:"Modern",v:6.0,col:"#9b59b6"},
+  {r:5,n:"Cruyff Wide Dribbler",s:"Dutch School",v:5.5,col:"#1a7a3a"},
+  {r:6,n:"Klopp Direct Winger",s:"German School",v:5.5,col:"#3498db"},
+  {r:7,n:"Bielsa Wide Presser",s:"S. American",v:4.5,col:"#e07820"},
+  {r:8,n:"Mourinho Counter Winger",s:"Modern Masters",v:4.5,col:"#c0392b"},
+  {r:9,n:"Sacchi Wide Midfield",s:"Italian School",v:4.0,col:"#8b1a1a"},
+  {r:10,n:"Menotti Wide Dribbler",s:"S. American",v:5.0,col:"#e07820"}
+];
+
+const SCHOOL_AVGS=[
+  {n:"Modern Masters",v:6.5},{n:"Spanish School",v:6.5},
+  {n:"French (Wenger)",v:6.0},{n:"Dutch (Cruyff)",v:5.5},
+  {n:"German (Klopp)",v:5.5},{n:"S. American (Bielsa)",v:4.5}
+];
+
+const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
+const ac=v=>v>=8.5?'ac-elite':v>=7.5?'ac-great':v>=6.5?'ac-good':v>=5.0?'ac-avg':v>=3.5?'ac-below':v>0?'ac-weak':'ac-pend';
+const pct=v=>v>0?Math.round(v*10):0;
+const fmt=v=>v>0?(v%1!==0?parseFloat(v.toFixed(2)):v):'—';
+function safe(id){return document.getElementById(id)}
+function attrCircle(v){return`<div class="attr-circle ${ac(v)}">${v>0?Math.round(v*2):'?'}</div>`}
+function renderAttrList(el,arr){if(!el)return;el.innerHTML=arr.map(a=>`<div class="attr-row">${attrCircle(a.v)}<span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${pct(a.v)}%;background:${sc(a.v)}"></div></div><span class="attr-val-lbl" style="color:${sc(a.v)}">${a.v>0?a.v:'?'}</span></div>`).join('')}
+function renderPhilList(el,arr){if(!el)return;el.innerHTML=arr.map(p=>`<div class="phil-item"><span class="phi-rank">${p.r}</span><div><div class="phi-name">${p.n}</div><div class="phi-school">${p.s}</div></div><div class="phi-bar-bg"><div class="phi-bar-fill" style="width:${pct(p.v)}%;background:${p.col}"></div></div><span class="phi-score" style="color:${p.col}">${p.v}</span></div>`).join('')}
+
+function init(){
+  renderAttrList(safe('attr-tech'),ATTRS.tech);
+  renderAttrList(safe('attr-men'),ATTRS.men);
+  renderAttrList(safe('attr-phy'),ATTRS.phy);
+  renderPhilList(safe('ov-phil'),PHIL.slice(0,5));
+  renderPhilList(safe('phil-full'),PHIL);
+  const sa=safe('school-avgs');
+  if(sa)sa.innerHTML=SCHOOL_AVGS.map(s=>`<div class="comp-row"><span style="font-size:.74rem;color:var(--lite);flex:1">${s.n}</span><div class="comp-bar-bg" style="width:120px"><div class="comp-bar-fill" style="width:${pct(s.v)}%;background:${sc(s.v)}"></div></div><span class="comp-val" style="color:${sc(s.v)}">${s.v}</span></div>`).join('');
+
+  const DFT={
+    scales:{r:{min:0,max:10,grid:{color:'rgba(0,77,152,.06)'},angleLines:{color:'rgba(0,77,152,.06)'},
+      ticks:{stepSize:2,color:'#2a3850',backdropColor:'transparent',font:{size:9}},
+      pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},
+    plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},
+      tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,77,152,.3)',borderWidth:1,titleColor:'#4d9eff',bodyColor:'#f0f6fc'}},
+    responsive:true,maintainAspectRatio:false
+  };
+
+  const dc=safe('fgaDial');
+  if(dc){
+    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const score=6.3;
+    dctx.clearRect(0,0,120,120);
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
+    dctx.strokeStyle='rgba(0,77,152,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    const grad=dctx.createLinearGradient(14,70,106,70);
+    grad.addColorStop(0,'#004d98');grad.addColorStop(.4,'#a50044');grad.addColorStop(1,'#f0b820');
+    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(score/10)*Math.PI);
+    dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
+    safe('fgaNum').textContent=score.toFixed(2);
+  }
+
+  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20%','Tier 2 · 30%','Tier 3 · 50% (0/16)'],
+    datasets:[{data:[20,30,50],backgroundColor:['rgba(0,77,152,.5)','rgba(34,168,90,.45)','rgba(240,184,32,.55)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},
+        tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,77,152,.3)',borderWidth:1}}}});
+
+  new Chart(safe('ovRadar'),{type:'radar',
+    data:{labels:['Technical','Physical','Mental','Tactical','Speed','Creativity'],
+      datasets:[{label:'Mba Proxy',data:[6.5,6.0,5.0,5.0,7.0,6.5],
+        borderColor:'#004d98',backgroundColor:'rgba(0,77,152,.1)',borderWidth:2,
+        pointBackgroundColor:'#004d98',pointRadius:4}]},
+    options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  new Chart(safe('attrRadar'),{type:'radar',
+    data:{labels:['Dribbling','Passing','Shooting','Pace','Strength','Stamina','Vision','Defending'],
+      datasets:[
+        {label:'Mba Proxy',data:[7.0,5.5,5.0,7.0,4.5,5.5,5.5,3.5],borderColor:'#004d98',backgroundColor:'rgba(0,77,152,.12)',borderWidth:2.5,pointBackgroundColor:'#004d98',pointRadius:4},
+        {label:'U16 LW Spain avg',data:[5.5,5.5,5.0,6.0,5.5,5.5,5.0,4.0],borderColor:'rgba(0,77,152,.25)',backgroundColor:'rgba(0,77,152,.04)',borderWidth:1.5,pointRadius:3}
+      ]},options:{...DFT,maintainAspectRatio:false}});
+
+  new Chart(safe('philRadar'),{type:'radar',
+    data:{labels:['Modern Masters','Spanish','French','Dutch','German','S. American'],
+      datasets:[{label:'Philosophy Fit',data:[6.5,6.5,6.0,5.5,5.5,4.5],
+        borderColor:'#f0b820',backgroundColor:'rgba(240,184,32,.12)',borderWidth:2,
+        pointBackgroundColor:['#6CABDD','#004d98','#27ae60','#1a7a3a','#3498db','#e07820'],pointRadius:5}]},
+    options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
+}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

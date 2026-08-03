@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedro Gonçalves — Empire FGA Intelligence Card (v4.0)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#05080f;--bg2:#090d18;--bg3:#0c1020;--card:#0f1525;--card2:#131b2e;
+  --border:rgba(255,255,255,.07);--border2:rgba(212,168,67,.2);
+  --red:#c8102e;--red2:#e83050;--gold:#d4a843;--gold2:#f0c860;
+  --teal:#00afc8;--green:#22a85a;--amber:#e07820;--muted:#6a7a94;--lite:#b8c8de;--white:#e8f0fa;
+  --sporting:#008057; --sporting2:#006644;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ===== HERO ===== */
+.hero{
+  position:relative;z-index:1;display:grid;grid-template-columns:260px 1fr 220px;
+  min-height:240px;border-bottom:2px solid var(--border2);background:linear-gradient(95deg,#05080f 0%,#0a1020 100%);
+}
+.hero-photo{position:relative;overflow:hidden;}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:contrast(1.05);mask-image:linear-gradient(to right,#000 70%,transparent 100%);}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Rajdhani',sans-serif;font-size:9rem;font-weight:700;color:rgba(255,255,255,.04);line-height:1;}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.4rem;background:rgba(0,0,0,.4);border-radius:30px;width:32px;text-align:center;}
+.hero-info{padding:20px 24px;background:linear-gradient(90deg,transparent 0%,rgba(9,13,24,.8) 20%,rgba(9,13,24,.96) 100%);}
+.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);}
+.hero-name{font-family:'Rajdhani',sans-serif;font-size:3.2rem;font-weight:700;line-height:.95;text-transform:uppercase;}
+.hero-name em{color:var(--gold);font-style:normal}
+.hero-pos-row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;}
+.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:2px;text-transform:uppercase;}
+.pos-primary{background:var(--teal);color:#fff}
+.pos-sec{background:rgba(0,175,200,.2);color:var(--teal);border:1px solid rgba(0,175,200,.4)}
+.pos-league{background:rgba(212,168,67,.1);color:var(--gold);border:1px solid rgba(212,168,67,.25)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:16px;margin:12px 0 8px;}
+.hero-meta-item .hmi-val{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;}
+.hero-meta-item .hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.hero-bottom-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.htag{font-size:.65rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase;}
+.htag-ok{background:rgba(34,168,90,.15);color:var(--green);border:1px solid rgba(34,168,90,.25)}
+.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.htag-crit{background:rgba(200,16,46,.12);color:var(--red);border:1px solid rgba(200,16,46,.25)}
+.htag-info{background:rgba(0,175,200,.1);color:var(--teal);border:1px solid rgba(0,175,200,.2)}
+.hero-fga{padding:20px;background:rgba(9,13,24,.96);border-left:1px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.fga-medallion{position:relative;width:110px;height:110px;}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.fga-score-num{font-family:'Rajdhani',sans-serif;font-size:2.2rem;font-weight:700;color:var(--gold);}
+.fga-score-lbl{font-size:.55rem;letter-spacing:.1em;color:var(--muted);}
+.fga-tier-pills{width:100%;}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.68rem;padding:4px 8px;border-radius:2px;margin-bottom:4px;}
+.ftr1{background:rgba(0,175,200,.08);border:1px solid rgba(0,175,200,.15)}
+.ftr2{background:rgba(34,168,90,.08);border:1px solid rgba(34,168,90,.15)}
+.ftr3{background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.2)}
+.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;margin-left:auto;}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(212,168,67,.08);border:1px solid var(--border2);width:100%;border-radius:2px;}
+.ca-val{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--gold);}
+.ca-info{font-size:.65rem;color:var(--muted);}
+.ca-pa{font-size:.8rem;font-weight:600;margin-left:auto;}
+
+/* ===== TOPBAR ===== */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(5,8,15,.98);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;}
+.logo-bar{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);padding-right:24px;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 16px;cursor:pointer;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;color:var(--muted);}
+.dot{width:6px;height:6px;border-radius:50%;}
+
+/* ===== LAYOUT & CARDS ===== */
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px;}
+.tab-panel{display:none;animation:fadeIn .2s ease;}
+.tab-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;margin-bottom:14px;}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);}
+.c-dot{width:7px;height:7px;border-radius:50%;}
+.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+.c-sub{font-size:.68rem;color:var(--muted);margin-left:auto;}
+.c-body{padding:14px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* ===== METRIC ROWS ===== */
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.mcode{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;width:48px;}
+.mname{font-size:.75rem;flex:1;color:var(--lite);}
+.mbar-bg{width:90px;height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.mbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--sporting),var(--teal));}
+.mval{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;width:32px;text-align:right;}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;text-align:center;white-space:nowrap;}
+.f-ok{background:rgba(34,168,90,.15);color:var(--green);}
+.f-w{background:rgba(224,120,32,.15);color:var(--amber);}
+.f-p{background:rgba(200,16,46,.12);color:var(--red);}
+
+/* ===== STAT HERO ROW ===== */
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px;}
+.sh-box{background:var(--card2);border:1px solid var(--border);padding:10px 8px;text-align:center;position:relative;}
+.sh-val{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--gold);}
+.sh-lbl{font-size:.6rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;}
+.sh-delta{font-size:.6rem;margin-top:2px;}
+.dpos{color:var(--green);}.dneg{color:var(--red);}
+
+/* ===== ATTRIBUTE CIRCLES (FM style) ===== */
+.attr-section-title{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px;}
+.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.02);}
+.attr-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:#fff;background:var(--attr-avg);}
+.attr-name{font-size:.74rem;flex:1;color:var(--lite);}
+.attr-bar-bg{width:70px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.attr-bar-fill{height:100%;border-radius:99px;}
+.attr-val-lbl{font-size:.7rem;font-weight:700;width:26px;text-align:right;}
+.ac-elite{background:#1a7a3a;}.ac-great{background:#1e8a4a;}.ac-good{background:#5a9e20;}.ac-avg{background:#a88010;}.ac-below{background:#b05a10;}.ac-weak{background:#8a1020;}
+
+/* ===== OTHER COMPONENTS ===== */
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;background:rgba(212,168,67,.1);color:var(--gold);border:1px solid rgba(212,168,67,.2);}
+.psych-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px;margin-bottom:8px;}
+.psych-title{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.verdict-box{padding:12px;background:rgba(0,175,200,.06);border:1px solid rgba(0,175,200,.2);border-radius:2px;margin-top:8px;}
+.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.12em;color:var(--teal);text-transform:uppercase;}
+.verdict-text{font-size:.78rem;color:var(--lite);line-height:1.5;margin-top:4px;}
+.scout-para{font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.scout-para strong{color:var(--lite);}
+.divider{height:1px;background:var(--border);margin:10px 0;}
+.tl-wrap{position:relative;padding-left:20px;}
+.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(var(--teal),var(--gold));}
+.tl-item{position:relative;margin-bottom:16px;}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);}
+.tl-date{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;color:var(--gold);text-transform:uppercase;}
+.tl-text{font-size:.75rem;color:var(--muted);margin-top:3px;line-height:1.4;}
+
+@media (max-width:1000px){
+  .hero{grid-template-columns:1fr;grid-template-rows:260px auto auto;}
+  .g3,.g2{grid-template-columns:1fr;}
+  .stat-hero-row{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" style="height:28px;object-fit:contain;" alt="Empire FGA">EMPIRE FGA</div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--green)"></span>Validated</span>
+    <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>8/16 Tier3</span>
+    <span style="font-family:'Rajdhani',sans-serif;font-size:.7rem;">Apr 2026</span>
+  </div>
+</div>
+
+<!-- HERO SECTION -->
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://tmssl.akamaized.net//images/foto/galerie/pedro-goncalves-sporting-2025-1759774235-179657.jpg?lm=1759774266" alt="Pedro Gonçalves">
+    <div class="hero-flag">🇵🇹</div>
+    <div class="hero-num">28</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">Attacking Midfielder · Set‑Piece Maestro · Captain</div>
+      <div class="hero-name"><em>Pedro</em><br>Gonçalves</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">AM</span>
+        <span class="pos-badge pos-sec">LW</span>
+        <span class="pos-badge pos-league">Primeira Liga</span>
+        <span class="pos-badge pos-league">Sporting CP</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><div class="hmi-val">27</div><div class="hmi-lbl">Age</div></div>
+      <div class="hero-meta-item"><div class="hmi-val">1.73m</div><div class="hmi-lbl">Height</div></div>
+      <div class="hero-meta-item"><div class="hmi-val">17</div><div class="hmi-lbl">Apps 25/26</div></div>
+      <div class="hero-meta-item"><div class="hmi-val">€32M</div><div class="hmi-lbl">Market Value</div></div>
+      <div class="hero-meta-item"><div class="hmi-val">2028</div><div class="hmi-lbl">Contract</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-info">LOG 4.2</span>
+      <span class="htag htag-ok">Elite Set‑Pieces</span>
+      <span class="htag htag-warn">Physical Limitations</span>
+      <span class="htag htag-crit">OBI PENDING</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div class="fga-medallion"><canvas id="fgaDial"></canvas><div class="fga-center"><div class="fga-score-num" id="fgaNum">—</div><div class="fga-score-lbl">/ 10.0</div></div></div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--teal)">Tier 1</span><span style="color:var(--muted)">Data/Stats</span><span class="tw" style="color:var(--teal)">7.2</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--green)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--green)">6.9</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--gold)">Tier 3</span><span style="color:var(--muted)">Scout (Video)</span><span class="tw" style="color:var(--gold)">6.6*</span></div>
+    </div>
+    <div class="hero-ca"><div><div class="ca-val">142</div><div class="ca-info">CA (Empire)</div></div><div class="ca-pa">PA 158</div></div>
+    <div style="font-size:.6rem;color:var(--amber);text-align:center">*Provisional – OBI pending</div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- ═════ OVERVIEW TAB ═════ -->
+<div id="tab-overview" class="tab-panel active">
+  <div class="stat-hero-row">
+    <div class="sh-box"><div class="sh-val">6.8</div><div class="sh-lbl">FGA Rating</div><div class="sh-delta dpos">Provisional</div></div>
+    <div class="sh-box"><div class="sh-val">7.35</div><div class="sh-lbl">FotMob Avg</div><div class="sh-delta dpos">Above Avg</div></div>
+    <div class="sh-box"><div class="sh-val">10</div><div class="sh-lbl">Goals (24/25)</div><div class="sh-delta dpos">Elite</div></div>
+    <div class="sh-box"><div class="sh-val">5</div><div class="sh-lbl">Assists</div><div class="sh-delta dpos">Creative</div></div>
+    <div class="sh-box"><div class="sh-val">7.71</div><div class="sh-lbl">Diagonal Pass</div><div class="sh-delta dpos">Top 5%</div></div>
+    <div class="sh-box"><div class="sh-val">8/16</div><div class="sh-lbl">Video Complete</div><div class="sh-delta dneu">Pending</div></div>
+  </div>
+
+  <div class="g3">
+    <div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Position Map</div></div><div class="c-body" style="padding:8px;text-align:center">
+        <svg width="140" height="180" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="150" rx="2" fill="#0a1a10"/><rect x="5" y="5" width="90" height="140" fill="none" stroke="rgba(255,255,255,.12)" stroke-width=".8"/><line x1="5" y1="75" x2="95" y2="75" stroke="rgba(255,255,255,.08)" stroke-width=".6"/><circle cx="50" cy="75" r="12" fill="none" stroke="rgba(255,255,255,.08)" stroke-width=".6"/><rect x="30" y="5" width="40" height="18" fill="none" stroke="rgba(255,255,255,.08)" stroke-width=".6"/><rect x="38" y="5" width="24" height="9" fill="none" stroke="rgba(255,255,255,.08)"/><rect x="30" y="127" width="40" height="18" fill="none" stroke="rgba(255,255,255,.08)" stroke-width=".6"/><circle cx="65" cy="50" r="6" fill="rgba(0,128,87,.85)" stroke="var(--gold)" stroke-width="1.2"/><text x="65" y="53" text-anchor="middle" font-size="4.5" fill="white" font-family="Rajdhani">AM</text><circle cx="78" cy="45" r="3.5" fill="rgba(0,128,87,.4)"/></svg>
+        <div style="margin-top:4px"><span style="font-size:.65rem;color:var(--muted)">ATTACKING MID · Free‑Roaming</span></div>
+      </div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Match Form</div><div class="c-sub">Last 5 (FotMob)</div></div><div class="c-body" style="font-size:.7rem">
+        <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+          <span style="background:var(--green);padding:4px 8px;border-radius:2px">3-1 W</span>
+          <span style="background:var(--green);padding:4px 8px;border-radius:2px">2-0 W</span>
+          <span style="background:var(--muted);padding:4px 8px;border-radius:2px">0-0 D</span>
+          <span style="background:var(--green);padding:4px 8px;border-radius:2px">1-0 W</span>
+          <span style="background:var(--green);padding:4px 8px;border-radius:2px">3-2 W</span>
+        </div>
+        <div class="divider"></div>
+        <div>vs Top‑third (Benfica, Porto): <strong style="color:var(--amber)">7.1 avg</strong></div>
+        <div>vs Bottom‑third: <strong style="color:var(--green)">8.5 avg, 4 goals</strong></div>
+      </div></div>
+    </div>
+
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title">Coach Summary</div><div class="c-sub">Key Attributes</div></div>
+      <div class="c-body">
+        <div class="attr-section-title">Technical</div>
+        <div id="coach-tech"></div>
+        <div class="attr-section-title">Mental</div>
+        <div id="coach-men"></div>
+        <div class="attr-section-title">Physical</div>
+        <div id="coach-phy"></div>
+      </div>
+    </div>
+
+    <div><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Player Profile</div></div>
+      <div class="c-body">
+        <div class="ti-row" style="display:flex;justify-content:space-between;padding:5px 0"><span class="ti-lbl">Born</span><span class="ti-val">28 June 1998 (27)</span></div>
+        <div class="ti-row" style="display:flex;justify-content:space-between;padding:5px 0"><span class="ti-lbl">Nationality</span><span class="ti-val">🇵🇹 Portuguese</span></div>
+        <div class="ti-row" style="display:flex;justify-content:space-between;padding:5px 0"><span class="ti-lbl">Height / Weight</span><span class="ti-val">1.73m · 69kg</span></div>
+        <div class="ti-row" style="display:flex;justify-content:space-between;padding:5px 0"><span class="ti-lbl">Foot</span><span class="ti-val" style="color:var(--gold);font-weight:700">Right</span></div>
+        <div class="ti-row" style="display:flex;justify-content:space-between;padding:5px 0"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--teal)">Sporting CP (Captain)</span></div>
+        <div class="ti-row" style="display:flex;justify-content:space-between;padding:5px 0"><span class="ti-lbl">Nickname</span><span class="ti-val">"Pote"</span></div>
+      </div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Player Traits</div></div><div class="c-body">
+        <span class="trait-pill">Set‑Piece Specialist</span>
+        <span class="trait-pill">Diagonal Pass Master</span>
+        <span class="trait-pill">Free‑Roaming Playmaker</span>
+        <span class="trait-pill">Late Box Arrival</span>
+        <div class="divider"></div>
+        <div class="scout-para" style="font-size:.7rem"><strong style="color:var(--red)">Weaknesses:</strong> Aerial duels (42%), defensive tracking, physicality.</div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Top Philosophy Fits</div><div class="c-sub">60-Framework</div></div><div class="c-body" id="ov-phil"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">FGA Tier Snapshot</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title">Scouting Verdict</div></div><div class="c-body">
+      <div class="scout-para">Gonçalves is a <strong>technical, creative attacking midfielder</strong> with elite set‑piece delivery and diagonal passing. His goal threat from midfield (10 in 17) is exceptional. However, physical limitations (pace, strength) and inconsistent off‑ball movement require system protection. <strong>⚠️ OBI assessment pending – affects FGA confidence.</strong></div>
+      <div class="verdict-box"><div class="verdict-label">Target Market</div><div class="verdict-text">Ideal for <strong>possession-based sides</strong> needing a creative hub. Value €30–40M; proven at Primeira Liga and European level.</div></div>
+    </div></div>
+  </div>
+</div>
+
+<!-- ═════ ATTRIBUTES TAB ═════ -->
+<div id="tab-attributes" class="tab-panel">
+  <div class="g3">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Technical</div></div><div class="c-body" id="attr-tech"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Mental</div></div><div class="c-body" id="attr-men"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title">Physical</div></div><div class="c-body" id="attr-phy"></div></div>
+  </div>
+  <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Attribute Radar</div><div class="c-sub">vs Comparable Playmakers</div></div><div class="c-body" style="height:300px"><canvas id="attrRadar"></canvas></div></div>
+</div>
+
+<!-- ═════ FGA ANALYTICS TAB ═════ -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Tier 1 — Data/Stats</div><div class="c-sub">20%</div></div><div class="c-body" id="t1-metrics"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title">Tier 2 — Composite</div><div class="c-sub">30%</div></div><div class="c-body" id="t2-metrics"></div></div>
+    <div><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">FGA Score Breakdown</div></div><div class="c-body" style="height:180px"><canvas id="fgaDonut"></canvas></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title">LOG Context</div></div><div class="c-body"><div class="log-ring" style="display:flex;gap:14px"><canvas id="logRing" width="60" height="60"></canvas><div><div class="log-val" style="font-size:1.6rem">4.2</div><div class="log-lbl">LOG Score</div><span class="log-badge" style="background:rgba(212,168,67,.2);padding:2px 8px">Primeira Liga</span></div></div>
+        <div style="font-size:.7rem;margin-top:8px"><strong>Derivation:</strong> Competition Tier 2.9, avg opposition, UCL group stage → LOG = 4.2/6.0</div>
+      </div></div>
+    </div>
+  </div>
+  <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Tier 3 — Scout Observation (Video)</div><div class="c-sub">50% · 16 metrics total</div></div>
+    <div class="c-body"><div class="g3">
+      <div><div class="composite-block" style="background:var(--card2);padding:8px"><div class="cb-header"><span class="cb-code">OBI</span><span class="cb-name">Off-Ball Intel</span><span class="cb-score" style="color:var(--red)">PENDING</span></div><div id="obi-subs"></div><div style="font-size:.65rem;color:var(--amber);margin-top:4px">❌ Requires 3+ matches with OBI events – not yet observed</div></div></div>
+      <div><div class="composite-block" style="background:var(--card2);padding:8px"><div class="cb-header"><span class="cb-code">SII</span><span class="cb-name">Sprint Intensity</span><span class="cb-score" style="color:var(--teal)">5.2</span></div><div id="sii-subs"></div></div></div>
+      <div><div class="section-label">Video Completeness</div><div id="vc-mini"></div><div class="divider"></div><div class="section-label">Scored Metrics (8/16)</div><div style="font-size:.7rem">SII_A, SII_T, SII_R, DMA, SOA, OMS, DYN, CRK</div><div class="section-label" style="margin-top:6px">Pending (8/16)</div><div style="font-size:.7rem;color:var(--red)">OBI_T, OBI_S, OBI_P, CHR, MCS, SPI, CLM, CRS</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-label">All Tier 3 Metrics (with T3_STATUS)</div>
+    <div class="g3" id="t3-rest-grid"></div>
+  </div></div>
+</div>
+
+<!-- ═════ PHILOSOPHY DNA TAB ═════ -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="g2"><div><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Top 6 Philosophy Fits</div></div><div class="c-body" id="phil-full"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title">School Averages</div></div><div class="c-body" id="school-avgs"></div></div></div>
+    <div><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Philosophy Radar</div></div><div class="c-body" style="height:300px"><canvas id="philRadar"></canvas></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Tactical Archetype</div></div><div class="c-body"><div class="scout-para">Gonçalves fits <strong>Brazilian/Dutch possession schools</strong> — his diagonal passing and set‑piece quality thrive in positional play. Less suited for direct/physical systems.</div>
+        <div class="psych-box"><div class="psych-title">Tactical DNA</div><span class="trait-pill">Creative Playmaker</span><span class="trait-pill">Set‑Piece Architect</span><span class="trait-pill">Possession Retainer</span></div>
+        <div class="psych-box"><div class="psych-title">Not Compatible</div><span class="trait-pill" style="background:rgba(200,16,46,.1);color:var(--red)">Direct Counter</span><span class="trait-pill" style="background:rgba(200,16,46,.1);color:var(--red)">Low Block</span></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ CAREER TAB ═════ -->
+<div id="tab-career" class="tab-panel">
+  <div class="g2"><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Career Timeline</div></div><div class="c-body"><div class="tl-wrap">
+    <div class="tl-item"><div class="tl-dot" style="background:var(--teal)"></div><div class="tl-date">2014–2019 · Wolves Academy</div><div class="tl-text">Joined Wolverhampton Wanderers academy at 16. Developed English physicality but deemed too lightweight for first team.</div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2019–2020 · Famalicão Breakthrough</div><div class="tl-text">Returned to Portugal. 5 goals, 8 assists. Caught Sporting's attention with creative output.</div></div>
+    <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-date">2020–Present · Sporting CP Captain</div><div class="tl-text">23 goals, 11 assists in 2020/21 title season. Appointed captain. Won 4 major trophies.</div></div>
+    <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">2021–Present · Portugal International</div><div class="tl-text">2 caps, limited minutes behind Bernardo Silva and Bruno Fernandes.</div></div>
+  </div></div></div>
+    <div><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Progress Chart</div></div><div class="c-body" style="height:180px"><canvas id="progressChart"></canvas></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title">Key Milestones</div></div><div class="c-body"><div class="tl-wrap">
+        <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-date">2019 — Primeira Liga Debut</div><div class="tl-text">First professional minutes for Famalicão at age 20.</div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--teal)"></div><div class="tl-date">2021 — League Title</div><div class="tl-text">23 goals, 11 assists – Sporting's first title in 19 years.</div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">2023 — Captaincy</div><div class="tl-text">Appointed Sporting CP captain after Coates departure.</div></div>
+      </div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ SCOUTING INTEL TAB ═════ -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2"><div><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--red)"></div><div class="c-title">Full Scouting Report</div><div class="c-sub">Jim Totime · Empire FGA · Apr 2026</div></div><div class="c-body">
+    <div class="scout-para">Pedro Gonçalves is a <strong>technical, left‑footed attacking midfielder</strong> (plays right-footed) who excels in possession‑based systems. His <strong>diagonal passing (7.71)</strong> and <strong>set‑piece delivery</strong> are elite – ranking in the top 3% of Primeira Liga. He consistently arrives late in the box to score (10 goals in 17 apps). However, <strong>physical limitations</strong> (pace, strength) and inconsistent off‑ball movement limit his impact against elite opposition.</div>
+    <div class="scout-para">The video log confirms <strong>excellent decision‑making (DMA 8.2)</strong> and <strong>creative risk‑taking (CRK 8.0)</strong>, but <strong>OBI (off‑ball intelligence) remains unassessed</strong>. His defensive work rate (DEF 3.37) is below average – requires a protective midfielder.</div>
+    <div class="verdict-box"><div class="verdict-label">Empire FGA Final Verdict (Provisional)</div><div class="verdict-text"><strong>High Quality Creative Hub.</strong> Gonçalves is a ready‑made playmaker for mid‑table Champions League sides or title‑winning teams in secondary leagues. Market value €30–40M. <strong>⚠️ Complete OBI and CHR assessments before offering long‑term contract.</strong></div></div>
+  </div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Player Comparison</div><div class="c-sub">vs Bruno Fernandes (27)</div></div><div class="c-body" style="height:300px"><canvas id="compRadar"></canvas></div></div>
+    </div>
+    <div><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title">Transfer Intelligence</div></div><div class="c-body">
+      <div class="ti-row"><span class="ti-lbl">Market Value</span><span class="ti-val">€30M – €40M</span></div>
+      <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val">Until June 2028</span></div>
+      <div class="ti-row"><span class="ti-lbl">Ownership</span><span class="ti-val">Sporting CP</span></div>
+      <div class="ti-row"><span class="ti-lbl">Known Interest</span><span class="ti-val">La Liga, Premier League (mid‑table)</span></div>
+      <div class="ti-row"><span class="ti-lbl">Release Clause</span><span class="ti-val">€80M</span></div>
+      <div class="ti-row"><span class="ti-lbl">FIFA Status</span><span class="ti-val">EU Passport ✅</span></div>
+    </div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--teal)"></div><div class="c-title">Psychological Profile (Pending)</div></div><div class="c-body">
+        <div class="psych-box"><div class="psych-title">CHR (Character)</div><div style="color:var(--red)">❌ PENDING – requires 3+ matches with scout evidence</div></div>
+        <div class="psych-box"><div class="psych-title">MCS (Mental Competence)</div><div style="color:var(--red)">❌ PENDING – requires high‑pressure match observation</div></div>
+        <div class="psych-box"><div class="psych-title">On‑Pitch Role</div><div>Creative hub, set‑piece taker, secondary goalscorer.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── DATA (from official sources + estimates) ─────────────────────────
+const TIER1 = [
+  {c:"DRB",n:"Dribble Success",v:6.5,raw:"58.2%",status:"✅ Sofascore"},
+  {c:"PAS",n:"Pass Acc %",v:8.2,raw:"81.5%",status:"✅"},
+  {c:"KP",n:"Key Passes/90",v:7.8,raw:"2.1",status:"✅"},
+  {c:"DGP",n:"Diagonal Pass",v:7.7,raw:"Top 3%",status:"✅ Elite"},
+  {c:"DEF",n:"Def Actions",v:3.4,raw:"0.8/90",status:"✅ Below avg"},
+  {c:"GOL",n:"Goals/90",v:7.5,raw:"0.59",status:"✅ Elite"}
+];
+const TIER2 = [
+  {c:"POI",n:"Position Intel",v:7.0},{c:"CPX",n:"Composure",v:6.8},{c:"MOB",n:"Mobility",v:6.2},
+  {c:"GRI",n:"Ghost Run",v:5.5},{c:"AMS",n:"Anticipatory",v:7.0},{c:"MTI",n:"Mental Toughness",v:6.5}
+];
+const OBI = [{c:"OBI_T",n:"Run Timing",v:0,status:"❌ PENDING"},{c:"OBI_S",n:"Space Arch",v:0,status:"❌ PENDING"},{c:"OBI_P",n:"Positional Anticipation",v:0,status:"❌ PENDING"}];
+const SII = [{c:"SII_A",n:"Explosive Accel",v:5.5,status:"✅ 2 scouts"},{c:"SII_T",n:"Top-End Speed",v:4.8,status:"✅ 2 scouts"},{c:"SII_R",n:"Recovery Sprint",v:5.2,status:"✅ 2 scouts"}];
+const T3R = [
+  {c:"DMA",n:"Decision Making",v:8.2,status:"✅ 2 scouts, 3 events"},
+  {c:"CHR",n:"Character",v:0,status:"❌ PENDING"},
+  {c:"MCS",n:"Mental Competence",v:0,status:"❌ PENDING"},
+  {c:"SOA",n:"Speed on Action",v:7.0,status:"✅ 2 scouts, 4 events"},
+  {c:"SPI",n:"Spatial Performance",v:0,status:"❌ PENDING"},
+  {c:"CLM",n:"Calmness",v:0,status:"❌ PENDING"},
+  {c:"CRS",n:"Clutch Response",v:0,status:"❌ PENDING"},
+  {c:"OMS",n:"Omschakeling",v:6.5,status:"✅ 2 scouts, 3 events"},
+  {c:"DYN",n:"Dynamism",v:6.0,status:"✅ 2 scouts, 2 events"},
+  {c:"CRK",n:"Creative Risk",v:8.0,status:"✅ 2 scouts, 3 events"}
+];
+const PHIL_TOP = [
+  {r:1,n:"Santana Artistry",s:"Brazilian",v:8.8},{r:2,n:"Cruyff Intelligence",s:"Dutch",v:8.2},
+  {r:3,n:"Roux Provincial",s:"French",v:7.9},{r:4,n:"Pellegrini Elegance",s:"Spanish",v:7.7},
+  {r:5,n:"Platini Elegance",s:"French",v:7.6},{r:6,n:"Guardiola Positional",s:"Spanish",v:7.4}
+];
+const SCHOOL_AVGS = [{n:"Brazilian Artistry",v:8.8},{n:"Dutch Possession",v:8.2},{n:"French Creative",v:7.7},{n:"Spanish Build-Up",v:7.5},{n:"German Intensity",v:5.2}];
+const ATTRS = {
+  tech:[{n:"Crossing",v:7.5},{n:"Passing",v:8.0},{n:"Technique",v:8.2},{n:"First Touch",v:7.8},{n:"Finishing",v:7.5}],
+  men:[{n:"Vision",v:8.5},{n:"Decisions",v:8.2},{n:"Anticipation",v:7.5},{n:"Work Rate",v:6.0},{n:"Composure",v:7.0}],
+  phy:[{n:"Acceleration",v:6.0},{n:"Agility",v:7.0},{n:"Pace",v:5.5},{n:"Stamina",v:6.5},{n:"Strength",v:5.0}]
+};
+
+function renderMetricList(el,arr){ el.innerHTML=arr.map(m=>`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:${m.v*10}%;background:${m.v>=7?'#22a85a':m.v>=5?'#d4a843':'#c8102e'}"></div></div><span class="mval">${m.v}</span><span class="mflag f-ok">${m.raw||'✅'}</span></div>`).join(''); }
+function renderCompList(el,arr){ el.innerHTML=arr.map(m=>`<div class="comp-row" style="display:flex;gap:8px;padding:4px 0"><span style="width:48px;font-family:Rajdhani">${m.c}</span><span style="flex:1">${m.n}</span><div class="mbar-bg" style="width:80px"><div class="mbar-fill" style="width:${m.v*10}%;background:${m.v>=7?'#22a85a':'#d4a843'}"></div></div><span>${m.v}</span></div>`).join(''); }
+function renderAttrList(el,arr){ el.innerHTML=arr.map(a=>`<div class="attr-row"><div class="attr-circle ${a.v>=8?'ac-elite':a.v>=7?'ac-great':a.v>=6?'ac-good':'ac-avg'}">${Math.round(a.v)}</div><span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${a.v*10}%;background:${a.v>=7?'#22a85a':'#d4a843'}"></div></div><span class="attr-val-lbl">${a.v}</span></div>`).join(''); }
+function renderPhilList(el,arr){ el.innerHTML=arr.map(p=>`<div class="phil-item" style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:24px;color:var(--gold3)">${p.r}</span><div><div class="phi-name">${p.n}</div><div class="phi-school" style="font-size:.6rem">${p.s}</div></div><div class="phi-bar-bg" style="flex:1;height:4px;background:rgba(255,255,255,.1)"><div class="phi-bar-fill" style="width:${p.v*10}%;height:4px;background:#d4a843"></div></div><span>${p.v}</span></div>`).join(''); }
+
+function init(){
+  renderAttrList(document.getElementById('coach-tech'),ATTRS.tech.slice(0,4));
+  renderAttrList(document.getElementById('coach-men'),ATTRS.men.slice(0,4));
+  renderAttrList(document.getElementById('coach-phy'),ATTRS.phy.slice(0,4));
+  renderAttrList(document.getElementById('attr-tech'),ATTRS.tech);
+  renderAttrList(document.getElementById('attr-men'),ATTRS.men);
+  renderAttrList(document.getElementById('attr-phy'),ATTRS.phy);
+  renderMetricList(document.getElementById('t1-metrics'),TIER1);
+  renderCompList(document.getElementById('t2-metrics'),TIER2);
+  renderCompList(document.getElementById('obi-subs'),OBI);
+  renderCompList(document.getElementById('sii-subs'),SII);
+  const vcEl=document.getElementById('vc-mini');
+  let allMetrics=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM','CRS','OMS','DYN','CRK'];
+  let scored=['SII_A','SII_T','SII_R','DMA','SOA','OMS','DYN','CRK'];
+  vcEl.innerHTML=allMetrics.map(m=>`<div style="display:flex;align-items:center;gap:6px;font-size:.7rem"><span style="width:6px;height:6px;border-radius:50%;background:${scored.includes(m)?'var(--green)':'var(--red)'}"></span><span style="width:44px">${m}</span><span class="mflag ${scored.includes(m)?'f-ok':'f-p'}">${scored.includes(m)?'✅':'PENDING'}</span></div>`).join('');
+  renderPhilList(document.getElementById('ov-phil'),PHIL_TOP.slice(0,4));
+  renderPhilList(document.getElementById('phil-full'),PHIL_TOP);
+  const saEl=document.getElementById('school-avgs');
+  saEl.innerHTML=SCHOOL_AVGS.map(s=>`<div class="comp-row" style="display:flex;justify-content:space-between"><span>${s.n}</span><div class="mbar-bg" style="width:100px"><div class="mbar-fill" style="width:${s.v*10}%"></div></div><span>${s.v}</span></div>`).join('');
+  const restGrid=document.getElementById('t3-rest-grid');
+  restGrid.innerHTML=`<div>${T3R.slice(0,4).map(m=>`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:${m.v?m.v*10:0}%"></div></div><span class="mval">${m.v||'—'}</span><span class="mflag ${m.status.includes('✅')?'f-ok':'f-p'}">${m.status}</span></div>`).join('')}</div><div>${T3R.slice(4,8).map(m=>`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:${m.v?m.v*10:0}%"></div></div><span class="mval">${m.v||'—'}</span><span class="mflag ${m.status.includes('✅')?'f-ok':'f-p'}">${m.status}</span></div>`).join('')}</div><div>${T3R.slice(8,12).map(m=>`<div class="mrow"><span class="mcode">${m.c}</span><span class="mname">${m.n}</span><div class="mbar-bg"><div class="mbar-fill" style="width:${m.v?m.v*10:0}%"></div></div><span class="mval">${m.v||'—'}</span><span class="mflag ${m.status.includes('✅')?'f-ok':'f-p'}">${m.status}</span></div>`).join('')}</div>`;
+
+  // FGA Dial (6.8)
+  const dctx=document.getElementById('fgaDial').getContext('2d');
+  dctx.clearRect(0,0,110,110); let start=Math.PI,end=Math.PI+(6.8/10)*Math.PI;
+  dctx.beginPath();dctx.arc(55,55,42,Math.PI,2*Math.PI);dctx.strokeStyle='rgba(255,255,255,.06)';dctx.lineWidth=8;dctx.stroke();
+  dctx.beginPath();dctx.arc(55,55,42,start,end);dctx.strokeStyle='#d4a843';dctx.stroke();
+  document.getElementById('fgaNum').innerText='6.8';
+
+  // LOG Ring
+  let lc=document.getElementById('logRing').getContext('2d');lc.clearRect(0,0,60,60);
+  lc.beginPath();lc.arc(30,30,22,0,2*Math.PI);lc.strokeStyle='rgba(255,255,255,.06)';lc.lineWidth=5;lc.stroke();
+  let lEnd=(-Math.PI/2)+(4.2/6.5)*2*Math.PI;lc.beginPath();lc.arc(30,30,22,-Math.PI/2,lEnd);lc.strokeStyle='#d4a843';lc.stroke();
+
+  // Donut
+  new Chart(document.getElementById('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 (20%)','Tier 2 (30%)','Tier 3 (50%)'],datasets:[{data:[20,30,50],backgroundColor:['#00afc8','#22a85a','#d4a843'],borderWidth:0}]},options:{cutout:'70%',plugins:{legend:{position:'bottom',labels:{color:'#8a9bb5'}}}}});
+
+  // Radars
+  new Chart(document.getElementById('ovRadar'),{type:'radar',data:{labels:['DRB','PAS','DGP','CRK','OMS','DMA','GOL'],datasets:[{label:'Gonçalves',data:[6.5,8.2,7.7,8.0,6.5,8.2,7.5],borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,.15)',borderWidth:2}]},options:{scales:{r:{min:0,max:10,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#6a7a94',stepSize:2}}}}});
+  new Chart(document.getElementById('attrRadar'),{type:'radar',data:{labels:['Passing','Technique','Vision','Decisions','Accel','Agility','Strength'],datasets:[{label:'Gonçalves',data:[8.0,8.2,8.5,8.2,6.0,7.0,5.0],borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,.1)',borderWidth:2},{label:'Primeira Liga Avg',data:[7.2,7.0,7.0,7.0,7.0,7.0,7.0],borderColor:'#6a7a94',borderWidth:1,borderDash:[4,4]}]},options:{scales:{r:{min:0,max:10}}}});
+  new Chart(document.getElementById('philRadar'),{type:'radar',data:{labels:['Santana','Cruyff','Roux','Pellegrini','Platini','Guardiola'],datasets:[{data:[8.8,8.2,7.9,7.7,7.6,7.4],borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,.15)',borderWidth:2}]},options:{scales:{r:{min:0,max:10}}}});
+  new Chart(document.getElementById('progressChart'),{type:'line',data:{labels:['2020','2021','2022','2023','2024','2025','2026'],datasets:[{label:'FGA Rating',data:[6.2,7.2,6.9,6.8,6.7,6.8,6.8],borderColor:'#d4a843',fill:false}]}});
+  new Chart(document.getElementById('compRadar'),{type:'radar',data:{labels:['Passing','Vision','Set‑Pieces','Physicality','Def Work','Clutch'],datasets:[{label:'Gonçalves',data:[8.2,8.5,9.5,4.5,3.5,7.0],borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,.1)'},{label:'Bruno Fernandes',data:[8.5,8.8,8.0,7.0,6.5,9.0],borderColor:'#6a7a94',borderDash:[4,4]}]},options:{scales:{r:{min:0,max:10}}}});
+}
+
+function switchTab(id){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');event.target.classList.add('active');}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
