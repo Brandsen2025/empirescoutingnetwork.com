@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manu Toledano | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0f0a0a;--bg-card:#1a0f0f;--bg-card-hover:#251515;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#C8102E;--accent-dim:rgba(200,16,46,0.15);--accent-glow:rgba(200,16,46,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://objetos-xlk.estaticos-marca.com/uploads/2026/04/25/69ed1513d9235.jpeg') center 20% / cover no-repeat;filter:brightness(0.45) saturate(0.95);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,10,10,0.3) 0%,rgba(200,16,46,0.25) 40%,rgba(15,10,10,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#C8102E 33%,#fbbf24 33%,#fbbf24 66%,#C8102E 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'⚡';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--pending);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(15,10,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(200,16,46,0.1),rgba(251,191,36,0.05));border:1px solid rgba(200,16,46,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(200,16,46,0.18),rgba(251,191,36,0.06));border:2px solid rgba(200,16,46,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(200,16,46,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(200,16,46,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(200,16,46,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(200,16,46,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(200,16,46,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(200,16,46,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(200,16,46,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(200,16,46,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(200,16,46,0.08) 0%,rgba(15,10,10,0.5) 100%);border:1px solid rgba(200,16,46,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(200,16,46,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+.loading-gate {background:var(--bg-card);border:2px dashed var(--border-medium);border-radius:12px;padding:32px;text-align:center;}
+.loading-gate-icon {font-size:2rem;margin-bottom:12px;}
+.loading-gate h4 {font-family:var(--font-display);font-size:1rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px;}
+.loading-gate p {font-size:0.82rem;color:var(--text-tertiary);line-height:1.7;max-width:400px;margin:0 auto;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">UEL Qualification 2026-27</div>
+  <div class="jersey-watermark">44</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">CA Antoniano</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">RSD Alcala</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Linense</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">CD Estepona</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Cádiz CF II</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Mons Calpe</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Lincoln Red Imps</div>
+    </div>
+    <h1 class="hero-name">Manu Toledano</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇪🇸</span> Spain</span>
+      <span class="dot"></span>
+      <span>24 years</span>
+      <span class="dot"></span>
+      <span>188cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Centre-Forward</span>
+      <span class="dot"></span>
+      <span>La Línea de la Concepción</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Pending</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">0/16 T3 PENDING</span>
+          <span class="tag tag-club">Lincoln Red Imps FC · #44</span>
+          <span class="tag tag-gold">🇪🇸 Spain Eligible</span>
+          <span class="tag tag-value">€225K Market Value</span>
+          <span class="tag tag-info">UCL Qualifying 2026-27</span>
+          <span class="tag tag-info">UEL Qualifying Upcoming</span>
+          <span class="tag tag-info">Gibraltar League</span>
+          <span class="tag tag-info">Agent: MIIB Agency</span>
+          <span class="tag tag-danger">T3 LOADING · VIDEO PENDING</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">—</div>
+          <div class="fga-status">T3 LOADING</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-champ">
+    <span>⚡</span> <strong>LINCOLN RED IMPS FC · GIBRALTAR CHAMPIONS · UCL QUALIFYING 2026-27 · UEL QUALIFYING UPCOMING.</strong> Manu Toledano is a 24-year-old Spanish centre-forward who joined Lincoln Red Imps in July 2026 after a prolific 2025-26 season at Mons Calpe SC (30 goals in 24 Gibraltar League matches). Born in La Línea de la Concepción, he progressed through Spanish lower-league football before a US college stint at Creighton University, then returned to Gibraltar football. Currently registered for UEFA Champions League and Europa League qualifying campaigns.
+  </div>
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>TIER 3 LOADING — 0/16 SUB-METRICS SCORED · VIDEO HIGHLIGHTS PENDING.</strong> No video assessment has been conducted. A video highlight reel is pending — this will be required for the scoring pass. All 16 Empire FGA sub-metrics are pending. Upload the completed Tier 3 template to unlock all metrics, calculate the FGA score, and populate radar charts.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>TIER 1 CONFIRMED — LINCOLN RED IMPS + GIBRALTAR LEAGUE + UCL QUALIFYING.</strong> All Tier 1 intelligence verified: 4 UCL Qualifying apps (205 min, 1 goal, 1 YC), Mons Calpe SC 2025-26 (30 goals in 24 league games), contract until 30/06/2027. Agent: MIIB Agency (Transfermarkt). Market value: €225K.
+  </div>
+  <div class="banner banner-danger">
+    <span>⚠️</span> <strong>COMPETITION LEVEL WARNING: GIBRALTAR LEAGUE LOG ~1.0–1.5.</strong> The Gibraltar League is one of Europe's lowest-ranked competitions per UEFA coefficient. The 30-goal season at Mons Calpe SC must be contextualised against this LOG. UCL Qualifying vs Mjällby (Sweden) and Inter Club d'Escaldes (Andorra) provides the first exposure to marginally higher-level opposition. Any FGA projection must account for this extreme LOG gap.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Antoniano</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Alcala</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Linense</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Estepona</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Cádiz II</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Mons Calpe</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Lincoln Red Imps</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">30</div><div class="label">Goals · Mons Calpe 25-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">1.25</div><div class="label">Goals/90 · Gibraltar</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">24</div><div class="label">Apps · Mons Calpe</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">4</div><div class="label">UCL Qual Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">1</div><div class="label">UCL Qual Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--danger);">0/16</div><div class="label">T3 Confirmed</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">205</div><div class="label">UCL Qual Minutes</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">€225K</div><div class="label">Market Value</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Manu Toledano</strong> (Manuel Toledano Ortiz) is a <strong>24-year-old Spanish centre-forward</strong> born on <strong>June 5, 2002</strong>, in <strong>La Línea de la Concepción, Cádiz, Spain</strong>. Currently with <strong>Lincoln Red Imps FC</strong> since July 2026. A <strong>prolific striker</strong> standing <strong>188cm</strong> and <strong>right-footed</strong>. His career path traverses the Spanish lower leagues (Antoniano, Alcala, Linense, Estepona, Cádiz CF II), a US college stint at <strong>Creighton University</strong> (2021), and two Gibraltar clubs: <strong>Mons Calpe SC</strong> (2025-26) and <strong>Lincoln Red Imps FC</strong> (2026-). Agent: <strong>MIIB Agency</strong>. Contract expires <strong>30 June 2027</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 sub-metrics validated.</strong> No video assessment has been conducted. Video highlights are pending — these will be required for the scoring pass. All 16 Empire FGA sub-metrics are pending. <strong style="color:var(--warning);">Recommended match selection:</strong> 5 matches from UCL Qualifying 2026-27 (vs Inter Club d'Escaldes ×2, vs Mjällby ×2) and UEL Qualifying (vs Omonia Nicosia), plus Gibraltar League fixtures from Mons Calpe 2025-26. Minimum 2 matches vs top-third opposition, 1 away match, 1 match where team was losing.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA — PENDING · GIBRALTAR STRIKER · PROLIFIC DOMESTIC SCORER · T3 REQUIRED.</strong> Manu Toledano is a <strong>24-year-old Spanish centre-forward</strong> whose <strong>Tier 1 profile shows elite goal-scoring production at a very low LOG</strong>: 30 goals in 24 Gibraltar League matches for Mons Calpe SC. However, <strong>no Tier 3 video assessment exists</strong>. The Empire FGA system cannot generate a score without video evidence. <strong>The Gibraltar League LOG (~1.0–1.5) is among the lowest in Europe</strong> — the 30-goal season, while impressive in isolation, carries minimal predictive weight for higher leagues. UCL Qualifying exposure (4 apps, 1 goal vs Inter Club d'Escaldes) is the first step toward meaningful competition. <strong>Immediate next step: video scoring pass across 5+ matches using pending highlight reel + full match footage.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">UEFA Champions League Qualifying 2026-27 — Match Register <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Match</th><th>Date</th><th>Opponent</th><th>Result</th><th>Min</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>UCL Q1 1st Leg</strong></td><td>7 Jul 2026</td><td>Inter Club d'Escaldes (H)</td><td>W 3-1</td><td>59'</td><td>1 Goal · 1 Yellow Card</td></tr>
+        <tr><td><strong>UCL Q1 2nd Leg</strong></td><td>14 Jul 2026</td><td>Inter Club d'Escaldes (A)</td><td>D 1-1</td><td>74'</td><td>—</td></tr>
+        <tr><td><strong>UCL Q2 1st Leg</strong></td><td>21 Jul 2026</td><td>Mjällby AIF (A)</td><td>L 0-3</td><td>72'</td><td>—</td></tr>
+        <tr><td><strong>UCL Q2 2nd Leg</strong></td><td>28 Jul 2026</td><td>Mjällby AIF (H)</td><td>D 0-0</td><td>90'</td><td>—</td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>UCL Qual Total</strong></td><td><strong>4 apps</strong></td><td><strong>295 min</strong></td><td><strong>1G · 0A · 1YC</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits (Tier 1 Estimate) <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Target Man / Classic #9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#C8102E;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Poacher / Box Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#C8102E;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Physical Pressing Forward</div><div class="philo-bar-wrap"><div class="progress-fill" style="width:65%;background:#C8102E;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Simeone Counter-Attack #9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#E30613;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa Vertical Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#e07820;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Guardiola False 9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:#6CABDD;"></div></div></div><div class="philo-score">4.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Cruyff Total Football CF</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:#E30613;"></div></div></div><div class="philo-score">4.2</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Santana Flair Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:38%;background:#8b1a1a;"></div></div></div><div class="philo-score">3.8</div></div>
+    </div>
+    <div class="card">
+      <div class="loading-gate">
+        <div class="loading-gate-icon">📊</div>
+        <h4>T3 Radar Pending</h4>
+        <p>Upload the Tier 3 Excel file to populate the radar chart with validated sub-metric scores. All 16 metrics will be visualized here once video scoring is complete.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Off-Ball</h3>
+      <div class="attr-row"><span class="name">CRK Creative Risk</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SOA Speed on Action</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_P Positional Anticipation</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SPI Spatial Performance</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_T Run Timing</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_S Space Architecture</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competence</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CHR Character</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OMS Transition</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch Response</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Psychological profile</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Frustration recovery</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Pressure handling</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">SII_A Acceleration</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery Sprint</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">DYN Dynamism</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Height</span><span class="score ac-green"><span class="circle circle-green"></span> 188cm</span></div>
+      <div class="attr-row"><span class="name">Explosive pace</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Aerial duels</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div class="loading-gate">
+      <div class="loading-gate-icon">🎯</div>
+      <h4>Attribute Radar Pending</h4>
+      <p>Upload the Tier 3 Excel file to unlock the attribute radar chart. The radar will compare Toledano against Gibraltar League striker averages and higher-league benchmarks once video scoring is complete.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Transfermarkt · Fotmob · Sofascore · ESPN · UEFA</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Goals</div><div class="t1-hl-val">30</div><div class="t1-hl-pct">Mons Calpe 2025-26</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:95%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">G/90</div><div class="t1-hl-val">1.25</div><div class="t1-hl-pct">Gibraltar League</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:85%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Apps</div><div class="t1-hl-val">24</div><div class="t1-hl-pct">Mons Calpe season</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:80%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Value</div><div class="t1-hl-val">€225K</div><div class="t1-hl-pct">Transfermarkt</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:22%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">UCL</div><div class="t1-hl-val">1</div><div class="t1-hl-pct">Goal in qualifying</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:25%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Club — Lincoln Red Imps FC</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">UCL</span><span class="t1-metric-desc">UCL Qualifying 2026-27</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--accent)"></div></div></div><span class="t1-metric-val">4 apps · 295'</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">UCL</span><span class="t1-metric-desc">UCL vs Inter d'Escaldes</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1G · 1YC</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">UCL</span><span class="t1-metric-desc">UCL vs Mjällby AIF</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--warning)"></div></div></div><span class="t1-metric-val">0G · 0-3 agg</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">UEL</span><span class="t1-metric-desc">UEL Qualifying vs Omonia</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--pending)"></div></div></div><span class="t1-metric-val">Aug 6 · Pending</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Previous Club — Mons Calpe SC</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">GIB</span><span class="t1-metric-desc">Gibraltar League 2025-26</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:95%;background:var(--gold)"></div></div></div><span class="t1-metric-val">24 apps · 30G</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">GIB</span><span class="t1-metric-desc">Minutes played</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2043 min</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">GIB</span><span class="t1-metric-desc">Assists</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1 assist</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">GIB</span><span class="t1-metric-desc">Yellow cards</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--warning)"></div></div></div><span class="t1-metric-val">8 YC</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Physical / Profile</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">DOB</span><span class="t1-metric-desc">Date of birth</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent)"></div></div></div><span class="t1-metric-val">5 Jun 2002</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Pos</span><span class="t1-metric-desc">Primary position</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Centre-Forward</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Alt</span><span class="t1-metric-desc">Secondary positions</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Striker</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Agent</span><span class="t1-metric-desc">Player agent</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--gold)"></div></div></div><span class="t1-metric-val">MIIB Agency</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div class="loading-gate" style="padding:24px;">
+        <div class="loading-gate-icon">🔒</div>
+        <h4>Tier 2 Locked</h4>
+        <p>Tier 2 composites (CRE, MEN, PAC, PAS, OBI) are calculated from confirmed Tier 3 sub-metrics. With 0/16 T3 metrics confirmed, these cannot be generated. Upload the Tier 3 Excel file to unlock.</p>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites require at least 6/16 T3 sub-metrics confirmed before preliminary estimates can be generated. Full Tier 2 confidence requires 12/16 confirmed.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: ~1.5 (est.)</strong><br>
+          <strong style="color:var(--text-primary);">Gibraltar League:</strong> Mons Calpe SC · 30 goals<br>
+          <strong style="color:var(--text-primary);">UCL Qualifying:</strong> Inter Club d'Escaldes · Mjällby AIF<br>
+          <strong style="color:var(--text-primary);">UEL Qualifying:</strong> Omonia Nicosia (upcoming)<br>
+          <strong style="color:var(--warning);">Gibraltar League is UEFA coefficient ~1.0–1.5</strong><br><br>
+          <strong style="color:var(--gold);">LOG 1.5</strong> represents one of the lowest competitive levels in European football. The 30-goal season, while statistically impressive, carries minimal predictive weight for higher leagues. UCL/UEL qualifying provides marginal LOG elevation.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · Video Pending</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_T: 0 events</strong> — Run timing not scored<br>
+            <strong style="color:var(--pending);">OBI_S: 0 events</strong> — Space architecture not scored<br>
+            <strong style="color:var(--pending);">OBI_P: 0 events</strong> — Positional anticipation not scored<br>
+            <strong style="color:var(--warning);">188cm frame suggests target-man OBI potential</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A: 0 events</strong> — Explosive acceleration not scored<br>
+            <strong style="color:var(--pending);">SII_T: 0 events</strong> — Top-end speed not scored<br>
+            <strong style="color:var(--pending);">SII_R: 0 events</strong> — Recovery sprint not scored<br>
+            <strong style="color:var(--warning);">Physical profile (188cm) suggests power over pace</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">⏳</span> Video highlights pending<br>
+            <span style="color:var(--pending);">⏳</span> OBI_T · OBI_S · OBI_P · SII_A · SII_T · SII_R<br>
+            <span style="color:var(--pending);">⏳</span> DMA · CHR · MCS · SOA · SPI · CLM<br>
+            <span style="color:var(--pending);">⏳</span> CRS · OMS · DYN · CRK<br><br>
+            <strong>0/16 sub-metrics confirmed</strong> — awaiting video + Excel file
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border-subtle);margin-top:16px;padding-top:16px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">All 16 Sub-Metrics — Pending</div>
+      <div class="grid-3">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">DMA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Decision Making</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CHR</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Character</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">MCS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Mental Comp.</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SOA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Speed on Action</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SPI</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Spatial Perf.</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CLM</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Calmness</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CRS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Clutch Response</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OMS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Omschakeling</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">DYN</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Dynamism</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CRK</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Creative Risk</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OBI_T</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Run Timing</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SII_T</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Top Speed</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>CROSS-LEAGUE PROJECTION PROHIBITED — T3 MISSING.</strong> Empire FGA policy: cross-league projections are forbidden without confirmed Tier 3 metrics. All projections below are locked until video evidence is provided.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    Cross-league contextualization requires a <strong style="color:var(--text-primary);">confirmed FGA score</strong> built on validated Tier 3 sub-metrics. Manu Toledano currently has <strong style="color:var(--danger);">0/16 T3 metrics confirmed</strong>. No projection can be made.
+  </p>
+
+  <div class="card">
+    <div class="loading-gate">
+      <div class="loading-gate-icon">🔒</div>
+      <h4>Projections Locked</h4>
+      <p>Upload the Tier 3 Excel file to unlock cross-league projections. The system will calculate LOG-adjusted scores for Gibraltar League, Spanish Segunda Federación, Segunda División, and Liga Hypermotion once video scoring is complete.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Future Projection Targets (Pending T3)</h3>
+    <div class="t1-highlight-grid">
+      <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+        <div class="label" style="margin-bottom:6px;">Current Context</div>
+        <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇬🇮 Gibraltar League</div>
+        <div class="value" style="font-size:2.1rem;color:var(--gold);">—</div>
+        <div class="label">FGA Pending · Tier ~1.0–1.5</div>
+      </div>
+      <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+        <div class="label" style="margin-bottom:6px;">🎯 Target — Segunda Federación</div>
+        <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+        <div class="value" style="font-size:2.1rem;color:var(--pending);">—</div>
+        <div class="label">LOG-Adjusted · Locked</div>
+      </div>
+      <div class="stat-hero" style="border-color:rgba(200,16,46,0.25);">
+        <div class="label" style="margin-bottom:6px;">🎯 Target — Segunda División</div>
+        <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+        <div class="value" style="font-size:2.1rem;color:var(--pending);">—</div>
+        <div class="label">LOG-Adjusted · Locked</div>
+      </div>
+      <div class="stat-hero">
+        <div class="label" style="margin-bottom:6px;">🎯 Target — Liga Hypermotion</div>
+        <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+        <div class="value" style="font-size:2.1rem;color:var(--pending);">—</div>
+        <div class="label">LOG-Adjusted · Locked</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 8 Philosophy Fits (Tier 1 Estimate)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Target Man / Classic #9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#C8102E;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Poacher / Box Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#C8102E;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Physical Pressing Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#C8102E;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Simeone Counter-Attack #9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#E30613;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa Vertical Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#e07820;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Guardiola False 9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:#6CABDD;"></div></div></div><div class="philo-score">4.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Cruyff Total Football CF</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:#E30613;"></div></div></div><div class="philo-score">4.2</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Santana Flair Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:38%;background:#8b1a1a;"></div></div></div><div class="philo-score">3.8</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="loading-gate" style="width:100%;">
+          <div class="loading-gate-icon">🧠</div>
+          <h4>Philosophy Radar Pending</h4>
+          <p>Upload the Tier 3 Excel file to populate the philosophy radar. Tier 1 estimates above are based on physical profile (188cm), goal-scoring record, and position — they will be recalculated from video evidence once Tier 3 is loaded.</p>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Estimate)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Gibraltar Target Man"</strong> — A 188cm Spanish centre-forward with a prolific goal-scoring record (30 goals in 24 games) at a very low competitive level. The physical profile suggests a target-man or poacher archetype rather than a mobile false 9. The 1.25 goals/90 ratio indicates strong finishing instinct, but the Gibraltar League context means this production must be verified against higher-level opposition. The 8 yellow cards in 27 matches suggest a combative, physical presence. <strong style="color:var(--danger);">All estimates are theoretical until T3 confirms.</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Target Man</span>
+          <span class="tag tag-club">Poacher</span>
+          <span class="tag tag-club">Physical CF</span>
+          <span class="tag tag-club">Spanish Lower League</span>
+          <span class="tag tag-info">Lincoln Red Imps</span>
+          <span class="tag tag-info">Gibraltar League</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages (Tier 1 Estimate) <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7.0</div><div class="label">Classic #9 School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">6.8</div><div class="label">Poacher School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">6.2</div><div class="label">Simeone School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">4.5</div><div class="label">Guardiola School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Jun 5, 2002</div><div class="timeline-text">Born in <strong>La Línea de la Concepción, Cádiz, Spain</strong>. Began footballing journey in the Andalusia region of southern Spain, near the Gibraltar border.</div></div>
+        <div class="timeline-item"><div class="timeline-date">~2017–2019</div><div class="timeline-text"><strong>CA Antoniano</strong> — Early youth football in the Andalusian regional leagues. Developed foundational skills in grassroots Spanish football.</div></div>
+        <div class="timeline-item"><div class="timeline-date">~2019–2020</div><div class="timeline-text"><strong>RSD Alcala</strong> — Step up in the Spanish Tercera / regional divisions. Continued development in the competitive Andalusian football pyramid.</div></div>
+        <div class="timeline-item"><div class="timeline-date">~2020–2021</div><div class="timeline-text"><strong>Real Balompédica Linense</strong> — First significant club in the Spanish lower leagues. Competed in the Segunda División RFEF / Tercera Federación level.</div></div>
+        <div class="timeline-item"><div class="timeline-date">~2021</div><div class="timeline-text"><strong>CD Estepona FS</strong> — Brief spell in the Andalusian regional divisions before a major career pivot.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2021</div><div class="timeline-text"><strong>Cádiz CF II (Cádiz Mirandilla)</strong> — The highest level in Spanish football to date. Reserve team football in the Segunda División RFEF / Tercera Federación. <strong style="color:var(--info);">Most recently played at club level for Cádiz CF</strong> before US college move.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2021–2022</div><div class="timeline-text"><strong>Creighton University (USA)</strong> — NCAA Division I men's soccer. Major career pivot to US college football. Studied exercise science. Height listed at 6-1 (185cm), weight 195 lbs. <strong style="color:var(--warning);">This US college stint represents a significant deviation from the European football pathway.</strong></div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Jul 2025–Jun 2026</div><div class="timeline-text"><strong>Mons Calpe SC</strong> — Return to European football via Gibraltar. <strong>Explosive goal-scoring season: 30 goals in 24 Gibraltar League matches</strong> (2043 minutes, 1.25 goals/90). Established himself as one of the most prolific strikers in Gibraltar football. 8 yellow cards in 27 total matches.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Jul 2026–</div><div class="timeline-text"><strong>Lincoln Red Imps FC</strong> — The step up to Gibraltar's most prestigious club. Registered for <strong>UEFA Champions League Qualifying 2026-27</strong> and <strong>UEFA Europa League Qualifying</strong>. 4 UCL apps (295 min, 1 goal vs Inter Club d'Escaldes, 1 YC). Contract until <strong>30 June 2027</strong>. Agent: MIIB Agency.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Team</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>~2017-19</strong></td><td>CA Antoniano</td><td>Spanish Regional</td><td>~20</td><td>~5</td><td>~2</td></tr>
+          <tr><td><strong>~2019-20</strong></td><td>RSD Alcala</td><td>Tercera / Regional</td><td>~15</td><td>~3</td><td>~1</td></tr>
+          <tr><td><strong>~2020-21</strong></td><td>Linense</td><td>Segunda RFEF</td><td>~10</td><td>~2</td><td>~1</td></tr>
+          <tr><td><strong>~2021</strong></td><td>CD Estepona</td><td>Regional</td><td>~8</td><td>~2</td><td>~0</td></tr>
+          <tr><td><strong>2021</strong></td><td>Cádiz CF II</td><td>Segunda RFEF</td><td>~5</td><td>~0</td><td>~0</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>Creighton Univ.</td><td>NCAA D1</td><td>~15</td><td>~3</td><td>~1</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Mons Calpe SC</td><td>Gibraltar League</td><td>24</td><td>30</td><td>1</td></tr>
+          <tr><td><strong>2026-27</strong></td><td>Lincoln Red Imps</td><td>Gibraltar League</td><td>~3</td><td>~1</td><td>~0</td></tr>
+          <tr><td><strong>2026-27</strong></td><td>Lincoln Red Imps</td><td>UCL Qualifying</td><td>4</td><td>1</td><td>0</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total (est.)</strong></td><td><strong>~100+</strong></td><td><strong>~47+</strong></td><td><strong>~6+</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Club Path</h3>
+      <table class="data-table">
+        <thead><tr><th>Club</th><th>Period</th><th>Region</th></tr></thead>
+        <tbody>
+          <tr><td>CA Antoniano</td><td>~2017–2019</td><td>Andalusia, Spain</td></tr>
+          <tr><td>RSD Alcala</td><td>~2019–2020</td><td>Andalusia, Spain</td></tr>
+          <tr><td>Real Balompédica Linense</td><td>~2020–2021</td><td>La Línea, Spain</td></tr>
+          <tr><td>CD Estepona FS</td><td>~2021</td><td>Andalusia, Spain</td></tr>
+          <tr><td>Cádiz CF II (Mirandilla)</td><td>2021</td><td>Cádiz, Spain</td></tr>
+          <tr><td>Creighton University</td><td>2021–2022</td><td>Nebraska, USA</td></tr>
+          <tr><td>Mons Calpe SC</td><td>2025–2026</td><td>Gibraltar</td></tr>
+          <tr><td>Lincoln Red Imps FC</td><td>2026–</td><td>Gibraltar</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Team</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Gibraltar League Top Scorer (est.)</strong></td><td>2025-26</td><td>Mons Calpe SC</td></tr>
+          <tr><td><strong>UCL Qualifying Participant</strong></td><td>2026-27</td><td>Lincoln Red Imps</td></tr>
+          <tr><td><strong>UEL Qualifying Participant</strong></td><td>2026-27</td><td>Lincoln Red Imps</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">188cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~88kg (est.)</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Centre-Forward</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Striker</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Tall, physical</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Spain</span></div>
+        <div class="physical-item"><span class="label">Agent</span><span class="value">MIIB Agency</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Development Notes</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">Age 24 — Goal-Scoring Peak Phase</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Toledano is entering the traditional goal-scoring peak for a centre-forward (ages 24–28). The 30-goal season at Mons Calpe suggests he has found his finishing rhythm. The move to Lincoln Red Imps — Gibraltar's most successful club — provides a platform for European qualifying exposure.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">US College Interruption</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>The 2021–2022 Creighton University stint is a significant career deviation.</strong> NCAA Division I soccer is a different developmental pathway from European professional academies. While it provided athletic development, the competitive level and tactical complexity differ substantially. This gap may affect technical and tactical metric baselines.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--danger);margin-bottom:4px;">Competition Level Ceiling</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">The Gibraltar League is ranked among Europe's lowest competitions by UEFA coefficient. The 30-goal season, while impressive, carries minimal predictive weight for leagues even 2–3 tiers higher. Toledano's highest Spanish level was <strong>Cádiz CF II</strong> (reserve team). Any projection above Spanish Segunda Federación requires T3 validation against meaningful opposition.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters (Tier 1 Only)</h4>
+    <ul>
+      <li><strong>30 goals in 24 Gibraltar League matches (2025-26)</strong> — Elite goal-scoring production at his current competitive level. 1.25 goals/90 is exceptional regardless of league quality</li>
+      <li><strong>188cm physical frame</strong> — Ideal height for a target man or physical centre-forward. Provides aerial presence and hold-up potential</li>
+      <li><strong>UEFA Champions League Qualifying experience</strong> — 4 apps, 205 minutes, 1 goal. First taste of European competition. Exposure to Swedish (Mjällby) and Andorran (Inter d'Escaldes) opposition</li>
+      <li><strong>Lincoln Red Imps FC — Gibraltar's most successful club</strong> — 20+ league titles. Platform for consistent European qualifying exposure</li>
+      <li><strong>UEFA Europa League Qualifying upcoming (Aug 6 vs Omonia Nicosia)</strong> — Additional European exposure against Cypriot opposition</li>
+      <li><strong>Right-footed, natural CF</strong> — Clear positional identity. No ambiguity about role</li>
+      <li><strong>Spanish footballing education</strong> — Formed in the Andalusian football pyramid. Technical foundation from Spanish youth system</li>
+      <li><strong>Cádiz CF II experience</strong> — Highest Spanish level reached. Professional reserve team football in Segunda RFEF</li>
+      <li><strong>Age 24 — entering goal-scoring peak</strong> — Traditional peak years for a centre-forward</li>
+      <li><strong>Contract until 30/06/2027</strong> — One-year contract at Lincoln Red Imps. Short-term security</li>
+      <li><strong>Professional agent representation (MIIB Agency)</strong> — Structured career management</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals (Tier 1 Only)</h4>
+    <ul>
+      <li><strong>1.25 goals/90 in Gibraltar League — context is critical</strong> — The Gibraltar League is one of Europe's lowest-ranked competitions. 30 goals here does not translate linearly to higher leagues</li>
+      <li><strong>Only 1 goal in 4 UCL Qualifying apps</strong> — vs Inter Club d'Escaldes (Andorran champions). Failed to score vs Mjällby (Swedish mid-table). No goal in 162 minutes vs superior opposition</li>
+      <li><strong>0-3 aggregate loss to Mjällby AIF</strong> — Eliminated comfortably by Swedish opposition. Lincoln Red Imps outclassed over two legs</li>
+      <li><strong>8 yellow cards in 27 matches</strong> — Discipline flag. 0.30 cards/game suggests a combative, sometimes reckless approach</li>
+      <li><strong>1 assist in 24 league matches</strong> — Minimal creative contribution. Pure finisher, not a playmaker</li>
+      <li><strong>US college interruption (Creighton, 2021-22)</strong> — 1–2 year gap in European professional development. NCAA soccer is not equivalent to European professional football</li>
+      <li><strong>Never played above Spanish Segunda RFEF / Tercera</strong> — Highest Spanish level was Cádiz CF II (reserve team). No professional senior football in Spain's top 3 divisions</li>
+      <li><strong>€225K market value</strong> — Very low valuation reflects competition level and age. Limited upside perception</li>
+      <li><strong>1-year contract</strong> — Short-term security. Could be released or not renewed after 2026-27</li>
+      <li><strong>No international recognition</strong> — Zero caps for Spain at any level. Not in RFEF youth system radar</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>0/16 T3 metrics confirmed — NO VIDEO EVIDENCE</strong> — The most critical gap. Every technical, mental, and physical claim is theoretical. Empire FGA cannot validate any attribute without video</li>
+      <li><strong>No FGA score possible</strong> — Without T3, the system cannot generate a score, composite, or projection</li>
+      <li><strong>Cross-league projections prohibited</strong> — Cannot project to Spanish Segunda Federación, Segunda División, or any other league</li>
+      <li><strong>Philosophy fits are estimates only</strong> — Based on physical profile and goal record, not video evidence. T3 may reveal a completely different profile</li>
+      <li><strong>No video highlight reel provided yet</strong> — The user has indicated video highlights are pending. Cannot begin scoring without footage</li>
+      <li><strong>Mental profile completely unknown</strong> — CHR, MCS, CLM, CRS all pending. No data on how he responds to adversity, pressure, or clutch moments</li>
+      <li><strong>Physical profile partially known</strong> — Height confirmed (188cm), but speed, stamina, strength, aerial ability all unmeasured</li>
+      <li><strong>Technical ability unverified</strong> — Dribbling, passing, first touch, weak-foot quality all unknown. 1 assist in 24 games suggests limited playmaking</li>
+      <li><strong>Defensive contribution unknown</strong> — Pressing intensity, defensive positioning, work rate all unscored</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA — PENDING · GIBRALTAR PROLIFIC STRIKER · 188CM TARGET MAN PROFILE · T3 REQUIRED.</strong> Manu Toledano is a <strong>24-year-old Spanish centre-forward</strong> whose <strong>Tier 1 profile shows elite goal-scoring production at a very low LOG</strong>: 30 goals in 24 Gibraltar League matches for Mons Calpe SC (1.25 goals/90). The <strong>188cm physical frame and right-footed profile</strong> suggest a target-man or poacher archetype. However, <strong>no Tier 3 video assessment exists</strong>. The Empire FGA system cannot generate a score without video evidence. <strong style="color:var(--danger);">Critical concern: The Gibraltar League LOG (~1.0–1.5) is among the lowest in Europe.</strong> The 30-goal season carries minimal predictive weight for higher leagues. The US college interruption (Creighton, 2021-22) and lack of Spanish professional senior football (never above Cádiz CF II) further limit projection confidence. UCL Qualifying exposure (1 goal in 4 apps, eliminated by Mjällby) is the first meaningful competitive test. <strong>Immediate next step: (1) obtain video highlight reel + full match footage, (2) conduct video scoring pass across 5+ matches (UCL Qualifying + Gibraltar League), (3) assess technical and physical baselines against higher-LOG opposition.</strong> <strong>Best deployed as a classic #9 target man in a direct, physical system</strong> — but this is a hypothesis, not a validated recommendation.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>⚡</span> <strong>VIDEO HIGHLIGHTS PENDING · 0 MATCHES ASSESSED · T3 PENDING.</strong> Video highlights are pending. Full match assessment requires 90-minute footage. Below are the recommended match slots and the UCL Qualifying register.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Video Resources <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Manu Toledano — Highlight Reel</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">Pending</span>
+          <span class="match-badge badge-pending">Not Yet Provided</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Video highlight reel pending.</strong> Once provided, this card will be updated with a playable link. Full 90-minute match footage will be required for Tier 3 scoring.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin:24px 0 16px;">Recommended Assessment Matches <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(200,16,46,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Lincoln Red Imps vs Inter Club d'Escaldes (UCL Q1 · Home)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UCL Qual</span>
+          <span class="match-badge badge-verified">RECOMMENDED ⭐</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>7 Jul 2026 · 3-1 W · Toledano: 59 min, 1 goal, 1 YC.</strong> European opposition. Home context. Goal scored — good for CRK, SPI, and CRS scoring. Yellow card provides discipline/CHR data.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(200,16,46,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Inter Club d'Escaldes vs Lincoln Red Imps (UCL Q1 · Away)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UCL Qual</span>
+          <span class="match-badge badge-verified">RECOMMENDED</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>14 Jul 2026 · 1-1 D · Toledano: 74 min.</strong> European opposition. Away match. Draw context. Good for OBI and SII scoring in competitive European fixture.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(200,16,46,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Mjällby AIF vs Lincoln Red Imps (UCL Q2 · Away)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UCL Qual</span>
+          <span class="match-badge badge-verified">RECOMMENDED</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>21 Jul 2026 · 0-3 L · Toledano: 72 min.</strong> Highest-LOG opposition faced. Swedish Allsvenskan level. Losing context. Best match for CHR, MCS, and CLM scoring under adversity vs superior opposition.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(200,16,46,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Lincoln Red Imps vs Mjällby AIF (UCL Q2 · Home)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UCL Qual</span>
+          <span class="match-badge badge-pending">Elimination Context</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>28 Jul 2026 · 0-0 D · Toledano: 90 min.</strong> Home match. Elimination context (0-3 down from first leg). Good for CRS and DMA scoring in high-pressure elimination scenario.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(200,16,46,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Lincoln Red Imps vs Omonia Nicosia (UEL Qual · Home)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UEL Qual</span>
+          <span class="match-badge badge-pending">Upcoming · Aug 6</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>6 Aug 2026 · UEL Qualifying.</strong> Cypriot opposition (Omonia Nicosia). Higher LOG than Gibraltar League. Good for baseline technical and physical scoring vs continental opposition.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Video Scoring Instructions</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Step 1 — Match Register</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          Fill in PLAYER_PROFILE tab.<br>
+          Enter: Manu Toledano, Centre-Forward, Gibraltar League / UCL Qualifying, 2026-27.<br>
+          Complete MATCH_REGISTER with all 5 matches before scoring.<br>
+          <strong>Balance check:</strong> ≥2 vs top-third | ≥1 away | ≥1 losing.<br>
+          <strong style="color:var(--danger);">Note: Mjällby matches are highest LOG available.</strong>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Step 2 — Metric Pass</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          Choose ONE metric. Score across all 5 matches.<br>
+          Log: timestamp (MM:SS), description, quality 1-10.<br>
+          <strong>Recommended order:</strong> OBI_P → DMA → SII_A → SOA → SPI → CHR → MCS → remainder.<br>
+          ~45 min per match per metric.<br>
+          <strong>Use highlight reel for context only — full matches required.</strong>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Step 3 — Upload</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          Save as: <strong>Empire_FGA_Video_Scoring_Manu_Toledano.xlsx</strong><br>
+          Upload file to this chat.<br>
+          Card will auto-populate: all 16 metrics, FGA score, radar charts, cross-league projections, and scouting verdict.<br>
+          <strong style="color:var(--gold);">This card is ready to activate.</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 0.75 * Math.PI);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Pending 30%','T3 Scout 50% (0/16)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#5a5a70'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

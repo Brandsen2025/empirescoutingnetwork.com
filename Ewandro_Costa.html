@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ewandro Costa | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#00703C;--accent-dim:rgba(0,112,60,0.15);--accent-glow:rgba(0,112,60,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiNbOZLJ0IG3Efxt4Ujlx4Is0NYfgAXW8D17l-Bnuo43g_MMpAHGjiNI&s=10') center 20% / cover no-repeat;filter:brightness(0.45) saturate(0.85);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(0,112,60,0.25) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#00703C 33%,#fbbf24 33%,#fbbf24 66%,#00703C 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🇨🇾';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(0,112,60,0.1),rgba(251,191,36,0.05));border:1px solid rgba(0,112,60,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(0,112,60,0.18),rgba(251,191,36,0.06));border:2px solid rgba(0,112,60,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(0,112,60,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(0,112,60,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(0,112,60,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(0,112,60,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(0,112,60,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(0,112,60,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(0,112,60,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(0,112,60,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(0,112,60,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(0,112,60,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(0,112,60,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Omonia Nicosia · Cypriot First Division</div>
+  <div class="jersey-watermark">11</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">São Paulo Academy</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Udinese</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Lokomotiv Plovdiv</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Omonia Nicosia (2024–)</div>
+    </div>
+    <h1 class="hero-name">Ewandro Costa</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇧🇷</span> Brazil</span>
+      <span class="dot"></span>
+      <span>30 years</span>
+      <span class="dot"></span>
+      <span>Attacking Midfielder</span>
+      <span class="dot"></span>
+      <span>Left-footed</span>
+      <span class="dot"></span>
+      <span>Brazil U20</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">T3 LOADING</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-club">Omonia Nicosia</span>
+          <span class="tag tag-gold">Cyprus Champ 2025-26</span>
+          <span class="tag tag-info">Cypriot First Division</span>
+          <span class="tag tag-info">LOG ~2.1</span>
+          <span class="tag tag-value">€900K TM Value</span>
+          <span class="tag tag-pending">SCOUT VIDEO PENDING</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">—</div>
+          <div class="fga-status">T3 LOADING</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-danger">
+    <span>⏳</span> <strong>TIER 3 SCOUT METRICS — LOADING.</strong> This card is built on Tier 1 statistical data only. All Tier 3 video scout metrics (OBI, SII, DMA, SPI, CHR, MCS, CLM, CRS, OMS, DYN, CRK, COACH) are pending video assessment. No FGA score can be calculated until Tier 3 data is loaded. Transfer the completed Empire_FGA_Video_Scoring_Ewandro_Costa.xlsx when ready.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>Tier 1 Data Confirmed — Transfermarkt · Sofascore · FBref.</strong> 30-year-old Brazilian attacking midfielder at Omonia Nicosia. 2025-26 Cypriot First Division champion. 32 league apps, 7 goals. Market value €900K. Contract until May 2028. Left-footed, 1.76m. Extensive European experience: Serie A (Udinese), Primeira Liga (Estoril), Austrian Bundesliga (Austria Wien), Bulgarian First League.
+  </div>
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>Career Trajectory Note — Multi-League Veteran.</strong> Ewandro has played in Brazil (Série A), Italy (Serie A), Portugal (Primeira Liga), Austria (Bundesliga), Bulgaria (First League), and Cyprus (First Division). This creates a unique cross-league profile but also raises questions about why a São Paulo academy graduate with Brazil U20 caps has not established at a top-5 league. Tier 3 video assessment will be critical to understanding current playing level vs. historical potential.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">São Paulo</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Atlético PR</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Udinese</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">CRB / Náutico</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Lokomotiv Plovdiv</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Omonia Nicosia</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">32</div><div class="label">Apps 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7</div><div class="label">Goals 2025-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">55</div><div class="label">Total Omonia Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">12</div><div class="label">Total Omonia Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">€900K</div><div class="label">TM Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">30</div><div class="label">Years Old</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">—</div><div class="label">T3 Pending</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">🏆</div><div class="label">Cyprus Champ</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Ewandro Felipe de Lima Costa</strong> is a <strong>30-year-old Brazilian attacking midfielder</strong> at <strong>Omonia Nicosia</strong> in the <strong>Cypriot First Division</strong>. A São Paulo academy graduate (joined 2009) with <strong>Brazil U17 and U20 international</strong> experience. Made his senior debut in 2014. Extensive career across six countries: Brazil (Série A/Série B), Italy (Serie A), Portugal (Primeira Liga), Austria (Bundesliga), Bulgaria (First League), and Cyprus. Won the <strong>Cypriot First Division 2025-26</strong> with Omonia. Left-footed, 1.76m, plays primarily as AM but also deployed as CM and RW. Contract until May 2028. Agent: Trust Football.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/12 T3 metrics validated.</strong> No video scout assessment has been completed. All Tier 3 metrics are in <strong>LOADING</strong> status: DMA, CHR, MCS, SOA, SPI, CLM, CRS, OMS, SPR/DYN, CRK, COACH, OBI (all sub-metrics). <br><br>
+        <strong style="color:var(--warning);">Action required:</strong> Complete minimum 5-match video scoring pass using the Empire_FGA_Video_Scoring_Template. Score one metric at a time across all matches. Minimum 3 separate matches must show evidence of each sub-component before it can be scored.<br><br>
+        <strong style="color:var(--text-primary);">Recommended match register:</strong> 2025-26 Omonia league and European fixtures. Minimum 2 matches vs top-third opposition, 1 away match, 1 match where team was losing.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA — PENDING · T3 VIDEO ASSESSMENT REQUIRED.</strong> Ewandro Costa is a <strong>30-year-old Brazilian attacking midfielder</strong> with a <strong>unique multi-league career trajectory</strong>. Tier 1 data confirms consistent goal contribution at Omonia (12 goals in 55 apps) and Cypriot league title winner. However, <strong>no FGA score can be generated without Tier 3 video scout metrics</strong>. The critical question for this profile is: <em>why has a São Paulo academy graduate with Brazil U20 caps and Serie A experience settled at Cypriot First Division level?</em> Tier 3 assessment will reveal whether this is a tactical/physical decline, a mental/competence plateau, or simply a career choice. <strong>Recommended:</strong> Complete full 13-metric Tier A assessment across 5 Omonia matches before any cross-league or recruitment projection.
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Tier 1 Statistical Summary — 2025-26 Season <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Competition</th><th>Apps</th><th>Goals</th><th>Assists</th><th>Minutes</th><th>Context</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cypriot First Division 2025-26</strong></td><td>32</td><td><strong>7</strong></td><td>—</td><td>~2,400</td><td>Champions · LOG ~2.1</td></tr>
+        <tr><td><strong>Domestic Cup</strong></td><td>8</td><td>0</td><td>—</td><td>—</td><td>Cup run</td></tr>
+        <tr><td><strong>European Competitions</strong></td><td>13</td><td>3</td><td>—</td><td>—</td><td>Conference League</td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td><strong>Total Omonia 2024-26</strong></td><td><strong>55</strong></td><td><strong>12</strong></td><td>—</td><td>—</td><td>Since July 2024</td></tr>
+        <tr><td><strong>Career Total (est.)</strong></td><td>~260</td><td>~44</td><td>—</td><td>—</td><td>11 clubs · 6 countries</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits (Tier 1 Estimate) <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Santana Jogo Bonito — Brazilian Flair</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#fbbf24;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Wenger Development — Technical Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#27ae60;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Cruyff Intelligence — Spatial Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#fbbf24;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Menotti Artistry — Expressive AM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#fbbf24;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Guardiola Positional — Between Lines</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#6CABDD;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Bielsa Intensity — High Press AM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#e07820;"></div></div></div><div class="philo-score">5.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Ferguson Mental — Clutch Winner</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#c8102e;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho Tactical — Pragmatic Finisher</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#1a1a1a;"></div></div></div><div class="philo-score">4.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Simeone Cholismo — Work Rate AM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:#9b59b6;"></div></div></div><div class="philo-score">4.5</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Herrera Catenaccio — Defensive Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:#8b1a1a;"></div></div></div><div class="philo-score">3.0</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">T3 Radar — Pending Validation <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <div style="text-align:center;padding:40px 20px;">
+      <div style="font-family:var(--font-display);font-size:2rem;color:var(--pending);margin-bottom:12px;">⏳</div>
+      <div style="font-family:var(--font-heading);font-size:1rem;color:var(--text-secondary);margin-bottom:8px;">TIER 3 METRICS LOADING</div>
+      <div style="font-size:0.85rem;color:var(--text-tertiary);max-width:360px;margin:0 auto;line-height:1.6;">Video scout assessment not yet completed. Radar will populate once OBI, SII, DMA, SPI, and remaining metrics are scored across 5+ matches.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Off-Ball</h3>
+      <div class="attr-row"><span class="name">DMA Decision Making</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">SOA Speed on Action</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">SPI Spatial Performance</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">CRK Creative Risk</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI Off-Ball Intelligence</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">OMS Transition</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch Response</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">CHR Character</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">MCS Mental Comp.</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">COACH Coachability</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_P Anticipation</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_S Space Arch.</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_T Run Timing</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">SII_A Acceleration</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">SOA Speed on Action</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">DYN Positional Switch</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Pressing Intensity</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;text-align:center;padding:30px;">
+      <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--pending);margin-bottom:10px;">⏳</div>
+      <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">Attribute radar will render once Tier 3 video scoring is complete.<br>Minimum 5 matches · 13 metrics · ~22 hours of analysis required.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Transfermarkt · Sofascore · FBref</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">TM Value</div><div class="t1-hl-val">€900K</div><div class="t1-hl-pct">Omonia Nicosia · May 2026</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:35%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">SofaScore</div><div class="t1-hl-val">—</div><div class="t1-hl-pct">Cyprus league limited coverage</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:0%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Goals</div><div class="t1-hl-val">7</div><div class="t1-hl-pct">32 apps · 2025-26 league</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:55%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Career Goals</div><div class="t1-hl-val">~44</div><div class="t1-hl-pct">~260 apps · 11 clubs · 6 countries</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:45%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Contract</div><div class="t1-hl-val">2028</div><div class="t1-hl-pct">Expires May 31, 2028</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Senior Context</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Age</span><span class="t1-metric-desc">Peak / Late prime</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--accent)"></div></div></div><span class="t1-metric-val">30</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Level</span><span class="t1-metric-desc">Cypriot First Division</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2.1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Foot</span><span class="t1-metric-desc">Left-footed</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Left</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Career Peak Levels</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Peak</span><span class="t1-metric-desc">Serie A (Udinese 2016-17)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--gold)"></div></div></div><span class="t1-metric-val">3.6</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">2nd</span><span class="t1-metric-desc">Série A (Atlético PR 2015-16)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--accent)"></div></div></div><span class="t1-metric-val">3.6</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">3rd</span><span class="t1-metric-desc">Primeira Liga (Estoril 2017-18)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2.7</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">—</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">—</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Anticipatory</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">—</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI — Creative Player</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">—</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">MTI — Mental Toughness</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">—</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Pending Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites require confirmed Tier 3 sub-metrics as inputs. With 0/12 T3 metrics confirmed, no Tier 2 scores can be calculated. Complete video assessment to unlock.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Cypriot First Division LOG: ~2.1</strong><br>
+          <strong style="color:var(--text-primary);">Competition:</strong> Cypriot First Division + Cup + Conference League<br>
+          <strong style="color:var(--text-primary);">Club:</strong> Omonia Nicosia (2024-26 champions)<br>
+          <strong style="color:var(--warning);">Match Balance: PENDING ⏳</strong><br><br>
+          <strong style="color:var(--gold);">LOG 2.1</strong> represents a mid-tier European league. For cross-league comparison, this is below Eredivisie (2.8), Primeira Liga (2.7), and Belgian Pro League (2.6). Historical peak: Serie A (LOG 3.6) and Série A (LOG 3.6). Significant LOG gap between current level and career peak.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending Video Assessment</h3>
+    <div style="text-align:center;padding:40px 20px;">
+      <div style="font-family:var(--font-display);font-size:2.5rem;color:var(--pending);margin-bottom:16px;">⏳</div>
+      <div style="font-family:var(--font-heading);font-size:1.1rem;color:var(--text-secondary);margin-bottom:8px;">TIER 3 VIDEO SCOUT METRICS — LOADING</div>
+      <div style="font-size:0.85rem;color:var(--text-tertiary);max-width:500px;margin:0 auto;line-height:1.7;">
+        No video events have been logged. All 12 Tier 3 metrics are pending:<br>
+        OBI (OBI_T · OBI_S · OBI_P) · SII (SII_A · SII_T · SII_R) · DMA · CHR · MCS · SOA · SPI · CLM · CRS · OMS · DYN · CRK · COACH<br><br>
+        <strong>Next step:</strong> Download Empire_FGA_Video_Scoring_Template, register 5+ Omonia matches, and complete one metric pass at a time.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>CROSS-LEAGUE PROJECTION — NOT AVAILABLE WITHOUT T3.</strong> LOG-adjusted cross-league scores require a base FGA, which requires Tier 3 validation. The projections below are purely statistical Tier 1 estimates and should NOT be used for recruitment or client-facing purposes until Tier 3 is complete.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    These projections are <strong style="color:var(--danger);">prohibited for client use</strong> — they are based on Tier 1 data only and lack the scout intelligence layer (character, off-ball intelligence, creative risk, mental competence) that determines whether a player actually performs at a given level. Shown here for structural preview only.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇨🇾 Cypriot First Division</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">—</div>
+      <div class="label">FGA Pending · LOG ~2.1</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Projection — Primeira Liga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇵🇹 Primeira Liga</div>
+      <div class="value" style="font-size:2.1rem;">—</div>
+      <div class="label">LOG-Adjusted · Tier 2.7</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">Projection — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Eredivisie</div>
+      <div class="value" style="font-size:2.1rem;">—</div>
+      <div class="label">LOG-Adjusted · Tier 2.8</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">Historical Peak — Serie A</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇮🇹 Serie A</div>
+      <div class="value" style="font-size:2.1rem;">—</div>
+      <div class="label">Career Peak · Tier 3.6</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Caveats</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br><br>
+      <strong style="color:var(--danger);">Why these are blank:</strong><br>
+      1. <strong>No base FGA exists.</strong> The Ultimate FGA Rating formula is (Tier_3 × 0.50) + (Tier_2 × 0.30) + (Tier_1 × 0.20). With Tier_3 = 0, no valid score can be produced.<br>
+      2. <strong>Tier 1 alone is insufficient.</strong> At 30 years old, statistical production in the Cypriot league does not answer the critical question: why did this player drop from Serie A/Série A level?<br>
+      3. <strong>Scout intelligence required.</strong> Only video assessment can reveal whether the drop is physical (SII decline), mental (MCS/CHR plateau), tactical (OBI limitations), or circumstantial (career choices).<br>
+      4. <strong>Historical peak vs current level.</strong> Ewandro's career peak was Serie A (LOG 3.6) and Série A (LOG 3.6). Current Cypriot level (LOG 2.1) represents a ~1.5 LOG drop. Without Tier 3, we cannot determine if this is reversible.<br><br>
+      <strong style="color:var(--warning);">Recommendation:</strong> Complete Tier 3 video assessment before generating any cross-league projections. If the assessment reveals maintained elite mental metrics (MCS 7.5+, CHR 7.5+) with physical decline (SII <6.0), the player may be a "mentor profile" for younger squads. If mental metrics have also declined, the current level is likely his ceiling.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits (Tier 1 Estimate)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Santana Jogo Bonito — Brazilian Flair</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#fbbf24;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Wenger Development — Technical Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#27ae60;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Cruyff Intelligence — Spatial Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#fbbf24;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Menotti Artistry — Expressive AM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#fbbf24;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Guardiola Positional — Between Lines</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#6CABDD;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Bielsa Intensity — High Press AM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#e07820;"></div></div></div><div class="philo-score">5.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Ferguson Mental — Clutch Winner</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#c8102e;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho Tactical — Pragmatic Finisher</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#1a1a1a;"></div></div></div><div class="philo-score">4.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Simeone Cholismo — Work Rate AM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:#9b59b6;"></div></div></div><div class="philo-score">4.5</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Herrera Catenaccio — Defensive Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:#8b1a1a;"></div></div></div><div class="philo-score">3.0</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Provisional)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Brazilian journeyman playmaker"</strong> — Based on career path and nationality, the estimated archetype is a technically gifted Brazilian AM who has adapted to multiple European leagues but never fully established at top-5 level. The Santana fit (7.5) reflects Brazilian technical foundation. The <strong>low Simeone (4.5)</strong> and <strong>Mourinho (4.8)</strong> scores suggest he is not a defensive/system player. <strong>WARNING:</strong> These are Tier 1 estimates only. Video assessment may reveal a completely different current profile — especially if physical or mental decline has shifted his playing style.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Brazilian AM</span>
+          <span class="tag tag-club">Multi-League Veteran</span>
+          <span class="tag tag-gold">Cyprus Champion</span>
+          <span class="tag tag-info">Omonia Nicosia</span>
+          <span class="tag tag-pending">T3 Required</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages (Provisional) <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7.5</div><div class="label">Brazilian / Santana School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">7.2</div><div class="label">French / Wenger School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">7.0</div><div class="label">Dutch / Cruyff School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">6.2</div><div class="label">Spanish / Guardiola School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born 15/03/1996</div><div class="timeline-text">Born in <strong>Recife, Brazil</strong>. Joined São Paulo academy at age 13 (2009).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2014–2016</div><div class="timeline-text"><strong>São Paulo / Atlético Paranaense</strong> — Debut 2014 Campeonato Paulista. Loan to Atlético PR (2015-16): 36 apps, 8 goals. Campeonato Paranaense 2016.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2016–2021</div><div class="timeline-text"><strong>Udinese + Loans</strong> — Signed 5-year deal July 2016. Serie A (5 apps), then loans: Estoril (Portugal), Austria Wien, Fluminense, Sport Recife, Vitória. Limited impact at top-5 level.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2021–2022</div><div class="timeline-text"><strong>CRB / Náutico</strong> — Return to Brazil Série B. 54 apps, 6 goals. Campeonato Pernambucano 2022 with Náutico.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022–2024</div><div class="timeline-text"><strong>Lokomotiv Plovdiv / Spartak Varna</strong> — Bulgaria First League. 57 apps, 11 goals. Loan to Spartak Varna (15 apps, 5 goals).</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2024–</div><div class="timeline-text"><strong>Omonia Nicosia · Cyprus</strong> — Joined July 2024. 55 apps, 12 goals. <strong>Cypriot First Division champion 2025-26</strong>. Contract until May 2028. Most productive and stable period of career.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics by Club</h3>
+      <table class="data-table">
+        <thead><tr><th>Club</th><th>Season</th><th>League</th><th>Apps</th><th>Goals</th></tr></thead>
+        <tbody>
+          <tr><td><strong>São Paulo</strong></td><td>2014-16</td><td>Série A</td><td>22</td><td>2</td></tr>
+          <tr><td><strong>Atlético PR (loan)</strong></td><td>2015-16</td><td>Série A</td><td>36</td><td>8</td></tr>
+          <tr><td><strong>Udinese</strong></td><td>2016-21</td><td>Serie A</td><td>6</td><td>0</td></tr>
+          <tr><td><strong>Estoril (loan)</strong></td><td>2017-18</td><td>Primeira Liga</td><td>15</td><td>1</td></tr>
+          <tr><td><strong>Austria Wien (loan)</strong></td><td>2018-19</td><td>Bundesliga</td><td>8</td><td>1</td></tr>
+          <tr><td><strong>Fluminense (loan)</strong></td><td>2019</td><td>Série A</td><td>4</td><td>0</td></tr>
+          <tr><td><strong>Sport (loan)</strong></td><td>2020</td><td>Série A</td><td>11</td><td>1</td></tr>
+          <tr><td><strong>Vitória (loan)</strong></td><td>2020-21</td><td>Série B</td><td>15</td><td>1</td></tr>
+          <tr><td><strong>CRB</strong></td><td>2021</td><td>Série B</td><td>28</td><td>3</td></tr>
+          <tr><td><strong>Náutico</strong></td><td>2022</td><td>Série B</td><td>26</td><td>3</td></tr>
+          <tr><td><strong>Lokomotiv Plovdiv</strong></td><td>2022-24</td><td>First League</td><td>42</td><td>6</td></tr>
+          <tr><td><strong>Spartak Varna (loan)</strong></td><td>2023-24</td><td>First League</td><td>15</td><td>5</td></tr>
+          <tr style="background:rgba(0,112,60,0.08);"><td><strong>Omonia Nicosia</strong></td><td>2024-26</td><td>Cypriot 1st</td><td><strong>55</strong></td><td><strong>12</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours & Recognition</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Context</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Cypriot First Division</strong></td><td>2025-26</td><td>Omonia Nicosia champion</td></tr>
+          <tr><td><strong>Campeonato Paranaense</strong></td><td>2016</td><td>Atlético Paranaense</td></tr>
+          <tr><td><strong>Campeonato Pernambucano</strong></td><td>2022</td><td>Náutico</td></tr>
+          <tr><td><strong>Brazil U20 Cap</strong></td><td>2014-15</td><td>3 apps, 3 goals</td></tr>
+          <tr><td><strong>Brazil U17 Cap</strong></td><td>2013</td><td>6 apps, 1 goal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Age</span><span class="value">30</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">AM / CM / RW</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+        <div class="physical-item"><span class="label">Club</span><span class="value">Omonia Nicosia</span></div>
+        <div class="physical-item"><span class="label">Nationality</span><span class="value">Brazil</span></div>
+        <div class="physical-item"><span class="label">International</span><span class="value">Brazil U20</span></div>
+        <div class="physical-item"><span class="label">Height</span><span class="value">1.76m</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~67kg</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Development Notes</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No documented career-threatening injuries. Has maintained relatively consistent availability across 11 clubs and 6 countries over 12-year career. Durability is a positive indicator for a 30-year-old.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Development Stage: Peak / Late Prime</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>30 years old</strong> — physically at peak or entering late prime. Physical metrics (SII) may show decline from early-20s baseline. Mental metrics (MCS, CHR) should be fully developed and stable. <strong>Key question for Tier 3:</strong> Has his game intelligence compensated for any physical decline? Is he a "mentor profile" (high COACH, high CHR) or a pure performer?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Tier 3 Assessment Required</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      No scout intelligence has been collected. The following sections are <strong>structured placeholders</strong> based on Tier 1 data and career trajectory. They will be replaced with validated scout findings once video assessment is complete. <strong>Do not use this section for recruitment or client recommendations until T3_STATUS = SCOUT_VALIDATED.</strong>
+    </p>
+  </div>
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters (Tier 1 Only)</h4>
+    <ul>
+      <li><strong>Consistent goal production at Omonia:</strong> 12 goals in 55 apps (0.22 G/A per game) — reliable attacking midfielder output</li>
+      <li><strong>Cypriot First Division champion 2025-26:</strong> Key member of title-winning squad</li>
+      <li><strong>Multi-league adaptability:</strong> Has played professionally in 6 countries — high cultural intelligence and adaptability</li>
+      <li><strong>Brazil U20 international:</strong> 3 goals in 3 apps — validated youth potential</li>
+      <li><strong>São Paulo academy graduate:</strong> Elite Brazilian youth development foundation</li>
+      <li><strong>Serie A experience:</strong> Udinese (2016-17) — has competed at top-5 level</li>
+      <li><strong>Contract stability:</strong> Until May 2028 — club has long-term confidence</li>
+      <li><strong>No major injury history:</strong> 12-year career with consistent availability</li>
+      <li><strong>Left-footed playmaker:</strong> Technical advantage, unpredictable angles</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals (Tier 1 Only)</h4>
+    <ul>
+      <li><strong>Career trajectory downward:</strong> From São Paulo/Serie A (LOG 3.6) to Cypriot First Division (LOG 2.1) over 8 years</li>
+      <li><strong>Limited Serie A impact:</strong> Only 5 apps for Udinese — failed to establish at top-5 level</li>
+      <li><strong>Multiple loans = instability:</strong> 5 loans in 5 years at Udinese — suggests clubs did not see long-term value</li>
+      <li><strong>Market value decline:</strong> From multi-million potential to €900K at age 30</li>
+      <li><strong>Age 30:</strong> Limited resale value for most clubs; likely a short-term or mentor signing</li>
+      <li><strong>Physical profile unknown:</strong> 1.76m / ~67kg — slight frame may limit physical duels at higher levels</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps (All Pending Video)</h4>
+    <ul>
+      <li><strong>All 12 Tier 3 metrics unscored:</strong> OBI, SII, DMA, SPI, CHR, MCS, SOA, CLM, CRS, OMS, DYN, CRK, COACH</li>
+      <li><strong>Off-ball intelligence unknown:</strong> Does he create space for teammates or only receive in good positions?</li>
+      <li><strong>Sprint intensity unknown:</strong> Has physical decline affected his acceleration and recovery sprints?</li>
+      <li><strong>Mental competence unknown:</strong> Why did he not establish at higher levels — tactical, mental, or circumstantial?</li>
+      <li><strong>Character unknown:</strong> 5 loans may indicate adaptability or may indicate coachability/character concerns</li>
+      <li><strong>Coachability unknown:</strong> At 30, is he a mentor figure or a resistant veteran?</li>
+      <li><strong>Clutch response unknown:</strong> Title-winning season — did he perform in decisive moments?</li>
+      <li><strong>Transition play unknown:</strong> Omschakeling and recovery sprints critical for modern AM role</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA — PENDING · T3 VIDEO ASSESSMENT REQUIRED · MULTI-LEAGUE VETERAN · CAREER TRAJECTORY ANALYSIS NEEDED.</strong> Ewandro Costa is a <strong>30-year-old Brazilian attacking midfielder</strong> with one of the most geographically diverse careers in the database. His <strong>Cypriot First Division title and consistent goal production at Omonia</strong> confirm he remains a productive player at LOG 2.1 level. However, the <strong>critical question for any scout or club is: why did a São Paulo academy graduate with Brazil U20 caps and Serie A experience settle at this level?</strong> <br><br>
+      <strong>Three possible Tier 3 outcomes:</strong><br>
+      1. <strong>Mentor Profile (FGA ~6.5):</strong> High CHR, high COACH, moderate physicals — valuable for youth-heavy squads in lower leagues<br>
+      2. <strong>Underperformer Profile (FGA ~5.5):</strong> Low MCS, low CLM, declining SII — physical/mental decline explains trajectory<br>
+      3. <strong>Hidden Gem Profile (FGA ~7.0+):</strong> High SPI, high DMA, maintained SII — circumstances, not ability, drove career path; could step up to Primeira Liga/Eredivisie<br><br>
+      <strong>No recruitment recommendation can be made until Tier 3 is complete.</strong> The 50/30/20 weighting means scout intelligence (50%) is the dominant factor — and there is none yet.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>🏆</span> <strong>Match Register — Pending Video Assessment.</strong> No matches have been scored. Register minimum 5 Omonia matches (2025-26 season recommended) before beginning Tier 3 scoring. Match balance requirements: ≥2 matches vs top-third opposition, ≥1 away match, ≥1 match where team was losing.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Recommended Assessment Matches <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;">Match 1</div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Omonia vs [Top 3rd Opponent]</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Cypriot 1st · Home/Away</span>
+          <span class="match-badge badge-pending">Pending</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Recommended:</strong> Match vs APOEL, AEK Larnaca, or Pafos. Top-third opposition required for balance.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;">Match 2</div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Omonia vs [Top 3rd Opponent]</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Cypriot 1st · Home/Away</span>
+          <span class="match-badge badge-pending">Pending</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Recommended:</strong> Second top-third opponent. Different tactical context (winning/drawing/losing).
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;">Match 3</div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">[Away Fixture] vs Omonia</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Cypriot 1st · Away</span>
+          <span class="match-badge badge-pending">Pending</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Required:</strong> ≥1 away match for balance check. Away performance reveals adaptability.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;">Match 4</div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Omonia vs [Opponent] · Losing Context</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Cypriot 1st · Home/Away</span>
+          <span class="match-badge badge-pending">Losing</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Required:</strong> ≥1 match where Omonia was losing. Reveals character, clutch response, and mental competence.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;">Match 5</div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Omonia vs [Any Opponent]</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Cypriot 1st / Cup / Europe</span>
+          <span class="match-badge badge-pending">Pending</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Flexible:</strong> Cup final, European Conference League, or league match. Adds competitive diversity.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Video Scoring Instructions</h3>
+    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Step 1:</strong> Download Empire_FGA_Video_Scoring_Template_v1.0.xlsx<br>
+      <strong style="color:var(--text-primary);">Step 2:</strong> Register 5 matches in the MATCH_REGISTER tab. Ensure balance check passes (≥2 top-third, ≥1 away, ≥1 losing).<br>
+      <strong style="color:var(--text-primary);">Step 3:</strong> Choose ONE metric to score across all 5 matches. Do not skip between metrics in the same session.<br>
+      <strong style="color:var(--text-primary);">Step 4:</strong> Log every qualifying event with timestamp (MM:SS), description, and quality score 1–10.<br>
+      <strong style="color:var(--text-primary);">Step 5:</strong> Repeat for each metric pass. OBI (3 sub-metrics) + SII (3 sub-metrics) = ~22 hours total.<br>
+      <strong style="color:var(--text-primary);">Step 6:</strong> Transfer confirmed sub-component scores to Tier 3 — Scout Metrics tab. Mark any sub-metric with &lt;3 events as VIDEO_PENDING.<br><br>
+      <strong style="color:var(--warning);">Minimum sample rule:</strong> 3 separate matches must show evidence of EACH sub-component before it can be scored. If a sub-component has fewer than 3 qualifying events across 5 matches → mark as VIDEO_PENDING and schedule 1–2 additional matches.<br><br>
+      <strong style="color:var(--danger);">Halo effect rule:</strong> Never adjust a score because of the player's reputation or career history. A poor decision is a poor decision for a Brazil U20 graduate or a Cypriot fourth-division midfielder. The timestamp is your evidence. The rubric is your standard. Nothing else.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 0;
+  var heroMax = 10;
+  var heroAngle = 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#5a5a70';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Santana','Wenger','Cruyff','Menotti','Guardiola','Bielsa'],
+    datasets: [{
+      label: 'Ewandro Costa (est.)',
+      data: [7.5, 7.2, 7.0, 6.8, 6.2, 5.5],
+      backgroundColor: 'rgba(0,112,60,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#fbbf24','#27ae60','#fbbf24','#fbbf24','#6CABDD','#e07820'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 0, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Scout 50% (0/12)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#5a5a70'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
