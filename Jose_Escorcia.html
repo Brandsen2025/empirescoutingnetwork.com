@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>José Escorcia | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0f0a;--bg-card:#0f1a0f;--bg-card-hover:#152015;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#00A859;--accent-dim:rgba(0,168,89,0.15);--accent-glow:rgba(0,168,89,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://primertiempo.co/wp-content/uploads/2026/04/MEDIDOR-75.jpg') center 20% / cover no-repeat;filter:brightness(0.45) saturate(0.95);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,10,0.3) 0%,rgba(0,168,89,0.25) 40%,rgba(10,15,10,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#00A859 33%,#fbbf24 33%,#fbbf24 66%,#00A859 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🏆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--success);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,15,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(0,168,89,0.1),rgba(251,191,36,0.05));border:1px solid rgba(0,168,89,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(0,168,89,0.18),rgba(251,191,36,0.06));border:2px solid rgba(0,168,89,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(0,168,89,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(0,168,89,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(0,168,89,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(0,168,89,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(0,168,89,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(0,168,89,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(0,168,89,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(0,168,89,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(0,168,89,0.08) 0%,rgba(10,15,10,0.5) 100%);border:1px solid rgba(0,168,89,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(0,168,89,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Sudamericano U17 2026 · Champion</div>
+  <div class="jersey-watermark">19</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Atlético Nacional</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Colombia U17</div>
+    </div>
+    <h1 class="hero-name">José Escorcia</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇨🇴</span> Colombia</span>
+      <span class="dot"></span>
+      <span>17 years</span>
+      <span class="dot"></span>
+      <span>176cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Left Winger / CF</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Youth</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">9/16 T3 ✅</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-gold">9/16 T3 VALIDATED</span>
+          <span class="tag tag-club">Atlético Nacional · #19</span>
+          <span class="tag tag-gold">🇨🇴 Colombia U17</span>
+          <span class="tag tag-gold">CRK 9.4 · Elite Dribbler</span>
+          <span class="tag tag-gold">MCS 9.75 · Mental Dominance</span>
+          <span class="tag tag-info">Sudamericano 2026 Champ</span>
+          <span class="tag tag-info">4 Goals + 2 Assists</span>
+          <span class="tag tag-danger">SII_R 0evt · CLM 1evt ⚠️</span>
+          <span class="tag tag-pending">U17 World Cup 2025</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">7.8</div>
+          <div class="fga-status">TIER A YOUTH</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-champ">
+    <span>🏆</span> <strong>SUDAMERICANO U17 2026 CHAMPION · TOP SCORER (4G+2A) · COLOMBIA U17 STAR.</strong> José Escorcia was the breakout star of the Sudamericano Sub-17 2026, scoring a brace vs Brazil in the semi-final, one vs Chile in the group stage, and one in the 4-0 final victory over Argentina. Named "Vini" at Atlético Nacional for his Vinicius Jr-like dribbling style. Idol: Luis Díaz.
+  </div>
+  <div class="banner banner-gold">
+    <span>⚠️</span> <strong>CRK 9.4 ✅ — CREATIVE RISK ELITE.</strong> Five confirmed creative risk events across 3 matches including a sole-tap nutmeg recovery vs Brazil (M1 75:47), triple humiliation of Argentina RB Perez Ferreira (nutmeg + step over + alternate feet, M2 57:20), and a Neymar-esque flip-flap vs Germany (M4 37:04). Street technique validated at youth international level.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>MCS 9.75 ✅ — MENTAL DOMINANCE.</strong> Five events across 2 matches including forcing the substitution of Brazil RB Samuel Almeida (M1 59:05, MCS 10 — "surely because of Escorcia's performance") and psychological destruction of Argentina defenders. Mental competence is his most elite-scored metric relative to age cohort.
+  </div>
+  <div class="banner banner-danger">
+    <span>⚠️</span> <strong>SII_R 0 EVENTS · CLM 1 EVENT · DYN 1 EVENT.</strong> Three metrics remain unscored or below threshold. Recovery sprint frequency (SII_R) has zero logged events — critical gap for a winger who will need to track back at senior level. Calmness (CLM) and Dynamism (DYN) each have only 1 event. Re-assessment with focused defensive-transition footage is recommended before senior projection.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Nacional Academy</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Nacional U17</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Colombia U17</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Nacional U20 (2026)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">9.4</div><div class="label">CRK · 5evt</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">9.75</div><div class="label">MCS · 5evt</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">9.25</div><div class="label">SII_T · 4evt</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">8.8</div><div class="label">SOA · 20evt</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">8.87</div><div class="label">DMA · 17evt</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--danger);">—</div><div class="label">SII_R · 0evt</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">9/16</div><div class="label">T3 Confirmed</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">4G+2A</div><div class="label">Sudamericano</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>José Rafael Escorcia de la Cruz</strong> is a <strong>17-year-old Colombian left winger</strong> born on July 4, 2009. 176cm, right-footed. Product of the <strong>Atlético Nacional</strong> youth academy, nicknamed <strong>"Vini"</strong> for his Vinicius Jr-like dribbling style. Breakout tournament at the <strong>Sudamericano Sub-17 2026</strong> where he was top scorer with <strong>4 goals and 2 assists</strong>, including a brace vs Brazil in the semi-final and a goal in the 4-0 final win over Argentina. Also represented Colombia at the <strong>FIFA U-17 World Cup 2025</strong> in Qatar (3 starts, 4 appearances). Idol: <strong>Luis Díaz</strong>. Currently transitioning to <strong>Nacional U20</strong> for the 2026 season. Right-footed playing predominantly on the left wing, enabling inside cuts and diagonal dribbling.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--success);">9/16 T3 sub-metrics validated.</strong> The most complete youth assessment in the series. <strong>CRK 9.4 (5 events)</strong> confirms elite creative risk-taking. <strong>MCS 9.75 (5 events)</strong> is the highest mental competence score recorded for a U17 player. <strong>SOA 8.8 (20 events)</strong> is the largest event sample in the series, confirming impossible 1v1 ability. <strong>DMA 8.87 (17 events)</strong> shows decision-making maturity beyond his years. <strong>SII_T 9.25 (4 events)</strong> confirms top-end pace. <strong style="color:var(--danger);">SII_R: 0 events</strong> — the only completely unscored metric. <strong>CLM 1 event, DYN 1 event, CRS 2 events</strong> — all below threshold. All assessments produced by Jim Totime across 5 U17 international matches.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 7.8 — U17 LW · SUDAMERICANO CHAMP · ELITE CREATIVE + MENTAL PROFILE · RECOVERY SPRINT GAP.</strong> José Escorcia is a <strong>17-year-old Colombian left winger</strong> whose <strong>creative and mental metrics are elite even against senior benchmarks</strong>. CRK 9.4 + MCS 9.75 + SOA 8.8/20 events = a player who dominates 1v1 situations psychologically and technically. <strong>SII_T 9.25 confirms he has the pace to beat elite youth defenders</strong>. However, <strong>SII_R 0 events is a critical gap</strong> — no data on recovery sprints, a non-negotiable for modern wingers. CLM and DYN also need more events. <strong>The Sudamericano performance is validated by T3</strong> — this is not a highlight-reel illusion. Senior projection to Liga Dimayor (~LOG 3.0) is justified. European projection requires SII_R confirmation and CLM/DYN threshold passes. <strong>Immediate next step: Nacional U20 minutes + focused defensive-transition assessment.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">5-Match Assessment Register — U17 International <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>M</th><th>Match</th><th>Context</th><th>Key T3 Events</th><th style="text-align:center">FGA Est.</th></tr></thead>
+      <tbody>
+        <tr style="background:rgba(0,208,132,0.04);"><td><strong>M1</strong></td><td>Colombia vs Brazil U17</td><td>Sudamericano SF · LOG ~2.5</td><td>OBI_T 10 goal · SII_T 10 goal · DMA 10 free kick · MCS 10 (Almeida subbed) · CRK 9 nutmeg · SOA 10 almost-assist</td><td style="text-align:center"><strong style="color:var(--success);">8.4</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">16evt · BEST ⭐</span></td></tr>
+        <tr><td><strong>M2</strong></td><td>Colombia vs Argentina U17</td><td>Sudamericano Final · LOG ~2.5</td><td>SOA 10 triple dribble + assist · CRS 9 empty-net goal · MCS 9 · DMA 10 · CRK 10 · SII_A 9.5 pace</td><td style="text-align:center"><strong style="color:var(--success);">8.2</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">14evt · Final</span></td></tr>
+        <tr><td><strong>M3</strong></td><td>Colombia vs Paraguay U17</td><td>Sudamericano · LOG ~2.0</td><td>SOA 10 key pass · SPI 10 · SII_A 10 · DMA 9 · CRS 9 assist · OBI_S 8 ghost run</td><td style="text-align:center"><strong style="color:var(--success);">7.9</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">7evt</span></td></tr>
+        <tr><td><strong>M4</strong></td><td>Colombia vs Germany U17</td><td>U17 World Cup · LOG ~2.5</td><td>SOA 9 shielding + through pass · SPI 9 · DMA 9 · SII_A 8 ghost run · SOA 9 flip-flap</td><td style="text-align:center"><strong style="color:var(--success);">7.6</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">6evt</span></td></tr>
+        <tr><td><strong>M5</strong></td><td>Colombia vs Uruguay U17</td><td>Sudamericano · LOG ~2.0 · Losing</td><td>OMS 8 · CHR 8 · OBI_P 8 · limited footage</td><td style="text-align:center"><strong style="color:var(--warning);">6.8</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">3evt · weakest</span></td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="4" style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;">Mean across 5 matches · T3 raw event averages · LOG 2.0–2.5 (youth international)</td><td style="text-align:center"><strong style="color:var(--success);font-size:1.2rem;">7.8</strong><br><span style="font-size:0.65rem;color:var(--text-tertiary);">5-match mean</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Diniz Creative Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:94%;background:#00A859;"></div></div></div><div class="philo-score">9.4</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Santana Flair Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:92%;background:#8b1a1a;"></div></div></div><div class="philo-score">9.2</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Menotti Romantic Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:#75AADB;"></div></div></div><div class="philo-score">9.0</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Bielsa Vertical Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#e07820;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Cruyff Inside Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:84%;background:#E30613;"></div></div></div><div class="philo-score">8.4</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Guardiola Inverted Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#6CABDD;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Simeone Counter Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#cb3524;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho Defensive Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003399;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">T3 Radar — 9 Confirmed Metrics <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="t3Radar" width="400" height="350"></canvas>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Off-Ball</h3>
+      <div class="attr-row"><span class="name">CRK Creative Risk (9.4 · 5evt · series↑)</span><span class="score ac-green"><span class="circle circle-green"></span> 9.4 ✅</span></div>
+      <div class="attr-row"><span class="name">SOA Speed on Action (8.8 · 20evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.8 ✅</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (8.87 · 17evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.87 ✅</span></div>
+      <div class="attr-row"><span class="name">OBI_P Positional (8.2 · 7evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.2 ✅</span></div>
+      <div class="attr-row"><span class="name">SPI Spatial (8.67 · 3evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.67 ✅</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed (9.25 · 4evt)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 9.25 ⚠️</span></div>
+      <div class="attr-row"><span class="name">OBI_T Run Timing (8.33 · 3evt · 1 match)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.33 ⚠️</span></div>
+      <div class="attr-row"><span class="name">OBI_S Space (7.33 · 3evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.33 ✅</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">MCS Mental Comp. (9.75 · 5evt · series↑)</span><span class="score ac-green"><span class="circle circle-green"></span> 9.75 ✅</span></div>
+      <div class="attr-row"><span class="name">CHR Character (8.5 · 6evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.5 ✅</span></div>
+      <div class="attr-row"><span class="name">OMS Transition (8.6 · 5evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.6 ✅</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch (9.0 · 2evt · pending)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 9.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (1 event · pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — 1evt</span></div>
+      <div class="attr-row"><span class="name">Psychological dominance (MCS pattern)</span><span class="score ac-green"><span class="circle circle-green"></span> 9.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Frustration recovery (CHR events)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Pressure handling (CLM gap)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — pending</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">SII_A Acceleration (8.25 · 10evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.25 ✅</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed (9.25 · 4evt)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 9.25 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery (0 events)</span><span class="score ac-red"><span class="circle circle-red"></span> — 0evt ✗</span></div>
+      <div class="attr-row"><span class="name">DYN Dynamism (1 event · pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — 1evt</span></div>
+      <div class="attr-row"><span class="name">Height 176cm (confirmed)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Explosive pace (SII_A + SII_T)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.75 ✅</span></div>
+      <div class="attr-row"><span class="name">Stamina (5 full matches)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Aerial duels (OBI_P 5 event)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Transfermarkt · ESPN · Sofascore · 365scores</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Sudamericano</div><div class="t1-hl-val">4G+2A</div><div class="t1-hl-pct">Top scorer 2026</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:95%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">U17 World Cup</div><div class="t1-hl-val">3 ST</div><div class="t1-hl-pct">4 apps · Qatar 2025</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Nacional U20</div><div class="t1-hl-val">2G</div><div class="t1-hl-pct">6 apps · 2026</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:45%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">FM26</div><div class="t1-hl-val">Det 80</div><div class="t1-hl-pct">Flair 65 · Decisions 55</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">365 Rating</div><div class="t1-hl-val">7.5</div><div class="t1-hl-pct">Nacional U20 avg</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:75%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">International — Colombia U17</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Sud 26</span><span class="t1-metric-desc">Sudamericano Sub-17 2026</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:95%;background:var(--accent)"></div></div></div><span class="t1-metric-val">4G · 2A</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">WC 25</span><span class="t1-metric-desc">FIFA U-17 World Cup Qatar</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">3 ST · 4 apps</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Final</span><span class="t1-metric-desc">Sudamericano Final vs Argentina</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--gold)"></div></div></div><span class="t1-metric-val">1G · 4-0 W</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SF</span><span class="t1-metric-desc">Sudamericano SF vs Brazil</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:95%;background:var(--gold)"></div></div></div><span class="t1-metric-val">2G · Brace</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Club — Atlético Nacional</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U20</span><span class="t1-metric-desc">Liga Dimayor U20 2026</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">6 apps · 2G</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U17</span><span class="t1-metric-desc">Nacional U17 2025</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--accent)"></div></div></div><span class="t1-metric-val">~10 apps · 11G</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Nick</span><span class="t1-metric-desc">Club nickname</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--gold)"></div></div></div><span class="t1-metric-val">"Vini"</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Physical / Profile</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Height</span><span class="t1-metric-desc">Confirmed height</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">176cm</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Foot</span><span class="t1-metric-desc">Preferred foot</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Right</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Pos</span><span class="t1-metric-desc">Primary position</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Left Winger</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Alt</span><span class="t1-metric-desc">Secondary position</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Centre-Forward</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CRE — Creative Index (CRK + SOA)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">9.1</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MEN — Mental Index (MCS + CHR)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">9.1</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">PAC — Pace Index (SII_A + SII_T)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">8.75</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">PAS — Passing Index (DMA + SPI)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">8.77</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI — Off-Ball (OBI_T + OBI_S + OBI_P)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.94</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With 9/16 T3 sub-metrics confirmed, these are robust estimates based on extensive U17 international video assessment data. OBI composite is pulled down by OBI_S 7.33.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: ~2.5</strong><br>
+          <strong style="color:var(--text-primary);">Sudamericano U17:</strong> Brazil · Argentina · Paraguay · Uruguay<br>
+          <strong style="color:var(--text-primary);">U17 World Cup:</strong> Germany U17 · Qatar 2025<br>
+          <strong style="color:var(--warning);">Youth international level</strong><br><br>
+          <strong style="color:var(--gold);">LOG 2.5</strong> represents elite youth international competition. All 5 matches were against CONMEBOL/UEFA elite youth sides. Opposition includes Brazil U17 (champion pedigree), Argentina U17 (finalists), Germany U17 (European elite).
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Jim Totime · 5 Matches · 9/16 Confirmed · LOG 2.0–2.5</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--warning);margin-left:auto;">7.94</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">OBI_P 8.2 (7 events · 3 matches)</strong> — pressing + recovery confirmed<br>
+            <strong style="color:var(--success);">OBI_S 7.33 (3 events · 3 matches)</strong> — ghost runs, throw-in positioning<br>
+            <strong style="color:var(--warning);">OBI_T 8.33 (3 events · 1 match)</strong> — match-spread pending · goal vs Brazil<br>
+            <strong style="color:var(--warning);">OBI composite 7.94 — OBI_T needs 2+ more matches</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--danger);margin-left:auto;">PARTIAL</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">SII_A 8.25 (10 events · 4 matches)</strong> — explosive acceleration confirmed<br>
+            <strong style="color:var(--warning);">SII_T 9.25 (4 events · 2 matches)</strong> — match-spread pending · elite top speed<br>
+            <strong style="color:var(--danger);">SII_R: 0 events</strong> — completely unscored · critical gap<br>
+            SII_T 9.25 is exceptional for age. SII_R absence is the primary barrier to senior projection.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--success);">✅</span> OBI_P · OBI_S · SII_A · DMA · CHR · SOA · SPI · OMS · CRK<br>
+            <span style="color:var(--warning);">⚠️</span> OBI_T (1 match) · SII_T (2 matches) · MCS (2 matches) · CRS (2 events)<br>
+            <span style="color:var(--danger);">✗</span> SII_R (0 events) · CLM (1 event) · DYN (1 event)<br><br>
+            <strong>9/16 sub-metrics confirmed</strong> across 5 matches at LOG 2.0–2.5
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border-subtle);margin-top:16px;padding-top:16px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">All 16 Sub-Metrics</div>
+      <div class="grid-3">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">DMA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Decision Making</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:89%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">8.87</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CHR</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Character</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">8.5</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">MCS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Mental Comp.</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:98%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">9.75</span>
+            <span style="font-size:0.6rem;color:var(--warning);">⚠️</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SOA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Speed on Action</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">8.8</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SPI</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Spatial Perf.</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:87%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">8.67</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CLM</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Calmness</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--danger)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--danger);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--danger);">✗</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CRS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Clutch Response</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--warning)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--warning);width:36px;text-align:right;">9.0</span>
+            <span style="font-size:0.6rem;color:var(--warning);">⚠️</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OMS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Omschakeling</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:86%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">8.6</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">DYN</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Dynamism</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--danger)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--danger);width:36px;text-align:right;">—</span>
+            <span style="font-size:0.6rem;color:var(--danger);">✗</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CRK</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Creative Risk</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:94%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">9.4</span>
+            <span style="font-size:0.6rem;color:var(--success);">⭐</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OBI_T</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Run Timing</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:83%;background:var(--warning)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--warning);width:36px;text-align:right;">8.33</span>
+            <span style="font-size:0.6rem;color:var(--warning);">⚠️</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SII_T</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Top Speed</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:93%;background:var(--warning)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--warning);width:36px;text-align:right;">9.25</span>
+            <span style="font-size:0.6rem;color:var(--warning);">⚠️</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>PROJECTION WARNING — YOUTH LOG ADJUSTMENT.</strong> Escorcia's 7.8 FGA is scored at LOG 2.0–2.5 (U17 international). Senior projection requires both LOG tier adjustment AND physical maturation (age 17, body not fully developed). All cross-league figures are estimates with higher uncertainty than senior-scored cards.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality. Escorcia's 7.8 FGA is a <strong style="color:var(--text-primary);">youth-scored figure</strong> — 9/16 T3 sub-metrics confirmed across 5 U17 international matches. Senior projection carries additional uncertainty due to physical development and SII_R gap.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇨🇴 Sudamericano U17</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">7.8</div>
+      <div class="label">Youth FGA (9/16 T3) · Tier 2.5</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Liga Dimayor</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇨🇴 Colombia Senior</div>
+      <div class="value" style="font-size:2.1rem;">7.2</div>
+      <div class="label">LOG-Adjusted · Tier 3.0 (est.)</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(59,130,246,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Brasilerão</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇷 Brazil Série A</div>
+      <div class="value" style="font-size:2.1rem;">6.9</div>
+      <div class="label">LOG-Adjusted · Tier 3.3 (est.)</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Netherlands</div>
+      <div class="value" style="font-size:2.1rem;">6.7</div>
+      <div class="label">LOG-Adjusted · Tier 3.4 (est.)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier) × Physical Maturity Factor.<br>
+      Liga Dimayor: 7.8 × (2.5 ÷ 3.0) × 1.1 = <strong style="color:var(--text-primary);">7.2</strong> (Physical maturity factor +10% for age 17→19 projection)<br>
+      Brasilerão: 7.8 × (2.5 ÷ 3.3) × 1.1 = <strong style="color:var(--text-primary);">6.9</strong><br>
+      Eredivisie: 7.8 × (2.5 ÷ 3.4) × 1.1 = <strong style="color:var(--text-primary);">6.7</strong><br><br>
+      <strong style="color:var(--warning);">Read before sending to a club:</strong> These projections assume SII_R, CLM, and DYN gaps are closed through physical maturation and additional assessment. If SII_R remains below threshold, subtract ~0.3 from all projections. European top-5 projection (Premier League, La Liga, Bundesliga) is <strong style="color:var(--danger);">prohibited</strong> until SII_R is confirmed and at least 12/16 T3 metrics pass threshold.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 8 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Diniz Creative Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:94%;background:#00A859;"></div></div></div><div class="philo-score">9.4</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Santana Flair Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:92%;background:#8b1a1a;"></div></div></div><div class="philo-score">9.2</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Menotti Romantic Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:#75AADB;"></div></div></div><div class="philo-score">9.0</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Bielsa Vertical Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#e07820;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Cruyff Inside Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:84%;background:#E30613;"></div></div></div><div class="philo-score">8.4</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Guardiola Inverted Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#6CABDD;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Simeone Counter Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#cb3524;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho Defensive Winger</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003399;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Diniz / Santana Street-Football Winger"</strong> — A left winger whose primary tools are dribbling dominance, creative risk, and psychological warfare. CRK 9.4 + SOA 8.8/20 events + MCS 9.75 = a player who destroys defenders in 1v1 situations through technique and mental pressure. The triple-humiliation of Argentina's Perez Ferreira (nutmeg + step over + alternate feet) and the Neymar-esque flip-flap vs Germany are textbook examples. Right-footed on the left wing enables the inside-cut threat. <strong style="color:var(--danger);">The gap is defensive:</strong> SII_R 0 events means his tactical archetype is currently "luxury winger" not "complete winger."
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Diniz Creative Winger</span>
+          <span class="tag tag-club">Santana Flair Forward</span>
+          <span class="tag tag-club">Inside-Cut LW</span>
+          <span class="tag tag-club">1v1 Dominator</span>
+          <span class="tag tag-gold">"Vini"</span>
+          <span class="tag tag-info">Colombia U17</span>
+          <span class="tag tag-info">Sudamericano Champ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">9.2</div><div class="label">Brazilian / Diniz School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">9.0</div><div class="label">Argentine / Menotti School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">8.5</div><div class="label">Bielsa Vertical School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7.8</div><div class="label">Dutch / Cruyff School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Jul 4, 2009</div><div class="timeline-text">Born in <strong>Colombia</strong>. Joined the Atlético Nacional youth academy at an early age. Developed through the club's renowned youth system in Medellín.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024–2025</div><div class="timeline-text"><strong>Atlético Nacional U17</strong> — Breakthrough in youth ranks. Scored approximately 11 goals in ~10 U17 appearances. Earned nickname <strong>"Vini"</strong> for his dribbling style reminiscent of Vinicius Jr. Caught the attention of Colombia U17 selectors.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Nov 2025</div><div class="timeline-text"><strong>FIFA U-17 World Cup Qatar</strong> — Colombia U17 debut on the world stage. <strong>3 starts, 4 appearances</strong>. Did not score but gained invaluable experience against Germany U17 and other elite youth sides. First exposure to European-style pressing.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Apr 2026</div><div class="timeline-text"><strong>Sudamericano Sub-17 2026 · Champion</strong> — The breakout tournament. <strong>4 goals, 2 assists</strong>. Brace vs Brazil in the semi-final. Goal in the 4-0 final victory over Argentina. Named among the tournament's top figures. Idol <strong>Luis Díaz</strong> cited as inspiration. Stated his favourite goal was the third vs Brazil — a direct free kick.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Jul 2026</div><div class="timeline-text">Promoted to <strong>Atlético Nacional U20</strong> for the 2026 season. <strong>6 appearances, 2 goals</strong> so far in Liga Dimayor U20. Empire FGA assessment complete (9/16 T3 confirmed). Next target: first-team minutes with Nacional senior side and continued Colombia U20 progression.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Team</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2024-25</strong></td><td>Nacional U17</td><td>Youth League</td><td>~10</td><td>~11</td><td>~3</td></tr>
+          <tr><td><strong>2025</strong></td><td>Colombia U17</td><td>U17 World Cup</td><td>4</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2026</strong></td><td>Colombia U17</td><td>Sudamericano U17</td><td>~7</td><td>4</td><td>2</td></tr>
+          <tr><td><strong>2026</strong></td><td>Nacional U20</td><td>Liga Dimayor U20</td><td>6</td><td>2</td><td>0</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Youth Total (est.)</strong></td><td><strong>~27</strong></td><td><strong>~17</strong></td><td><strong>~5</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Team</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Sudamericano Sub-17</strong></td><td>2026</td><td>Colombia U17</td></tr>
+          <tr><td><strong>FIFA U-17 World Cup</strong></td><td>2025</td><td>Colombia U17 (participant)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">176cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~68kg (est.)</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Left Winger</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Centre-Forward</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#19 (Colombia)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Lean, wiry</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Colombia</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Development Notes</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">Age 17 — Early Development Phase</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Escorcia is in the early phase of physical development. 176cm at 17 suggests potential to reach 178-180cm. Weight estimated ~68kg — lean frame typical of adolescent wingers. No injury history documented. Stamina confirmed across 5 full 90-minute international matches.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Pace Profile — Partial</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>SII_A 8.25 (10 events) + SII_T 9.25 (4 events)</strong> confirms explosive pace and top-end speed at youth level. However, <strong>SII_R 0 events</strong> means recovery sprint ability is completely unknown. For a modern winger, this is the most critical physical gap. T3 re-assessment must include defensive-transition footage.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>CRK 9.4 — elite creative risk (5 events, 3 matches)</strong> — Nutmegs, step overs, flip-flaps, sole-tap dribbling. Street-football technique validated at international level</li>
+      <li><strong>MCS 9.75 — highest mental competence in U17 series (5 events)</strong> — Forced substitution of Brazil RB Almeida. Psychological destruction of Argentina defenders</li>
+      <li><strong>SOA 8.8 — largest event sample in series (20 events, 4 matches)</strong> — "Impossible to play 1v1" vs Argentina. Consistent 1v1 dominance across multiple opponents</li>
+      <li><strong>DMA 8.87 — decision-making maturity beyond years (17 events)</strong> — Through passes, key passes, almost-assists, essential clearances. No panic in final third</li>
+      <li><strong>SII_T 9.25 — elite top-end speed (4 events)</strong> — "Tremendous pace" to catch ball before defenders. Ghost runs at maximum speed</li>
+      <li><strong>SII_A 8.25 — explosive acceleration confirmed (10 events, 4 matches)</strong> — Quick defensive transitions, high pressing, pass-and-go runs</li>
+      <li><strong>Sudamericano champion + top scorer (4G+2A)</strong> — Tournament performance validates T3 data</li>
+      <li><strong>Right-footed left winger</strong> — Natural inside-cut threat, enables diagonal dribbling and shooting</li>
+      <li><strong>"Vini" nickname at Nacional</strong> — Club recognizes Vinicius Jr-like potential</li>
+      <li><strong>Free-kick goal vs Brazil (favourite goal)</strong> — Set-piece threat adds value</li>
+      <li><strong>5 full 90-minute international matches assessed</strong> — Stamina and availability confirmed</li>
+      <li><strong>Luis Díaz as idol</strong> — Clear career path model (Nacional → Europe)</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>SII_T 9.25 but only 2 matches — match-spread pending</strong> — Elite speed confirmed but sample concentrated in Brazil + Argentina matches. Needs verification vs European opposition</li>
+      <li><strong>OBI_T 8.33 but only 1 match — match-spread pending</strong> — Run timing looks good but 2 of 3 events from same match (M1 vs Brazil)</li>
+      <li><strong>MCS 9.75 but only 2 matches — match-spread pending</strong> — Mental dominance is real but concentrated in Brazil + Argentina. Needs broader sample</li>
+      <li><strong>SOA 4 event — lost ball in dangerous zone vs Brazil (M1 15:02)</strong> — Even elite dribblers have costly errors. Risk-reward ratio favours reward but errors are punished harder at senior level</li>
+      <li><strong>SOA 5 event — 1v1 unsuccessful vs Brazil (M1 18:28)</strong> — Not every duel is won</li>
+      <li><strong>OBI_P 5 event — aerial duel avoidance vs Germany (M4 3:34)</strong> — "Don't want to compete the aerial duel" — height/physicality concern vs senior CBs</li>
+      <li><strong>DMA 5 event — miscommunication with Caicedo (M1 63:08)</strong> — Communication gaps with teammates</li>
+      <li><strong>U17 World Cup 2025 — 0 goals in 4 apps</strong> — Failed to score at first major tournament. Sudamericano 2026 was the response</li>
+      <li><strong>Only 6 Nacional U20 apps</strong> — Minimal senior youth club football. Projection relies heavily on international footage</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>SII_R: 0 events — recovery sprint completely unscored</strong> — No data on ability to sprint back after losing ball. For a modern winger, this is a non-negotiable. All 5 matches assessed; zero recovery sprints logged suggests either: (a) he doesn't do it, or (b) camera angles missed it. Either way, it's a critical information gap</li>
+      <li><strong>CLM: 1 event — calmness below threshold</strong> — Only 1 scored event (1v1 dribbling with composure vs Argentina). No evidence of calmness under sustained pressure, after fouls, or when losing</li>
+      <li><strong>DYN: 1 event — dynamism below threshold</strong> — Only 1 scored event (high pressing sequence vs Brazil). No evidence of positional switching, tactical flexibility, or multi-zone occupation</li>
+      <li><strong>CRS: 2 events — clutch below threshold</strong> — Empty-net goal vs Argentina and assist for Caicedo vs Paraguay. Needs more decisive-moment evidence</li>
+      <li><strong>Aerial ability (OBI_P 5 event)</strong> — Avoided aerial duel vs Germany. At 176cm, aerial dominance is unlikely, but willingness to compete is a mentality marker</li>
+      <li><strong>Defensive contribution</strong> — OMS 8.6 is good but SII_R gap means we don't know if he sprints back. Modern wingers must defend</li>
+      <li><strong>European exposure</strong> — Only 1 match vs European opposition (Germany U17). Needs assessment vs UEFA youth sides before European projection</li>
+      <li><strong>Physical maturation</strong> — Age 17, body still developing. Pace metrics may change as muscle mass increases. Re-assessment at 18-19 recommended</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 7.8 — U17 LW · SUDAMERICANO CHAMP · ELITE CREATIVE + MENTAL PROFILE · RECOVERY SPRINT GAP.</strong> José Escorcia is a <strong>17-year-old Colombian left winger</strong> whose <strong>creative and mental metrics are elite even against senior benchmarks</strong>. CRK 9.4 + MCS 9.75 + SOA 8.8/20 events = a player who dominates 1v1 situations psychologically and technically. The triple-humiliation of Argentina's Perez Ferreira and the Neymar-esque flip-flap vs Germany are not highlight-reel outliers — they are <strong>pattern-validated by 20 SOA events across 4 matches</strong>. <strong>SII_T 9.25 confirms he has the pace to beat elite youth defenders</strong>. However, <strong>SII_R 0 events is a critical gap</strong> — no data on recovery sprints, a non-negotiable for modern wingers. CLM and DYN also need more events. <strong>The Sudamericano performance is validated by T3</strong> — this is not a highlight-reel illusion. Senior projection to Liga Dimayor (~LOG 3.0) is justified. European projection requires SII_R confirmation and CLM/DYN threshold passes. <strong>Immediate next step: Nacional U20 minutes + focused defensive-transition assessment.</strong> Best deployed as a <strong>left winger in a creative, possession-dominant system</strong> where 1v1 isolation is maximized. <strong>Not recommended for defensive systems requiring wingers to track back 60+ minutes without SII_R confirmation.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>🏆</span> <strong>5 Matches Assessed — All U17 International — Sudamericano + World Cup.</strong> All matches at LOG 2.0–2.5. T3 verification by Jim Totime across 16 sub-metrics. No video links provided — assessment based on match footage analysis with timestamped event logging.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Assessment Matches — U17 International <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,168,89,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Colombia vs Brazil U17 (M1 — Sudamericano SF)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Sudamericano</span>
+          <span class="match-badge badge-verified">BEST MATCH ⭐</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>16 events logged.</strong> OBI_T 10 goal · SII_T 10 goal · DMA 10 free kick · MCS 10 (Almeida subbed) · CRK 9 nutmeg · SOA 10 almost-assist. Brace + free kick. FGA ~8.4.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,168,89,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Colombia vs Argentina U17 (M2 — Sudamericano Final)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">Final · 4-0 W</span>
+          <span class="match-badge badge-verified">Champion</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>14 events logged.</strong> SOA 10 triple dribble + assist · CRS 9 empty-net goal · MCS 9 · DMA 10 · CRK 10. "Impossible to play 1v1." FGA ~8.2.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,168,89,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Colombia vs Paraguay U17 (M3 — Sudamericano)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Sudamericano</span>
+          <span class="match-badge badge-pending">Middle third</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>7 events logged.</strong> SOA 10 key pass · SPI 10 · SII_A 10 · DMA 9 · CRS 9 assist · OBI_S 8 ghost run. Unplayable pitch conditions. FGA ~7.9.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,168,89,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Colombia vs Germany U17 (M4 — U17 World Cup)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">U17 World Cup</span>
+          <span class="match-badge badge-pending">European opp</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>6 events logged.</strong> SOA 9 shielding + through pass · SPI 9 · DMA 9 · SII_A 8 ghost run · SOA 9 Neymar flip-flap. Only European opposition. FGA ~7.6.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,168,89,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Colombia vs Uruguay U17 (M5 — Sudamericano)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Sudamericano</span>
+          <span class="match-badge badge-danger">Losing · Weakest</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>3 events logged.</strong> OMS 8 · CHR 8 · OBI_P 8. Limited footage/assessment. Team losing context. FGA ~6.8.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Key Timestamps</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">M1 · Brazil · Sudamericano SF · Best</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">35:35</strong> — OBI_T 9 + MCS 9.5: deflects ball at last moment<br>
+          <strong style="color:var(--gold);">55:11</strong> — SII_T 9 + CHR 9 + DMA 9 + DYN 9: double pressing<br>
+          <strong style="color:var(--gold);">57:54</strong> — OBI_P 10 + CHR 10 + DMA 10 + SOA 9: throw-in recovery<br>
+          <strong style="color:var(--gold);">59:05</strong> — <strong style="color:var(--text-primary);">MCS 10: Almeida subbed off</strong><br>
+          <strong style="color:var(--gold);">66:20</strong> — <strong style="color:var(--text-primary);">OBI_T 10 + SII_T 10 + DMA 9: GOAL</strong><br>
+          <strong style="color:var(--gold);">75:47</strong> — <strong style="color:var(--text-primary);">OBI_P 9 + MCS 10 + CRK 9: nutmeg recovery</strong><br>
+          <strong style="color:var(--gold);">81:18</strong> — <strong style="color:var(--text-primary);">SOA 10 + DMA 10: almost-assist</strong><br>
+          <strong style="color:var(--gold);">94:03</strong> — <strong style="color:var(--text-primary);">DMA 10: direct free kick</strong>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">M2 · Argentina · Final · 1v1 Dominance</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--accent);">8:06</strong> — SOA 8.5 + CLM 8.5: 1v1 composure<br>
+          <strong style="color:var(--accent);">12:57</strong> — SOA 9.5 + CRK 10: step over elimination<br>
+          <strong style="color:var(--accent);">25:30</strong> — SII_A 10 + OMS 10 + SOA 10 + SII_T 10: defensive→attack<br>
+          <strong style="color:var(--accent);">45:18 HT</strong> — SOA 10 + DMA 10: chest control + through pass<br>
+          <strong style="color:var(--accent);">57:20</strong> — <strong style="color:var(--text-primary);">SOA 10 + MCS 10 + DMA 10 + CRK 10: triple dribble + assist</strong><br>
+          <strong style="color:var(--accent);">58:23</strong> — SII_A 9.5: tremendous pace to line<br>
+          <strong style="color:var(--accent);">76:34</strong> — <strong style="color:var(--text-primary);">SOA 10 + MCS 9 + DMA 10 + CRK 10: impossible 1v1 + assist</strong><br>
+          <strong style="color:var(--accent);">82:41</strong> — <strong style="color:var(--text-primary);">SOA 10 + CRS 9: empty-net goal</strong>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">M4 · Germany · U17 World Cup · European</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--warning);">3:08</strong> — SII_A 7: high pressing<br>
+          <strong style="color:var(--warning);">16:51</strong> — OMS 9 + OBI_P 9: recovery + game reading<br>
+          <strong style="color:var(--warning);">22:21</strong> — <strong style="color:var(--text-primary);">SOA 9 + SPI 9 + DMA 9: shielding + sole tap + through pass</strong><br>
+          <strong style="color:var(--warning);">29:19</strong> — SII_A 8: ghost run<br>
+          <strong style="color:var(--warning);">37:04</strong> — <strong style="color:var(--text-primary);">SOA 9: Neymar flip-flap vs Domnic</strong><br>
+          <strong style="color:var(--warning);">3:34</strong> — OBI_P 5: aerial duel avoidance (anti-indicator)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.8;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// T3 Radar
+(function() {
+  var el = document.getElementById('t3Radar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['CRK','SOA','DMA','MCS','SII_T','SPI','OBI_P'],
+      datasets: [{
+        label: 'Escorcia (9/16 confirmed)',
+        data: [9.4, 8.8, 8.87, 9.75, 9.25, 8.67, 8.2],
+        backgroundColor: 'rgba(0,168,89,0.2)',
+        borderColor: '#00A859',
+        pointBackgroundColor: ['#1a7a3a','#1a7a3a','#1a7a3a','#fbbf24','#a88010','#2e9e5a','#2e9e5a'],
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['CRK/Creative','SOA/Action','DMA/Decision','MCS/Mental','SII_T/Pace','SPI/Spatial','OBI_P/Reading'],
+      datasets: [{
+        label: 'Escorcia (17)',
+        data: [9.4, 8.8, 8.87, 9.75, 9.25, 8.67, 8.2],
+        backgroundColor: 'rgba(0,168,89,0.2)',
+        borderColor: '#00A859',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'U17 Winger avg',
+        data: [7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Diniz/Brazil','Santana/Flair','Menotti/Arg','Bielsa/Vert','Cruyff/Dutch','Guardiola','Simeone','Mourinho'],
+    datasets: [{
+      label: 'Escorcia',
+      data: [9.4, 9.2, 9.0, 8.5, 8.4, 7.8, 7.2, 5.5],
+      backgroundColor: 'rgba(0,168,89,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#00A859','#8b1a1a','#75AADB','#e07820','#E30613','#6CABDD','#cb3524','#003399'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Youth 20%','T2 Composite 30%','T3 Scout 50% (9/16)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
