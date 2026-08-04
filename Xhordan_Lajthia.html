@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xhordan Lajthia | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://cdnimpuls.com/newsport.al/media3/-900-0-1751178286xxhordan-lajthiajpg-133.jpg') center 25% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🏆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
+.banner-validated {background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">KF Korabi · Kategoria e Parë</div>
+  <div class="jersey-watermark">7</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">KF Korabi (youth)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">KF Korabi (2020-)</div>
+    </div>
+    <h1 class="hero-name">Xhordan Lajthia</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇦🇱</span> Albania</span>
+      <span class="dot"></span>
+      <span>23 years</span>
+      <span class="dot"></span>
+      <span>178cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Right Winger</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">3/16 T3 ✅</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-gold">3/16 T3 VALIDATED</span>
+          <span class="tag tag-club">KF Korabi · #7</span>
+          <span class="tag tag-gold">🇦🇱 Albania</span>
+          <span class="tag tag-value">€50K Market Value</span>
+          <span class="tag tag-info">Kategoria e Parë</span>
+          <span class="tag tag-gold">SII_A 7.64 · SOA 7.2 · DMA 6.58</span>
+          <span class="tag tag-pending">13 Metrics Pending</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">6.2</div>
+          <div class="fga-status">PARTIAL VALIDATION</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-validated">
+    <span>✅</span> <strong>3/16 T3 METRICS VALIDATED — VIDEO ASSESSMENT IN PROGRESS.</strong> Xhordan Lajthia's assessment covers 4 matches at LOG 1.9 (Kategoria e Parë). Video analysis conducted by Jim Totime. Validated metrics: <strong>SII_A 7.64</strong> (explosive acceleration), <strong>SOA 7.2</strong> (speed on action), <strong>DMA 6.58</strong> (decision making). 13 metrics pending further event collection.
+  </div>
+  <div class="banner banner-gold">
+    <span>📊</span> <strong>23-YEAR-OLD WINGER · EXPLOSIVE PACED · ALBANIAN SECOND DIVISION.</strong> Xhordan Lajthia is a pacey right winger playing for KF Korabi in the Kategoria e Parë. At 23, he's in his physical prime with genuine explosive acceleration (SII_A 7.64) and good speed on action (SOA 7.2). Decision-making (DMA 6.58) needs refinement. A late bloomer with potential to step up to a higher level if he develops his off-ball game.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>PROFILE — ALBANIAN WINGER · KF KORABI ACADEMY GRADUATE.</strong> Born in Albania. 178cm, right-footed winger. KF Korabi academy product. Has spent his entire senior career at KF Korabi. Known for pace and dribbling ability. Market value estimated at €50K.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node current">KF Korabi (2020-)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7.64</div><div class="label">SII_A · 11 events</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7.20</div><div class="label">SOA · 10 events</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6.58</div><div class="label">DMA · 6 events</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">8.33</div><div class="label">DYN · 3 events</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--pending);">—</div><div class="label">OBI · Pending</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--pending);">—</div><div class="label">SII · Pending</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">3/16</div><div class="label">T3 Validated</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€50K</div><div class="label">Market Value</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Xhordan Lajthia</strong> is a <strong>23-year-old Albanian right winger</strong> born in 2002/2003. 178cm, right-footed. Currently playing for <strong>KF Korabi</strong> in the <strong>Kategoria e Parë</strong> (Albanian second division). A product of the club's academy, he has been with the first team since around 2020. Known for his <strong>pace, explosive acceleration, and dribbling ability</strong>. Market value: <strong>€50K</strong>. Has spent his entire senior career at KF Korabi.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--success);">3/16 T3 metrics validated.</strong> Video analysis completed across 4 matches (Kategoria e Parë). <strong>SII_A 7.64 (11 events)</strong> — explosive acceleration is a clear strength. <strong>SOA 7.2 (10 events)</strong> — good speed on action, reacts quickly in 1v1s. <strong>DMA 6.58 (6 events)</strong> — decision-making is functional but inconsistent. <strong>DYN 8.33 (3 events)</strong> — dynamism shows promise but needs more matches to confirm. <strong>OBI, SII composite, CHR, MCS, CLM, CRS, OMS, CRK pending</strong> due to insufficient event counts. All assessments produced by Jim Totime across 4 matches.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict (Provisional)</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 6.2 (PROVISIONAL) — EXPLOSIVE WINGER · LATE BLOOMER · DEVELOPMENT REQUIRED.</strong> Xhordan Lajthia is a <strong>23-year-old Albanian winger</strong> with <strong>genuine explosive acceleration (SII_A 7.64)</strong> and <strong>good speed on action (SOA 7.2)</strong>. He can beat defenders in 1v1 situations and shows good work rate. <strong>Decision-making (DMA 6.58)</strong> is inconsistent — he sometimes chooses the wrong option or rushes passes. <strong>All off-ball intelligence (OBI) and mental metrics remain pending</strong> — his reading of the game and composure under pressure are not yet validated. <strong>At 23, he is in his physical prime but has limited development runway.</strong> If he develops his decision-making and off-ball movement, Lajthia could potentially step up to a higher level. Currently a <strong>low-cost gamble</strong> for clubs needing pace on the wing.
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">4-Match Assessment Register — Kategoria e Parë <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>M</th><th>Match</th><th>Context</th><th>Key T3 Events</th><th style="text-align:center">FGA Est.</th></tr></thead>
+      <tbody>
+        <tr><td><strong>M1</strong></td><td>KF Korabi vs Skënderbeu</td><td>Home · Top-third</td><td>SII_A 7 (58'34 ghost run) · SOA 9 (65'44 1v1 success) · SII_R 8 (74'05 recovery sprint) · OMS 9 (79'16 transition)</td><td style="text-align:center"><strong style="color:var(--success);">6.8</strong></td></tr>
+        <tr><td><strong>M2</strong></td><td>KF Korabi vs Iliria</td><td>Home · Middle-third</td><td>DMA 9 (1'07 cross) · SII_A 9 (21'43 pace) · OMS 9 (25'14 press) · CLM 8 (9'32 control)</td><td style="text-align:center"><strong style="color:var(--success);">6.5</strong></td></tr>
+        <tr><td><strong>M3</strong></td><td>Lushnja vs KF Korabi</td><td>Away · Top-third · Losing</td><td>SOA 9 (79'01 reaction cross) · DYN 9 (79'01 same) · OBI_S 8 (63'06 movement) · MCS 4 (89'07 frustration)</td><td style="text-align:center"><strong style="color:var(--warning);">6.0</strong></td></tr>
+        <tr><td><strong>M4</strong></td><td>KF Korabi vs Apolonia</td><td>Home · Middle-third</td><td>SII_A 8 (4'03 ghost run) · DYN 8 (21'29 recover) · SOA 8 (1:08:01 ball drive) · DMA 6.5 (1:17:29 pass)</td><td style="text-align:center"><strong style="color:var(--success);">6.3</strong></td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="4" style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;">Mean across 4 matches · T3 raw event averages · LOG 1.9</td><td style="text-align:center"><strong style="color:var(--success);font-size:1.2rem;">6.2</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff Intelligence (winger)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#9b59b6;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Klopp High-Press (forward)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#3498db;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola Positional (wide)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#6CABDD;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Santana Joga Bonito</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#27ae60;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#e07820;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Mourinho Counter-Attack</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#c8102e;"></div></div></div><div class="philo-score">5.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Sacchi Zonal (forward)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#8b1a1a;"></div></div></div><div class="philo-score">5.0</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Michels Total (wide)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#c0392b;"></div></div></div><div class="philo-score">4.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Herrera Catenaccio</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#8b1a1a;"></div></div></div><div class="philo-score">4.0</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Lobanovskyi Scientific</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:#c0392b;"></div></div></div><div class="philo-score">3.5</div></div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">T3 Radar — 3 Validated Metrics <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="t3Radar" width="400" height="350"></canvas>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Attacking</h3>
+      <div class="attr-row"><span class="name">DMA — Decision Making (6.58 · 6evt)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.58 ⚠️</span></div>
+      <div class="attr-row"><span class="name">SOA — Speed on Action (7.2 · 10evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.2 ✅</span></div>
+      <div class="attr-row"><span class="name">DYN — Dynamism (8.33 · 3evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.33 ✅</span></div>
+      <div class="attr-row"><span class="name">CRK — Creative Risk Taking</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SPI — Spatial Performance</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Passing Range (T3 evidence)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">1v1 Attacking (SOA evidence)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Crossing (DMA evidence)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Intelligence</h3>
+      <div class="attr-row"><span class="name">OBI — Off-Ball Intelligence</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_T — Run Timing</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_S — Space Architecture</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_P — Positional Anticipation</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CHR — Character</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">MCS — Mental Competence</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CLM — Calmness</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CRS — Clutch Response</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">SII — Sprint Intensity</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_A — Explosive Acceleration (7.64 · 11evt)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.64 ✅</span></div>
+      <div class="attr-row"><span class="name">SII_T — Top Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_R — Recovery Sprint</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Height 178cm</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Aerial Ability (T3 evidence)</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Stamina (T3 evidence)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Work Rate (SII_R evidence)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FBref · Sofascore · Transfermarkt</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Age</div><div class="t1-hl-val">23</div><div class="t1-hl-pct">Born 2002/2003</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Height</div><div class="t1-hl-val">178cm</div><div class="t1-hl-pct">—</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">MV</div><div class="t1-hl-val">€50K</div><div class="t1-hl-pct">Kategoria e Parë</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:20%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Foot</div><div class="t1-hl-val">Right</div><div class="t1-hl-pct">Position: RW</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Nation</div><div class="t1-hl-val">🇦🇱</div><div class="t1-hl-pct">Albania</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Physical Profile</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Height</span><span class="t1-metric-desc">Height in cm</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">178</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Weight</span><span class="t1-metric-desc">Weight in kg</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">~70</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Foot</span><span class="t1-metric-desc">Preferred foot</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Right</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Pos</span><span class="t1-metric-desc">Primary position</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">RW</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">MV</span><span class="t1-metric-desc">Market value</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--gold)"></div></div></div><span class="t1-metric-val">€50K</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">League Context</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">League</span><span class="t1-metric-desc">Kategoria e Parë</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Tier 2 (ALB)</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">LOG</span><span class="t1-metric-desc">Level of Game</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:19%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1.9</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Status</span><span class="t1-metric-desc">Assessment status</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--warning)"></div></div></div><span class="t1-metric-val">Partial</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores (Provisional)</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Anticipatory Movement</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Ghost Run Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI — Creative Player Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">MTI — Mental Toughness</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Status</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">All Tier 2 composites are pending until full Tier 3 validation is complete. Current scores are based on partial data and should be treated as provisional.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: 1.9</strong><br>
+          <strong style="color:var(--text-primary);">Kategoria e Parë (Albania):</strong> Tier 1.9 (estimated)<br>
+          <strong style="color:var(--text-primary);">Top-third opposition:</strong> Skënderbeu, Lushnja<br><br>
+          <strong style="color:var(--gold);">LOG 1.9</strong> reflects the lower competitive level of the Albanian second division. Performance scores are raw and should be interpreted with caution when projecting to higher leagues.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Jim Totime · 4 Matches · 3/16 Confirmed · LOG 1.9</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_T 2 events</strong> — insufficient<br>
+            <strong style="color:var(--pending);">OBI_S 3 events</strong> — pending match spread<br>
+            <strong style="color:var(--pending);">OBI_P 2 events</strong> — insufficient<br>
+            <strong style="color:var(--pending);">OBI composite PENDING</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">SII_A 7.64 (11 events) ✅</strong><br>
+            <strong style="color:var(--pending);">SII_T 2 events</strong> — insufficient<br>
+            <strong style="color:var(--pending);">SII_R 1 event</strong> — insufficient<br>
+            <strong style="color:var(--pending);">SII composite PENDING</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--success);">✅</span> SII_A · SOA · DMA<br>
+            <span style="color:var(--pending);">⚠️</span> OBI_S (3 events, 2 matches) · DYN (3 events, 2 matches)<br>
+            <span style="color:var(--danger);">✗</span> OBI_T · OBI_P · SII_T · SII_R · CHR · MCS · CLM · CRS · OMS · CRK · SPI<br>
+            <span style="color:var(--pending);">⏳</span> 13 metrics pending additional matches/events
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border-subtle);margin-top:16px;padding-top:16px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">All 16 Metrics — Status</div>
+      <div class="grid-3">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OBI_T</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Run Timing</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">2evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OBI_S</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Space Architecture</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--warning)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--warning);width:36px;text-align:right;">3evt</span>
+            <span style="font-size:0.6rem;color:var(--warning);">⚠️</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">OBI_P</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Positional Anticipation</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">2evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SII_A</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Explosive Acceleration</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">7.64</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SII_T</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Top Speed</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">2evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SII_R</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Recovery Sprint</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">1evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">DMA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Decision Making</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">6.58</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SOA</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Speed on Action</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--success)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--success);width:36px;text-align:right;">7.2</span>
+            <span style="font-size:0.6rem;color:var(--success);">✅</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">SPI</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Spatial Performance</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">0evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CHR</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Character</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">2evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">MCS</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Mental Competence</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">2evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+            <span style="font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;">CLM</span>
+            <span style="font-size:0.74rem;flex:1;color:var(--text-secondary);">Calmness</span>
+            <div style="width:80px;"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--pending)"></div></div></div>
+            <span style="font-family:var(--font-heading);font-size:0.85rem;font-weight:700;color:var(--pending);width:36px;text-align:right;">2evt</span>
+            <span style="font-size:0.6rem;color:var(--pending);">⏳</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>PROVISIONAL PROJECTION — BASED ON PARTIAL T3 DATA.</strong> This cross-league projection uses an estimated league tier for Kategoria e Parë (1.9) and target leagues (EPL 3.7, Bundesliga 3.6). Projection is highly speculative due to low competition level and partial validation.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality using Empire FGA's Competition_Tier_Base reference. Lajthia's current FGA of 6.2 is a <strong style="color:var(--text-primary);">provisional figure</strong> based on 3 validated T3 metrics. Full validation is required before any reliable cross-league projection.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇦🇱 Kategoria e Parë (KF Korabi)</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">6.2</div>
+      <div class="label">Provisional FGA (3/16 T3) · Tier 1.9</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — EPL</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+      <div class="value" style="font-size:2.1rem;">4.2</div>
+      <div class="label">LOG-Adjusted · Tier 3.7</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">Target — Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Bundesliga</div>
+      <div class="value" style="font-size:2.1rem;">4.1</div>
+      <div class="label">LOG-Adjusted · Tier 3.6</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br>
+      Premier League: 6.2 × (1.9 ÷ 3.7) = <strong style="color:var(--text-primary);">4.2</strong><br>
+      Bundesliga: 6.2 × (1.9 ÷ 3.6) = <strong style="color:var(--text-primary);">4.1</strong><br><br>
+      <strong style="color:var(--danger);">⚠️ CRITICAL CAVEAT:</strong> This projection is based on <strong>only 3 validated T3 metrics</strong> from a <strong>low-tier league (LOG 1.9)</strong>. The remaining 13 metrics, including all off-ball intelligence and mental attributes, are unverified. Do not use this projection for any recruitment decision. It serves only to illustrate the scale of adjustment required when moving to higher leagues. <strong>Full T3 validation is mandatory before any reliable projection can be made.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits (Proxy)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff Intelligence (winger)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#9b59b6;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Klopp High-Press (forward)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#3498db;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola Positional (wide)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#6CABDD;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Santana Joga Bonito</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#27ae60;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#e07820;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Mourinho Counter-Attack</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#c8102e;"></div></div></div><div class="philo-score">5.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Sacchi Zonal (forward)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#8b1a1a;"></div></div></div><div class="philo-score">5.0</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Michels Total (wide)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#c0392b;"></div></div></div><div class="philo-score">4.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Herrera Catenaccio</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#8b1a1a;"></div></div></div><div class="philo-score">4.0</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Lobanovskyi Scientific</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:#c0392b;"></div></div></div><div class="philo-score">3.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Proxy)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Explosive Late-Blooming Winger"</strong> — A player whose primary weapon is <strong>explosive acceleration (SII_A 7.64)</strong> and <strong>quick reactions (SOA 7.2)</strong>. He can beat defenders in 1v1 situations and shows good work rate. At 23, he is <strong>in his physical prime</strong> but his <strong>decision-making (DMA 6.58)</strong> is inconsistent, and his <strong>off-ball intelligence (OBI pending)</strong> is unverified. Best suited to a <strong>counter-attacking system</strong> where he can use his pace in space, or a <strong>high-press system</strong> where his work rate can be utilised. <strong>Limited development runway</strong> — at 23, what you see is largely what you get physically, but tactical understanding can still improve.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Explosive Winger</span>
+          <span class="tag tag-club">1v1 Specialist</span>
+          <span class="tag tag-club">Late Bloomer</span>
+          <span class="tag tag-gold">KF Korabi #7</span>
+          <span class="tag tag-info">Albania</span>
+          <span class="tag tag-pending">Low-Risk Option</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages (Proxy) <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">7.0</div><div class="label">Dutch / Cruyff School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">6.8</div><div class="label">German / Klopp School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">6.5</div><div class="label">Spanish / Guardiola School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.5</div><div class="label">English / Ferguson School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born 2002/2003</div><div class="timeline-text">Born in Albania. Began youth career at <strong>KF Korabi</strong>.</div></div>
+        <div class="timeline-item"><div class="timeline-date">~2020</div><div class="timeline-text"><strong>KF Korabi · Kategoria e Parë</strong> — Made senior debut. Has remained at the club throughout his senior career. Has developed into a regular starter on the right wing.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2026</div><div class="timeline-text">At <strong>KF Korabi</strong>. Tier 3 video analysis in progress. Has <strong>23 years old</strong> — in his physical prime. Market value: <strong>€50K</strong>. A late bloomer with potential to step up.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2020-21</strong></td><td>KF Korabi</td><td>Kategoria e Parë</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>KF Korabi</td><td>Kategoria e Parë</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>KF Korabi</td><td>Kategoria e Parë</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>KF Korabi</td><td>Kategoria e Parë</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>KF Korabi</td><td>Kategoria e Parë</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>KF Korabi</td><td>Kategoria e Parë</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>—</strong></td><td><strong>—</strong></td><td><strong>—</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">International</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Apps</th><th>Goals</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Albania</strong></td><td>—</td><td>—</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td><strong>Total</strong></td><td><strong>—</strong></td><td><strong>—</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">178cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">~70kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Right Winger</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Left Winger</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#7 (KF Korabi)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Slim, athletic</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Albania</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant injury history documented. Has maintained availability throughout his senior career.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Physical Profile</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>23 years old, 178cm, ~70kg</strong> — in his physical prime. <strong>Explosive acceleration (SII_A 7.64)</strong> is a clear strength. Top speed and recovery sprint data pending. <strong>Work rate (SII_R evidence)</strong> is promising. <strong>Limited physical development runway</strong> — at 23, physical attributes are largely mature.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>SII_A 7.64 (11 events) — explosive acceleration</strong> — consistently beats defenders with first-step speed</li>
+      <li><strong>SOA 7.2 (10 events) — speed on action</strong> — quick reactions in 1v1 situations, creates danger</li>
+      <li><strong>DMA 6.58 (6 events) — decision-making</strong> — functional, with flashes of quality (assist, through balls)</li>
+      <li><strong>DYN 8.33 (3 events) — dynamism</strong> — shows positional flexibility and team interplay</li>
+      <li><strong>Work rate (SII_R evidence)</strong> — recovery sprints and pressing intensity</li>
+      <li><strong>1v1 attacking success (SOA evidence)</strong> — multiple successful dribbles per match</li>
+      <li><strong>Low market value (€50K)</strong> — extremely low-risk investment</li>
+      <li><strong>Age 23 — in physical prime</strong> — ready to contribute immediately</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>13/16 T3 metrics pending</strong> — no validation for off-ball intelligence, mental attributes, or creative risk</li>
+      <li><strong>OBI completely unverified</strong> — his reading of the game and positional awareness are unknown</li>
+      <li><strong>MCS, CLM, CHR pending</strong> — mental resilience and composure under pressure not assessed</li>
+      <li><strong>Decision-making inconsistency (DMA 6.58)</strong> — sometimes rushes passes or chooses wrong option</li>
+      <li><strong>Low competition level (LOG 1.9)</strong> — performances are against part-time/semi-professional opposition</li>
+      <li><strong>Limited senior experience at higher levels</strong> — has spent entire career in Albanian second division</li>
+      <li><strong>Physical frame (178cm, 70kg)</strong> — may struggle against stronger defenders at higher levels</li>
+      <li><strong>Age 23 — limited development runway</strong> — tactical understanding can improve but physical peak is now</li>
+      <li><strong>No international caps</strong> — unproven at national team level</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>OBI_T, OBI_S, OBI_P — zero or insufficient events</strong> — off-ball intelligence completely unverified</li>
+      <li><strong>SII_T, SII_R — insufficient events</strong> — top speed and recovery sprint data missing</li>
+      <li><strong>CHR, MCS, CLM, CRS — insufficient events</strong> — mental attributes not validated</li>
+      <li><strong>OMS — 2 events only</strong> — transition speed not reliably assessed</li>
+      <li><strong>CRK — 0 events</strong> — creative risk-taking not observed</li>
+      <li><strong>SPI — 0 events</strong> — spatial performance not assessed</li>
+      <li><strong>No data on consistency or big-game performance</strong></li>
+      <li><strong>System dependency unknown</strong> — does he thrive only in counter-attacking setups?</li>
+      <li><strong>Unproven above Albanian second division</strong></li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict (Provisional)</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 6.2 (PROVISIONAL) — EXPLOSIVE WINGER · LATE BLOOMER · LOW-COST OPTION.</strong> Xhordan Lajthia is a <strong>23-year-old Albanian winger</strong> with <strong>genuine explosive acceleration (SII_A 7.64)</strong> and <strong>good speed on action (SOA 7.2)</strong>. He can beat defenders in 1v1 situations and shows good work rate. <strong>Decision-making (DMA 6.58)</strong> is inconsistent — he sometimes chooses the wrong option or rushes passes. <strong>All off-ball intelligence (OBI) and mental metrics remain pending</strong> — his reading of the game and composure under pressure are not yet validated. <strong>At 23, he is in his physical prime with limited development runway.</strong> This is a <strong>low-cost gamble</strong> for clubs needing pace on the wing — the financial risk is minimal (€50K), but the tactical risk is higher given the unvalidated off-ball intelligence. <strong>Recommended as a squad option for lower-tier clubs</strong> or as a <strong>developmental project for clubs with strong coaching</strong> who can improve his decision-making and off-ball movement.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>🏆</span> <strong>4 Matches Assessed — Kategoria e Parë.</strong> All matches at LOG 1.9. Tier 3 validation in progress — 3 metrics validated, 13 pending.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Match Links <span class="line"></span></div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/77k84cp1bs9lbzd6uk3r1/KS-Korabi-KF-Skenderbeu.mp4?rlkey=y4qpox01i4l58l4lxkd3yh1sv&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">KF Korabi vs Skënderbeu (M1)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Kategoria e Parë</span>
+          <span class="match-badge badge-pending">07/02/2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>SOA 9 (65'44) · SII_A 7 (58'34) · OMS 9 (79'16).</strong> 10 events logged.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/cluv8mndk06743ktmlzfx/Klubi-Futbollit-Korabi-Peshkopi-Klubi-Sportiv-Iliria.mp4?rlkey=pcmz9ckfhiheqguuzw222mpy5&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">KF Korabi vs Iliria (M2)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Kategoria e Parë</span>
+          <span class="match-badge badge-pending">24/01/2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>DMA 9 (1'07) · SII_A 9 (21'43) · CLM 8 (9'32).</strong> 9 events logged.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/7n0vv9aaj5zrx8kd0ho9h/Klubi-Sportiv-Lushnja-Klubi-Sportiv-Korabi.mp4?rlkey=oca1zav4jg0vxuy4gpdgj1pmu&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Lushnja vs KF Korabi (M3)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Kategoria e Parë</span>
+          <span class="match-badge badge-pending">17/01/2026</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>SOA 9 (79'01) · DYN 9 (79'01) · OBI_S 8 (63'06).</strong> 6 events logged.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/1zqy8mnd4nwwapqxofuma/Klubi-Futbollit-Korabi-Peshkopi-Klubi-Futbollit-Apolonia-Fier.mp4?rlkey=ufybii5pyondjo408dnpx239g&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">KF Korabi vs Apolonia (M4)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Kategoria e Parë</span>
+          <span class="match-badge badge-pending">27/09/2025</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>SII_A 8 (4'03) · DYN 8 (21'29) · SOA 8 (1:08:01).</strong> 12 events logged.
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.2;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// T3 Radar
+(function() {
+  var el = document.getElementById('t3Radar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['SII_A','SOA','DMA','DYN','OBI_S','SII_T','SII_R','CHR','MCS','CLM','OMS','CRK','SPI','OBI_T','OBI_P'],
+      datasets: [{
+        label: 'Lajthia (3/16 confirmed)',
+        data: [7.64, 7.2, 6.58, 8.33, null, null, null, null, null, null, null, null, null, null, null],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: ['#1a7a3a','#2e9e5a','#a88010','#1a7a3a','#8a1020','#8a1020','#8a1020','#8a1020','#8a1020','#8a1020','#8a1020','#8a1020','#8a1020','#8a1020','#8a1020'],
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false, stepSize: 2 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 9, weight: '600' } }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['SII_A','SOA','DMA','DYN','Work Rate','1v1 Attacking'],
+      datasets: [{
+        label: 'Lajthia (23)',
+        data: [7.64, 7.2, 6.58, 8.33, 8.0, 8.0],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Kategoria e Parë winger avg',
+        data: [6.5, 6.0, 6.0, 6.5, 6.0, 6.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false, stepSize: 2 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Cruyff','Klopp','Guardiola','Santana','Bielsa','Mourinho','Sacchi'],
+    datasets: [{
+      label: 'Lajthia (Proxy)',
+      data: [7.0, 6.8, 6.5, 6.2, 6.0, 5.5, 5.0],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#9b59b6','#3498db','#6CABDD','#27ae60','#e07820','#c8102e','#8b1a1a'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Scout 50% (3/16)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
