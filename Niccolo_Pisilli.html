@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niccolò Pisilli | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://assets.goal.com/images/v3/blt6affb14ffcd598a3/Pisilli%20Roma.jpg?auto=webp&format=pjpg&width=3840&quality=60') center 22% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'◆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .rec-icon {width:44px;height:44px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--gold);}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+.badge-suggest {background:rgba(255,184,0,0.12);color:var(--warning);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Roma · UCL Qualification 2026-27</div>
+  <div class="jersey-watermark">61</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">ASD Helios (youth)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Roma Academy (age 8)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Roma First Team (2023-)</div>
+    </div>
+    <h1 class="hero-name">Niccolò Pisilli</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇮🇹</span> Italy</span>
+      <span class="dot"></span>
+      <span>21 years</span>
+      <span class="dot"></span>
+      <span>181cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Central Midfielder</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">0/16 T3 PENDING — LINKS ON UPLOAD</span>
+          <span class="tag tag-club">Roma · #61</span>
+          <span class="tag tag-gold">🇮🇹 Italy Senior (1 cap)</span>
+          <span class="tag tag-value">€12M Market Value</span>
+          <span class="tag tag-info">Serie A + Europa League</span>
+          <span class="tag tag-gold">2G · 4A (25/26 SA)</span>
+          <span class="tag tag-info">Contract 2029</span>
+          <span class="tag tag-danger">Scout Q: DMA + Work Rate</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">6.9</div>
+          <div class="fga-status">T1 PROXY · AWAITING T3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-danger">
+    <span>▲</span> <strong>SCOUT QUESTION — DECISION-MAKING (DMA) AND WORK RATE.</strong> Does Pisilli's engine sustain intensity throughout 90 minutes? This is the single question this assessment exists to answer. Everything else on this card is context for it.
+  </div>
+  <div class="banner banner-proxy">
+    <span>○</span> <strong>TIER 3 PENDING — NO VIDEO ASSESSMENT SCHEDULED YET.</strong> This card is built on Tier 1 (Wikipedia/Transfermarkt/Sofascore/FBref/FotMob/UEFA) and Tier 2 composite estimates only. Match links have not been attached — see the Matches tab for a recommended grading register, built specifically around the scout question, ready for when footage is provided.
+  </div>
+  <div class="banner banner-info">
+    <span>●</span> <strong>PROFILE — ROMAN-BORN BOX-TO-BOX MIDFIELDER · PURE ACADEMY PRODUCT · ITALY SENIOR DEBUTANT.</strong> Born September 23, 2004 in Rome. 181cm, right-footed. Joined Roma's academy at age 8 and has never played for another club. Broke into the first team under Gasperini's demanding, high-intensity system this season — 25 Serie A appearances, 6 goal contributions, and a first senior Italy cap. Contract until 2029.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">ASD Helios (youth)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Roma Academy (2012)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Roma First Team (2023-)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">25</div><div class="label">Apps (Serie A 25/26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--pending);">13</div><div class="label">Starts (of 25 apps)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">2G · 4A</div><div class="label">Goal Contributions (SA)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">1,287</div><div class="label">Serie A Minutes</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">6.4km</div><div class="label">Distance/Match (UEL avg)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">32.4</div><div class="label">Top Speed km/h (UEL)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€12M</div><div class="label">Market Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--pending);">0/16</div><div class="label">T3 Validated</div></div>
+  </div>
+
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="220" cy="170" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="220" y="175" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">1</text>
+      <text x="220" y="200" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">CM — BOX-TO-BOX</text>
+      <circle cx="170" cy="170" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="170" y="174" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">2</text>
+      <text x="170" y="200" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">DM — DEEPER ROLE</text>
+      <circle cx="310" cy="170" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="310" y="174" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">3</text>
+      <text x="310" y="150" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">AM — ADVANCED</text>
+      <rect x="18" y="18" width="180" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary / cover</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: CM (box-to-box) · Versatility: DM, AM</div>
+  </div>
+
+<div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Niccolò Pisilli</strong> is a <strong>21-year-old Roman-born central midfielder</strong> born September 23, 2004. 181cm, right-footed. Joined <strong>Roma's academy at age 8</strong> and has been there ever since — signed his first pro contract in November 2022, made his senior debut in May 2023, and won the Coppa Italia Primavera with the U19s. Broke into <strong>Gian Piero Gasperini's</strong> first team this season: 25 Serie A appearances (13 starts), 2 goals, 4 assists, plus 8 Europa League appearances. Earned his first senior <strong>Italy cap</strong> this year after progressing through every youth level. <strong>Contract until June 30, 2029.</strong>
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0/16 T3 metrics pending — no footage attached yet.</strong> This is a <strong>Tier 1 + Tier 2 proxy</strong> card. Match links are "on upload" per the request — a <strong>recommended grading register</strong> is built into the Matches tab, selected specifically to test the scout question (DMA and 90-minute work rate) and to pass the match-balance protocol (≥2 top-third opposition, ≥1 away, ≥1 losing) from the first scoring session, not after a correction.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict (Provisional)</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 6.9 (PROXY) — GENUINE HOMEGROWN TALENT · ROLE STILL UNSETTLED · WORK-RATE QUESTION OPEN.</strong> Pisilli's underlying numbers are solid but not yet decisive — 6 Serie A goal contributions, respectable Europa League distance/speed data, but only 13 starts in 25 domestic appearances suggests Gasperini hasn't fully trusted him as an every-week starter yet. <strong>That's exactly the gap T3 needs to close</strong>: is the rotation a stamina/intensity concern, tactical fit, or simple squad depth at a big club? The scout question is the whole ballgame here.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Decision-Making</h3>
+      <div class="attr-row"><span class="name">DMA Decision-Making</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_T Run Timing</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_P Positional Anticipation</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CRK Creative Risk</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Goal threat (2G, 4A, 25/26 SA, T1)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Pass accuracy (86.4%, UEL, T1)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Shot accuracy (26.3%, 19 shots, T1)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Work Rate — Central Question</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competence</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CHR Character</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch Response</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OMS Transition Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">90-min intensity sustain — THE scout question</span><span class="score ac-pend"><span class="circle circle-pend"></span> — unassessed, priority #1</span></div>
+      <div class="attr-row"><span class="name">Rotation pattern (13/25 starts, T1)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ⚠️ reason unconfirmed</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">SII_A Explosive Acceleration</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_T Top Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_R Recovery Sprints</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Top speed 32.4 km/h (UEL, T1)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Distance 6.4km/match avg (UEL, T1)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">UEL minutes/match avg (52.9, T1)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ⚠️ rarely full 90 in Europe</span></div>
+      <div class="attr-row"><span class="name">Tackles + recoveries (9 + 14, UEL, T1)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Wikipedia · Transfermarkt · Sofascore · FBref · UEFA</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">G+A</div><div class="t1-hl-val">6</div><div class="t1-hl-pct">Serie A 25/26 (2G 4A)</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Cmp%</div><div class="t1-hl-val">86.4%</div><div class="t1-hl-pct">Europa League</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:86%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Dist</div><div class="t1-hl-val">6.4km</div><div class="t1-hl-pct">Avg per UEL match</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:72%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">TopSpd</div><div class="t1-hl-val">32.4</div><div class="t1-hl-pct">km/h, Europa League</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:78%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">MV</div><div class="t1-hl-val">€12M</div><div class="t1-hl-pct">Contract 2029</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Serie A 2025-26</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Appearances (13 starts, 12 sub)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent)"></div></div></div><span class="t1-metric-val">25</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Minutes played</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1,287</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">Goals</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--gold)"></div></div></div><span class="t1-metric-val">2</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--gold)"></div></div></div><span class="t1-metric-val">4</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">npxG</span><span class="t1-metric-desc">Non-penalty xG (top 67th %ile SA)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2.50</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Sh</span><span class="t1-metric-desc">Shots (19, 5 on target)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--accent)"></div></div></div><span class="t1-metric-val">19</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Fls</span><span class="t1-metric-desc">Fouls committed per 90</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--warning)"></div></div></div><span class="t1-metric-val">1.40</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Europa League 2025-26</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Appearances</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">8</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Minutes (52.9 avg/match)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--accent)"></div></div></div><span class="t1-metric-val">529</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Dist</span><span class="t1-metric-desc">Total distance covered</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">67.4km</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Tkl</span><span class="t1-metric-desc">Tackles</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">9</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Rec</span><span class="t1-metric-desc">Balls recovered</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent)"></div></div></div><span class="t1-metric-val">14</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Season Totals</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SA 24-25</span><span class="t1-metric-desc">Roma · Serie A</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent)"></div></div></div><span class="t1-metric-val">28 apps · 2G · 1A</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SA 25-26</span><span class="t1-metric-desc">Roma · Serie A (current)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent)"></div></div></div><span class="t1-metric-val">25 apps · 2G · 4A</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Honours</span><span class="t1-metric-desc">Trophies</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--gold)"></div></div></div><span class="t1-metric-val">Coppa Italia Primavera '23</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores (Proxy)</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Anticipatory Movement</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility (T1 GPS proxy)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.5 ✅</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Ghost Run Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Status</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">All Tier 2 composites are proxy estimates pending Tier 3. MOB is provisionally supported by real Europa League GPS-style data (distance, top speed) — the strongest T1 signal on this card, but still just one competition's sample.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: 3.6</strong><br>
+          <strong style="color:var(--text-primary);">Serie A:</strong> Tier 3.6 (confirmed)<br>
+          <strong style="color:var(--text-primary);">Europa League:</strong> Tier 3.5–3.8<br>
+          <strong style="color:var(--text-primary);">Italy Senior NT:</strong> Tier 4.0+ (1 cap, 7 min only)<br><br>
+          Roma finished this season in the top 4, qualifying for the <strong>2026-27 Champions League</strong> — a level Pisilli hasn't been tested at yet. His single senior Italy cap was a brief substitute cameo, not a real sample.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending Video Assessment · 0/16 Confirmed</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">DMA</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Decision-Making — Scout Priority #1</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            0 events logged — requires 5+ full matches, with special attention to decision quality in minutes 70-90 specifically, when fatigue would be expected to degrade choices first.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index — Scout Priority #2</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            0 events logged — SII_R (recovery sprint frequency) matters most here: does his sprint volume drop off in the final third of matches?
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Full Metric Set</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--danger);">✗</span> OBI_T · OBI_S · OBI_P (0 events)<br>
+            <span style="color:var(--danger);">✗</span> SII_A · SII_T · SII_R (0 events)<br>
+            <span style="color:var(--danger);">✗</span> DMA · SPI · SOA (0 events)<br>
+            <span style="color:var(--danger);">✗</span> CHR · MCS · CLM · CRS (0 events)<br>
+            <span style="color:var(--danger);">✗</span> OMS · DYN · CRK (0 events)<br><br>
+            <strong>0/16 metrics confirmed</strong> — no footage attached yet, see Matches tab
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-danger">
+    <span>▲</span> <strong>NOT APPLICABLE YET.</strong> No T3 data and no live transfer interest reported. Cross-league projection from a T1-only proxy this early would be noise, not signal. This tab will populate once video scoring begins and there's a real transfer conversation to project against.
+  </div>
+  <div class="card">
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      For reference: Serie A sits at LOG 3.6. Pisilli's entire career has been at Roma — no cross-league data point exists yet. The most relevant "step up" on the horizon isn't a different league, it's <strong>Champions League football with his own club next season</strong>, since Roma qualified this year. That's a more useful lens than a hypothetical move right now.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top Philosophy Fits (Proxy)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Gasperini High-Intensity Box-to-Box</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#8b1a1a;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Klopp Gegenpress Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:#3498db;"></div></div></div><div class="philo-score">7.6</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Conte Box-to-Box Runner</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:73%;background:#8b1a1a;"></div></div></div><div class="philo-score">7.3</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Simeone Duels Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#c8102e;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Ancelotti Balanced Eight</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:#27ae60;"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Guardiola Progressive Eight</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#6CABDD;"></div></div></div><div class="philo-score">6.0</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Proxy)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Academy Engine"</strong> — Gasperini's system at Roma is one of the most physically demanding in Serie A, built on relentless pressing and vertical transitions. Pisilli's T1 profile (respectable distance and top-speed data, useful goal threat, strong pass accuracy) fits that mold on paper. <strong>The unresolved question is whether his current part-time role (13 starts of 25 apps) reflects a stamina ceiling, tactical rotation, or simply squad depth at a club now playing Champions League football.</strong> This is precisely why the scout question anchors this entire card.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Box-to-Box Engine</span>
+          <span class="tag tag-club">Academy Product</span>
+          <span class="tag tag-danger">Work-Rate Question</span>
+          <span class="tag tag-gold">Roma #61</span>
+          <span class="tag tag-info">Italy Senior</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Sep 23, 2004</div><div class="timeline-text">Born <strong>Niccolò Pisilli</strong> in <strong>Rome, Italy</strong>.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2011-2012</div><div class="timeline-text"><strong>ASD Helios</strong> — Started organized football with a local Rome club.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2012-2024</div><div class="timeline-text"><strong>Roma Academy</strong> — Joined at age 8, worked through every youth category. Never played for another club.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Nov 2022</div><div class="timeline-text"><strong>First Professional Contract</strong> — Signed with Roma.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Apr 2023</div><div class="timeline-text"><strong>Coppa Italia Primavera Winner</strong> — Part of Roma's title-winning U19 squad.</div></div>
+        <div class="timeline-item"><div class="timeline-date">May 6, 2023</div><div class="timeline-text"><strong>Senior Debut</strong> — Late substitute in a 2-0 home Serie A loss to Inter Milan.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Dec 14, 2023</div><div class="timeline-text"><strong>European Debut</strong> — Substitute appearance for Andrea Belotti.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024-25</div><div class="timeline-text"><strong>First Full Season</strong> — 28 Serie A appearances, 2 goals, 1 assist.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2024-</div><div class="timeline-text"><strong>Italy Youth-to-Senior Pathway</strong> — Progressed through U18 (2021), U19 (2022-23), U20 (2023-24), U21 (2024-), earning a first senior cap in 2024.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2025-26</div><div class="timeline-text">Under new manager <strong>Gian Piero Gasperini</strong>: 25 Serie A apps (13 starts), 2 goals, 4 assists, 1,287 minutes. 8 Europa League apps, 529 minutes. <strong>Roma finished in the top 4</strong>, qualifying for the 2026-27 Champions League.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2024-25</strong></td><td>Roma</td><td>Serie A</td><td>28</td><td>2</td><td>1</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Roma</td><td>Serie A</td><td>25</td><td>2</td><td>4</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Roma</td><td>Europa League</td><td>8</td><td>2</td><td>0</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Roma</td><td>Coppa Italia</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total (senior, Roma)</strong></td><td><strong>~65</strong></td><td><strong>~6</strong></td><td><strong>~5</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Period</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Italy U18</strong></td><td>2021</td></tr>
+          <tr><td><strong>Italy U19</strong></td><td>2022-2023</td></tr>
+          <tr><td><strong>Italy U20</strong></td><td>2023-2024</td></tr>
+          <tr><td><strong>Italy U21</strong></td><td>2024-</td></tr>
+          <tr><td><strong>Italy Senior</strong></td><td>2024- (1 cap, 7 minutes)</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer History</h3>
+      <table class="data-table">
+        <thead><tr><th>Move</th><th>Fee</th></tr></thead>
+        <tbody>
+          <tr><td colspan="2" style="color:var(--text-tertiary);">None — pure Roma academy product since age 8</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">181cm</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Central Midfielder</span></div>
+        <div class="physical-item"><span class="label">System Role</span><span class="value">Box-to-Box (3-4-2-1)</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#61 (Roma)</span></div>
+        <div class="physical-item"><span class="label">Top Speed (T1)</span><span class="value">32.4 km/h</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Italy</span></div>
+        <div class="physical-item"><span class="label">GPS Data</span><span class="value">Partial (UEL only)</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Availability</h3>
+      <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Injury History Documented</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);">No significant injury record found. His limited minutes appear to be a selection/rotation pattern rather than an availability issue — 33 combined domestic + European appearances this season shows he's fit and involved most weeks, just not always for the full 90.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>6 goal contributions in 25 Serie A appearances</strong> (2G, 4A) — genuine end product from central midfield</li>
+      <li><strong>86.4% pass accuracy</strong> in continental football (Europa League) — composed on the ball at a step-up level</li>
+      <li><strong>6.4km distance and 32.4 km/h top speed per Europa League match</strong> — real GPS-style evidence of physical output, not just reputation</li>
+      <li><strong>Pure academy product</strong> — at Roma since age 8, never left, Coppa Italia Primavera winner</li>
+      <li><strong>Contract to 2029</strong> and a first senior Italy cap — the club and country both see a pathway</li>
+      <li><strong>Top 67th percentile npxG</strong> for Serie A — creates and takes on chances beyond a pure destroyer profile</li>
+      <li><strong>No injury history</strong> — his limited minutes are a selection story, not a fitness one</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Only 13 starts in 25 Serie A appearances</strong> — Gasperini is using him as an impact option more than a nailed-on starter, and the reason isn't confirmed</li>
+      <li><strong>52.9 minutes average per Europa League appearance</strong> — rarely completing full matches at the continental level, the exact context the scout question is worried about</li>
+      <li><strong>26.3% shot accuracy</strong> on modest volume — end product is more about the final pass than the finish</li>
+      <li><strong>1 senior Italy cap, 7 minutes</strong> — not yet a real international sample</li>
+      <li><strong>1.40 fouls per 90</strong> — a moderate discipline load worth watching if T3 shows late-game fatigue</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>0/16 T3 metrics validated</strong> — no video evidence at all yet, links pending upload</li>
+      <li><strong>DMA entirely unassessed</strong> — the decision-making half of the scout question has zero evidence</li>
+      <li><strong>No minute-by-minute intensity data</strong> — whether his output actually drops in minutes 70-90 is completely unknown; T1 GPS data is match-level average only, not a within-match curve</li>
+      <li><strong>Reason for the 13/25 start split unconfirmed</strong> — stamina, tactical fit, and squad depth are all plausible and untested explanations</li>
+      <li><strong>No adversity or away-match video sample yet</strong> — see Matches tab for a register designed to avoid that gap from the start</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict (Provisional)</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 6.9 (PROXY) — GENUINE ACADEMY TALENT · SCOUT QUESTION WIDE OPEN.</strong> Pisilli is a <strong>21-year-old Roma homegrown midfielder</strong> with real end product (6 goal contributions), solid continental passing numbers, and T1 physical data (distance, top speed) that supports rather than undermines the engine profile Gasperini's system demands. <strong>But the 13-of-25 start split and the sub-53-minute Europa League average are exactly the pattern you'd expect if intensity really does drop off</strong> — or they could just as easily reflect normal squad rotation at a club now playing Champions League football. <strong>Nothing in Tier 1 data can resolve that distinction. Tier 3 is what this card is actually for.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>■</span> <strong>RECOMMENDED GRADING REGISTER — NO FOOTAGE ATTACHED YET.</strong> Links weren't provided this round, so below is a suggested 5-match set built specifically around the scout question and the match-balance protocol. The first three are verified, dated, real fixtures where Pisilli started. Get these first — they clear all three balance checks (≥2 top-third opposition, ≥1 away, ≥1 losing) before a single event is logged.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Priority 1-3 — Verified Starts, Balance-Check Complete <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">1</div></div>
+      <div class="match-info">
+        <div class="match-teams">Inter Milan 5-2 AS Roma</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">Serie A · Apr 5, 2026 · Away</span>
+          <span class="match-badge badge-suggest">Top-tier + Away + Losing</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Pisilli started centrally alongside Cristante at San Siro (48 passes completed) as Roma were run over by the eventual champions. <strong>Highest-priority match on this list</strong> — satisfies away, top-third opposition, and losing-position criteria simultaneously, and is exactly the sustained-pressure context the scout question needs.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">2</div></div>
+      <div class="match-info">
+        <div class="match-teams">Napoli 2-2 AS Roma</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">Serie A · Feb 15, 2026 · Away</span>
+          <span class="match-badge badge-suggest">Top-tier + Away</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Pisilli started at Stadio Maradona. Roma led twice and were pegged back late (2-2) — a second top-third opponent and a second away match, with real momentum swings across 90+ minutes.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">3</div></div>
+      <div class="match-info">
+        <div class="match-teams">AS Roma 3-0 Pisa</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">Serie A · Apr 10, 2026 · Home</span>
+          <span class="match-badge badge-suggest">Baseline / Control</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Pisilli started at the Olimpico against bottom-table opposition. A comfortable, low-pressure win — the control case against the two matches above. Does his work rate look different when the game is already won by half-time?
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin:28px 0 16px;">Priority 4-5 — Suggested Categories, Not Yet Pinned to a Specific Match <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">4</div></div>
+      <div class="match-info">
+        <div class="match-teams">A Europa League Knockout Leg</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">Category suggestion</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Roma reached at least the Round of 16 (vs Bologna, March 2026). A midweek continental leg tests something the three matches above can't: does a short turnaround between fixtures visibly affect his intensity? I haven't pinned an exact leg since I couldn't confirm his start in a specific one — worth checking your own footage access first.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">5</div></div>
+      <div class="match-info">
+        <div class="match-teams">A Tight, Grind-It-Out Home Win</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">Category suggestion</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Reports mention Roma "scraping" a 1-0 win over Lecce this season — the kind of nervy, low-scoring grind where a midfielder's game management under fatigue shows differently than in a rout or a shootout. Worth finding a match like this if his involvement in that specific one isn't confirmable.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Why This Set</h3>
+    <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+      <p style="margin-bottom:10px;"><strong style="color:var(--text-primary);">Balance check, pre-satisfied:</strong> ≥2 top-third opposition (Inter, Napoli) ✅ · ≥1 away match (both #1 and #2 are away) ✅ · ≥1 match where the team was losing (Inter, trailing for long stretches of a 5-2 defeat) ✅ · Minimum 5 matches — priorities 4 and 5 round out the set.</p>
+      <p style="color:var(--text-tertiary);">Direct relevance to the scout question: matches #1 and #2 put him under sustained pressure across a full match; #3 is the control case; #4 tests fixture-congestion fatigue; #5 tests game-management under a low-scoring grind. Score OBI_T and OBI_P first if time is limited — they're the sub-metrics most likely to show an intensity drop-off directly.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.9;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar — T1 stat-based (no T3 data exists yet)
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['G+A','Pass Cmp%','Distance/Match','Top Speed','Tackles+Rec','Starts %'],
+      datasets: [{
+        label: 'Pisilli (25/26, T1)',
+        data: [6, 86.4, 6.4, 32.4, 23, 52],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Serie A CM avg (indicative)',
+        data: [5, 84, 6.8, 31.5, 20, 75],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0,
+          ticks: { display: false },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Gasperini','Klopp','Conte','Simeone','Ancelotti','Guardiola'],
+    datasets: [{
+      label: 'Pisilli (Proxy)',
+      data: [8.2, 7.6, 7.3, 7.0, 6.6, 6.0],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#8b1a1a','#3498db','#8b1a1a','#c8102e','#27ae60','#6CABDD'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Scout 50% (0/16)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
