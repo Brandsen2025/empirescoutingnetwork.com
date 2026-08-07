@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samuele Ricci | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://net-storage.tcccdn.com/storage/milannews.it/img_notizie/thumb3/f1/f1ca060dee18d93f6a1a1f916dfa05fc-07815-oooz0000.jpeg') center 30% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🏆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">AC Milan · Serie A 2025-26</div>
+  <div class="jersey-watermark">4</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Empoli (2019)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Torino (2022)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">AC Milan (2025-)</div>
+    </div>
+    <h1 class="hero-name">Samuele Ricci</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇮🇹</span> Italy</span>
+      <span class="dot"></span>
+      <span>24 years</span>
+      <span class="dot"></span>
+      <span>181cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Box-to-Box Midfielder</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Estimated</div>
+          <div class="tier-pill t3">T3 PENDING</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 VIDEO PENDING</span>
+          <span class="tag tag-club">AC Milan · #4</span>
+          <span class="tag tag-gold">🇮🇹 Italy NT · 11 caps</span>
+          <span class="tag tag-value">€22.9M Market Value</span>
+          <span class="tag tag-info">Serie A · UCL</span>
+          <span class="tag tag-gold">90.1% Pass Completion ✅</span>
+          <span class="tag tag-danger">4 Assists · 1 Goal 25-26</span>
+          <span class="tag tag-info">Contract 2029</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3 (EST.)</div>
+          <div class="fga-score">7.2</div>
+          <div class="fga-status">ESTIMATED — T3 PENDING</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>TIER 3 VIDEO ASSESSMENT PENDING — FGA IS AN ESTIMATE.</strong> All Tier 3 scores on this card are provisional estimates derived from Tier 1 statistical proxies and scouting context. No video event logging has been completed yet. The displayed FGA of 7.2 is a conservative estimate based on available data. Do not use this card for any transfer or recruitment decision until the video assessment is complete.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> <strong>PROFILE — ITALIAN BOX-TO-BOX MIDFIELDER · AC MILAN · 11 ITALY CAPS.</strong> Born August 21, 2001 in Pontedera, Italy. 181cm, right-footed. Developed through <strong>Empoli</strong>'s youth system, made senior debut at 18. Breakthrough at <strong>Torino</strong> — 106 league appearances, 4 goals, 4 assists. Signed by <strong>AC Milan</strong> in July 2025 for €23M. <strong>11 Italy caps</strong> as of June 2026. Five-year contract until 2029. The central question: <strong>can he adapt to Amorim's system at Milan mid-career, or is he a tactical misfit?</strong>
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Empoli (2019-2022)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Torino (2022-2025)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">AC Milan (2025-)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">90.1%</div><div class="label">Pass Completion</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">4</div><div class="label">Assists (Serie A 25-26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">1</div><div class="label">Goals (Serie A 25-26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">11</div><div class="label">Italy Caps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">31</div><div class="label">Apps (Serie A 25-26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€23M</div><div class="label">Transfer Fee</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">1.53</div><div class="label">xG (Serie A 25-26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">1.90</div><div class="label">xA (Serie A 25-26)</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Samuele Ricci</strong> is a <strong>24-year-old Italian box-to-box midfielder</strong> born August 21, 2001 in Pontedera, Italy. 181cm, right-footed. Product of <strong>Empoli</strong>'s youth system — made senior debut at 18 in September 2019. Breakthrough at <strong>Torino</strong> where he made <strong>106 league appearances</strong> across three seasons, scoring 4 goals and providing 4 assists. Signed by <strong>AC Milan</strong> in July 2025 for <strong>€23M</strong> (plus €2M add-ons). <strong>11 Italy caps</strong> as of June 2026. Five-year contract until June 2029. The central question: <strong>can he adapt to Amorim's system at Milan mid-career, or is he a tactical misfit?</strong> Reports suggest he has been offered to Juventus and Atalanta.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--warning);">TIER 3 VIDEO ASSESSMENT PENDING.</strong> No video event logging has been completed yet. All Tier 3 scores below are <strong style="color:var(--warning);">provisional estimates only</strong> derived from Tier 1 statistical proxies. The FGA of 7.2 is a conservative estimate. <strong>Do not use this card for any transfer or recruitment decision</strong> until video assessment is complete. The scout question is: <strong>Coachability — adapting to new club/system mid-career.</strong> Ricci's €23M move to Milan represents a significant step up. Can he adapt to Amorim's system? Reports suggest he may not be a natural fit.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict (Provisional)</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">ESTIMATED FGA 7.2 — T3 PENDING.</strong> Ricci is a <strong>24-year-old Italian box-to-box midfielder</strong> with strong Tier 1 statistical indicators: <strong>90.1% pass completion</strong>, <strong>4 assists</strong>, <strong>77.1% accurate deep passes</strong>. But the <strong>€23M move to Milan</strong> has raised questions about <strong>system fit</strong> — he may not be a natural fit for Amorim's style. <strong>The central question is coachability:</strong> can he adapt his game mid-career, or is he a tactical misfit? <strong>Tier 3 video assessment is required</strong> to evaluate his off-ball movement, positional intelligence, and adaptability before any conclusion can be drawn. <strong>This 7.2 is a placeholder estimate — do not use for decisions.</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Passing</h3>
+      <div class="attr-row"><span class="name">Pass Completion (90.1%)</span><span class="score ac-green"><span class="circle circle-green"></span> 9.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Deep Pass Accuracy (77.1%)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.7 ✅</span></div>
+      <div class="attr-row"><span class="name">Assists (4, Serie A 25-26)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Expected Assists (xA 1.90)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Chances Created (20)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Goals (1, Serie A 25-26)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">xG (1.53) vs Goals (1)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Tactical</h3>
+      <div class="attr-row"><span class="name">Italy NT (11 caps)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Torino Captain</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Adaptability (Amorim system?)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Tactical Versatility (CM/DM)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Discipline (3 YC, 0 RC)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Coachability — T3 Pending</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Height 181cm</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Weight 76kg</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Duels Won (60.2%)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Aerial Duels Won (30%)</span><span class="score ac-red"><span class="circle circle-red"></span> 4.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Tackles (16, Serie A 25-26)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Interceptions (9, Serie A 25-26)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Minutes (1,297, Serie A 25-26)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.5 ✅</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FBref · Transfermarkt · Sofascore · Opta</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Pass%</div><div class="t1-hl-val">90.1%</div><div class="t1-hl-pct">Elite ball retention</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:90%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">xA</div><div class="t1-hl-val">1.90</div><div class="t1-hl-pct">Creative output</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Deep Pass%</div><div class="t1-hl-val">77.1%</div><div class="t1-hl-pct">Progressive passing</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:77%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Duels%</div><div class="t1-hl-val">60.2%</div><div class="t1-hl-pct">Physical contests</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">2025-26 Serie A · AC Milan</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Matches played</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--accent)"></div></div></div><span class="t1-metric-val">31</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Minutes played</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1,297</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">Goals scored</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--warning)"></div></div></div><span class="t1-metric-val">1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists provided</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">4</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">xG</span><span class="t1-metric-desc">Expected goals</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1.53</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">xA</span><span class="t1-metric-desc">Expected assists</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1.90</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Shots</span><span class="t1-metric-desc">Total shots</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">18</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SoT</span><span class="t1-metric-desc">Shots on target</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--accent)"></div></div></div><span class="t1-metric-val">6</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Passing</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Cmp</span><span class="t1-metric-desc">Successful passes</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--gold)"></div></div></div><span class="t1-metric-val">583</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Cmp%</span><span class="t1-metric-desc">Pass completion %</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--gold)"></div></div></div><span class="t1-metric-val">90.1%</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Deep</span><span class="t1-metric-desc">Accurate deep passes</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:77%;background:var(--gold)"></div></div></div><span class="t1-metric-val">37</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Deep%</span><span class="t1-metric-desc">Deep pass accuracy %</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:77%;background:var(--gold)"></div></div></div><span class="t1-metric-val">77.1%</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">ChC</span><span class="t1-metric-desc">Chances created</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">20</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">BigC</span><span class="t1-metric-desc">Big chances created</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">5</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Cross%</span><span class="t1-metric-desc">Successful crosses %</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:43%;background:var(--accent)"></div></div></div><span class="t1-metric-val">42.9%</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Defensive</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Tkl</span><span class="t1-metric-desc">Tackles</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">16</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Int</span><span class="t1-metric-desc">Interceptions</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">9</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Clr</span><span class="t1-metric-desc">Clearances</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">29</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Rec</span><span class="t1-metric-desc">Ball recoveries</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">58</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Duels%</span><span class="t1-metric-desc">Duels won %</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">60.2%</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Aer%</span><span class="t1-metric-desc">Aerial duels won %</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--danger)"></div></div></div><span class="t1-metric-val">30.0%</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Possession</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Touches</span><span class="t1-metric-desc">Total touches</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="t1-metric-val">863</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">OppBox</span><span class="t1-metric-desc">Touches in opp. box</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--accent)"></div></div></div><span class="t1-metric-val">18</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Drib%</span><span class="t1-metric-desc">Dribbles success %</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--accent)"></div></div></div><span class="t1-metric-val">62.5%</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Dispos</span><span class="t1-metric-desc">Dispossessed</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">9</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Discipline</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">YC</span><span class="t1-metric-desc">Yellow cards</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--accent)"></div></div></div><span class="t1-metric-val">3</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">RC</span><span class="t1-metric-desc">Red cards</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div><span class="t1-metric-val">0</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Fouls</span><span class="t1-metric-desc">Fouls committed</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">17</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores (Estimated)</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence (est.)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Composure (est.)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.8</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility (est.)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Ghost Run Index (est.)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Anticipatory Movement (est.)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">7.2</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Tier 2 Estimated from Tier 1</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are provisional estimates based on Tier 1 statistical proxies only. <strong>Tier 3 video assessment is required</strong> for accurate composite scores.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Serie A:</strong> Tier 3.6 (confirmed)<br>
+          <strong style="color:var(--text-primary);">UCL:</strong> Group stage Tier ~3.5<br>
+          <strong style="color:var(--text-primary);">Italy NT:</strong> 11 caps, competitive fixtures<br><br>
+          Ricci's Tier 1 data comes from <strong>Serie A 2025-26</strong> with AC Milan, plus his <strong>Torino</strong> seasons and <strong>Italy national team</strong> appearances. All at confirmed LOG levels.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Provisional FGA Calculation</h3>
+    <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;margin-bottom:12px;">
+      <strong style="color:var(--text-primary);">Method:</strong> FGA = (Tier1_avg × 0.20) + (Tier2_avg × 0.30) + (Tier3_est × 0.50).<br>
+      Tier1 avg ≈ 7.5 (based on stats), Tier2 avg ≈ 7.2, Tier3 est ≈ 7.0 (conservative due to adaptation uncertainty).<br>
+      <strong style="color:var(--gold);">FGA = (7.5×0.20) + (7.2×0.30) + (7.0×0.50) = 1.5 + 2.16 + 3.5 = 7.16 ≈ 7.2</strong>
+    </div>
+    <div style="padding:12px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--danger);margin-bottom:4px;">⚠️ This is an estimate — Tier 3 pending</div>
+      <div style="font-size:0.72rem;color:var(--text-secondary);">The true FGA will be determined after Tier 3 video assessment. Do not use this estimate for any recruitment decision.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 — Pending Video Assessment</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <span style="color:var(--pending);">OBI_T — Run Timing</span> — PENDING<br>
+            <span style="color:var(--pending);">OBI_S — Space Architecture</span> — PENDING<br>
+            <span style="color:var(--pending);">OBI_P — Positional Anticipation</span> — PENDING<br>
+            <span style="color:var(--pending);">OBI composite</span> — PENDING
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <span style="color:var(--pending);">SII_A — Explosive Acceleration</span> — PENDING<br>
+            <span style="color:var(--pending);">SII_T — Top-End Speed</span> — PENDING<br>
+            <span style="color:var(--pending);">SII_R — Recovery Sprints</span> — PENDING<br>
+            <span style="color:var(--pending);">SII composite</span> — PENDING
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">All 12 Metrics</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">⏳</span> DMA — Decision Making<br>
+            <span style="color:var(--pending);">⏳</span> CHR — Character<br>
+            <span style="color:var(--pending);">⏳</span> MCS — Mental Competence<br>
+            <span style="color:var(--pending);">⏳</span> SOA — Speed on Action<br>
+            <span style="color:var(--pending);">⏳</span> SPI — Spatial Performance<br>
+            <span style="color:var(--pending);">⏳</span> CLM — Calmness<br>
+            <span style="color:var(--pending);">⏳</span> CRS — Clutch Response<br>
+            <span style="color:var(--pending);">⏳</span> OMS — Omschakeling<br>
+            <span style="color:var(--pending);">⏳</span> DYN — Dynamism<br>
+            <span style="color:var(--pending);">⏳</span> CRK — Creative Risk<br><br>
+            <strong>0/12 confirmed</strong> — Tier 3 video assessment pending
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-danger">
+    <span>🛑</span> <strong>NOT APPLICABLE YET.</strong> There is no confirmed FGA composite for this player — Tier 3 video assessment is pending. The provisional FGA of 7.2 is an estimate only. Cross-league projection from an estimate would be unreliable. This tab will populate once the video assessment is complete.
+  </div>
+  <div class="card">
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      For reference: Serie A sits at LOG 3.6 (confirmed). Ricci's €23M move from Torino to Milan represents a significant step up. The central question — <strong>can he adapt to Amorim's system?</strong> — cannot be answered from Tier 1 data alone. Tier 3 video assessment is required to evaluate his off-ball movement, positional intelligence, and tactical adaptability.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top Philosophy Fits (Provisional)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Ancelotti Box-to-Box CM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27ae60;"></div></div></div><div class="philo-score">8.5</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Sacchi Pressing Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#8b1a1a;"></div></div></div><div class="philo-score">8.0</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Conte Dual-Pivot CM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#9b59b6;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Guardiola Deep Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#6CABDD;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Mourinho Physical Midfielder</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#c8102e;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Klopp High-Intensity CM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#3498db;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Bielsa High-Press CM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#e07820;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Amorim System CM</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#1e3a8a;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Provisional)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Box-to-Box Passer"</strong> — Tier 1 data suggests a midfielder who <strong>keeps possession</strong> (90.1% pass completion), <strong>progresses play</strong> (77.1% deep pass accuracy), and <strong>creates chances</strong> (4 assists, 1.90 xA). <strong>But the Amorim system question is critical</strong>: reports suggest he may not be a natural fit. <strong>Tier 3 video assessment is required</strong> to evaluate his off-ball movement, positional discipline, and adaptability before any tactical conclusion can be drawn.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Box-to-Box Passer</span>
+          <span class="tag tag-club">Deep Playmaker</span>
+          <span class="tag tag-danger">Amorim System? ⚠️</span>
+          <span class="tag tag-club">AC Milan #4</span>
+          <span class="tag tag-info">Italy NT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Aug 21, 2001</div><div class="timeline-text">Born <strong>Samuele Ricci</strong> in <strong>Pontedera, Italy</strong>.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2011-2019</div><div class="timeline-text"><strong>Empoli Youth Academy</strong> — Developed through Empoli's youth system.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sep 21, 2019</div><div class="timeline-text"><strong>Professional Debut — Empoli</strong> — Made senior debut at 18, replacing Leo Štulac in a 1-0 win against Cittadella.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2019-2022</div><div class="timeline-text"><strong>Empoli · Serie B / Serie A</strong> — 83 appearances, 3 goals. Established himself as a promising Italian midfielder.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 2022</div><div class="timeline-text"><strong>Torino (loan) · Serie A</strong> — Joined Torino on loan, made 12 appearances.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022-2025</div><div class="timeline-text"><strong>Torino · Serie A</strong> — <strong>94 appearances, 4 goals</strong>. Became <strong>Torino captain</strong>. <strong>106 league appearances total</strong> for Torino across all seasons. Established himself as one of Serie A's most promising midfielders.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Jul 2025</div><div class="timeline-text"><strong>AC Milan · Serie A + UCL · €23M</strong> — Signed for <strong>€23M</strong> (plus €2M add-ons). Five-year contract until June 2029. <strong>11 Italy caps</strong> as of June 2026. The central question: <strong>can he adapt to Amorim's system?</strong></div></div>
+        <div class="timeline-item current"><div class="timeline-date">Jul 2026</div><div class="timeline-text">At <strong>AC Milan</strong>. 31 Serie A appearances, 1 goal, 4 assists, 90.1% pass completion. <strong>Tier 3 video assessment pending</strong>. Reports suggest he may not be a natural fit for Amorim's system and has been offered to Juventus and Atalanta.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2019-22</strong></td><td>Empoli</td><td>Serie B / Serie A</td><td>83</td><td>3</td><td>—</td></tr>
+          <tr><td><strong>2022</strong></td><td>Torino (loan)</td><td>Serie A</td><td>12</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2022-25</strong></td><td>Torino</td><td>Serie A</td><td>94</td><td>4</td><td>4</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>AC Milan</td><td>Serie A</td><td>31</td><td>1</td><td>4</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>AC Milan</td><td>UCL</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total (est.)</strong></td><td><strong>~220</strong></td><td><strong>~8</strong></td><td><strong>~8</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer Ladder</h3>
+      <table class="data-table">
+        <thead><tr><th>From → To</th><th>Fee</th><th>Year</th></tr></thead>
+        <tbody>
+          <tr><td>Empoli → Torino (loan)</td><td><strong>Loan</strong></td><td>2022</td></tr>
+          <tr><td>Torino → AC Milan</td><td><strong style="color:var(--gold);">€23M + €2M</strong></td><td>2025</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+      <table class="data-table">
+        <thead><tr><th>Honour</th><th>Year</th><th>Club</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Serie B Promotion</strong></td><td>2021</td><td>Empoli</td></tr>
+          <tr><td><strong>Italy U21</strong></td><td>2020-23</td><td>Italy</td></tr>
+          <tr><td><strong>Italy Senior</strong></td><td>2022-</td><td>Italy</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">181cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">76kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Box-to-Box Midfielder</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">CM / DM</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#4 (AC Milan)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, lean</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Italy</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury History</h3>
+      <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Mixed Injury Record</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>2025-26:</strong> Ankle injury (May 2026) — 5 days<br>
+          <strong>2024-25:</strong> Knee injury (Apr 2025) — 11 days<br>
+          <strong>2024-25:</strong> Injury (Jan 2025) — 4 days<br>
+          <strong>2023-24:</strong> Thigh problems (Nov 2023) — 27 days<br>
+          <strong>2022-23:</strong> Muscular problems (Sep 2022) — 36 days<br><br>
+          <span style="color:var(--text-tertiary);">Ricci has had several injury setbacks, including a 36-day absence in 2022-23. However, he has shown resilience, playing 31 Serie A matches in 2025-26 despite the ankle issue.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters (from Tier 1 data)</h4>
+    <ul>
+      <li><strong>90.1% pass completion</strong> — Elite ball retention for a box-to-box midfielder</li>
+      <li><strong>77.1% deep pass accuracy</strong> — Progressive passing quality</li>
+      <li><strong>4 assists in Serie A 2025-26</strong> — Creative output</li>
+      <li><strong>1.90 xA</strong> — Expected assists above actual, suggests creative potential</li>
+      <li><strong>11 Italy caps</strong> — International experience</li>
+      <li><strong>Torino captain</strong> — Leadership confirmed at club level</li>
+      <li><strong>60.2% duels won</strong> — Competent in physical contests</li>
+      <li><strong>0 red cards, 3 yellow cards</strong> — Disciplined</li>
+      <li><strong>€23M transfer to Milan</strong> — Market validation of quality</li>
+      <li><strong>Five-year contract until 2029</strong> — Long-term stability at elite club</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals (from Tier 1 data)</h4>
+    <ul>
+      <li><strong>Only 1 goal from 1.53 xG</strong> — Underperforming expected goals</li>
+      <li><strong>30% aerial duel win rate</strong> — Significant weakness in the air</li>
+      <li><strong>Only 18 touches in opponent box</strong> — Limited attacking presence in final third</li>
+      <li><strong>Amorim system fit questionable</strong> — Reports suggest he may not be a natural fit</li>
+      <li><strong>Offered to Juventus and Atalanta</strong> — Milan may be willing to sell</li>
+      <li><strong>Injury history</strong> — Multiple setbacks including 36-day absence (2022-23)</li>
+      <li><strong>24 years old</strong> — Approaching peak, limited development runway</li>
+      <li><strong>€23M investment</strong> — Significant fee, expectations are high</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps — Tier 3 Required</h4>
+    <ul>
+      <li><strong>No Tier 3 video assessment yet</strong> — All metrics below are provisional estimates only</li>
+      <li><strong>OBI, SII, DMA, CHR, MCS, SOA, SPI, CLM, CRS, OMS, DYN, CRK</strong> — All 12 Tier 3 metrics pending</li>
+      <li><strong>Coachability unknown</strong> — The central question cannot be answered from Tier 1 data alone</li>
+      <li><strong>Adaptability to Amorim system untested</strong> — Video assessment required to evaluate off-ball movement, positional discipline, and tactical adaptability</li>
+      <li><strong>Off-ball movement unassessed</strong> — No data on ghost runs, space creation, or positional anticipation</li>
+      <li><strong>Mental profile untested</strong> — Character, mental competence, calmness, clutch response all pending</li>
+      <li><strong>No GPS data available</strong> — Physical scores rest entirely on visual assessment (pending)</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict (Provisional — Tier 3 Pending)</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">ESTIMATED FGA 7.2 — T3 PENDING.</strong> Samuele Ricci is a <strong>24-year-old Italian box-to-box midfielder</strong> with strong Tier 1 statistical indicators: <strong>90.1% pass completion</strong>, <strong>4 assists</strong>, <strong>77.1% deep pass accuracy</strong>, and <strong>11 Italy caps</strong>. But the <strong>€23M move to Milan</strong> has raised questions about <strong>system fit</strong> — reports suggest he may not be a natural fit for Amorim's style. <strong>The central question is coachability:</strong> can he adapt his game mid-career, or is he a tactical misfit? <strong>Tier 3 video assessment is required</strong> to evaluate his off-ball movement, positional intelligence, and adaptability before any conclusion can be drawn. <strong>This 7.2 is a placeholder estimate — do not use for decisions.</strong> Best deployed as a <strong>box-to-box midfielder in a possession-based system</strong> where his passing range and ball retention are valued. <strong>Aerial weakness (30%) and limited goal threat (1 goal from 1.53 xG)</strong> are documented limitations from Tier 1 data.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-info">
+    <span>🎬</span> <strong>VIDEO ASSESSMENT PENDING.</strong> One match file has been provided for Tier 3 assessment: <strong>Udinese vs AC Milan</strong>. Additional matches are required for a full Tier 3 evaluation (minimum 5 matches).
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Attached Match File <span class="line"></span></div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/7s05zjgudbwcww29h11qp/Udinese-Calcio-Milan-Associazione-Calcio.mp4?rlkey=k0qbpov36a373z1kyctzu5eyj&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Udinese vs AC Milan — Tier 3 Assessment</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Serie A</span>
+          <span class="match-badge badge-pending">PENDING ASSESSMENT</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          First match file for Samuele Ricci Tier 3 assessment. Additional matches required for full evaluation (minimum 5 matches).
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Assessment Plan</h3>
+    <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+      <p style="margin-bottom:12px;"><strong style="color:var(--text-primary);">Required for Tier 3 completion:</strong></p>
+      <ul style="list-style:none;padding:0;">
+        <li style="padding:4px 0;">• <strong style="color:var(--warning);">5+ matches</strong> (currently: 1)</li>
+        <li style="padding:4px 0;">• <strong style="color:var(--warning);">≥2 matches vs top-third opposition</strong></li>
+        <li style="padding:4px 0;">• <strong style="color:var(--warning);">≥1 away match</strong></li>
+        <li style="padding:4px 0;">• <strong style="color:var(--warning);">≥1 match where team was losing</strong></li>
+        <li style="padding:4px 0;">• <strong style="color:var(--warning);">3 qualifying events per sub-metric</strong></li>
+      </ul>
+      <p style="margin-top:12px;color:var(--text-tertiary);">Focus areas: <strong>Coachability — adapting to new club/system mid-career</strong>. Evaluate off-ball movement, positional intelligence, tactical adaptability, and response to coaching.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial — Estimated 7.2
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.2;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar — Tier 1 proxy estimates only
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Pass%','Deep Pass%','Duels%','xA','Aerial%','Discipline'],
+      datasets: [{
+        label: 'Ricci (Tier 1 proxy)',
+        data: [9.0, 7.7, 6.0, 7.0, 3.0, 8.5],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Serie A CM avg',
+        data: [7.5, 6.5, 6.5, 6.5, 6.5, 7.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false, stepSize: 2 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Ancelotti','Sacchi','Conte','Guardiola','Mourinho','Klopp','Bielsa','Amorim'],
+    datasets: [{
+      label: 'Ricci (Provisional)',
+      data: [8.5, 8.0, 7.8, 7.5, 7.0, 6.5, 6.0, 5.5],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#27ae60','#8b1a1a','#9b59b6','#6CABDD','#c8102e','#3498db','#e07820','#1e3a8a'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20% (available)','T2 Composite 30% (estimated)','T3 Scout 50% (pending)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#5a5a70'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
