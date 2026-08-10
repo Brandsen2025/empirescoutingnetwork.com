@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simone Pafundi | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://udinese.cdn.xpl.io/xsr-img/72508/ita/600x1200/1/udinese-vs-cagliari-coppa-italia-01-11-2023-51-foto-petrussi-.jpg') center 25% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🇮🇹';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.match-thumb .rec-icon {width:44px;height:44px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--gold);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+.badge-suggest {background:rgba(255,184,0,0.12);color:var(--warning);}
+.badge-excluded {background:rgba(255,59,59,0.12);color:var(--danger);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before {background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-item.danger .timeline-date {color:var(--danger);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Catanzaro · Serie B 2025-26</div>
+  <div class="jersey-watermark">72</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Udinese (2022)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Lazio (2025)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Catanzaro (loan, 2025-)</div>
+    </div>
+    <h1 class="hero-name">Simone Pafundi</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇮🇹</span> Italy</span>
+      <span class="dot"></span>
+      <span>19 years</span>
+      <span class="dot"></span>
+      <span>170cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Attacking Midfielder</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">0/16 T3 PENDING</span>
+          <span class="tag tag-club">Catanzaro · #72</span>
+          <span class="tag tag-gold">🇮🇹 Italy U20 (2025)</span>
+          <span class="tag tag-value">€400K Market Value</span>
+          <span class="tag tag-info">Serie B · Coppa Italia</span>
+          <span class="tag tag-gold">1G · 2A (24/25, Udinese)</span>
+          <span class="tag tag-info">On loan from Udinese</span>
+          <span class="tag tag-danger">Scout Q: MTI — Output away from home</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">6.5</div>
+          <div class="fga-status">T1 PROXY · AWAITING T3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-danger">
+    <span>▲</span> <strong>CRITICAL — CONFIRM THE PLAYER.</strong> There are <em>two</em> Simone Pafundi profiles that show up in T1 sources. One is a Lazio-owned midfielder (born 2005, the one on loan to Catanzaro). The other appears in some sources as a Udinese-owned player who went to Lazio then Catanzaro. <strong>Some sources appear to confuse him with his brother, Lorenzo Pafundi (also a footballer).</strong> Confirm which club actually owns his registration before taking this card to anyone.
+  </div>
+  <div class="banner banner-proxy">
+    <span>○</span> <strong>TIER 3 PENDING — NO VIDEO ASSESSMENT SCHEDULED YET.</strong> This card is built on Tier 1 (Wikipedia/Transfermarkt/Sofascore/FBref/FotMob) and Tier 2 composite estimates only. A <strong>recommended grading register</strong> is built into the Matches tab, selected specifically to test the scout question (Mental Toughness Index, MTI) and to pass the match-balance protocol from the first scoring session.
+  </div>
+  <div class="banner banner-info">
+    <span>●</span> <strong>PROFILE — ITALIAN ATTACKING MIDFIELDER · CROSS-REGION LOAN · U20 INTERNATIONAL.</strong> Born March 8, 2006 in Codroipo, Italy (Friuli region, Udinese's home province). 170cm, right-footed. Udinese academy product who made his senior debut in March 2024 — one of the youngest ever to play for the club at 18 years and 11 days. Loaned first to Lazio (January 2025) then to Catanzaro for the 2025-26 season. Italy U20 international.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Udinese Academy</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Udinese First Team (2024)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Lazio (loan, 2025)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Catanzaro (loan, 2025-)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">18</div><div class="label">Age at Udinese Debut</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--pending);">7</div><div class="label">Apps (Catanzaro, 25/26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">0</div><div class="label">Goals (Catanzaro, 25/26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">0</div><div class="label">Assists (Catanzaro, 25/26)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">1</div><div class="label">Goal (Udinese, 24/25)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">2</div><div class="label">Assists (Udinese, 24/25)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€400K</div><div class="label">Market Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--pending);">0/16</div><div class="label">T3 Validated</div></div>
+  </div>
+
+  <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <!-- Pitch -->
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+
+      <!-- Primary: Attacking Midfielder (filled) -->
+      <circle cx="260" cy="140" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="260" y="145" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">1</text>
+      <text x="260" y="125" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">ATTACKING MID — CREATIVE HUB</text>
+
+      <!-- Secondary: Second Striker -->
+      <circle cx="315" cy="135" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="315" y="139" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">2</text>
+      <text x="315" y="115" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">SECOND STRIKER / SS</text>
+
+      <!-- Secondary: Wide Forward -->
+      <circle cx="410" cy="160" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="410" y="164" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">3</text>
+      <text x="410" y="184" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">WIDE FORWARD / WING</text>
+
+      <!-- Legend -->
+      <rect x="18" y="18" width="180" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary / cover</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: Attacking midfielder (creative hub) · Secondary: second striker, wide forward</div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Simone Pafundi</strong> is a <strong>19-year-old Italian attacking midfielder</strong> born March 8, 2006 in Codroipo, Italy. 170cm, right-footed. Product of <strong>Udinese's youth academy</strong>, made his senior debut in March 2024 at 18 years and 11 days — one of the youngest debutants in the club's history. Loaned to <strong>Lazio</strong> in January 2025 for the second half of the season, then to <strong>Catanzaro</strong> for the 2025-26 season. <strong>Italy U20 international</strong>. Contract with Udinese until 2027.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0/16 T3 metrics pending.</strong> Priority sub-metric given the scout question: <strong>MTI (Mental Toughness Index)</strong> specifically — does his creative output drop when he's away from Udine's familiar system? His 2024-25 Udinese numbers (1 goal, 2 assists) suggest promise, but 2025-26 at Catanzaro (0 goals, 0 assists in 7 apps, 206 minutes) raises the question this assessment exists to answer.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict (Provisional)</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 6.5 (PROXY) — PROMISING YOUTH, UNPROVEN AWAY FROM HOME.</strong> Pafundi's Udinese cameo (1G, 2A in limited minutes, plus a dramatic Coppa Italia penalty shootout) shows real talent. <strong>But the 2025-26 Catanzaro sample (0G, 0A in 7 apps, 206 minutes) is exactly the kind of early-career drop-off that MTI tests.</strong> Is this a young player adapting to a new system, or a player whose output depends on the specific conditions at Udinese? The answer determines whether he's a genuine prospect or a system-dependent player.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Creative</h3>
+      <div class="attr-row"><span class="name">CRK — Creative Risk</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">DMA — Decision Making</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_T — Run Timing</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">OBI_P — Positional Anticipation</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Goals (1, Udinese, 24/25, T1)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Assists (2, Udinese, 24/25, T1)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Chances created (T1, Udinese sample)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental — THE SCOUT QUESTION</h3>
+      <div class="attr-row"><span class="name">MTI — Mental Toughness Index</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING, priority #1</span></div>
+      <div class="attr-row"><span class="name">CHR — Character</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">MCS — Mental Competence</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CLM — Calmness</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">CRS — Clutch Response</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Catanzaro 2025-26: 0G, 0A in 206 min (T1)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ⚠️ exactly the drop-off to assess</span></div>
+      <div class="attr-row"><span class="name">Coppa Italia penalty shootout (T1)</span><span class="score ac-green"><span class="circle circle-green"></span> ✅ real pressure, limited detail</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">SII_A — Explosive Acceleration</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_T — Top Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">SII_R — Recovery Sprints</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      <div class="attr-row"><span class="name">Height 170cm (T1, confirmed)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ⚠️ undersized for target role</span></div>
+      <div class="attr-row"><span class="name">Weight 64kg (T1)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ⚠️ slight frame for a #10</span></div>
+      <div class="attr-row"><span class="name">Minutes total (206, Catanzaro 25/26, T1)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ⚠️ low sample</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Wikipedia · Transfermarkt · Sofascore · FBref · FotMob</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">G+A</div><div class="t1-hl-val">3</div><div class="t1-hl-pct">Udinese 24/25 (1G, 2A)</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:50%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">MV</div><div class="t1-hl-val">€400K</div><div class="t1-hl-pct">Market value</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Debut</div><div class="t1-hl-val">18y 11d</div><div class="t1-hl-pct">One of Udinese's youngest</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:80%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Apps</div><div class="t1-hl-val">7</div><div class="t1-hl-pct">Catanzaro 25/26 so far</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:30%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">2024-25 · Udinese (Breakthrough)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Serie A appearances</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--accent)"></div></div></div><span class="t1-metric-val">5</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">Goals</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--gold)"></div></div></div><span class="t1-metric-val">1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--gold)"></div></div></div><span class="t1-metric-val">2</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Coppa</span><span class="t1-metric-desc">Coppa Italia apps (incl. shootout)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">2025-26 · Catanzaro (Loan)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Serie B appearances</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--accent)"></div></div></div><span class="t1-metric-val">7</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Starts</span><span class="t1-metric-desc">Starts</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--accent)"></div></div></div><span class="t1-metric-val">3</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Minutes</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--accent)"></div></div></div><span class="t1-metric-val">206</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Gls</span><span class="t1-metric-desc">Goals</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--warning)"></div></div></div><span class="t1-metric-val">0</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--warning)"></div></div></div><span class="t1-metric-val">0</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">YC</span><span class="t1-metric-desc">Yellow cards</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--warning)"></div></div></div><span class="t1-metric-val">2</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">International</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">U20</span><span class="t1-metric-desc">Italy U20 caps</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--gold)"></div></div></div><span class="t1-metric-val">2</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores (Proxy)</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MTI — Mental Toughness Index (SCOUT Q)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Anticipatory Movement</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Ghost Run Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Status</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">MTI is the priority metric for this assessment — it's the entire reason this card exists. All other composites follow once T3 data is available.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: 2.8 (Serie B)</strong><br>
+          <strong style="color:var(--text-primary);">Serie A (Udinese):</strong> 3.6<br>
+          <strong style="color:var(--text-primary);">Coppa Italia:</strong> 3.5-4.0<br><br>
+          Pafundi has played at three different levels in his short career so far. The <strong>Catanzaro loan</strong> is a step down from Serie A, which means MTI needs to be assessed in context — a drop-off in raw numbers is expected, but <em>how much</em> of a drop-off, and in what ways, is exactly what T3 exists to measure.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Provisional FGA Calculation</h3>
+    <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;margin-bottom:12px;">
+      <strong style="color:var(--text-primary);">Method:</strong> FGA = (Tier1_avg × 0.20) + (Tier2_avg × 0.30) + (Tier3_est × 0.50).<br>
+      Tier1 avg ≈ 6.5 (based on mixed Udinese/Catanzaro numbers), Tier2 avg ≈ 6.6 (proxy), Tier3 est ≈ 6.5 (conservative, very young).<br>
+      <strong style="color:var(--gold);">FGA = (6.5×0.20) + (6.6×0.30) + (6.5×0.50) = 1.3 + 1.98 + 3.25 = 6.53 ≈ 6.5</strong>
+    </div>
+    <div style="padding:12px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--danger);margin-bottom:4px;">⚠️ This is an estimate — Tier 3 pending</div>
+      <div style="font-size:0.72rem;color:var(--text-secondary);">The true FGA will be determined after Tier 3 video assessment. Do not use this estimate for any recruitment decision.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending Video Assessment · 0/16 Confirmed</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">MTI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Mental Toughness — Scout Priority #1</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            0 events logged — requires 5+ full matches. Priority: track body language, decision quality, and creative output in <em>both</em> game states (winning, losing, away) and across <em>both</em> clubs (Udinese vs Catanzaro) to compare.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">CRK</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Creative Risk — Supports MTI</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">PENDING</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            0 events logged — creative risk is the first thing that drops when mental toughness is tested. Does he still attempt ambitious passes away from Udine's system?
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Full Metric Set</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--danger);">✗</span> OBI_T · OBI_S · OBI_P (0 events)<br>
+            <span style="color:var(--danger);">✗</span> SII_A · SII_T · SII_R (0 events)<br>
+            <span style="color:var(--danger);">✗</span> DMA · SPI · SOA (0 events)<br>
+            <span style="color:var(--danger);">✗</span> CHR · MCS · CLM · CRS (0 events)<br>
+            <span style="color:var(--danger);">✗</span> OMS · DYN · CRK (0 events)<br><br>
+            <strong>0/16 metrics confirmed</strong> — no footage attached yet, see Matches tab
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-danger">
+    <span>▲</span> <strong>NOT APPLICABLE YET.</strong> No T3 data, and Pafundi has already played at three levels in Italy (Serie A, Serie B, Coppa Italia) — his adaptability is being tested domestically, not across a transfer. This tab will populate once T3 is done.
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top Philosophy Fits (Proxy)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Menotti Creative Number 10</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#27ae60;"></div></div></div><div class="philo-score">8.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Guardiola Interior Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#6CABDD;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Ancelotti Advanced Playmaker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#27ae60;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Gasparini Fluid Attacker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#8b1a1a;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Simeone Counter-Attacking 10</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#c8102e;"></div></div></div><div class="philo-score">5.0</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Proxy)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Lightweight #10"</strong> — Pafundi's Udinese cameo (1G, 2A in limited minutes) shows a player who can find dangerous positions and create chances. <strong>The unresolved question is whether that output travels to Catanzaro's system.</strong> Menotti's creative number 10 archetype fits his physical profile (small, technical, right-footed) — but the mental toughness required to maintain that creativity away from familiar surroundings is the specific test this card exists to run.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Lightweight #10</span>
+          <span class="tag tag-club">Creative Hub</span>
+          <span class="tag tag-danger">MTI Question Open</span>
+          <span class="tag tag-gold">Catanzaro #72</span>
+          <span class="tag tag-info">Udinese</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Mar 8, 2006</div><div class="timeline-text">Born <strong>Simone Pafundi</strong> in <strong>Codroipo, Italy</strong> (Friuli region, Udinese's home province).</div></div>
+        <div class="timeline-item"><div class="timeline-date">~2016-2023</div><div class="timeline-text"><strong>Udinese Youth Academy</strong> — Developed through Udinese's youth system. Progressed through U17, U19, and Primavera.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Mar 17, 2024</div><div class="timeline-text"><strong>Senior Debut — Udinese</strong> — Made Serie A debut against AC Milan at 18 years and 11 days, one of the youngest debutants in the club's history.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024-25</div><div class="timeline-text"><strong>Udinese First Team</strong> — 5 Serie A appearances, 1 goal, 2 assists. Coppa Italia appearances included a penalty shootout.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 2025</div><div class="timeline-text"><strong>Loan to Lazio</strong> — Joined Lazio on loan for the second half of the 2024-25 season. Did not make any league appearances (reports vary).</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jul 2025</div><div class="timeline-text"><strong>Italy U20 Debut</strong> — Played for the U20 national team against France.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Aug 2025</div><div class="timeline-text"><strong>Loan to Catanzaro</strong> — Joined Catanzaro in Serie B for the 2025-26 season.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2025-26</div><div class="timeline-text">At <strong>Catanzaro</strong>. 7 Serie B appearances, 3 starts, 206 minutes, 0 goals, 0 assists. <strong>Tier 3 video assessment pending.</strong> Central question: <strong>does his creative output (1G, 2A in Serie A) survive a move away from Udine?</strong></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2023-24</strong></td><td>Udinese</td><td>Serie A</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Udinese</td><td>Serie A</td><td>5</td><td>1</td><td>2</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Udinese</td><td>Coppa Italia</td><td>2</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Lazio (loan)</td><td>Serie A</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Catanzaro (loan)</td><td>Serie B</td><td>7</td><td>0</td><td>0</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total (senior)</strong></td><td><strong>~15</strong></td><td><strong>1</strong></td><td><strong>2</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer History</h3>
+      <table class="data-table">
+        <thead><tr><th>Move</th><th>Fee</th></tr></thead>
+        <tbody>
+          <tr><td>Udinese → Lazio (loan)</td><td><strong>Loan</strong></td></tr>
+          <tr><td>Udinese → Catanzaro (loan)</td><td><strong>Loan</strong></td></tr>
+          <tr><td>Catanzaro → Udinese (return)</td><td><strong>Scheduled 2026</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Period</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Italy U20</strong></td><td>2025- (2 caps)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">170cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">64kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Attacking Midfielder</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">SS / RW</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#72 (Catanzaro)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Slight, technical</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Italy</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Availability</h3>
+      <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury History</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);">No significant injury record found. His limited minutes this season appear to be a selection/rotation pattern at Catanzaro, not a fitness issue. He has been available when called upon.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>1 goal, 2 assists in 5 Serie A appearances</strong> — real end product in Italy's top flight at 18</li>
+      <li><strong>One of Udinese's youngest-ever debutants</strong> (18y 11d) — club clearly invested in him</li>
+      <li><strong>Italy U20 international</strong> — national team pathway</li>
+      <li><strong>Coppa Italia penalty shootout involvement</strong> — real pressure experience (detail limited)</li>
+      <li><strong>Contract with Udinese until 2027</strong> — club sees long-term value</li>
+      <li><strong>Technical profile for a #10</strong> — right-footed, creative reputation</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>0 goals, 0 assists in 7 Serie B appearances (2025-26)</strong> — no output at a lower level</li>
+      <li><strong>Only 206 minutes at Catanzaro</strong> — not trusted as a regular starter</li>
+      <li><strong>3 starts in 7 appearances</strong> — still a rotation option, not a key player</li>
+      <li><strong>0 appearances for Lazio</strong> — the previous loan was a non-event</li>
+      <li><strong>170cm, 64kg</strong> — undersized physical profile for a #10</li>
+      <li><strong>2 yellow cards in 206 minutes</strong> — disciplinary rate that needs monitoring</li>
+      <li><strong>MTI entirely unassessed</strong> — the central question has zero evidence</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps — Tier 3 Required</h4>
+    <ul>
+      <li><strong>0/16 T3 metrics validated</strong> — no video evidence at all yet</li>
+      <li><strong>MTI entirely unassessed</strong> — the scout question has zero evidence</li>
+      <li><strong>No Udinese footage to compare against Catanzaro</strong> — the actual test of "output away from Udine's system" requires both contexts to be assessed</li>
+      <li><strong>No adversity or away-match video sample yet</strong> — see Matches tab for a register designed to avoid that gap from the start</li>
+      <li><strong>Club ownership ambiguity</strong> — some sources list him as Lazio-owned; confirm before using this card</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict (Provisional)</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 6.5 (PROXY) — PROMISING YOUTH, UNPROVEN AWAY FROM HOME.</strong> Pafundi is a <strong>19-year-old Italian attacking midfielder</strong> with a real high point (1G, 2A in 5 Serie A appearances at 18) and a concerning low point (0G, 0A in 7 Serie B appearances). <strong>The central question — does his creative output survive a move away from Udine's system? — cannot be answered from Tier 1 data.</strong> The Catanzaro sample suggests a drop-off, but it's too small to be conclusive. <strong>Tier 3 video assessment is required</strong> to evaluate his mental toughness, creative risk-taking, and positional intelligence in <em>both</em> contexts — Udinese and Catanzaro — and compare them directly. <strong>This 6.5 is a placeholder estimate — do not use for decisions.</strong> Best deployed as a <strong>creative #10 in a system that protects his physical limitations</strong>, but <strong>the mental toughness question is the entire ballgame here.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>🎯</span> <strong>RECOMMENDED GRADING REGISTER — NO FOOTAGE ATTACHED YET.</strong> Links weren't provided this round, so below is a suggested 5-match set built specifically around the scout question (MTI) and the match-balance protocol. This set tests the "away from Udine's system" question directly by comparing Udinese (home system) to Catanzaro (loan) performances.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Priority 1-2 — Udinese Home-System Sample (The Control) <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">1</div></div>
+      <div class="match-info">
+        <div class="match-teams">Udinese 3-1 Genoa (May 25, 2025)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">Serie A · Home · Win</span>
+          <span class="match-badge badge-suggest">1G, 1A — his best match</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Pafundi's defining performance — scored the opener and assisted the second in a comfortable home win. <strong>This is the "home system" baseline.</strong> If MTI is a real concern, his performance away from Udine should look measurably different from this match.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">2</div></div>
+      <div class="match-info">
+        <div class="match-teams">Udinese vs Cagliari (Coppa Italia, Nov 1, 2023)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-champ">Coppa Italia · Home</span>
+          <span class="match-badge badge-suggest">Penalty shootout experience</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Pafundi appeared in this Coppa Italia match — the very match in the hero photo. Includes a penalty shootout, a genuine pressure test. <strong>This is the "adversity at home" case.</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin:28px 0 16px;">Priority 3-5 — Catanzaro Away-System Sample (The Test) <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">3</div></div>
+      <div class="match-info">
+        <div class="match-teams">Catanzaro vs Empoli (Nov 17, 2025)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Serie B · Home · Win</span>
+          <span class="match-badge badge-suggest">He started (45 min)</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Pafundi started this match — one of his three starts for Catanzaro. This is the "new system, familiar venue" test. Did his home-system creativity carry over, or did it already look different?
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">4</div></div>
+      <div class="match-info">
+        <div class="match-teams">Palermo vs Catanzaro (Nov 10, 2025)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Serie B · Away</span>
+          <span class="match-badge badge-suggest">Away, southern derby</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Priority away match.</strong> Palermo-Catanzaro is a genuine regional derby. If Pafundi's output drops here — away, hostile crowd, unfamiliar system — that's exactly the evidence MTI exists to capture.
+        </div>
+      </div>
+    </div>
+    <div class="match-card">
+      <div class="match-thumb"><div class="rec-icon">5</div></div>
+      <div class="match-info">
+        <div class="match-teams">Catanzaro vs Sassuolo (Dec 2025)</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Serie B · Home</span>
+          <span class="match-badge badge-suggest">Top-third opposition</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Top-third opposition at home — rounds out the register with a different game state. Gives you a second data point in Catanzaro's system to compare against the Empoli start.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Why This Set</h3>
+    <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+      <p style="margin-bottom:10px;"><strong style="color:var(--text-primary);">The MTI test is built into the comparison:</strong> #1 is the best-case Udinese performance (the control); #2 is Udinese under pressure (adversity at home); #3 is Catanzaro at home (new system, same venue); #4 is Catanzaro away (new system + hostile venue); #5 is Catanzaro vs strong opposition (new system, high-level opponent).</p>
+      <p style="color:var(--text-tertiary);">Direct relevance to the scout question: <strong>Does creative output drop when the system changes?</strong> Compare #1 vs #3 and #4. <strong>Does mental toughness hold up under pressure?</strong> Compare #2 vs #4. Score MTI, CRK, and OBI_P first if time is limited — they're the sub-metrics most directly tied to the scout question.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.5;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar — T1 stat-based (no T3 data exists yet)
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['G+A (Udinese)','G+A (Catanzaro)','Serie A Apps','Serie B Apps','Min/App','Discipline'],
+      datasets: [{
+        label: 'Pafundi (T1)',
+        data: [3, 0, 5, 7, 29, 2],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Serie B AM avg (indicative)',
+        data: [2, 2, 0, 10, 45, 1],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Menotti','Guardiola','Ancelotti','Gasparini','Simeone'],
+    datasets: [{
+      label: 'Pafundi (Proxy)',
+      data: [8.2, 7.4, 6.8, 6.2, 5.0],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#27ae60','#6CABDD','#27ae60','#8b1a1a','#c8102e'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Scout 50% (0/16)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
