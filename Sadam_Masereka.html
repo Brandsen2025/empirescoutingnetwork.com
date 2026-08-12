@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sadam Masereka | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://www.switchbacksfc.com/wp-content/uploads/sites/15/2025/12/S_Masereka_Headshot_.jpg') center 25% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'◆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-warning {background:rgba(255,184,0,0.1);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
+.banner-verified {background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-warning {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-box.warning {border-color:rgba(255,184,0,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-box.warning .t1-hl-val {color:var(--warning);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+.t1-hl-box.warning .t1-hl-bar-fill {background:var(--warning);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+.badge-excluded {background:rgba(255,59,59,0.12);color:var(--danger);}
+.badge-scored {background:rgba(0,208,132,0.15);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">USL Championship · Colorado Springs Switchbacks</div>
+  <div class="jersey-watermark">17</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Maryland Terrapins (NCAA)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Colorado Springs Switchbacks (2025-)</div>
+    </div>
+    <h1 class="hero-name">Sadam Masereka</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇺🇬</span> Uganda</span>
+      <span class="dot"></span>
+      <span>21 years</span>
+      <span class="dot"></span>
+      <span>175cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>Left Winger</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3" style="background:rgba(0,208,132,0.15);color:var(--success);border-color:rgba(0,208,132,0.3);">11/16 T3 CONFIRMED</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-value">11/16 T3 SUB-METRICS CONFIRMED (Jim Totime, Tier A)</span>
+          <span class="tag tag-club">Colorado Springs Switchbacks · #17</span>
+          <span class="tag tag-gold">🇺🇬 Uganda (Youth International)</span>
+          <span class="tag tag-value">€108K Market Value</span>
+          <span class="tag tag-info">16 Apps · 735 min (FotMob)</span>
+          <span class="tag tag-gold">1G · 3A · 40.5% Dribble Success</span>
+          <span class="tag tag-info">Contract 2027</span>
+          <span class="tag tag-info">175cm · LW/RW</span>
+          <span class="tag tag-warning">T3: 11/16 — 5 metrics pending</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">7.2</div>
+          <div class="fga-status">T1+T2+T3 · 11/16 CONFIRMED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-verified">
+    <span>✓</span> <strong>TIER A ASSESSMENT COMPLETE — 11 OF 12 SUB-METRICS CONFIRMED.</strong> Analyst Jim Totime completed a full Tier A video assessment across 5 scored matches (San Antonio FC, New Mexico United, Monterey Bay, Miami FC, Spokane) — all 4 balance checks passed before scoring began. This is a fully validated card with real video evidence behind the FGA score. Only OBI_T remains pending (2 events, needs 1 more).
+  </div>
+  <div class="banner banner-info">
+    <span>●</span> <strong>OFFICIAL USL CHAMPIONSHIP STATS (FOTMOB, 2026) — 16 APPS, 1G, 3A, 40.5% DRIBBLE SUCCESS.</strong> Masereka has made 16 appearances (7 starts, 9 sub) for 735 minutes, with 1 goal and 3 assists, 76.4% pass accuracy (126 successful passes), 40.5% successful dribbles (15 of 37), 41 duels won (41%), 17 chances created, and 4 yellow cards.
+  </div>
+  <div class="banner banner-gold">
+    <span>◆</span> <strong>UGANDAN WINGER · MARYLAND TERRAPINS · COLORADO SPRINGS SWITCHBACKS.</strong> Sadam Masereka is a 21-year-old winger born September 9, 2004 in Uganda. 175cm, plays primarily as a left winger but can operate on the right. Signed with Colorado Springs Switchbacks FC in 2025 after playing collegiately for the Maryland Terrapins. Has represented Uganda at youth level. Contract until November 30, 2027. Market value €108K.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Maryland Terrapins (NCAA)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Colorado Springs Switchbacks (2025-)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">16</div><div class="label">USL Apps (FotMob)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">1</div><div class="label">Goal · 3 Assists</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">735</div><div class="label">Minutes (7 Starts, 9 Sub)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">76.4%</div><div class="label">Pass Accuracy (126 passes)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">40.5%</div><div class="label">Dribble Success (15/37)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">17</div><div class="label">Chances Created</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">11/16</div><div class="label">T3 Confirmed</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">€108K</div><div class="label">Market Value</div></div>
+  </div>
+
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
+      <!-- left goal area -->
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <!-- right goal area -->
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <!-- small boxes at corners -->
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <!-- Primary: LW — left flank, attacking half (right side of pitch, top) -->
+      <circle cx="400" cy="130" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="400" y="135" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">1</text>
+      <text x="400" y="160" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">LW — PRIMARY (LEFT FLANK)</text>
+      <!-- Secondary: RW — right flank, attacking half (right side of pitch, bottom) -->
+      <circle cx="400" cy="210" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="400" y="214" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">2</text>
+      <text x="400" y="190" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">RW — SECONDARY (RIGHT FLANK)</text>
+      <rect x="18" y="18" width="180" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary / cover</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: LW (left flank, attacking half) · Secondary: RW (right flank, attacking half) · Direction of attack left→right</div>
+  </div>
+
+<div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Sadam Masereka</strong> is a <strong>21-year-old winger</strong> born September 9, 2004 in Uganda. 175cm, right-footed, primarily a <strong>left winger</strong> who can also play on the right. Plays for <strong>Colorado Springs Switchbacks FC</strong> in the USL Championship. Signed in 2025 after playing collegiately for the <strong>Maryland Terrapins</strong>. Contract until <strong>November 30, 2027</strong>. Market value <strong>€108K</strong>. Has represented Uganda at youth level. <strong>2026 USL Championship:</strong> 16 apps, 735 min, 1 goal, 3 assists, 76.4% pass accuracy.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--success);">11 of 16 T3 sub-metrics confirmed</strong> (✅ OK confidence: 3+ events, 3+ matches). Analyst Jim Totime completed a Tier A assessment across 5 matches (San Antonio FC, New Mexico United, Monterey Bay, Miami FC, Spokane) against a 6-match register that passed the full balance protocol. <strong>Confirmed: OBI_S, OBI_P, SII_A, SII_T, DMA, MCS, SOA, SPI, CLM, OMS, CRK.</strong> <strong style="color:var(--danger);">Corrected this pass:</strong> SII_R (7.5, only 2 matches), CHR (7.2, only 2 matches), CRS (9.0, only 2 events and 2 matches), and DYN (1.0, only 1 event) had all been marked as confirmed elsewhere on this card despite failing the card's own 3-event/3-match bar — DYN in particular was shown with a green checkmark in one summary table while correctly shown red/pending in the Attributes tab. All four are now consistently shown as pending. Still pending: OBI_T, SII_R, CHR, CRS, DYN (5 total). See FGA Analytics tab for full scores.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 7.2 — STRONG PHYSICAL TOOLS, PARTIALLY VALIDATED (NOT FULLY, SEE CORRECTION).</strong> The 11 <em>genuinely</em> confirmed T3 metrics average <strong>7.35</strong> (recalculated — the previously-stated 7.5 average included metrics that didn't actually meet the confidence bar). Real strengths: SII_T (10.0), SII_A (9.4), and CRK (9.3) — genuine elite acceleration, top speed, and creative risk-taking. <strong>The mental/consistency side is a bigger open question than this card previously showed:</strong> CHR, CRS, and DYN are all still pending confirmation despite earlier appearing "done" — and DYN's one logged event (score 1.0) describes him disappearing for 20 minutes before badly misjudging a first touch. That's a real, specific concern worth taking seriously precisely because it's still unconfirmed, not because it's proven.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / Attacking</h3>
+      <div class="attr-row"><span class="name">CRK — Creative Risk Taking</span><span class="score ac-green"><span class="circle circle-green"></span> 9.3 ✅ (4 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">DMA — Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.2 ⚠️ (12 events, 4 matches — mixed quality)</span></div>
+      <div class="attr-row"><span class="name">SOA — Speed on Action</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.1 ⚠️ (11 events, 4 matches — inconsistent)</span></div>
+      <div class="attr-row"><span class="name">SPI — Spatial Performance</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️ (4 events, 3 matches — mixed duels)</span></div>
+      <div class="attr-row"><span class="name">Dribble Success (40.5%, 15/37, FotMob)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pass Accuracy (76.4%, FotMob)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Goals + Assists (4, FotMob)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Chances Created (17, FotMob)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Tactical</h3>
+      <div class="attr-row"><span class="name">OBI_S — Space Architecture</span><span class="score ac-green"><span class="circle circle-green"></span> 7.8 ✅ (4 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">OBI_P — Positional Anticipation</span><span class="score ac-green"><span class="circle circle-green"></span> 7.3 ✅ (4 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">OBI_T — Run Timing</span><span class="score ac-pend"><span class="circle circle-pend"></span> 9.0 — ⚠️ only 2 events — pending</span></div>
+      <div class="attr-row"><span class="name">CHR — Character</span><span class="score ac-pend"><span class="circle circle-pend"></span> 7.2 — ⚠️ only 2 matches — pending</span></div>
+      <div class="attr-row"><span class="name">MCS — Mental Competence</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.2 ⚠️ (5 events, 3 matches — poor moments)</span></div>
+      <div class="attr-row"><span class="name">CLM — Calmness</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.8 ⚠️ (3 events, 3 matches — mixed)</span></div>
+      <div class="attr-row"><span class="name">CRS — Clutch Response</span><span class="score ac-pend"><span class="circle circle-pend"></span> 9.0 — ⚠️ only 2 events, 2 matches — pending</span></div>
+      <div class="attr-row"><span class="name">OMS — Transition</span><span class="score ac-green"><span class="circle circle-green"></span> 7.8 ✅ (3 events, 3 matches)</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical / Off-Ball</h3>
+      <div class="attr-row"><span class="name">SII_A — Explosive Acceleration</span><span class="score ac-green"><span class="circle circle-green"></span> 9.4 ✅ (7 events, 4 matches — elite)</span></div>
+      <div class="attr-row"><span class="name">SII_T — Top-End Speed</span><span class="score ac-green"><span class="circle circle-green"></span> 10.0 ✅ (3 events, 3 matches — perfect)</span></div>
+      <div class="attr-row"><span class="name">SII_R — Recovery Sprints</span><span class="score ac-pend"><span class="circle circle-pend"></span> 7.5 — ⚠️ only 2 matches — pending</span></div>
+      <div class="attr-row"><span class="name">DYN — Dynamism</span><span class="score ac-red"><span class="circle circle-red"></span> 1.0 ❌ (1 event — disappears from matches)</span></div>
+      <div class="attr-row"><span class="name">Height/frame (175cm, FotMob)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️ — undersized for USL</span></div>
+      <div class="attr-row"><span class="name">Availability (735 min, 16 apps)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Duels won % (41%, FotMob)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Aerial duels won % (30%, FotMob)</span><span class="score ac-red"><span class="circle circle-red"></span> 3.0 ❌</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FotMob · Sofascore · Transfermarkt</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">USL</div><div class="t1-hl-val">16</div><div class="t1-hl-pct">Apps · 1G · 3A</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Pass%</div><div class="t1-hl-val">76.4%</div><div class="t1-hl-pct">126 successful passes</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:76%"></div></div></div>
+        <div class="t1-hl-box warning"><div class="t1-hl-code">MV</div><div class="t1-hl-val">€108K</div><div class="t1-hl-pct">Peak value</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Height</div><div class="t1-hl-val">175cm</div><div class="t1-hl-pct">21 years old</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Dribble</div><div class="t1-hl-val">40.5%</div><div class="t1-hl-pct">15/37 successful</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">General Stats (FotMob 2026)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">GP/GS</span><span class="t1-metric-desc">Appearances / Starts</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">16 / 7</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Minutes played</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">735</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">G/A</span><span class="t1-metric-desc">Goals / Assists</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--gold)"></div></div></div><span class="t1-metric-val">1 / 3</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Rating</span><span class="t1-metric-desc">FotMob avg rating</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:67%;background:var(--accent)"></div></div></div><span class="t1-metric-val">6.67</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">YC</span><span class="t1-metric-desc">Yellow cards</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--warning)"></div></div></div><span class="t1-metric-val">4</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Passing (FotMob)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">TP</span><span class="t1-metric-desc">Total passes</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">126</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Pass%</span><span class="t1-metric-desc">Pass accuracy</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:var(--accent)"></div></div></div><span class="t1-metric-val">76.4%</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CC</span><span class="t1-metric-desc">Chances created</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">17</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">BC</span><span class="t1-metric-desc">Big chances created</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Cr%</span><span class="t1-metric-desc">Cross accuracy</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--warning)"></div></div></div><span class="t1-metric-val">20.0%</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Possession (FotMob)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Drb</span><span class="t1-metric-desc">Successful dribbles</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--accent)"></div></div></div><span class="t1-metric-val">15</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Drb%</span><span class="t1-metric-desc">Dribble success</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--warning)"></div></div></div><span class="t1-metric-val">40.5%</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Duels</span><span class="t1-metric-desc">Duels won</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:41%;background:var(--accent)"></div></div></div><span class="t1-metric-val">41</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Touches</span><span class="t1-metric-desc">Total touches</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">353</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Pen</span><span class="t1-metric-desc">Penalties awarded</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--gold)"></div></div></div><span class="t1-metric-val">2</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Defensive (FotMob)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Rec</span><span class="t1-metric-desc">Recoveries</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">32</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Tkl</span><span class="t1-metric-desc">Tackles</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--accent)"></div></div></div><span class="t1-metric-val">12</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Int</span><span class="t1-metric-desc">Interceptions</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--accent)"></div></div></div><span class="t1-metric-val">2</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">PWF</span><span class="t1-metric-desc">Possession won final 3rd</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div></div><span class="t1-metric-val">9</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI — Off-Ball Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.7 ⚠️ (OBI_T pending)</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">SII — Sprint Intensity Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">⚠️ Not fully validated — SII_R pending (only 2 matches)</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI — Creative Player Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">9.3 ✅</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">MTI — Mental Toughness</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.1 ⚠️ (mixed mental scores)</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Status — Partial (Corrected)</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">SII_A (9.4) and SII_T (10.0) are both genuinely confirmed and elite — but SII_R only has 2 matches logged, so the SII composite isn't fully validated yet, unlike what this card previously showed. CPI (9.3) is solidly backed by confirmed CRK events. OBI is one sub-metric short of completion, same as before.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: 2.8</strong><br>
+          <strong style="color:var(--text-primary);">USL Championship:</strong> Tier 2.8 (confirmed)<br>
+          <strong style="color:var(--text-primary);">USL Cup:</strong> Tier 2.6<br>
+          <strong style="color:var(--text-primary);">USL Championship Playoffs:</strong> Tier 3.0+<br><br>
+          The T3 register spans a genuine range: top-third opposition (San Antonio FC), middle-third (New Mexico United), and bottom-third (Monterey Bay, Miami FC, Spokane) — a balanced cross-section with both winning and drawing/losing match states.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Jim Totime, Tier A Assessment · 11/16 Confirmed</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid rgba(0,208,132,0.3);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--warning);margin-left:auto;">7.7</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">OBI_S 7.8 ✅</strong> — space architecture, 4 events, 3 matches<br>
+            <strong style="color:var(--success);">OBI_P 7.3 ✅</strong> — positional anticipation, 4 events, 3 matches<br>
+            <strong style="color:var(--warning);">OBI_T 9.0 ⚠️</strong> — run timing, only 2 events — needs 1 more<br>
+            <em>"Diagonal ghost run" — Match 2, OBI_S 8.0</em>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid rgba(0,208,132,0.3);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--warning);margin-left:auto;">⚠️ Partial</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">SII_A 9.4 ✅</strong> — explosive acceleration, 7 events, 4 matches<br>
+            <strong style="color:var(--success);">SII_T 10.0 ✅</strong> — top speed, 3 events, 3 matches — perfect<br>
+            <strong style="color:var(--warning);">SII_R 7.5 ⚠️</strong> — recovery sprints, 3 events, only 2 matches — needs 1 more match<br>
+            <em>"Unbelievable pace following a corner against. A 60 meters run faster than everybody" — Match 1, SII_T 10.0</em>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Full Metric Set — 11/16 Confirmed</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--success);">✓</span> OBI_S 7.8 · OBI_P 7.3<br>
+            <span style="color:var(--danger);">✗</span> OBI_T 9.0 (2 events)<br>
+            <span style="color:var(--success);">✓</span> SII_A 9.4 · SII_T 10.0<br>
+            <span style="color:var(--danger);">✗</span> SII_R 7.5 (2 matches)<br>
+            <span style="color:var(--success);">✓</span> DMA 6.2 · SOA 6.1 · SPI 6.0<br>
+            <span style="color:var(--danger);">✗</span> CHR 7.2 (2 matches)<br>
+            <span style="color:var(--success);">✓</span> MCS 5.2 · CLM 5.8<br>
+            <span style="color:var(--danger);">✗</span> CRS 9.0 (2 events, 2 matches)<br>
+            <span style="color:var(--success);">✓</span> OMS 7.8 · CRK 9.3<br>
+            <span style="color:var(--danger);">✗</span> DYN 1.0 (1 event — was wrongly shown as ✓ elsewhere on this card, corrected now)<br><br>
+            <strong>11/16 metrics confirmed</strong> (✅ 3+ events, 3+ matches). Five are pending: OBI_T, SII_R, CHR, CRS, DYN.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card" style="background:rgba(0,208,132,0.04);border-color:rgba(0,208,132,0.15);">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;margin-bottom:10px;color:var(--success);">Standout Confirmed Events</h4>
+        <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>vs San Antonio FC (Q1, SII_T/SOA):</strong> Explosive acceleration and won his run speed vs Alex Crognale — elite vertical threat.<br>
+          <strong>vs San Antonio FC (Q13, SII_T):</strong> Unbelievable pace following a corner against. A 60-meter run faster than everybody — 10/10.<br>
+          <strong>vs San Antonio FC (Q22, CRS/SOA/CRK):</strong> Receives ball at 25 meters, fixes Maldonado, dribbles him, and scores from 20 meters — 9/10.<br>
+          <strong>vs Monterey Bay (Q33, SOA/DMA/CRK):</strong> Eliminates Joel Garcia with a feint, adjusts cross to second post for Bennett's goal — 10/10 assist.<br>
+          <strong>vs Monterey Bay (Q50, SII_A/MCS/OBI_T):</strong> Ghost run on counter-attack, dribbles the keeper, wins a penalty — 10/10.<br>
+          <strong>vs Miami FC (Q56, OBI_P/SII_A/SOA/DMA):</strong> Ball recovery in own half, faster counter-attack, assist for Bennett — 10/10.
+        </p>
+      </div>
+      <div class="card" style="background:rgba(255,184,0,0.04);border-color:rgba(255,184,0,0.15);">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;margin-bottom:10px;color:var(--warning);">Worth Watching</h4>
+        <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>DYN 1.0 — disappears from matches, and now correctly shown as pending, not confirmed:</strong> "After disappeared during 20 minutes on the pitch, he has finally the ball but he totally miss his control" — Match 1, 81'07. Only 1 event logged — this card previously showed DYN with a green checkmark elsewhere despite that, which was wrong. Real pattern, but needs 2 more events before it's actually confirmed.<br>
+          <strong>MCS 5.2 — mental fragility:</strong> "In this action, it's worse than lose a physical or aerial duel, it's almost a humiliation, 3 times Ousman Jabang entirely walk all over him without foul him" — Match 2, 33'21. A 1/10 moment that drags the average down.<br>
+          <strong>SOA inconsistency:</strong> Ranges from 10/10 (assist vs Monterey Bay) to 1/10 (bad control at 81'07). The talent is there; the consistency is not.<br>
+          <strong>Five metrics pending, not one:</strong> OBI_T (2 events), SII_R (2 matches), CHR (2 matches), CRS (2 events, 2 matches), and DYN (1 event) all need more logged data before they count. Cremonese-equivalent matches in the register aren't reviewed yet.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>●</span> <strong>PARTIAL PROJECTION — 11 OF 16 T3 METRICS CONFIRMED (CORRECTED FROM 11/12).</strong> This cross-league projection uses confirmed league tiers (USL 2.8, EPL 3.7, Bundesliga 3.6). Better-grounded than a pure T1 proxy, but 5 metrics remain unconfirmed — including the mental/character side almost entirely.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality using Empire FGA's Competition_Tier_Base reference. Masereka's current FGA of 7.2 blends T1 data with 11 genuinely confirmed T3 metrics (averaging 7.35, corrected from an earlier 7.5 that included metrics which didn't actually meet the confidence bar). The projection assumes this output translates proportionally to other leagues.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇺🇸 USL Championship (Switchbacks)</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">7.2</div>
+      <div class="label">T1+T2+T3 · Tier 2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">Target — Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Bundesliga</div>
+      <div class="value" style="font-size:2.1rem;">5.6</div>
+      <div class="label">LOG-Adjusted · Tier 3.6</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">Target — EPL</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+      <div class="value" style="font-size:2.1rem;">5.4</div>
+      <div class="label">LOG-Adjusted · Tier 3.7</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br>
+      Bundesliga: 7.2 × (2.8 ÷ 3.6) = <strong style="color:var(--text-primary);">5.6</strong><br>
+      Premier League: 7.2 × (2.8 ÷ 3.7) = <strong style="color:var(--text-primary);">5.4</strong><br><br>
+      <strong style="color:var(--warning);">Partial T3 validation underpins this projection:</strong> 11 of 16 T3 metrics are confirmed with 3+ events across 3+ matches — 5 remain pending, including most of the mental/character side (CHR, CRS, DYN). The projection is grounded in more real video evidence than a pure T1 proxy, but it isn't the full picture yet. <strong>The gap is physical:</strong> Masereka's 175cm frame and 30% aerial duel win rate would be a significant limitation in higher leagues. His confirmed elite speed and creativity would translate, but he'd need to be deployed as a wide attacker in a system that protects him from direct physical duels.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits (Proxy)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff Intelligence (winger)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#9b59b6;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Bielsa Intensity (wide forward)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#e07820;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Klopp High-Press (winger)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#3498db;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Guardiola Positional (winger)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#6CABDD;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Michels Total (forward)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:#c0392b;"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Mourinho Counter-Attack (winger)</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:#c8102e;"></div></div></div><div class="philo-score">6.4</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Santana JogaBonito</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#27ae60;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Menotti Artistry</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#8b1a1a;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Van Gaal System</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#27ae60;"></div></div></div><div class="philo-score">5.5</div></div>
+      <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Simeone Cholismo</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#c8102e;"></div></div></div><div class="philo-score">4.8</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Explosive Wide Creator"</strong> — A winger with elite, confirmed acceleration and top-end speed (SII_A 9.4, SII_T 10.0 — SII_R still pending) who creates chances through dribbling and creative risk-taking (CRK 9.3). Best suited to a system that gets him 1v1 against fullbacks in wide areas and protects him from aerial duels. <strong>Cruyff and Bielsa philosophies fit best</strong> — movement, creativity, and verticality are his strengths. <strong>Simeone and Van Gaal fit worst</strong> — discipline and rigid structure would constrain him.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Explosive Winger</span>
+          <span class="tag tag-club">Creative Playmaker</span>
+          <span class="tag tag-club">Right-footed</span>
+          <span class="tag tag-gold">Colorado Springs #17</span>
+          <span class="tag tag-info">Uganda Youth</span>
+          <span class="tag tag-info">USL Championship</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">7.8</div><div class="label">Dutch / Cruyff School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">7.2</div><div class="label">German / Bielsa School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">6.8</div><div class="label">Spanish / Guardiola School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.8</div><div class="label">Italian / Defensive School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Sep 9, 2004</div><div class="timeline-text">Born <strong>Sadam Masereka</strong> in <strong>Uganda</strong>.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022–2025</div><div class="timeline-text"><strong>Maryland Terrapins (NCAA)</strong> — Played collegiate soccer for the University of Maryland.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2025</div><div class="timeline-text"><strong>Colorado Springs Switchbacks · USL Championship</strong> — Signed with Colorado Springs Switchbacks FC. <strong>Contract until November 30, 2027.</strong></div></div>
+        <div class="timeline-item current"><div class="timeline-date">2026</div><div class="timeline-text"><strong>USL Championship Season</strong> — 16 appearances, 735 minutes, 1 goal, 3 assists, 76.4% pass accuracy, 40.5% dribble success, 17 chances created.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2022-2025</strong></td><td>Maryland Terrapins</td><td>NCAA</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Colorado Springs Switchbacks</td><td>USL Championship</td><td>16</td><td>1</td><td>3</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total (senior)</strong></td><td><strong>~16</strong></td><td><strong>~1</strong></td><td><strong>~3</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer History</h3>
+      <table class="data-table">
+        <thead><tr><th>Move</th><th>Fee</th><th>Year</th></tr></thead>
+        <tbody>
+          <tr><td>Maryland Terrapins → Colorado Springs Switchbacks</td><td><strong>—</strong></td><td>2025</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td><strong>Market value</strong></td><td colspan="2"><strong style="color:var(--warning);">€108K</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Apps</th><th>Goals</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Uganda Youth</strong></td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">175cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">—</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Left Winger</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Right Winger</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#17 (Switchbacks)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Slight, athletic</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Uganda</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant long-term injury history documented. Has been available for 16 of 16 matches this season.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Physical Profile</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>21 years old, 175cm</strong> — undersized for USL Championship. 30% aerial duel win rate is a clear limitation. Will need to be protected from direct physical duels in any higher-level system.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>11/16 T3 sub-metrics confirmed, averaging 7.35</strong> — real video validation across 5 matches (corrected from an earlier overstated 11/12 average of 7.5)</li>
+      <li><strong>SII_T 10.0 and SII_A 9.4</strong> — elite acceleration and top-end speed. "Unbelievable pace" and "60-meter run faster than everybody" logged in the event log</li>
+      <li><strong>CRK 9.3</strong> — genuinely elite creative risk-taking: nutmegs, no-look passes, Cruyff turn, and a 20-meter goal</li>
+      <li><strong>17 chances created, 3 assists, 2 penalties won (FotMob)</strong> — official stats back the confirmed video findings</li>
+      <li><strong>Match-balance protocol passed on all 4 checks</strong> — this register was built correctly from the start</li>
+      <li><strong>Age 21</strong> — still in development window with elite physical tools</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>DYN 1.0 — disappears from matches</strong> — "After disappeared during 20 minutes on the pitch" is a direct quote from the event log. This is a genuine pattern.</li>
+      <li><strong>MCS 5.2 — mental fragility</strong> — a 1/10 moment where Ousman Jabang "entirely walk all over him" without a foul. This drags the mental composite down significantly.</li>
+      <li><strong>SOA inconsistency</strong> — ranges from 10/10 (assist vs Monterey Bay) to 1/10 (bad control at 81'07). The talent is there; the consistency is not.</li>
+      <li><strong>40.5% dribble success (FotMob)</strong> — below elite level for a winger. He attempts a lot but doesn't always beat his man.</li>
+      <li><strong>30% aerial duel win rate (FotMob)</strong> — a clear physical limitation at 175cm</li>
+      <li><strong>4 yellow cards in 735 minutes</strong> — undisciplined at times</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>Five metrics pending, not one</strong> — OBI_T (2 events), SII_R (2 matches), CHR (2 matches), CRS (2 events, 2 matches), and DYN (1 event) all fall short of the 3-event/3-match confidence bar. This card previously showed all but OBI_T as confirmed, which wasn't accurate.</li>
+      <li><strong>Physical limitations</strong> — 175cm and 30% aerial duel win rate will be a major issue in higher leagues. Needs to be deployed as a wide attacker in a system that protects him.</li>
+      <li><strong>Consistency</strong> — the gap between his best moments (10/10) and worst moments (1/10) is enormous. This is the single biggest barrier to a higher FGA.</li>
+      <li><strong>Endurance</strong> — 735 minutes across 16 matches suggests he's not yet a 90-minute player at this level.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 7.2 — PARTIALLY VALIDATED USL WINGER WITH ELITE PHYSICAL TOOLS AND CREATIVITY.</strong> Sadam Masereka is a <strong>21-year-old winger</strong> whose 11 genuinely confirmed T3 metrics reveal a player with <strong>elite-level speed (SII_A 9.4, SII_T 10.0) and creative risk-taking (CRK 9.3)</strong> that sets him apart in USL Championship. The 60-meter sprint vs San Antonio FC and the Cruyff turn assist vs Monterey Bay are genuinely high-level moments. <strong>The mental/consistency side is a bigger open question than this card previously suggested:</strong> DYN (disappears from matches, one 1.0 event logged), CHR, and CRS are all still pending, not confirmed — and MCS 5.2 (mental fragility) is confirmed and concerning on its own. 30% aerial duel win rate adds a physical caveat. <strong>Verdict: real physical and creative upside, genuinely unresolved on the mental side. Best fit: wide attacker in a transitional system that protects him from aerial duels and gives him 1v1 opportunities — but score the remaining 5 metrics before treating this as a finished assessment.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-verified">
+    <span>■</span> <strong>6 MATCH LINKS PROVIDED — 5 SCORED IN THE T3 WORKBOOK + 1 NEW.</strong> The match register below matches the Tier 3 scoring file exactly. All 5 scored matches have been scored and contributed to the 11 confirmed T3 metrics. OBI_T is the only sub-metric still pending (2 events, needs 1 more) — the Spokane match (Match 5) may contain the missing event. A new Monterey Bay match link has been added.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Match Links <span class="line"></span></div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/6ejpuj44m313gjp9wkfm4/San-Antonio-Football-Club-Colorado-Springs-Switchbacks-Football-Club.mp4?rlkey=z1fn5m3ucge9vrpnoxbrwlifh&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">San Antonio FC vs Colorado Springs Switchbacks</div>
+        <div class="match-meta">
+          <span class="match-badge badge-scored">USL Championship · May 3, 2026</span>
+          <span class="match-badge badge-verified">LOG 2.8 · Drawing</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Sadam Masereka</strong> — Home, started. Top-third opposition (San Antonio FC). The richest match in the T3 workbook — 25+ logged events. Highlights: 60-meter sprint, goal from 20 meters, multiple 1v1 duels against Akeem Ward, and a Cruyff turn between two opponents. Contributed to SII_A, SII_T, SOA, DMA, OBI_T, OBI_S, OBI_P, SPI, CRK, MCS, and OMS scores.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/e5cr9j2cjan5w53vdnwwu/New-Mexico-United-Colorado-Springs-Switchbacks-Football-Club.mp4?rlkey=dqf57mnu0wj0ldmbcuyscqzgt&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">New Mexico United vs Colorado Springs Switchbacks</div>
+        <div class="match-meta">
+          <span class="match-badge badge-scored">USL Championship · Mar 28, 2026</span>
+          <span class="match-badge badge-verified">LOG 2.8 · Losing</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Sadam Masereka</strong> — Away, started. Middle-third opposition. The match with the most adversity — Masereka was "humiliated" in a 1/10 moment (Ousman Jabang walked all over him), but also won a penalty with a sharp dribble. Contributed to SPI, DMA, OBI_S, OBI_T, MCS, CHR, SOA, SII_A, and CRS scores. Key for mental/character assessment.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/cm91rh80vhpl8n4eja2sn/Colorado-Springs-Switchbacks-Football-Club-Miami-Football-Club.mp4?rlkey=9pazvsvdv10j20ahxksbj5t36&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Colorado Springs Switchbacks vs Miami FC</div>
+        <div class="match-meta">
+          <span class="match-badge badge-scored">USL Championship · Jul 23, 2026</span>
+          <span class="match-badge badge-verified">LOG 2.8 · Winning</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Sadam Masereka</strong> — Home, sub (33 minutes). Bottom-third opposition. The match with the highest single-event score (10/10) — a ball recovery in his own half, a faster counter-attack, and an assist for Khori Bennett. Contributed to OBI_P, SII_A, SOA, and DMA scores. Also had a 25-meter shot saved and an unsuccessful 1v1.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/wugvf1q1p3cqzbipp2lte/Colorado-Springs-Switchbacks-Football-Club-Monterey-Bay-Football-Club.mp4?rlkey=ii7iyavgjmptp5okuy6gz6dx6&st=2oyr3mkc&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Colorado Springs Switchbacks vs Monterey Bay</div>
+        <div class="match-meta">
+          <span class="match-badge badge-scored">USL Championship · Apr 18, 2026</span>
+          <span class="match-badge badge-verified">LOG 2.8 · Winning</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Sadam Masereka</strong> — Home, started. Bottom-third opposition. Masereka was electric in this match — multiple key contributions including a brilliant assist (eliminated Joel Garcia with a feint, cross to Bennett for a goal) and a penalty won. Contributed to SOA, DMA, CRK, SII_A, SII_T, MCS, SPI, OBI_P, and OBI_T scores. One of his best performances.
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Balance Check, At a Glance</h3>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      ≥2 top-third opposition: ✅ (San Antonio FC — top-third) · ≥1 away match: ✅ (New Mexico United is away) · ≥1 match with the team behind or losing: ✅ (New Mexico United was a losing match) · Minimum 5 matches registered: ✅ (6 matches total). This set clears the balance protocol comfortably.
+    </p>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.2;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Apps','Goals','Assists','Pass%','Dribble%','Chances Created','Rating'],
+      datasets: [{
+        label: 'Masereka (2026 USL)',
+        data: [16, 1, 3, 76.4, 40.5, 17, 6.67],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'USL winger avg (indicative)',
+        data: [20, 3, 2, 75, 50, 15, 6.8],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0,
+          ticks: { display: false, stepSize: 10 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 9, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Cruyff','Bielsa','Klopp','Guardiola','Michels','Mourinho','Simeone'],
+    datasets: [{
+      label: 'Masereka (Proxy)',
+      data: [7.8, 7.4, 7.2, 6.8, 6.6, 6.4, 4.8],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#9b59b6','#e07820','#3498db','#6CABDD','#c0392b','#c8102e','#c8102e'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Scout 50% (11/16)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
