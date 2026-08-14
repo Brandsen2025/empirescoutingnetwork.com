@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anton Gaaei | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#C8102E;--accent-dim:rgba(200,16,46,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}.hero-photo{position:absolute;inset:0;background:url('https://ichef.bbci.co.uk/ace/standard/965/cpsprodpb/e892/live/6e1e46b0-29b6-11f0-a252-f789f44e224b.jpg') center 25%/cover no-repeat;filter:brightness(0.5) saturate(0.9);transition:transform 8s ease;}.hero:hover .hero-photo{transform:scale(1.03);}.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(200,16,46,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#C60C30 33%,#fff 33%,#fff 66%,#C8102E 66%);z-index:10;}.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}.champ-badge::before{content:'🇩🇰';font-size:0.8rem;}.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}.hero-meta .flag{font-size:1.1rem;}.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}.tag-club{background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}.tag-dk{background:rgba(198,12,48,0.1);color:#C60C30;border:1px solid rgba(198,12,48,0.2);}
+.fga-dial-wrap{position:relative;width:140px;height:140px;flex-shrink:0;}.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;}.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}.tier-pill.t3{background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}.tab-bar-inner::-webkit-scrollbar{display:none;}.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}.tab-btn:hover{color:var(--text-secondary);}.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}.tab-panel{display:none;}.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}.banner-proxy{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}.banner-dk{background:rgba(198,12,48,0.08);border:1px solid rgba(198,12,48,0.2);color:#C60C30;}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.career-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}.career-node{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}.career-node.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}.career-arrow{color:var(--text-tertiary);font-size:0.8rem;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.attr-row:last-child{border-bottom:none;}.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}.ac-green{color:var(--success);}.ac-yellow{color:var(--warning);}.ac-red{color:var(--danger);}.ac-pend{color:var(--pending);}.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}.circle-green{background:var(--success);}.circle-yellow{background:var(--warning);}.circle-red{background:var(--danger);}.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.t1-metric-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}.t1-metric-row:last-child{border-bottom:none;}.t1-metric-code{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}.t1-metric-desc{font-size:0.78rem;color:var(--text-secondary);flex:1;}.t1-metric-bar-wrap{width:100px;flex-shrink:0;}.t1-metric-val{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+.t1-highlight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}.t1-hl-box{background:linear-gradient(135deg,rgba(200,16,46,0.18),rgba(251,191,36,0.06));border:2px solid rgba(200,16,46,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}.t1-hl-box.gold{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(200,16,46,0.06));border-color:rgba(251,191,36,0.5);}.t1-hl-code{font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}.t1-hl-val{font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}.t1-hl-box.gold .t1-hl-val{color:var(--gold);}.t1-hl-pct{font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}.t1-hl-bar{height:3px;background:rgba(200,16,46,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--silver);}.t1-hl-box.gold .t1-hl-bar-fill{background:var(--gold);}
+.t1-group{margin-bottom:14px;}.t1-group-head{font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(200,16,46,0.08);margin-bottom:8px;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}.philo-row:last-child{border-bottom:none;}.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(200,16,46,0.1);}.match-thumb{height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}.match-thumb::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(200,16,46,0.15)' stroke-width='2'/></svg>") center/80px no-repeat;}.match-thumb .play-icon{width:48px;height:48px;background:rgba(200,16,46,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}.match-card:hover .play-icon{transform:scale(1.1);background:var(--accent);}.play-icon svg{width:18px;height:18px;fill:white;margin-left:3px;}.match-info{padding:16px;}.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}.badge-pending{background:rgba(90,96,112,0.12);color:var(--pending);}.badge-champ{background:rgba(200,16,46,0.12);color:var(--silver);}.badge-loan{background:rgba(255,102,0,0.12);color:#FF6600;}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}.scout-verdict{background:var(--accent-dim);border:1px solid rgba(200,16,46,0.2);}.scout-verdict h4{color:var(--silver);}.scout-box ul{list-style:none;padding:0;margin:0;}.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;gap:8px;}.scout-box li::before{content:'—';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(200,16,46,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(200,16,46,0.15);border-radius:12px;padding:20px;}.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}.physical-item .label{color:var(--text-tertiary);}.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}.timeline-item{position:relative;padding-bottom:20px;}.timeline-item:last-child{padding-bottom:0;}.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(200,16,46,0.4);}.timeline-item.hist::before{background:var(--success);border-color:var(--success);}.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}.timeline-item.hist .timeline-date{color:var(--success);}.timeline-item.champ .timeline-date{color:var(--gold);}.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}.radar-container canvas{width:100%!important;height:100%!important;}
+@media(max-width:768px){.hero{height:440px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:110px;height:110px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.t1-metric-bar-wrap{width:60px;}.t1-metric-val{width:50px;}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">AFC Ajax · Eredivisie · Denmark</div>
+  <div class="jersey-watermark">3</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Viborg FF</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Ajax #3</div>
+    </div>
+    <h1 class="hero-name">Anton Gaaei</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇩🇰</span> Denmark</span>
+      <span class="dot"></span>
+      <span>23 years</span>
+      <span class="dot"></span>
+      <span>183cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>RB / RWB</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3">T3 Pending</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING · PILOT</span>
+          <span class="tag tag-club">AFC Ajax · #3</span>
+          <span class="tag tag-club">Contract 2028</span>
+          <span class="tag tag-dk">Denmark · Senior Debut 2025</span>
+          <span class="tag tag-dk">U21 Euro 2025</span>
+          <span class="tag tag-gold">UCL 2025-26 · 7 Apps</span>
+          <span class="tag tag-value">~€7.0M</span>
+          <span class="tag tag-info">Born: Viborg, Denmark</span>
+          <span class="tag tag-info">183cm Right-Footed RB</span>
+          <span class="tag tag-info">Agent: Family-managed</span>
+          <span class="tag tag-success">3 Yellow Cards · Elite Discipline</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">7.3</div>
+          <div class="fga-status">ESTIMATED · T1 ONLY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>ESTIMATED FGA 7.3 — PILOT CARD · T1 DATA ONLY · NO T3 FOOTAGE ASSESSED.</strong> All scores derived from FBref, FotMob, Transfermarkt, Sofascore, ESPN, and Wikipedia. No full-match isolated footage evaluated under ESN methodology. Directional estimates pending T3 confirmation.
+  </div>
+  <div class="banner banner-dk">
+    <span>🎯</span> <strong>THE DANISH OVERLAP ENGINE — Winger-converted attacking full-back with Champions League experience and Denmark senior debut.</strong> Born in <strong>Viborg, Denmark</strong> on <strong>19 November 2002</strong>. Youth product of <strong>Viborg FF</strong>, where he played as a winger before converting to right-back. Joined <strong>AFC Ajax in August 2023</strong> for a reported €4.5M. Has established himself as a <strong>regular starter</strong> (70+ apps) in the Eredivisie and <strong>Champions League</strong>. Earned his <strong>Denmark senior debut</strong> in June 2025. Son of former Viborg FF player <strong>Carsten Gaaei</strong>.
+  </div>
+  <div class="banner banner-gold">
+    <span>🏆</span> <strong>UCL 2025-26 · 7 APPS · 1 GOAL · 1 ASSIST.</strong> Gaaei has featured in <strong>7 Champions League matches</strong> during the 2025-26 season, scoring once and assisting once from right-back — elite attacking output at the highest club level. He also played in the <strong>U21 Euro 2025</strong> tournament for Denmark.
+  </div>
+  <div class="banner banner-info">
+    <span>📊</span> <strong>2025-26 AJAX SEASON — REGULAR STARTER WITH UCL FOOTBALL.</strong> <strong>28 Eredivisie apps (21 starts), 1 goal, 4 assists, 1,972 minutes</strong>. <strong>7 Champions League apps, 1 goal, 1 assist</strong>. <strong>82.3% pass completion</strong> with <strong>31 key passes</strong> (1.39/90) — elite for a full-back. <strong>100 crosses attempted</strong> with 15% completion. Only <strong>3 yellow cards</strong> — exceptional discipline for an attacking full-back.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Viborg FF Youth</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Viborg FF Pro</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Ajax #3</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7.3</div><div class="label">Est. FGA · T1 Only</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">78+</div><div class="label">Career Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">5</div><div class="label">Career Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">35</div><div class="label">Ajax Apps 25-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">7</div><div class="label">UCL Apps 25-26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">183cm</div><div class="label">Height</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">82.3%</div><div class="label">Pass Completion</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">3</div><div class="label">Yellow Cards</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Anton Gaaei</strong> is a <strong>23-year-old Danish right-back</strong> born on 19 November 2002, in Viborg, Denmark. At <strong>183cm</strong>, he is an <strong>athletic, right-footed</strong> full-back with a rare <strong>winger-to-fullback conversion profile</strong>. Developed in the <strong>Viborg FF academy</strong>, where he initially played as a winger before transitioning to right-back. Made his senior debut for Viborg in 2020 and established himself in the <strong>Danish Superliga</strong> (38 apps). Joined <strong>AFC Ajax in August 2023</strong> for a reported €4.5M and has since become a <strong>regular starter</strong> (70+ apps) in the Eredivisie and Champions League. Earned his <strong>Denmark senior debut</strong> in June 2025 against Lithuania. Son of former Viborg FF player <strong>Carsten Gaaei</strong>. Agent: <strong>Family-managed</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0/16 T3 metrics validated.</strong> No full-match isolated footage evaluated under ESN methodology. All 16 Empire FGA T3 metrics — OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, SPI, CLM, CRS, OMS, DYN, CRK, SOA — are pending scout review. <strong>Recommended T3 context:</strong> Ajax 2025-26 Eredivisie (LOG 2.8), Ajax 2025-26 Champions League (LOG 3.5), Denmark U21 Euro 2025 (LOG ~3.2), Denmark Senior vs Lithuania (LOG ~3.0). <strong>Priority T3 focus:</strong> OBI_T (run timing as overlapping full-back), SII_A (explosive acceleration from winger conversion), DMA (decision-making in final third — 100 crosses at 15%), CHR (character through Viborg→Ajax transition and Denmark senior debut), CLM (composure in Champions League vs. Eredivisie consistency).
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 7.3 (Absolute) — Attacking Full-Back · Denmark International · Champions League Regular · Ajax Starter · Elite Discipline.</strong> The T1 data reveals a <strong>modern attacking full-back</strong> with proven output at <strong>Champions League level</strong> (7 apps, 1 goal, 1 assist) and <strong>senior international validation</strong> (Denmark debut 2025). His <strong>31 key passes from right-back</strong> (1.39/90) and <strong>91st-percentile crossing volume</strong> demonstrate elite attacking contribution for his position. <strong>Only 3 yellow cards in 28 Eredivisie apps</strong> is exceptional discipline for an attacking full-back. However, his <strong>crossing completion (15%)</strong> suggests selection issues in the final third, and <strong>defensive positioning lapses under high press</strong> have been documented. At 23, he is entering his <strong>physical prime</strong> with a clear trajectory toward top-5 league interest. Cross-league projections suggest <strong>~5.5-5.7 in top-5 leagues</strong> at current level, with <strong>ceiling potential of 7.5+</strong> if crossing efficiency and defensive consistency improve. <strong>T3 validation of OBI_T, DMA, and SII_A is recommended before any €10M+ valuation.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — AFC Ajax <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Eredivisie Apps</strong></td><td>28</td><td>21 starts, 7 sub — regular starter</td><td>FotMob</td></tr>
+        <tr><td><strong>Eredivisie Goals</strong></td><td>1</td><td>0.05 G/90</td><td>FotMob</td></tr>
+        <tr><td><strong>Eredivisie Assists</strong></td><td>4</td><td>0.18 A/90 — strong for RB</td><td>FotMob</td></tr>
+        <tr><td><strong>Minutes</strong></td><td>1,972</td><td>70 min/app</td><td>FotMob</td></tr>
+        <tr><td><strong>Champions League Apps</strong></td><td>7</td><td>1 goal, 1 assist — elite output</td><td>FotMob</td></tr>
+        <tr><td><strong>FotMob Rating</strong></td><td>~6.8</td><td>Solid for attacking RB</td><td>FotMob</td></tr>
+        <tr><td><strong>Pass Completion</strong></td><td>82.3%</td><td>818/994 successful</td><td>FotMob</td></tr>
+        <tr><td><strong>Key Passes</strong></td><td>31</td><td>1.39/90 — elite for RB (72nd pct)</td><td>FotMob</td></tr>
+        <tr><td><strong>Crosses</strong></td><td>100</td><td>15% completion — volume high, efficiency low</td><td>FotMob</td></tr>
+        <tr><td><strong>Chances Created</strong></td><td>35</td><td>1.57/90 — elite for full-back</td><td>FotMob</td></tr>
+        <tr><td><strong>Successful Dribbles</strong></td><td>31</td><td>1.39/90 — winger DNA visible</td><td>FotMob</td></tr>
+        <tr><td><strong>Tackles</strong></td><td>35</td><td>1.57/90</td><td>FotMob</td></tr>
+        <tr><td><strong>Interceptions</strong></td><td>18</td><td>0.81/90</td><td>FotMob</td></tr>
+        <tr><td><strong>Clearances</strong></td><td>42</td><td>1.89/90</td><td>FotMob</td></tr>
+        <tr><td><strong>Duels Won</strong></td><td>98</td><td>52.1% win rate</td><td>FotMob</td></tr>
+        <tr><td><strong>Clean Sheets</strong></td><td>9</td><td>32% — 90th percentile for RB</td><td>FotMob</td></tr>
+        <tr><td><strong>Goals Conceded (on pitch)</strong></td><td>26</td><td>1.19/90 — solid for Ajax</td><td>FotMob</td></tr>
+        <tr><td><strong>Yellow Cards</strong></td><td>3</td><td>0.13/90 — elite discipline</td><td>FotMob</td></tr>
+        <tr><td><strong>Red Cards</strong></td><td>0</td><td>—</td><td>FotMob</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Ajax & Viborg Career Snapshot <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Period</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2020–2023</strong></td><td>Viborg FF</td><td>Danish Superliga</td><td>38</td><td>0</td><td>Winger-converted right-back</td></tr>
+        <tr><td><strong>2023–2025</strong></td><td>Ajax</td><td>Eredivisie</td><td>42</td><td>3</td><td>Regular starter, European apps</td></tr>
+        <tr><td><strong>2023–2025</strong></td><td>Jong Ajax</td><td>Eerste Divisie</td><td>8</td><td>0</td><td>Developmental minutes</td></tr>
+        <tr><td><strong>2025–2026</strong></td><td>Ajax</td><td>Eredivisie + UCL</td><td>35</td><td>2</td><td>28 league + 7 UCL, 5 assists</td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>78+</strong></td><td><strong>5</strong></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#6CABDD;"></div></div></div><div class="philo-score">8.0</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Cruyff / Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#C8102E;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Van Gaal / System Player</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#C8102E;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Klopp / High-Intensity FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#C60C30;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Ancelotti / Adaptive FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#00529F;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Bielsa / High-Press FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#e07820;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Sacchi / Pressing FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#e07820;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Simeone / Counter-Attacking FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#001C58;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Mourinho / Defensive FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003366;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Danish Overlap Engine — Winger-Converted Attacking Full-Back"</strong> — Gaaei's highest philosophy fit is Guardiola (8.0), reflecting his <strong>positional discipline within structure, 82.3% pass completion, and 31 key passes from right-back</strong>. Cruyff (7.8) reflects Ajax DNA and attacking freedom — his winger origins show in 1.39 dribbles/90 and willingness to overlap. Van Gaal (7.5) reflects his system-player development at Ajax. Klopp (7.4) fits his high-intensity running and recovery capacity. His <strong>lowest fits are Mourinho (5.5) and Simeone (5.8)</strong> — he is not a low-block, defensive full-back. The 100 crosses at 15% completion suggests volume over precision — a winger's instinct in a full-back's role. At 23, the development question is: can he refine his crossing selection while maintaining his elite volume and defensive discipline?
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Attacking Full-Back</span>
+          <span class="tag tag-club">Winger Converted</span>
+          <span class="tag tag-dk">Denmark International</span>
+          <span class="tag tag-dk">U21 Euro 2025</span>
+          <span class="tag tag-gold">UCL Regular</span>
+          <span class="tag tag-info">Crossing Volume</span>
+          <span class="tag tag-success">Elite Discipline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Defending / Physical · EST</h3>
+      <div class="attr-row"><span class="name">Tackling (35 tackles · 1.57/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Interceptions (18 · 0.81/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Clearances (42 · 1.89/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Duels Won (98 · 52.1%)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Clean Sheets (9 · 32%)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Goals Conceded (26 · 1.19/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Physical Presence (183cm, athletic)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Aerial Duels (moderate for RB)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Technical / Distribution · EST</h3>
+      <div class="attr-row"><span class="name">Pass Completion (82.3% · 818/994)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Key Passes (31 · 1.39/90 — 72nd pct)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Crossing (100 · 15% completion)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Chances Created (35 · 1.57/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Dribbling (31 successful · 1.39/90)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Ball Recovery (89 recoveries)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Build-Up Play (EST 7.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Final Third Contribution (EST 7.5)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Tactical · EST</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competence (EST 7.0)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CHR Character (Viborg→Ajax→Denmark)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (3 yellows · UCL debut)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (cross selection)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch Response (UCL goal + assist)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">COACH Coachability (position switch)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DYN Versatility (RB/RWB/winger)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Discipline (3 yellows · elite for position)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.5 ⚠️</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FotMob · Transfermarkt · Sofascore · Eredivisie · UCL</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">UCL</div><div class="t1-hl-val">7</div><div class="t1-hl-pct">Champions League Apps 25-26 · 1 Goal · 1 Assist</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:88%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">31</div><div class="t1-hl-val">31</div><div class="t1-hl-pct">Key Passes · 1.39/90 · 72nd Percentile for RB</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:82%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">35</div><div class="t1-hl-val">35</div><div class="t1-hl-pct">Chances Created · 1.57/90 — Elite for Full-Back</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:78%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">🇩🇰</div><div class="t1-hl-val">1</div><div class="t1-hl-pct">Denmark Senior Cap · Debut Jun 2025 vs Lithuania</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:85%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Disc</div><div class="t1-hl-val">3</div><div class="t1-hl-pct">Yellow Cards in 28 Apps · Elite Discipline for RB</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:90%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Attacking (Ajax 2025-26 — Eredivisie + UCL)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">KP</span><span class="t1-metric-desc">Key Passes · 31 (1.39/90)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:var(--gold)"></div></div></div><span class="t1-metric-val">31</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CC</span><span class="t1-metric-desc">Chances Created · 35 (1.57/90)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--gold)"></div></div></div><span class="t1-metric-val">35</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Crs</span><span class="t1-metric-desc">Crosses · 100 (15% completion)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">100</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Drib</span><span class="t1-metric-desc">Successful Dribbles · 31 (1.39/90)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--gold)"></div></div></div><span class="t1-metric-val">31</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">G+A</span><span class="t1-metric-desc">Goals + Assists · 5 (3 league + 2 UCL)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--gold)"></div></div></div><span class="t1-metric-val">5</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Defending (Ajax 2025-26)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Tkl</span><span class="t1-metric-desc">Tackles · 35 (1.57/90)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--accent)"></div></div></div><span class="t1-metric-val">35</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Int</span><span class="t1-metric-desc">Interceptions · 18 (0.81/90)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--accent)"></div></div></div><span class="t1-metric-val">18</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CS</span><span class="t1-metric-desc">Clean Sheets · 9 (32% — 90th pct)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--success)"></div></div></div><span class="t1-metric-val">9</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">GC</span><span class="t1-metric-desc">Goals Conceded (on pitch) · 26</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--success)"></div></div></div><span class="t1-metric-val">26</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Estimates</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">DMA — Decision Making (cross selection 15%)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CHR — Character (Viborg→Ajax→Denmark senior)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CLM — Calmness (3 yellows · UCL debut)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI_T — Run Timing (overlap engine)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">CRS — Clutch Response (UCL goal + assist)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Proxy Estimates</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are algorithmic estimates derived from Tier 1 statistical data. With 0/16 T3 metrics confirmed, these are unvalidated proxy scores. The Ajax 2025-26 season (LOG 2.8-3.5) is the primary data anchor — his 31 key passes, 35 chances created, and 5 goal contributions from right-back suggest an elite attacking full-back profile. The 100 crosses at 15% completion indicates volume over precision — a winger's instinct. Defensive metrics (35 tackles, 18 interceptions) are solid but not elite. The UCL goal and assist elevate his clutch profile. Denmark senior debut validates character. The composite attempts to weight attacking excellence against defensive and selection questions.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: 2.8</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> Eredivisie (Netherlands) — AFC Ajax<br>
+          <strong style="color:var(--text-primary);">European:</strong> Champions League (LOG 3.5)<br>
+          <strong style="color:var(--text-primary);">Previous League:</strong> Danish Superliga (Viborg FF, LOG 2.4)<br>
+          <strong style="color:var(--text-primary);">International:</strong> Denmark Senior (LOG ~3.0)<br>
+          <strong style="color:var(--text-primary);">Youth:</strong> Denmark U21 Euro 2025 (LOG ~3.2)<br>
+          <strong style="color:var(--success);">Confirmed in LOG_Reference</strong><br><br>
+          <strong style="color:var(--gold);">LOG 2.8</strong> represents a developmental/top-8 European tier. Gaaei has played in <strong>Danish Superliga (LOG 2.4)</strong>, <strong>Eredivisie (LOG 2.8)</strong>, and <strong>Champions League (LOG 3.5)</strong> at senior level, plus <strong>Denmark senior (LOG ~3.0)</strong>. His cross-league experience is broader than many 23-year-olds, and his output has been consistent — regular starter at Ajax, UCL contributor, Denmark international. The question for any top-5 league club is: can his attacking full-back profile translate to a higher defensive demand league?
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · LOG 2.8-3.5</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_T — PENDING (EST 7.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_S — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_P — PENDING (EST 6.5)</strong><br>
+            No video events recorded. T1 proxy from 31 key passes and 100 crosses suggests elite timing of overlapping runs (OBI_T). Space creation for teammates and positional anticipation in defensive transitions are unknown. The winger conversion suggests strong off-ball attacking movement.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A — PENDING (EST 7.0)</strong><br>
+            <strong style="color:var(--pending);">SII_T — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">SII_R — PENDING (EST 7.0)</strong><br>
+            No video events recorded. At 183cm with winger background, explosive acceleration is expected. T3 must verify whether his first-burst movement and recovery sprints are adequate for UCL-level opposition. The 31 successful dribbles suggest good close-control mobility.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">✗</span> All 16 metrics pending<br><br>
+            <strong>0/16 metrics confirmed</strong> across 0 matches<br><br>
+            <strong>Recommended:</strong> Ajax 2025-26 Eredivisie + UCL + Denmark U21 Euro 2025 + Denmark Senior vs Lithuania footage
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span> CROSS-LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 7.3. All figures are algorithmic estimates derived from Tier 1 data — no T3 validation has been completed. The Eredivisie (LOG 2.8) and Champions League (LOG 3.5) are confirmed Competition_Tier_Base entries. <strong>Critical:</strong> Gaaei is a 23-year-old with Danish Superliga, Eredivisie, Champions League, and Denmark senior international experience. These projections represent his current Ajax level.
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality. Gaaei's <strong style="color:var(--text-primary);">7.3 FGA is a composite estimate</strong> — weighted toward his Ajax 2025-26 season (28 Eredivisie apps, 7 UCL apps, 5 goal contributions) and Denmark senior debut, discounted slightly for his 15% crossing completion and moderate defensive metrics. The projections below show his <strong>current level</strong> and his <strong>theoretical ceiling</strong>.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Netherlands</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">7.3</div>
+      <div class="label">Ajax 2025-26 · Tier 2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.5</div>
+      <div class="label">At current level · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — La Liga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.5</div>
+      <div class="label">At current level · Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Serie A</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇮🇹 Italy</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.7</div>
+      <div class="label">At current level · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Germany</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.7</div>
+      <div class="label">At current level · Tier ~3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Ligue 1</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇫🇷 France</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.7</div>
+      <div class="label">At current level · Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Historical — Danish Superliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇰 Denmark</div>
+      <div class="value" style="font-size:2.1rem;color:var(--warning);">8.5</div>
+      <div class="label">Viborg FF · Tier 2.4</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(59,130,246,0.25);">
+      <div class="label" style="margin-bottom:6px;">Ceiling — UCL Level</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏆 Champions League</div>
+      <div class="value" style="font-size:2.1rem;color:var(--info);">5.8</div>
+      <div class="label">Current UCL output · Tier 3.5</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Cross-League Trajectory</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA x (Current League Tier / Target League Tier).<br><br>
+      <strong>Premier League (3.7):</strong> 7.3 x (2.8 / 3.7) = <strong style="color:var(--text-primary);">5.52</strong> → <strong>5.5</strong><br>
+      <strong>La Liga (3.7):</strong> 7.3 x (2.8 / 3.7) = <strong style="color:var(--text-primary);">5.52</strong> → <strong>5.5</strong><br>
+      <strong>Serie A (3.6):</strong> 7.3 x (2.8 / 3.6) = <strong style="color:var(--text-primary);">5.68</strong> → <strong>5.7</strong><br>
+      <strong>Bundesliga (~3.6):</strong> 7.3 x (2.8 / 3.6) = <strong style="color:var(--text-primary);">5.68</strong> → <strong>5.7</strong><br>
+      <strong>Ligue 1 (3.6):</strong> 7.3 x (2.8 / 3.6) = <strong style="color:var(--text-primary);">5.68</strong> → <strong>5.7</strong><br>
+      <strong>Danish Superliga (2.4):</strong> 7.3 x (2.8 / 2.4) = <strong style="color:var(--text-primary);">8.52</strong> → <strong>8.5</strong> (Viborg level)<br><br>
+      <strong style="color:var(--warning);">Cross-League Trajectory — The Gaaei Arc:</strong><br>
+      Gaaei has shown consistent upward trajectory across three environments:<br>
+      - <strong>Danish Superliga (Viborg FF):</strong> Winger-converted right-back, 38 apps — <strong>foundation and development</strong><br>
+      - <strong>Eredivisie (Ajax):</strong> Regular starter, 70+ apps, 7 UCL apps — <strong>established at top-10 European level</strong><br>
+      - <strong>Denmark Senior:</strong> Debut June 2025 vs Lithuania — <strong>international validation</strong><br><br>
+      Unlike players who thrive only in specific contexts, Gaaei has demonstrated <strong>adaptability</strong> — from Danish mid-table to Ajax pressure to UCL elite to international football. His 7.3 FGA is built on a broader base of evidence than many peers. The question for any top-5 league club is not whether he can adapt, but whether his <strong>crossing efficiency (15%)</strong> and <strong>defensive positioning under high press</strong> can improve to top-5 standards.<br><br>
+      <strong style="color:var(--info);">Ceiling Projection:</strong><br>
+      If his crossing selection improves (15% → 22-25%) and defensive consistency tightens, a <strong>7.5+ FGA at Ajax or equivalent level</strong> is realistic. This would translate to <strong>~5.7-6.0 in top-5 leagues</strong> — a starting right-back for a mid-table or Europa League-level club. His UCL experience (7 apps, 1 goal, 1 assist) already demonstrates he can perform at that level. However, if his crossing efficiency does not improve, he may plateau as a <strong>6.5-7.0 Eredivisie-level attacking full-back</strong> with limited cross-league portability.<br><br>
+      <strong style="color:var(--danger);">Read before sending to a club:</strong> This projection carries moderate variance due to Gaaei's crossing efficiency question. The UCL output is real, the Denmark senior debut is real, but the 15% crossing completion is also real. Any client-facing material must include both contexts and the T3 validation recommendation. Do not present 7.3 as guaranteed top-5 league starter quality without noting the development areas.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#6CABDD;"></div></div></div><div class="philo-score">8.0</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Cruyff / Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#C8102E;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Van Gaal / System Player</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#C8102E;"></div></div></div><div class="philo-score">7.5</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Klopp / High-Intensity FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#C60C30;"></div></div></div><div class="philo-score">7.4</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Ancelotti / Adaptive FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#00529F;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Bielsa / High-Press FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#e07820;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Sacchi / Pressing FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#e07820;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Simeone / Counter-Attacking FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#001C58;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Mourinho / Defensive FB</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#003366;"></div></div></div><div class="philo-score">5.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Danish Overlap Engine — Winger-Converted Attacking Full-Back"</strong> — Gaaei's highest philosophy fit is Guardiola (8.0), reflecting his <strong>positional discipline within structure, 82.3% pass completion, and 31 key passes from right-back</strong>. Cruyff (7.8) reflects Ajax DNA and attacking freedom — his winger origins show in 1.39 dribbles/90 and willingness to overlap. Van Gaal (7.5) reflects his system-player development at Ajax. Klopp (7.4) fits his high-intensity running and recovery capacity. His <strong>lowest fits are Mourinho (5.5) and Simeone (5.8)</strong> — he is not a low-block, defensive full-back. The 100 crosses at 15% completion suggests volume over precision — a winger's instinct in a full-back's role. At 23, the development question is: can he refine his crossing selection while maintaining his elite volume and defensive discipline?
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Attacking Full-Back</span>
+          <span class="tag tag-club">Winger Converted</span>
+          <span class="tag tag-dk">Denmark International</span>
+          <span class="tag tag-dk">U21 Euro 2025</span>
+          <span class="tag tag-gold">UCL Regular</span>
+          <span class="tag tag-info">Crossing Volume</span>
+          <span class="tag tag-success">Elite Discipline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:#6CABDD;">8.0</div><div class="label">Guardiola / Positional</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">7.8</div><div class="label">Cruyff / Total Football</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">7.5</div><div class="label">Van Gaal / System</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.5</div><div class="label">Mourinho / Defensive</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items:start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born 19 Nov 2002 · Viborg, Denmark</div><div class="timeline-text">Born in <strong>Viborg, Denmark</strong>. Son of former Viborg FF player <strong>Carsten Gaaei</strong>. Joined the <strong>Viborg FF academy</strong> as a winger, progressing through all youth ranks.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2020 · Viborg FF Pro Debut</div><div class="timeline-text"><strong>Senior debut for Viborg FF</strong> in the Danish Superliga. Initially played as a winger before transitioning to right-back under the club's development plan.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2020–2023 · Viborg FF · 38 Apps</div><div class="timeline-text"><strong>Established as a Danish Superliga regular.</strong> 38 appearances for Viborg FF, developing his defensive positioning while maintaining attacking instincts from his winger background.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">Aug 2023 · Ajax · €4.5M Transfer</div><div class="timeline-text"><strong>The Ajax move.</strong> Joined <strong>AFC Ajax</strong> for a reported €4.5M on a five-year contract. Seen as a modern attacking full-back with winger DNA. Quickly established himself in the first team.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2023–2025 · Ajax · 42 Apps · 3 Goals</div><div class="timeline-text"><strong>First-team regular.</strong> 42 Eredivisie appearances plus European outings. Began to feature in Europa/Conference League matches, adapting to Ajax's high-line system.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2023–2025 · Denmark U21 · 18 Caps</div><div class="timeline-text"><strong>Denmark U21 regular.</strong> 18 caps for Denmark U21, including <strong>U21 Euro 2025</strong> tournament participation. Key player in the right-back/right wing-back role.</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jun 2025 · Denmark Senior Debut</div><div class="timeline-text"><strong>Senior international breakthrough.</strong> Earned his <strong>first Denmark senior cap</strong> in a match against <strong>Lithuania</strong>. First player from Viborg FF academy to reach Denmark senior team in recent years.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2025–2026 · Ajax · UCL Regular</div><div class="timeline-text"><strong>Breakthrough season.</strong> 28 Eredivisie apps (21 starts), 4 assists. <strong>7 Champions League apps, 1 goal, 1 assist</strong> — elite output for a full-back. <strong>0/16 T3 metrics pending.</strong></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>Goals</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2020-21</strong></td><td>Viborg FF</td><td>Danish Superliga</td><td>12</td><td>0</td><td>Debut season</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>Viborg FF</td><td>Danish Superliga</td><td>14</td><td>0</td><td>Regular starter</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>Viborg FF</td><td>Danish Superliga</td><td>12</td><td>0</td><td>Final Viborg season</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>Ajax</td><td>Eredivisie</td><td>22</td><td>2</td><td>First Ajax season</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>Jong Ajax</td><td>Eerste Divisie</td><td>5</td><td>0</td><td>Developmental</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Ajax</td><td>Eredivisie</td><td>20</td><td>1</td><td>European apps</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Jong Ajax</td><td>Eerste Divisie</td><td>3</td><td>0</td><td>—</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Ajax</td><td>Eredivisie + UCL</td><td>35</td><td>2</td><td>28 league + 7 UCL, 5 assists</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>78+</strong></td><td><strong>5</strong></td><td>—</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Period</th><th>Caps</th><th>Goals</th><th>Honours</th></tr></thead>
+        <tbody>
+          <tr><td>Denmark U20</td><td>2022</td><td>2</td><td>0</td><td>—</td></tr>
+          <tr><td>Denmark U21</td><td>2023–2025</td><td>18</td><td>0</td><td>U21 Euro 2025</td></tr>
+          <tr><td><strong>Denmark Senior</strong></td><td>2025–</td><td><strong>1</strong></td><td><strong>0</strong></td><td><strong style="color:var(--gold);">Debut vs Lithuania, Jun 2025</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">183cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">74kg</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Right-Back / RWB</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Right Wing</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#3 (Ajax)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Athletic, lean, explosive</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Denmark</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury History</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No documented long-term injuries, surgeries, or significant layoffs. Has played <strong>1,972 minutes in 2025-26</strong> plus <strong>7 UCL matches</strong> without physical breakdown. No red flags in medical profile across Viborg, Ajax, and Denmark national team.</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">Elite Discipline Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>3 yellow cards in 28 Eredivisie apps</strong> (0.13/90) is exceptional discipline for an attacking full-back. This suggests strong emotional control and tactical intelligence — he does not commit unnecessary fouls even when caught out of position.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Physical Durability Monitoring</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">At 74kg for 183cm, Gaaei has a <strong>lean, athletic build</strong> suited to high-intensity running. His winger background suggests good sprint capacity and recovery. T3 must verify whether his physical profile holds up against stronger, more physical top-5 league wingers and full-backs.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Winger-converted attacking full-back — rare and valuable profile</strong> — Players who have played as wingers before converting to full-back possess elite attacking instincts. Gaaei's 31 key passes and 100 crosses from right-back validate this profile.</li>
+      <li><strong>Champions League regular at 23 — elite-level validation</strong> — 7 UCL apps in 2025-26 with 1 goal and 1 assist is output many established full-backs never achieve. This is not potential — it's proven performance.</li>
+      <li><strong>Denmark senior debut — international validation</strong> — Earned his first Denmark cap in June 2025. The Danish national team is competitive — this is not a minor-nation call-up.</li>
+      <li><strong>Elite discipline for position — 3 yellows in 28 apps</strong> — Attacking full-backs typically accumulate cards due to being caught high up the pitch. Gaaei's 0.13 cards/90 is remarkable and suggests strong positional intelligence.</li>
+      <li><strong>Key pass volume — 31 (1.39/90, 72nd percentile)</strong> — Among the highest key-pass rates for right-backs in Europe's top 15 leagues. This is a genuine elite skill.</li>
+      <li><strong>Clean sheet rate — 32% (90th percentile for RB)</strong> — Despite his attacking profile, Ajax keeps clean sheets at an elite rate with him on the pitch. Suggests defensive contribution is stronger than raw tackle/interception numbers suggest.</li>
+      <li><strong>Consistent upward trajectory — Viborg→Ajax→UCL→Denmark</strong> — No plateau or regression at any stage. Each step up in level has been met with adaptation and performance.</li>
+      <li><strong>Family-managed — potential cost advantage</strong> — No high-agent-fee structure. Family management often means lower commission costs and more direct negotiation.</li>
+      <li><strong>€7.0M market value — room for appreciation</strong> — At 23 with UCL and international experience, this is a conservative valuation. A strong 2025-26 season could push this toward €12-15M.</li>
+      <li><strong>Ajax contract until 2028 — long-term security</strong> — Three years remaining on his contract gives Ajax leverage in any negotiation. No immediate pressure to sell.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Crossing efficiency — 15% completion on 100 crosses</strong> — Volume is elite, but precision is not. In the Premier League or Bundesliga, this inefficiency would lead to turnovers and counter-attacks. Selection must improve.</li>
+      <li><strong>Defensive metrics moderate — 35 tackles, 18 interceptions</strong> — Not elite defensive numbers for a full-back. In a top-5 league with higher defensive demands, these may be exposed.</li>
+      <li><strong>Duels won only 52.1% — slightly below average</strong> — For a player with his athletic profile, this is lower than expected. Suggests technique or timing issues in 1v1 situations.</li>
+      <li><strong>Only 1 Denmark cap — still establishing internationally</strong> — One cap is a start, not established status. He is not yet a guaranteed Denmark starter.</li>
+      <li><strong>Winger conversion incomplete — defensive positioning lapses</strong> — Occasional high-profile positioning errors under pressure have been noted in UCL matches. T3 must verify frequency and severity.</li>
+      <li><strong>0/16 T3 metrics confirmed</strong> — No video validation. His "elite attacking full-back" label is T1-derived. T3 must verify whether his off-ball timing, defensive positioning, and decision-making under pressure are truly elite.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>No T3 video assessment completed</strong> — The single biggest gap. Every metric is a guess until a scout watches him play in isolated footage. For a €7.0M, 23-year-old UCL regular with Denmark senior pedigree, this is a significant evaluation hole.</li>
+      <li><strong>Top-5 league physicality projection unknown</strong> — The Eredivisie is not the Premier League. Can his 183cm/74kg frame handle the physicality of English or German wingers? His 52.1% duel rate is a question mark.</li>
+      <li><strong>High-press defensive positioning untested at elite level</strong> — Ajax dominates possession. In a team that faces more sustained pressure, can Gaaei maintain his defensive structure? The UCL sample (7 apps) is too small to answer this.</li>
+      <li><strong>Crossing selection under pressure unproven</strong> — 15% completion may be acceptable in Ajax's system where volume creates chaos. In a more structured system, this becomes a liability. T3 must verify decision-making in high-pressure crossing situations.</li>
+      <li><strong>No evidence of leadership or captaincy</strong> — At 23, with his experience, he should be showing leadership traits. No captaincy at any level. CHR assessment is critical.</li>
+      <li><strong>Set-piece contribution unknown</strong> — No goals from set-pieces, minimal aerial threat (183cm). In top-5 leagues, full-backs who contribute to set-pieces have additional value. Gaaei does not appear to offer this.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 7.3 (Absolute) — Attacking Full-Back · Denmark International · Champions League Regular · Ajax Starter · Elite Discipline · Crossing Efficiency Question.</strong> The T1 data reveals a <strong>modern attacking full-back with proven output at Champions League level</strong> (7 apps, 1 goal, 1 assist) and <strong>senior international validation</strong> (Denmark debut 2025). His <strong>31 key passes from right-back</strong> (1.39/90, 72nd percentile) and <strong>35 chances created</strong> demonstrate elite attacking contribution. <strong>Only 3 yellow cards in 28 apps</strong> is exceptional discipline for the position. However, his <strong>crossing completion (15% on 100 crosses)</strong> is a significant efficiency concern, and his <strong>52.1% duel win rate</strong> is moderate for his athletic profile. At 23, he is entering his <strong>physical prime</strong> with a clear trajectory toward top-5 league interest. Cross-league projections suggest <strong>~5.5-5.7 in top-5 leagues</strong> at current level, with <strong>ceiling potential of 7.5+</strong> if crossing efficiency and defensive consistency improve. <strong>T3 validation of OBI_T (run timing), DMA (crossing selection), and SII_A (explosive acceleration) is recommended before any €10M+ valuation.</strong> For Ajax: hold and develop — he is a core asset with UCL experience. For external clubs: a promising target with genuine elite upside, but do not bid until T3 validated and crossing efficiency confirmed. This is a <strong>developing core asset</strong> — the attacking profile is elite, but the refinement is incomplete.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>No Empire FGA Assessment Matches Available.</strong> No full-match isolated footage has been registered in the T3 system. Below are available video resources for future scout registration. Priority: Ajax 2025-26 Eredivisie + UCL + Denmark U21 Euro 2025 + Denmark Senior vs Lithuania footage.
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Assessment Footage — Available Video Resources <span class="line"></span></div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇳🇱 AFC Ajax — 2025-26 Season (Eredivisie + UCL)</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/p0x7vd89zbik84q2h3zdl/Amsterdamsche-Football-Club-Ajax-Football-Club-Groningen.mp4?rlkey=u0q7ckxbzsrsqaxw6mpkdpwgl&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs FC Groningen 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-verified">Provided</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Provided Dropbox.</strong> Ajax vs FC Groningen. Validates OBI_T, DMA, and attacking full-back positioning in standard Eredivisie context. LOG ~2.8.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/ek71iffh67ctex9c2v0le/Amsterdamsche-Football-Club-Ajax-Philips-Sport-Vereniging-PSV.mp4?rlkey=o19q52g8rqgqndk14r4wfkobp&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs PSV Eindhoven 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-verified">Provided</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Provided Dropbox.</strong> Ajax vs PSV Eindhoven. Top-of-table clash. Elite context for CLM, CRS, and DMA under maximum domestic pressure. LOG ~3.0.
+        </div>
+      </div>
+    </a>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(90,96,112,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs Feyenoord 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>De Klassieker.</strong> The most intense fixture in Dutch football. Validates CHR, CLM, and DMA under derby pressure. LOG ~3.2.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(200,16,46,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs [UCL Opponent]</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Champions League 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>7 UCL apps, 1 goal, 1 assist.</strong> Elite European context. Validates CRS, CLM, and SII_A against the highest club-level opposition. LOG ~3.5.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(200,16,46,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Ajax vs FC Utrecht 🇳🇱</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Eredivisie 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>5-4 thriller, 120 minutes.</strong> High-intensity, end-to-end match. Validates endurance, OBI_T, and DMA in chaotic context. LOG ~2.8.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇩🇰 Denmark National Team</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(198,12,48,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Denmark vs Lithuania 🇩🇰</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">International Friendly 2025</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Senior debut, June 2025.</strong> First Denmark cap. Validates CHR and CLM in senior international environment. LOG ~3.0.
+        </div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(198,12,48,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Denmark U21 vs France U21 🇩🇰</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">U21 Euro 2025</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>U21 Euro 2025 Quarter-Final.</strong> Elite youth international context. Validates OBI_T, SII, and DMA against top European youth. LOG ~3.2.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--silver);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">🇩🇰 Viborg FF — Historical</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(255,255,255,0.1);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Viborg FF vs [Superliga Opponent]</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Danish Superliga 2020-23</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>38 apps, winger-to-RB conversion.</strong> Foundational context for his development. Validates CHR and COACH (position switch adaptability). LOG ~2.4.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Priority Match Register</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 1 — Ajax 2025-26 Eredivisie</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M1:</strong> Ajax vs Groningen (provided)<br>
+          <strong style="color:var(--info);">M2:</strong> Ajax vs PSV (provided)<br>
+          <strong style="color:var(--info);">M3:</strong> Ajax vs Feyenoord (De Klassieker)<br>
+          <strong style="color:var(--info);">M4:</strong> Ajax vs Utrecht (5-4 thriller)<br><br>
+          <strong>LOG 2.8-3.2</strong>. The true baseline for his current quality. Will determine whether his 7.3 FGA is sustainable and whether his crossing efficiency is system-dependent or individual habit.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 2 — Champions League 2025-26</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">M5:</strong> Ajax UCL fixtures (7 apps)<br><br>
+          <strong>LOG 3.5</strong>. Elite European context. Critical for understanding his level against non-Dutch, top-tier opposition. Validates CRS, CLM, SII_A, and OBI_T at the highest club level.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 3 — Denmark International</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M6:</strong> Denmark vs Lithuania (senior debut)<br>
+          <strong style="color:var(--info);">M7:</strong> Denmark U21 vs France (U21 Euro QF)<br><br>
+          <strong>LOG 3.0-3.2</strong>. International validation. Validates CHR and CLM in elite national team environment. U21 Euro QF provides youth tournament pressure context.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.3;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Tackling','Interceptions','Key Passes','Crossing','Dribbling','CHR Character','CLM Composure','DMA Decisions'],
+      datasets: [{
+        label: 'Gaaei EST (23)',
+        data: [6.5, 6.0, 8.0, 6.5, 7.5, 7.5, 7.5, 6.5],
+        backgroundColor: 'rgba(200,16,46,0.2)',
+        borderColor: '#C8102E',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Eredivisie RB avg',
+        data: [6.5, 6.5, 5.5, 5.0, 5.5, 6.5, 6.5, 6.0],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 3, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Guardiola','Cruyff','Van Gaal','Klopp','Ancelotti','Bielsa'],
+    datasets: [{
+      label: 'Gaaei',
+      data: [8.0, 7.8, 7.5, 7.4, 7.2, 7.0],
+      backgroundColor: 'rgba(200,16,46,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#6CABDD','#C8102E','#C8102E','#C60C30','#00529F','#e07820'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Pending 50%'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

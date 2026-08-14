@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Braydon Manu | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #04060c; --bg-card: #080c16; --bg-card-hover: #0d1220;
+  --border-subtle: rgba(255,255,255,0.06); --border-medium: rgba(255,255,255,0.1);
+  --text-primary: #e8ecf4; --text-secondary: #8b92a8; --text-tertiary: #5a6070;
+  --accent: #1a4d2e; --accent-dim: rgba(26,77,46,0.15); --accent-glow: rgba(26,77,46,0.4);
+  --success: #00d084; --warning: #ffb800; --danger: #ff3b3b; --info: #3b82f6;
+  --tier1: #00d084; --tier2: #ffb800; --tier3: #ff3b3b; --pending: #5a6070;
+  --font-display: 'Oswald', sans-serif; --font-heading: 'Rajdhani', sans-serif; --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+.hero { position: relative; height: 520px; overflow: hidden; border-bottom: 1px solid var(--border-subtle); }
+.hero-photo { position: absolute; inset: 0; background: url('https://tmssl.akamaized.net//images/foto/galerie/braydon-manu-pec-zwolle-2024-1738678673-160218.jpg') center 20% / cover no-repeat; filter: brightness(0.45) saturate(0.85); transition: transform 8s ease; }
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,6,12,0.2) 0%, rgba(4,6,12,0.75) 60%, var(--bg-primary) 100%); }
+.hero-branding { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--accent) 50%, #f9e814 50%); z-index: 10; }
+.hero-content { position: relative; z-index: 5; max-width: 1200px; margin: 0 auto; padding: 40px 24px 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.jersey-watermark { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); font-family: var(--font-display); font-size: 220px; font-weight: 700; color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none; z-index: 2; }
+.club-badge-strip { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.badge-item { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); padding: 2px 7px; border-radius: 100px; border: 1px solid var(--border-subtle); font-family: var(--font-heading); font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.badge-item .arrow { color: var(--text-tertiary); font-size: 0.6rem; }
+.hero-name { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.05; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 8px; background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.hero-meta span { font-family: var(--font-heading); font-size: 0.95rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.hero-meta .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+.hero-meta .flag { font-size: 1.1rem; }
+.hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 32px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { padding: 5px 12px; border-radius: 6px; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: #4ade80; border: 1px solid rgba(26,77,46,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-gold { background: rgba(249,232,20,0.1); color: #f9e814; border: 1px solid rgba(249,232,20,0.2); }
+
+.fga-dial-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.fga-dial-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.fga-dial-inner .fga-label { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); }
+.fga-dial-inner .fga-score { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.fga-dial-inner .fga-status { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--warning); margin-top: 2px; }
+
+.tier-pills { display: flex; gap: 8px; margin-top: 12px; }
+.tier-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(255,59,59,0.12); color: var(--tier3); border: 1px solid rgba(255,59,59,0.2); }
+
+.tab-bar { position: sticky; top: 0; z-index: 100; background: rgba(4,6,12,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+.tab-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; }
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn { flex: 1; min-width: 110px; padding: 16px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-tertiary); font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%); }
+
+.content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-title .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s, background 0.2s; }
+.card:hover { background: var(--bg-card-hover); border-color: var(--border-medium); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+.banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; }
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(249,232,20,0.06); border: 1px solid rgba(249,232,20,0.2); color: #f9e814; }
+
+.stat-hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-hero { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+.stat-hero:hover { transform: translateY(-2px); border-color: var(--border-medium); }
+.stat-hero .value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.stat-hero .label { font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-top: 6px; }
+
+.career-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.career-node { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
+.career-node.current { background: var(--accent-dim); border-color: rgba(26,77,46,0.3); color: #4ade80; }
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+.attr-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; }
+.attr-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; color: var(--text-primary); }
+.attr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-secondary); }
+.attr-row .score { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.ac-green { color: var(--success); } .ac-yellow { color: var(--warning); } .ac-red { color: var(--danger); } .ac-pend { color: var(--pending); }
+.circle { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.circle-green { background: var(--success); } .circle-yellow { background: var(--warning); } .circle-red { background: var(--danger); } .circle-pend { background: var(--pending); }
+
+.progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+.t1-metric-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 700; color: var(--accent); width: 50px; flex-shrink: 0; text-transform: uppercase; }
+.t1-metric-desc { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
+.t1-metric-bar-wrap { width: 100px; flex-shrink: 0; }
+.t1-metric-val { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); width: 70px; text-align: right; flex-shrink: 0; }
+
+.t1-highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.t1-hl-box { background: linear-gradient(135deg, rgba(26,77,46,0.18), rgba(249,232,20,0.06)); border: 2px solid rgba(26,77,46,0.4); border-radius: 6px; padding: 12px; position: relative; overflow: hidden; }
+.t1-hl-box.gold { background: linear-gradient(135deg, rgba(249,232,20,0.12), rgba(26,77,46,0.06)); border-color: rgba(249,232,20,0.5); }
+.t1-hl-code { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+.t1-hl-val { font-family: var(--font-display); font-size: 1.65rem; font-weight: 500; color: var(--accent); line-height: 1; }
+.t1-hl-box.gold .t1-hl-val { color: #f9e814; }
+.t1-hl-pct { font-size: 0.58rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
+.t1-hl-bar { height: 3px; background: rgba(26,77,46,0.1); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.t1-hl-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+.t1-hl-box.gold .t1-hl-bar-fill { background: #f9e814; }
+
+.t1-group { margin-bottom: 14px; }
+.t1-group-head { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); padding: 6px 0; border-bottom: 1px solid rgba(26,77,46,0.08); margin-bottom: 8px; }
+
+.philo-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.philo-row:last-child { border-bottom: none; }
+.philo-rank { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-tertiary); width: 28px; text-align: center; }
+.philo-name { flex: 1; font-family: var(--font-body); font-size: 0.85rem; color: var(--text-primary); }
+.philo-score { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--accent); width: 36px; text-align: right; }
+.philo-bar-wrap { width: 120px; }
+
+.match-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.match-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; display: block; }
+.match-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(26,77,46,0.1); }
+.match-thumb { height: 140px; background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.match-thumb::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(26,77,46,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat; }
+.match-thumb .play-icon { width: 48px; height: 48px; background: rgba(26,77,46,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; transition: transform 0.2s, background 0.2s; }
+.match-card:hover .play-icon { transform: scale(1.1); background: var(--accent); }
+.play-icon svg { width: 18px; height: 18px; fill: white; margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
+.match-meta { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-tertiary); display: flex; gap: 8px; flex-wrap: wrap; }
+.match-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-hist { background: rgba(0,208,132,0.12); color: var(--success); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.data-table th { text-align: left; padding: 10px 12px; font-family: var(--font-heading); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-medium); background: rgba(255,255,255,0.02); }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+.scout-box { border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.scout-box h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(26,77,46,0.2); }
+.scout-verdict h4 { color: var(--accent); }
+.scout-box ul { list-style: none; padding: 0; margin: 0; }
+.scout-box li { padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); display: flex; gap: 8px; }
+.scout-box li::before { content: '—'; color: var(--text-tertiary); flex-shrink: 0; }
+
+.physical-card { background: linear-gradient(135deg, rgba(26,77,46,0.08) 0%, rgba(4,6,12,0.5) 100%); border: 1px solid rgba(26,77,46,0.15); border-radius: 12px; padding: 20px; }
+.physical-card h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.physical-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.physical-item { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border-subtle); border-radius: 1px; }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); z-index: 2; }
+.timeline-item.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(26,77,46,0.4); }
+.timeline-item.hist::before { background: var(--success); border-color: var(--success); }
+.timeline-date { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.timeline-item.hist .timeline-date { color: var(--success); }
+.timeline-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+.timeline-text strong { color: var(--text-primary); }
+
+.radar-container { width: 100%; max-width: 520px; margin: 0 auto; aspect-ratio: 500/450; position: relative; }
+.radar-container canvas { width: 100% !important; height: 100% !important; }
+
+@media (max-width: 768px) {
+  .hero { height: 440px; }
+  .jersey-watermark { font-size: 140px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .fga-dial-wrap { width: 110px; height: 110px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: 1fr; }
+  .t1-metric-bar-wrap { width: 60px; }
+  .t1-metric-val { width: 50px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="jersey-watermark">77</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Eimsbütteler TV</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Hamburger SV</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">FC St. Pauli</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">SC Condor</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Lüneburger SK</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Eintracht Braunschweig</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Hallescher FC (2017)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Darmstadt 98 (2019)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">PEC Zwolle (2024)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">VfL Osnabrück (Loan)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Akritas Chlorakas (2026)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Free Agent</div>
+    </div>
+    <h1 class="hero-name">Braydon Manu</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇬🇭</span> Ghana (Germany)</span>
+      <span class="dot"></span>
+      <span>29 years</span>
+      <span class="dot"></span>
+      <span>170cm</span>
+      <span class="dot"></span>
+      <span>Both-footed</span>
+      <span class="dot"></span>
+      <span>Left Winger / Forward</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Proxy</div>
+          <div class="tier-pill t3">0/16 T3 ⏳</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">T3 PENDING</span>
+          <span class="tag tag-danger">FREE AGENT</span>
+          <span class="tag tag-club">PEC Zwolle · Akritas Chlorakas</span>
+          <span class="tag tag-value">€275K Value</span>
+          <span class="tag tag-info">218 Career Apps</span>
+          <span class="tag tag-info">26 Career Goals</span>
+          <span class="tag tag-info">24 Career Assists</span>
+          <span class="tag tag-info">Ghana International</span>
+          <span class="tag tag-info">Alfaria Sports GmbH</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">Proxy FGA</div>
+          <div class="fga-score">6.2</div>
+          <div class="fga-status">PROXY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> PROXY FGA 6.2 — Tier 3 video metrics pending scout validation. All T3 assessments marked ⏳ PENDING. Contract with PEC Zwolle mutually terminated 6 January 2026.
+  </div>
+  <div class="banner banner-danger">
+    <span>🚨</span> FREE AGENT — Contract with PEC Zwolle mutually terminated 6 January 2026. No club affiliation as of July 2026. Previously on loan at VfL Osnabrück (3. Liga, Feb 2025). Market value: €275K.
+  </div>
+  <div class="banner banner-info">
+    <span>ℹ️</span> GHANA INTERNATIONAL — Called up to Ghana national team for World Cup qualifier vs South Africa (September 2021), remained on bench. Born in Itzehoe, Germany. Represents Ghana internationally. Dual German-Ghanaian citizenship.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">HFC (2017)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Darmstadt 98 (2019)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">PEC Zwolle (2024)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">VfL Osnabrück (Loan)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Akritas Chlorakas (2026)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Free Agent</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">218</div>
+      <div class="label">Career Apps</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--success);">26</div>
+      <div class="label">Career Goals</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--info);">24</div>
+      <div class="label">Career Assists</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">0.12</div>
+      <div class="label">Goals Per App</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value">170cm</div>
+      <div class="label">Height</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">€275K</div>
+      <div class="label">Market Value</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        A <strong>29-year-old Ghanaian-German winger/forward</strong> born in Itzehoe, Germany. Developed through the <strong>Hamburg youth system</strong> (Eimsbütteler TV, Hamburger SV, FC St. Pauli, SC Condor, Lüneburger SK Hansa, Eintracht Braunschweig) before making his senior debut with <strong>Hallescher FC in 3. Liga (2017)</strong>. Spent <strong>2 seasons at HFC</strong> (58 apps, 6 goals), winning the <strong>Reg. Cup Sachsen-Anhalt 2018/19</strong>. Moved to <strong>SV Darmstadt 98 in 2. Bundesliga (2019)</strong>, making <strong>60 appearances and scoring 11 goals</strong> across 5 seasons, including a <strong>loan spell back at HFC (2020-21)</strong>. Signed for <strong>PEC Zwolle in Eredivisie (July 2024)</strong> on a two-year contract with option for a third year, but <strong>contract was mutually terminated on 6 January 2026</strong>. Also had a <strong>loan spell at VfL Osnabrück in 3. Liga (February 2025)</strong>. Played for <strong>Akritas Chlorakas in Cyprus (2025-26)</strong> — 10 apps, 1 goal, 3 assists, 882 minutes — before leaving to become a <strong>free agent</strong> as of July 2026. Represents <strong>Ghana internationally</strong>, called up for World Cup qualifier vs South Africa in September 2021 (remained on bench). Agent: <strong>Alfaria Sports GmbH</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">0/16 T3 metrics validated.</strong> All physical, technical micro-assessments, and video-based evaluations are pending scout review. Manu is a <strong>prolific winger with 218 career apps across German 3. Liga, 2. Bundesliga, and Eredivisie</strong>, but his T3 profile is entirely unvalidated. T3 should focus on <strong>dribbling technique, crossing accuracy, pace, acceleration, finishing, off-ball movement, defensive work rate, and decision-making in the final third</strong>. At 170cm and both-footed, his <strong>low center of gravity and ambidexterity</strong> are notable traits that T3 must assess. His <strong>26 goals in 218 apps (0.12 per app)</strong> is a modest return for a winger — T3 must evaluate whether this is due to finishing quality, tactical role, or service quality. With his contract terminated and market value at just <strong>€275K</strong>, T3 is critical to determine whether he represents <strong>undervalued potential or declining quality</strong>. <strong>0 video links provided for T3 assessment.</strong> Cyprus League footage of Akritas Chlorakas matches would be valuable for T3 validation.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--accent);">PROXY FGA 6.2 — GHANAIAN-GERMAN WINGER with T3 validation required and significant free agent risk.</strong> Braydon Manu is a <strong>proven winger with 218 career apps across three German leagues and the Eredivisie</strong>, but his career is in <strong>decline</strong>. The <strong>mutual contract termination at PEC Zwolle (January 2026), 6+ months as a free agent, and collapsed market value (€275K)</strong> are severe red flags for any recruiting club. His <strong>both-footed ability and low center of gravity (170cm)</strong> are genuine assets, and his <strong>2. Bundesliga experience at Darmstadt 98</strong> demonstrates he can compete at a decent level. However, his <strong>goal output (26 in 218 apps = 0.12 per app) is very poor for a winger</strong>, and his <strong>career trajectory is downward</strong> — from 2. Bundesliga regular to Eredivisie squad player to 3. Liga loanee to free agent. At 29, he is <strong>entering the decline phase of his career</strong> with limited upside. The <strong>free agent status</strong> makes him a <strong>zero-transfer-fee acquisition</strong>, which minimizes financial risk, but any club signing him must factor in a <strong>2-3 month reconditioning period</strong> and accept that he may never return to his previous level. <strong>Best deployed as a squad winger or impact substitute in a mid-tier European league (3. Liga, lower 2. Bundesliga, or equivalent)</strong> where his experience and both-footed ability can provide depth. <strong>Validate T3 before any recruitment decision. Focus on current physical condition, pace retention, dribbling quality, and mental state. If T3 confirms he has maintained his physical attributes and motivation, he is a low-risk squad option; if not, he is a declining asset with minimal resale value.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row">
+        <div class="philo-rank">1</div>
+        <div class="philo-name">Dutch School Total Football</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div>
+        <div class="philo-name">Guardiola Positional</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div>
+        <div class="philo-name">Wenger Development</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div>
+        <div class="philo-name">Tuchel Structure</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div>
+        <div class="philo-name">Bielsa Intensity</div>
+        <div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent);"></div></div></div>
+        <div class="philo-score">6.0</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="radar-container">
+        <canvas id="philosophyRadar" width="500" height="450"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Winger Percentile Radar <span class="line"></span></div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <canvas id="wingerRadar" width="400" height="350"></canvas>
+  </div>
+
+  <div class="section-title">Season Snapshot 2025/26 <span class="line"></span></div>
+  <div class="card">
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="stat-hero">
+        <div class="value">10</div>
+        <div class="label">Akritas Chlorakas Apps</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1</div>
+        <div class="label">Goals</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">3</div>
+        <div class="label">Assists</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">882</div>
+        <div class="label">Minutes</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">—</div>
+        <div class="label">Cyprus League</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">1</div>
+        <div class="label">Yellow Cards</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value">0</div>
+        <div class="label">Red Cards</div>
+      </div>
+      <div class="stat-hero">
+        <div class="value" style="color:var(--danger);">Free Agent</div>
+        <div class="label">Status</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Manu's <strong>2025-26 season</strong> saw him play for <strong>Akritas Chlorakas in the Cyprus League</strong> after his contract with PEC Zwolle was <strong>mutually terminated on 6 January 2026</strong>. He recorded <strong>10 appearances, 1 goal, 3 assists, and 882 minutes</strong> in Cyprus, with 1 yellow card. His last competitive football before that was a <strong>loan spell at VfL Osnabrück in 3. Liga (February 2025)</strong>. This <strong>fragmented career path</strong> — from 2. Bundesliga to Eredivisie to 3. Liga loan to Cyprus to free agent — is a <strong>significant red flag</strong>. At 29, he should be in his prime, but instead he has <strong>left Akritas Chlorakas and is without a club as of July 2026</strong>. T3 must assess whether his <strong>technical quality and physical condition</strong> have deteriorated, or whether this is a <strong>temporary setback</strong> that a new club could exploit. The <strong>free agent status</strong> means zero transfer fee, but his Cyprus League output (1G, 3A in 10 apps) provides some recent match data.
+    </p>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical</h3>
+      <div class="attr-row"><span class="name">Dribbling</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Crossing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Finishing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">First Touch</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Passing</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Ball Control</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental</h3>
+      <div class="attr-row"><span class="name">Composure</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Discipline</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5</span></div>
+      <div class="attr-row"><span class="name">Work Rate</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Off-Ball Movement</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⏳</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical</h3>
+      <div class="attr-row"><span class="name">Pace</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Acceleration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Agility</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+      <div class="attr-row"><span class="name">Stamina</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Strength</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⏳</span></div>
+      <div class="attr-row"><span class="name">Balance</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ⏳</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Real Data Metrics</h3>
+
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold">
+          <div class="t1-hl-code">Career</div>
+          <div class="t1-hl-val">218</div>
+          <div class="t1-hl-pct">Total senior apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Gls</div>
+          <div class="t1-hl-val">26</div>
+          <div class="t1-hl-pct">26 goals in 218 apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:12%"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">Ast</div>
+          <div class="t1-hl-val">24</div>
+          <div class="t1-hl-pct">24 assists in 218 apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:11%"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">D98</div>
+          <div class="t1-hl-val">60</div>
+          <div class="t1-hl-pct">Darmstadt 98 apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:27%;background:var(--info)"></div></div>
+        </div>
+        <div class="t1-hl-box">
+          <div class="t1-hl-code">HFC</div>
+          <div class="t1-hl-val">58</div>
+          <div class="t1-hl-pct">Hallescher FC apps</div>
+          <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:27%;background:var(--success)"></div></div>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">⚽ Season Output</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">25-26</span>
+          <span class="t1-metric-desc">Akritas Chlorakas apps (Cyprus)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">10</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Gls</span>
+          <span class="t1-metric-desc">Goals scored</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:4%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">1</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Ast</span>
+          <span class="t1-metric-desc">Assists</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:12%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">3</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cup</span>
+          <span class="t1-metric-desc">KNVB Cup apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">—</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Cont</span>
+          <span class="t1-metric-desc">Continental apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">0</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">📊 Career Breakdown</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">HFC</span>
+          <span class="t1-metric-desc">Hallescher FC (2017-19)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:27%;background:var(--success)"></div></div></div>
+          <span class="t1-metric-val">58 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">D98</span>
+          <span class="t1-metric-desc">Darmstadt 98 (2019-24)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:27%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">60 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">PEC</span>
+          <span class="t1-metric-desc">PEC Zwolle (2024-26)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">0 apps (terminated)</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">AKR</span>
+          <span class="t1-metric-desc">Akritas Chlorakas (2025-26)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:5%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">10 apps</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">OSN</span>
+          <span class="t1-metric-desc">VfL Osnabrück (Loan 2025)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">—</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Career</span>
+          <span class="t1-metric-desc">Total senior apps</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent)"></div></div></div>
+          <span class="t1-metric-val">218</span>
+        </div>
+      </div>
+
+      <div class="t1-group">
+        <div class="t1-group-head">🏆 Pedigree / Tenure</div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Born</span>
+          <span class="t1-metric-desc">Birth date</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">28 Mar 1997</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Debut</span>
+          <span class="t1-metric-desc">3. Liga debut</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--info)"></div></div></div>
+          <span class="t1-metric-val">2017</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Contract</span>
+          <span class="t1-metric-desc">PEC Zwolle (terminated)</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--danger)"></div></div></div>
+          <span class="t1-metric-val">Terminated</span>
+        </div>
+        <div class="t1-metric-row">
+          <span class="t1-metric-code">Value</span>
+          <span class="t1-metric-desc">Market value</span>
+          <div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:3%;background:var(--danger)"></div></div></div>
+          <span class="t1-metric-val">€275K</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">POI — Positional IQ</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.0 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Complexity</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">5.5 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">MOB — Mobility</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">GRI — Grit</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);">6.5 ⏳</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:0.85rem;color:var(--text-secondary);">AMS — Athleticism</span>
+          <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5 ⏳</span>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Tier 2 Derived from Tier 3</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are calculated from confirmed Tier 3 sub-metrics. With Tier 3 at 0/16, these are proxy estimates based on Tier 1 data patterns and positional averages for a 29-year-old winger.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;">
+          <canvas id="fgaDonut"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Season-by-Season Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">2017-18 · Hallescher FC</strong><br>
+          <strong style="color:var(--text-primary);">~29 apps, ~3 goals</strong> · 3. Liga debut season<br><br>
+          <strong style="color:var(--text-primary);">2018-19 · Hallescher FC</strong><br>
+          <strong style="color:var(--text-primary);">~29 apps, ~3 goals</strong> · Reg. Cup Sachsen-Anhalt winner<br><br>
+          <strong style="color:var(--text-primary);">2019-20 · Darmstadt 98</strong><br>
+          <strong style="color:var(--text-primary);">~15 apps, ~2 goals</strong> · 2. Bundesliga debut<br><br>
+          <strong style="color:var(--text-primary);">2020-21 · Darmstadt 98 / HFC (Loan)</strong><br>
+          <strong style="color:var(--text-primary);">~20 apps combined</strong> · Loan back to HFC<br><br>
+          <strong style="color:var(--text-primary);">2021-22 · Darmstadt 98</strong><br>
+          <strong style="color:var(--text-primary);">~15 apps, ~3 goals</strong> · 2. Bundesliga<br><br>
+          <strong style="color:var(--text-primary);">2022-23 · Darmstadt 98</strong><br>
+          <strong style="color:var(--text-primary);">~15 apps, ~3 goals</strong> · 2. Bundesliga<br><br>
+          <strong style="color:var(--text-primary);">2023-24 · Darmstadt 98</strong><br>
+          <strong style="color:var(--text-primary);">~15 apps, ~3 goals</strong> · Promoted to Bundesliga<br><br>
+          <strong style="color:var(--text-primary);">2024-25 · PEC Zwolle / VfL Osnabrück</strong><br>
+          <strong style="color:var(--text-primary);">~10 apps, ~1 goal</strong> · Eredivisie + 3. Liga loan<br><br>
+          <strong style="color:var(--text-primary);">2025-26 · Akritas Chlorakas (Cyprus)</strong><br>
+          <strong style="color:var(--text-primary);">10 apps, 1 goal, 3 assists</strong> · 882 minutes, 1 yellow. Left July 2026
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Proxy FGA Rating — 6.2 / 10 · Methodology</h3>
+    <div style="padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;margin-bottom:12px;">
+      <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Read before citing this number</div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.6">Empire's real FGA is 20% Tier 1 / 30% Tier 2 / 50% Tier 3. With Tier 2/3 both empty, this 6.2 is a <strong style="color:var(--text-primary);">substitute</strong> built from public Tier 1 numbers. The score reflects 218 career apps across German 3. Liga, 2. Bundesliga, and Eredivisie, 26 goals, 24 assists, Ghana international call-up, but is heavily penalized by contract termination, free agent status, €275K market value, and 0 recent appearances.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Career Pedigree</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">218 apps across 3. Liga, 2. BL, Eredivisie. Ghana call-up</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--success)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--success);width:30px;text-align:right;">6.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">20%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Current Output</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">10 apps, 1 goal, 3 assists (Cyprus). Contract terminated Jan 2026</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">3.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">25%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Technical/Distribution</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">26 goals, 24 assists in 218 apps. Both-footed winger</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Discipline</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">No significant disciplinary record documented</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">6.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Age / Ceiling</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">29 years old — entering decline phase. Limited upside</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.0</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">15%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">Physical</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">170cm, both-footed. Low center of gravity. Pace unvalidated</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">5.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">10%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--accent);width:180px;font-size:0.85rem;">International</span>
+        <span style="font-size:0.78rem;color:var(--text-secondary);flex:1;">Ghana call-up (2021) — remained on bench. No senior caps</span>
+        <div style="width:100px;"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--warning)"></div></div></div>
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);width:30px;text-align:right;">4.5</span>
+        <span style="font-size:0.65rem;color:var(--text-tertiary);width:40px;text-align:right;">5%</span>
+      </div>
+      <div style="border-top:1px solid var(--border-subtle);margin-top:8px;padding-top:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-heading);font-weight:700;color:var(--gold);width:180px;font-size:0.9rem;">Weighted Proxy Total</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--accent);">6.2</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row">
+        <div class="philo-rank">1</div><div class="philo-name">Dutch School Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--accent);"></div></div></div><div class="philo-score">6.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">2</div><div class="philo-name">Guardiola Positional</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:var(--accent);"></div></div></div><div class="philo-score">6.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">3</div><div class="philo-name">Wenger Development</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:var(--accent);"></div></div></div><div class="philo-score">6.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">4</div><div class="philo-name">Tuchel Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:var(--accent);"></div></div></div><div class="philo-score">6.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">5</div><div class="philo-name">Bielsa Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--accent);"></div></div></div><div class="philo-score">6.0</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">6</div><div class="philo-name">Cruyff Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--warning);"></div></div></div><div class="philo-score">5.8</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">7</div><div class="philo-name">Spanish Positional Superiority</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--warning);"></div></div></div><div class="philo-score">5.6</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">8</div><div class="philo-name">Ferguson Drive</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:var(--warning);"></div></div></div><div class="philo-score">5.4</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">9</div><div class="philo-name">Beenhakker Technique</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:52%;background:var(--warning);"></div></div></div><div class="philo-score">5.2</div>
+      </div>
+      <div class="philo-row">
+        <div class="philo-rank">10</div><div class="philo-name">Mourinho Pragmatism</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--warning);"></div></div></div><div class="philo-score">5.0</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--accent);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Low-Center Winger"</strong> — A compact, both-footed winger/forward who has played across German 3. Liga, 2. Bundesliga, and Eredivisie. Manu combines <strong>ambidexterity and a low center of gravity (170cm)</strong> with <strong>moderate goal output (26 in 218 apps)</strong> and <strong>decent assist numbers (24)</strong>. His career shows a <strong>downward trajectory</strong> — from 2. Bundesliga regular to Eredivisie squad player to 3. Liga loanee to <strong>free agent</strong>. At 29, he is a <strong>known quantity with limited upside</strong>. His best fit is as a <strong>squad winger or impact substitute in a system that values width, low-center dribbling, and both-footed crossing</strong>. The <strong>Dutch School and Guardiola Positional fits</strong> reflect his technical background from Hamburg youth football and Eredivisie experience, but his <strong>current free agent status and contract termination</strong> suggest clubs have lost confidence. <strong>T3 must determine whether this is a temporary setback or a permanent decline.</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-club">Right Winger</span>
+          <span class="tag tag-club">Centre-Forward</span>
+          <span class="tag tag-club">Both-footed</span>
+          <span class="tag tag-club">Free Agent</span>
+          <span class="tag tag-club">Ghana International</span>
+          <span class="tag tag-club">Hamburg Youth</span>
+          <span class="tag tag-club">Alfaria Sports</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.2</div>
+      <div class="label">Dutch School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--accent);">6.1</div>
+      <div class="label">German School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.6</div>
+      <div class="label">British School</div>
+    </div>
+    <div class="stat-hero">
+      <div class="value" style="color:var(--warning);">5.4</div>
+      <div class="label">Spanish School</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item">
+          <div class="timeline-date">28 Mar 1997</div>
+          <div class="timeline-text">Born in <strong>Itzehoe, Germany</strong>. Of Ghanaian descent.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">~2005-2013</div>
+          <div class="timeline-text">Youth career at <strong>Eimsbütteler TV</strong> and <strong>Hamburger SV</strong> academy.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2013-2014</div>
+          <div class="timeline-text">Youth career at <strong>FC St. Pauli</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2014-2015</div>
+          <div class="timeline-text">Youth career at <strong>SC Condor</strong> and <strong>Lüneburger SK Hansa</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2015-2016</div>
+          <div class="timeline-text">Youth career at <strong>Eintracht Braunschweig</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jun 2017</div>
+          <div class="timeline-text">Signed for <strong>Hallescher FC</strong> in 3. Liga on a two-year contract.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Dec 2018</div>
+          <div class="timeline-text">Extended contract with <strong>Hallescher FC</strong> until summer 2020.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2017-19</div>
+          <div class="timeline-text"><strong>58 apps, 6 goals</strong> for Hallescher FC. Won <strong>Reg. Cup Sachsen-Anhalt 2018/19</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jun 2019</div>
+          <div class="timeline-text">Joined <strong>SV Darmstadt 98</strong> in 2. Bundesliga on a contract until 2022.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jan 2021</div>
+          <div class="timeline-text">Re-joined <strong>Hallescher FC on loan</strong> for the remainder of the 2020-21 season.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2019-24</div>
+          <div class="timeline-text"><strong>60 apps, 11 goals</strong> for Darmstadt 98 across 5 seasons in 2. Bundesliga. Loan spell at HFC included.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Sep 2021</div>
+          <div class="timeline-text">Called up to <strong>Ghana national team</strong> for World Cup qualifier vs South Africa. Remained on the bench.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">May 2024</div>
+          <div class="timeline-text">Darmstadt 98 announced he would <strong>leave the club</strong> after the season, along with 14 other players.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2024</div>
+          <div class="timeline-text">Signed <strong>two-year contract with PEC Zwolle</strong> in Eredivisie, with option for a third year.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Feb 2025</div>
+          <div class="timeline-text">Joined <strong>VfL Osnabrück on loan</strong> in 3. Liga.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jan 2026</div>
+          <div class="timeline-text"><strong>Contract with PEC Zwolle mutually terminated</strong>. Became a free agent.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Early 2026</div>
+          <div class="timeline-text">Joined <strong>Akritas Chlorakas</strong> in Cyprus League. <strong>10 apps, 1 goal, 3 assists, 882 minutes, 1 yellow card</strong>.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Jul 2026</div>
+          <div class="timeline-text">Left <strong>Akritas Chlorakas</strong>. Became a free agent again.</div>
+        </div>
+        <div class="timeline-item current">
+          <div class="timeline-date">Jul 2026</div>
+          <div class="timeline-text">At <strong>Free Agent</strong> status. 228 career apps (est.), 27 goals, 27 assists. Ghana international (uncapped). Agent: Alfaria Sports GmbH. T3 pending. Future: New club or retirement?</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>2017-18</strong></td><td>Hallescher FC</td><td>3. Liga</td><td>~29</td><td>~3</td><td>~3</td></tr>
+          <tr><td><strong>2018-19</strong></td><td>Hallescher FC</td><td>3. Liga</td><td>~29</td><td>~3</td><td>~3</td></tr>
+          <tr><td><strong>2019-20</strong></td><td>Darmstadt 98</td><td>2. Bundesliga</td><td>~15</td><td>~2</td><td>~2</td></tr>
+          <tr><td><strong>2020-21</strong></td><td>Darmstadt 98 / HFC (Loan)</td><td>2. BL / 3. Liga</td><td>~20</td><td>~3</td><td>~3</td></tr>
+          <tr><td><strong>2021-22</strong></td><td>Darmstadt 98</td><td>2. Bundesliga</td><td>~15</td><td>~3</td><td>~3</td></tr>
+          <tr><td><strong>2022-23</strong></td><td>Darmstadt 98</td><td>2. Bundesliga</td><td>~15</td><td>~3</td><td>~3</td></tr>
+          <tr><td><strong>2023-24</strong></td><td>Darmstadt 98</td><td>2. Bundesliga</td><td>~15</td><td>~3</td><td>~3</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>PEC Zwolle / VfL Osnabrück</td><td>Eredivisie / 3. Liga</td><td>~10</td><td>~1</td><td>~1</td></tr>
+          <tr><td><strong>2025-26</strong></td><td>Akritas Chlorakas</td><td>Cyprus League</td><td>10</td><td>1</td><td>3</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td colspan="3"><strong>Career Total</strong></td>
+            <td><strong>~228</strong></td>
+            <td><strong>~27</strong></td>
+            <td><strong>~27</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-title" style="margin:24px 0 16px;">League Breakdown</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>3. Liga</strong></td><td>~78</td><td>~9</td><td>~9</td></tr>
+          <tr><td><strong>2. Bundesliga</strong></td><td>~60</td><td>~11</td><td>~10</td></tr>
+          <tr><td><strong>Eredivisie</strong></td><td>~10</td><td>~1</td><td>~1</td></tr>
+          <tr><td><strong>Cyprus League</strong></td><td>10</td><td>1</td><td>3</td></tr>
+          <tr><td><strong>Other</strong></td><td>~60</td><td>~4</td><td>~1</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);">
+            <td><strong>Total</strong></td>
+            <td><strong>~228</strong></td>
+            <td><strong>~27</strong></td>
+            <td><strong>~27</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title">Medical & Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">170cm</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">—</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Both-footed</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Left Winger</span></div>
+        <div class="physical-item"><span class="label">Alt Positions</span><span class="value">Right Winger, CF</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#77 (PEC)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Compact, low center</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Ghana / Germany</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Injury & Medical History</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠️ Availability Concerns</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>218 career apps by age 29</strong> suggests reasonable durability, but the <strong>contract termination and lack of 2025-26 appearances</strong> raise questions about current fitness and availability. No major injury history documented, but the <strong>absence from matchday squads</strong> at PEC Zwolle before termination suggests potential fitness or form issues. T3 must assess <strong>current physical condition</strong> before any recruitment.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--danger);margin-bottom:4px;">🚨 Free Agent Risk</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>6+ months without competitive football</strong> (since contract termination January 2026). At 29, this gap is <strong>significant</strong> — match sharpness, fitness levels, and tactical understanding will have deteriorated. Any recruiting club must factor in a <strong>reconditioning period</strong> of 2-3 months before he can contribute meaningfully. Medical assessment is <strong>mandatory</strong>.</div>
+        </div>
+        <div style="padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--info);margin-bottom:4px;">ℹ️ Physical Profile Assessment</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>170cm, both-footed</strong> — compact build with low center of gravity. This profile is <strong>advantageous for dribbling and close control</strong> but may limit aerial ability and physical presence. At 29, his <strong>pace and acceleration</strong> — critical for a winger — may be declining. T3 must assess <strong>sprint speed, agility, and explosive power</strong> to determine if he remains effective at his age and after 6 months without football.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>218 career apps by age 29</strong> — Proven durability across multiple German leagues and Eredivisie</li>
+      <li><strong>Both-footed winger</strong> — Rare ambidexterity allows deployment on either flank or as inverted winger</li>
+      <li><strong>Low center of gravity (170cm)</strong> — Advantageous for dribbling, close control, and agility in tight spaces</li>
+      <li><strong>Ghana international call-up</strong> (September 2021) — Recognized by national team setup, even if uncapped</li>
+      <li><strong>Reg. Cup Sachsen-Anhalt winner</strong> (2018/19) — Trophy-winning experience with Hallescher FC</li>
+      <li><strong>2. Bundesliga experience</strong> — 60 apps at Darmstadt 98, including promotion season (2023-24)</li>
+      <li><strong>Eredivisie experience</strong> — Played in Netherlands with PEC Zwolle</li>
+      <li><strong>Free agent status</strong> — Zero transfer fee. Minimal financial risk for recruiting club</li>
+      <li><strong>24 career assists</strong> — Shows creative contribution beyond goal-scoring</li>
+      <li><strong>Hamburg youth pedigree</strong> — Developed at Eimsbütteler TV, Hamburger SV, FC St. Pauli, Eintracht Braunschweig</li>
+      <li><strong>Agent: Alfaria Sports GmbH</strong> — Professional representation</li>
+      <li><strong>Dual German-Ghanaian citizenship</strong> — No work permit issues in EU or potentially in Africa</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Contract terminated by mutual consent</strong> (January 2026) — PEC Zwolle deemed him surplus to requirements after 18 months</li>
+      <li><strong>Free agent for 6+ months</strong> — No club has signed him since January 2026. Significant red flag at age 29</li>
+      <li><strong>Market value collapsed to €275K</strong> — From a higher value at Darmstadt 98 to minimal valuation. Market has spoken</li>
+      <li><strong>Modest goal output (26 in 218 apps = 0.12 per app)</strong> — Very low for a winger/forward. Not a significant goal threat</li>
+      <li><strong>Loaned to 3. Liga from Eredivisie</strong> (Feb 2025) — Downward move suggests he was not good enough for Eredivisie level</li>
+      <li><strong>0 senior Ghana caps</strong> — Called up but never played. Not trusted by national team coaches</li>
+      <li><strong>Age 29 with declining trajectory</strong> — Should be in prime but career is moving backwards (2. BL → Eredivisie → 3. Liga → free agent)</li>
+      <li><strong>0 appearances in 2025-26</strong> — Effectively a full season without competitive football</li>
+      <li><strong>Released by Darmstadt 98 with 14 other players</strong> (May 2024) — Mass clearout suggests he was part of a squad deemed inadequate</li>
+      <li><strong>170cm height</strong> — Limits aerial ability and physical presence. May struggle vs physical defenders</li>
+      <li><strong>No European continental experience</strong> — Never played in UEFA competitions</li>
+      <li><strong>0 T3 validation</strong> — No video-based micro-assessments. True technical quality entirely unknown</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>All 16 T3 metrics pending</strong> — Zero validated video assessments. Full scout review required</li>
+      <li><strong>Current physical condition</strong> — 6+ months without competitive football. Fitness, sharpness, and match rhythm unknown</li>
+      <li><strong>Pace and acceleration</strong> — At 29, after 6 months inactive, has his speed deteriorated? Critical for a winger</li>
+      <li><strong>Dribbling quality under pressure</strong> — Low center of gravity is an asset, but can he beat defenders 1v1 at elite level?</li>
+      <li><strong>Crossing accuracy</strong> — 24 assists suggest some quality, but precision and consistency unvalidated</li>
+      <li><strong>Finishing ability</strong> — 26 goals in 218 apps is poor. Is this due to finishing quality, shot selection, or tactical role?</li>
+      <li><strong>Defensive work rate</strong> — Wingers in modern systems must press and track back. T3 must assess his defensive contribution</li>
+      <li><strong>Decision-making in final third</strong> — Does he make the right pass vs. shoot decisions? Low assist-to-app ratio suggests issues</li>
+      <li><strong>Physical duels</strong> — 170cm vs. modern full-backs (often 180cm+). Can he win aerial duels or physical battles?</li>
+      <li><strong>Adaptability to new system</strong> — Has played in German and Dutch systems. Can he adapt quickly to a new club's tactics?</li>
+      <li><strong>Mental resilience</strong> — Contract termination and 6 months without a club. How is his motivation and mental state?</li>
+      <li><strong>Leadership</strong> — 29 years old, 218 apps. Can he mentor younger players or is he a passive squad member?</li>
+    </ul>
+  </div>
+
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--accent);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PROXY FGA 6.2 — GHANAIAN-GERMAN WINGER with T3 validation required and significant free agent risk.</strong> Braydon Manu is a <strong>proven winger with 218 career apps across German 3. Liga, 2. Bundesliga, and Eredivisie</strong>, but his career is in <strong>decline</strong>. The <strong>mutual contract termination at PEC Zwolle (January 2026), 6+ months as a free agent, and collapsed market value (€275K)</strong> are severe red flags for any recruiting club. His <strong>both-footed ability and low center of gravity (170cm)</strong> are genuine assets, and his <strong>2. Bundesliga experience at Darmstadt 98</strong> demonstrates he can compete at a decent level. However, his <strong>goal output (26 in 218 apps = 0.12 per app) is very poor for a winger</strong>, and his <strong>career trajectory is downward</strong> — from 2. Bundesliga regular to Eredivisie squad player to 3. Liga loanee to free agent. At 29, he is <strong>entering the decline phase of his career</strong> with limited upside. The <strong>free agent status</strong> makes him a <strong>zero-transfer-fee acquisition</strong>, which minimizes financial risk, but any club signing him must factor in a <strong>2-3 month reconditioning period</strong> and accept that he may never return to his previous level. <strong>Best deployed as a squad winger or impact substitute in a mid-tier European league (3. Liga, lower 2. Bundesliga, or equivalent)</strong> where his experience and both-footed ability can provide depth. <strong>Validate T3 before any recruitment decision. Focus on current physical condition, pace retention, dribbling quality, and mental state. If T3 confirms he has maintained his physical attributes and motivation, he is a low-risk squad option; if not, he is a declining asset with minimal resale value.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-danger">
+    <span>🚨</span> <strong>0 Video Links Provided — T3 Pending.</strong> No video links have been provided for Braydon Manu. The user indicated "video highlights pending" and "links pending." T3 assessment cannot proceed without match footage. Please provide video links (Dropbox, YouTube, Vimeo, etc.) for the scout to complete the 16-metric T3 evaluation.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Video Links — T3 Assessment</div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div style="font-family:var(--font-heading);font-size:0.9rem;color:var(--text-tertiary);text-align:center;padding:20px;">
+          <div style="font-size:2rem;margin-bottom:8px;">📹</div>
+          No video links provided
+        </div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Awaiting Video Submission</div>
+        <div class="match-meta">
+          <span class="match-badge badge-pending">⏳ T3 PENDING</span>
+          <span class="match-badge badge-pending">NO LINKS</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          Please provide video links (Dropbox, YouTube, Vimeo, etc.) featuring Braydon Manu in competitive matches. The scout will assess all 16 T3 metrics: OBI, SII, DMA, SOA, SPI, CLM, DYN, CRK, CHR, MCS, CRS, OMS. Recommended matches: Darmstadt 98 (2. Bundesliga 2019-2024), PEC Zwolle footage (Eredivisie 2024-25), VfL Osnabrück matches (3. Liga 2025), Akritas Chlorakas (Cyprus League 2025-26), or any recent competitive footage.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">Scout Assessment Notes</h3>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Physical Identity Card</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Height</span><span class="value">170cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">—</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Both-footed</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">#77 (PEC)</span></div>
+          <div class="physical-item"><span class="label">Build</span><span class="value">Compact, low center</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Left Winger</span></div>
+          <div class="physical-item"><span class="label">Alt Pos</span><span class="value">Right Winger, CF</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">Ghana / Germany</span></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Winger-Specific Focus Areas</h4>
+        <ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:var(--text-secondary);line-height:1.8;">
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Pace & Acceleration:</strong> Has his speed declined at 29 after 6 months inactive?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>1v1 Dribbling:</strong> Can he beat defenders with low center of gravity?</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Crossing Accuracy:</strong> Both-footed delivery quality from either flank</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Finishing:</strong> 26 goals in 218 apps — assess shot quality and composure</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Defensive Work Rate:</strong> Pressing, tracking back, tactical discipline</li>
+          <li style="display:flex;gap:8px;"><span style="color:var(--accent);">→</span> <strong>Physical Duels:</strong> 170cm vs. modern full-backs — aerial and physical battles</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:16px;margin-bottom:0;">
+      <span>ℹ️</span> <strong>Video submission required:</strong> Please provide video links (Dropbox, YouTube, Vimeo, etc.) featuring Braydon Manu in competitive matches. Recommended sources: Darmstadt 98 match highlights (2. Bundesliga 2019-2024), PEC Zwolle footage (Eredivisie 2024-25), VfL Osnabrück matches (3. Liga 2025), Akritas Chlorakas matches (Cyprus League 2025-26), or any recent competitive footage. If you have additional match data or metadata, reply and I will update the card. When your scout completes the video assessment, reply with the validated scores and I will update the card to <strong>T3_STATUS = SCOUT_VALIDATED</strong>.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Hero Dial
+const heroCanvas = document.getElementById('heroDial');
+const heroCtx = heroCanvas.getContext('2d');
+const heroScore = 6.2;
+const heroMax = 10;
+const heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+heroCtx.beginPath();
+heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+heroCtx.strokeStyle = '#1a4d2e';
+heroCtx.lineWidth = 8;
+heroCtx.lineCap = 'round';
+heroCtx.stroke();
+
+// Winger Radar
+const wingerCtx = document.getElementById('wingerRadar').getContext('2d');
+new Chart(wingerCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Dribbling','Crossing','Pace','Finishing','Physicality','Work Rate','Positioning','Creativity'],
+    datasets: [{
+      label: 'Manu (Proxy)',
+      data: [6.5, 6.0, 6.5, 5.5, 5.5, 6.5, 6.0, 6.0],
+      backgroundColor: 'rgba(26,77,46,0.2)',
+      borderColor: '#1a4d2e',
+      pointBackgroundColor: '#1a4d2e',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }, {
+      label: '2. Bundesliga Winger Average',
+      data: [6.5, 6.5, 6.5, 6.0, 6.5, 6.5, 6.3, 5.5],
+      backgroundColor: 'rgba(255,255,255,0.05)',
+      borderColor: 'rgba(255,255,255,0.2)',
+      pointRadius: 0,
+      borderWidth: 1,
+      borderDash: [4,4]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+    }
+  }
+});
+
+// Attribute Radar
+const attrCtx = document.getElementById('attrRadar').getContext('2d');
+new Chart(attrCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Dribbling','Crossing','Finishing','First Touch','Passing','Ball Control','Composure','Decisions','Discipline','Work Rate'],
+    datasets: [{
+      label: 'Manu (Proxy)',
+      data: [6.5, 6.0, 5.5, 6.5, 6.0, 6.5, 6.0, 6.0, 6.5, 6.5],
+      backgroundColor: 'rgba(26,77,46,0.2)',
+      borderColor: '#1a4d2e',
+      pointBackgroundColor: '#1a4d2e',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+      }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Philosophy Radar
+const philoData = {
+  labels: ['Dutch School Total Football','Guardiola Positional','Wenger Development','Tuchel Structure','Bielsa Intensity','Cruyff Intelligence','Spanish Positional','Ferguson Drive','Beenhakker Technique','Mourinho Pragmatism'],
+  datasets: [{
+    label: 'Manu',
+    data: [6.8, 6.6, 6.4, 6.2, 6.0, 5.8, 5.6, 5.4, 5.2, 5.0],
+    backgroundColor: 'rgba(26,77,46,0.2)',
+    borderColor: '#1a4d2e',
+    pointBackgroundColor: '#1a4d2e',
+    pointBorderColor: '#fff',
+    pointRadius: 3,
+    borderWidth: 2
+  }]
+};
+const philoOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    r: {
+      min: 3, max: 10,
+      ticks: { display: false, stepSize: 1 },
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      angleLines: { color: 'rgba(255,255,255,0.06)' },
+      pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+    }
+  },
+  plugins: { legend: { display: false } }
+};
+new Chart(document.getElementById('philosophyRadar').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+new Chart(document.getElementById('philosophyRadar2').getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+
+// FGA Donut
+new Chart(document.getElementById('fgaDonut').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['T1 Extensive','T2 Proxy','T3 Pending'],
+    datasets: [{
+      data: [20, 30, 50],
+      backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
