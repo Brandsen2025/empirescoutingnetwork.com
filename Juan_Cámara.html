@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juan Cámara | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1a3a6a;--accent-dim:rgba(26,58,106,0.15);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --spain:#c60b1e;--spain-dim:rgba(198,11,30,0.15);
+  --andorra:#1a3a6a;--andorra-dim:rgba(26,58,106,0.15);
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT65iPrahS_gv1kkO9LfvD-FPmLWX_-6FV5YEamQOkWiw&s') center 20% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(26,58,106,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#c60b1e 33%,#fbbf24 33%,#fbbf24 66%,#1a3a6a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,#1a3a6a,#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'◆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--andorra-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-warning {background:rgba(255,184,0,0.1);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-spain {background:rgba(198,11,30,0.1);color:#c60b1e;border:1px solid rgba(198,11,30,0.2);}
+.tag-transfer {background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.25);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+.tier-pill.t3-pending {background:rgba(90,96,112,0.15);color:var(--pending);border:1px solid rgba(90,96,112,0.25);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--gold);background:linear-gradient(180deg,transparent 0%,var(--andorra-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-verified {background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-andorra {background:rgba(26,58,106,0.1);border:1px solid rgba(26,58,106,0.25);color:var(--accent);}
+.banner-spain {background:rgba(198,11,30,0.08);border:1px solid rgba(198,11,30,0.2);color:#c60b1e;}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--andorra-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(26,58,106,0.18),rgba(251,191,36,0.06));border:2px solid rgba(26,58,106,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(26,58,106,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-box.warning {border-color:rgba(255,184,0,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-box.warning .t1-hl-val {color:var(--warning);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(26,58,106,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+.t1-hl-box.warning .t1-hl-bar-fill {background:var(--warning);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(26,58,106,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(26,58,106,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(26,58,106,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(26,58,106,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:#1a3a6a;}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-scored {background:rgba(0,208,132,0.15);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.badge-andorra {background:rgba(26,58,106,0.15);color:#4a7ab5;border:1px solid rgba(26,58,106,0.25);}
+.badge-spain {background:rgba(198,11,30,0.12);color:#c60b1e;border:1px solid rgba(198,11,30,0.2);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--andorra-dim);border:1px solid rgba(26,58,106,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(26,58,106,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(26,58,106,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid #1a3a6a;z-index:2;}
+.timeline-item.current::before {background:#1a3a6a;box-shadow:0 0 8px rgba(26,58,106,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:#1a3a6a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Inter Club d'Escaldes · Primera Divisió · Andorra</div>
+  <div class="jersey-watermark">7</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Villarreal (Youth)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Villarreal B</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Barcelona B</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Barcelona</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Girona / Reus (loan)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Poland / Romania / Azerbaijan</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Inter Escaldes #7</div>
+    </div>
+    <h1 class="hero-name">Juan Cámara</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇪🇸</span> Spain</span>
+      <span class="dot"></span>
+      <span>32 years</span>
+      <span class="dot"></span>
+      <span>184cm</span>
+      <span class="dot"></span>
+      <span>Left‑footed</span>
+      <span class="dot"></span>
+      <span>LW / RW / AM</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3-pending">0/16 T3 — PENDING</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">0/16 T3 CONFIRMED · PROXY CARD</span>
+          <span class="tag tag-club">Inter Club d'Escaldes · #7</span>
+          <span class="tag tag-spain">🇪🇸 Born: Jaén, Spain</span>
+          <span class="tag tag-value">€100K Market Value</span>
+          <span class="tag tag-info">32 yrs · 184cm · Left‑footed winger</span>
+          <span class="tag tag-gold">19 Apps · 6 Goals · 25/26 (Inter)</span>
+          <span class="tag tag-gold">Barcelona · La Liga Winner 2015</span>
+          <span class="tag tag-info">Spain U16/U17 International</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">6.0</div>
+          <div class="fga-status">PROXY · T1+T2 ONLY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross‑League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>PROXY CARD — 0/16 T3 METRICS CONFIRMED.</strong> All scores derived from Wikipedia, Transfermarkt, FotMob, Sofascore, UEFA. No full‑match isolated footage evaluated under ESN methodology. Directional estimates pending T3 confirmation. <strong style="color:var(--danger);">Spanish winger assessment — 32‑year‑old at Inter Club d'Escaldes (Primera Divisió, LOG ~1.6).</strong>
+  </div>
+  <div class="banner banner-andorra">
+    <span>◆</span> <strong>INTER CLUB D'ESCALDES · PRIMERA DIVISIÓ · UEFA CHAMPIONS LEAGUE & CONFERENCE LEAGUE.</strong> Juan Cámara is a 32‑year‑old Spanish winger who joined Inter Club d'Escaldes in 2025. A <strong>Barcelona academy product</strong> and <strong>La Liga winner (2015)</strong>, he has played for 13 clubs across Spain, Poland, Romania, and Azerbaijan. This season he has <strong>19 league appearances with 6 goals</strong> and featured in <strong>UEFA Champions League qualifying</strong> (2 apps) and <strong>UEFA Conference League qualifying</strong> for Inter Escaldes.[reference:0][reference:1]
+  </div>
+  <div class="banner banner-gold">
+    <span>🏆</span> <strong>LA LIGA WINNER · BARCELONA ACADEMY · 13 CLUBS · 6 GOALS IN 19 APPS (2025-26).</strong> Cámara won <strong>La Liga with Barcelona in 2015</strong> and has played for <strong>13 clubs</strong> across Europe, including Villarreal B, Barcelona B, Girona, Reus, Miedź Legnica, Jagiellonia Białystok, Dinamo București, Universitatea Craiova, Sabah, and Zagłębie Sosnowiec.[reference:2]
+  </div>
+  <div class="banner banner-danger">
+    <span>🚨</span> <strong>0/16 T3 METRICS PENDING · NO VIDEO ANALYSIS CONDUCTED.</strong> All OBI (Off‑Ball Intelligence), SII (Sprint Intensity Index), DMA, SOA, SPI, CLM, CRS, OMS, DYN, CRK, CHR, and MCS metrics are unvalidated. Full video assessment required to confirm dribbling, crossing, decision‑making, and work rate. <strong style="color:var(--warning);">This card was last updated 14 August 2026.</strong>
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Villarreal (Youth)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Villarreal B</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Barcelona B</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Barcelona</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Girona / Reus</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Poland / Romania / Azerbaijan</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Inter Escaldes #7</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6.0</div><div class="label">FGA Proxy</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">19</div><div class="label">Inter Apps · 25/26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6</div><div class="label">Goals · 25/26</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">2</div><div class="label">UCL Qualifying Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">123</div><div class="label">UCL Minutes (61.5 avg)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€100K</div><div class="label">Market Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">13</div><div class="label">Clubs Played For</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">0/16</div><div class="label">T3 Confirmed</div></div>
+  </div>
+
+  <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <!-- Primary: LW — left flank, attacking half -->
+      <circle cx="400" cy="130" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="400" y="135" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">1</text>
+      <text x="400" y="160" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">LW — PRIMARY (LEFT FLANK)</text>
+      <!-- Secondary: RW — right flank, attacking half -->
+      <circle cx="400" cy="210" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="400" y="214" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">2</text>
+      <text x="400" y="190" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">RW — SECONDARY</text>
+      <!-- Legend -->
+      <rect x="18" y="18" width="180" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary / cover</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: LW (left wing) · Secondary: RW (right wing) · Direction of attack left→right</div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Juan del Carmen Cámara Mesa</strong> is a <strong>32‑year‑old Spanish winger</strong> born in <strong>Jaén, Spain</strong> on 13 February 1994.[reference:3] He stands <strong>184cm (6'0")</strong> and is <strong>left‑footed</strong>.[reference:4][reference:5] He came through the <strong>Villarreal academy</strong> before moving to <strong>Barcelona B</strong> and making the first team, winning <strong>La Liga in 2015</strong>. He has played for <strong>13 clubs</strong> across Spain, Poland, Romania, and Azerbaijan.[reference:6] He joined <strong>Inter Club d'Escaldes</strong> in 2025 and has made <strong>19 league appearances with 6 goals</strong>. He also featured in <strong>UEFA Champions League qualifying</strong> (2 apps) and <strong>UEFA Conference League qualifying</strong> for Inter.[reference:7]
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0 of 16 T3 metrics confirmed.</strong> No full‑match isolated footage has been evaluated under ESN methodology. All 16 Empire FGA T3 metrics — OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, SPI, CLM, CRS, OMS, DYN, CRK, SOA — are pending scout review. <strong>Recommended T3 context:</strong> Inter Club d'Escaldes 2025‑26 Primera Divisió (LOG ~1.6), UEFA Champions League qualifying (LOG ~3.0), UEFA Conference League qualifying (LOG ~3.0). <strong>Priority T3 focus:</strong> Dribbling quality, crossing accuracy, decision‑making in the final third, off‑ball movement, work rate, and creative risk‑taking.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 6.0 — Spanish Winger · Barcelona Academy · Journeyman Career.</strong> The T1 data reveals a <strong>32‑year‑old winger with a rich career</strong> — Villarreal and Barcelona academy products, La Liga winner, and 13 clubs across Europe. He has found a productive spell at Inter Escaldes with <strong>6 goals in 19 appearances</strong>. However, <strong>0/16 T3 metrics have been validated</strong> — no video analysis has been conducted. His <strong>dribbling, crossing, and decision‑making</strong> remain unverified at the level required for a higher league. <strong>T3 validation is critical</strong> to confirm his ability to beat defenders, deliver crosses, and contribute defensively. <strong>Recommended for immediate monitoring with full video assessment.</strong> A <strong>veteran winger with a journeyman profile</strong> who has found a goalscoring groove in Andorra.
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — Inter Escaldes (Primera Divisió + Europe) <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Current Club</strong></td><td>Inter Club d'Escaldes</td><td>Primera Divisió (Andorra · 1st tier)</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Joined</strong></td><td>2025</td><td>From Real Jaén</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Jersey Number</strong></td><td>#7</td><td>Inter Club d'Escaldes</td><td>FotMob</td></tr>
+        <tr><td><strong>Position</strong></td><td>Winger (LW / RW / AM)</td><td>Left‑footed</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Height</strong></td><td>184cm (6'0")</td><td>Good frame</td><td>Wikipedia</td></tr>
+        <tr><td><strong>Market Value</strong></td><td>€100K</td><td>Peak: €2.0M (2015)</td><td>Transfermarkt</td></tr>
+        <tr><td><strong>2025/26 League Apps</strong></td><td>19</td><td>Primera Divisió</td><td>Wikipedia</td></tr>
+        <tr><td><strong>2025/26 League Goals</strong></td><td>6</td><td>0.32 G/90 (est.)</td><td>Wikipedia</td></tr>
+        <tr><td><strong>UCL Qualifying Apps</strong></td><td>2</td><td>123 minutes</td><td>UEFA</td></tr>
+        <tr><td><strong>UCL Goals</strong></td><td>0</td><td>0 assists</td><td>UEFA</td></tr>
+        <tr><td><strong>UCL Discipline</strong></td><td>0 yellows · 0 reds</td><td>3 fouls</td><td>UEFA</td></tr>
+        <tr><td><strong>UECL Qualifying Apps</strong></td><td>1</td><td>Unused substitute</td><td>FotMob</td></tr>
+        <tr><td><strong>La Liga Apps</strong></td><td>0 (Barcelona)</td><td>1 UCL appearance</td><td>Wikipedia</td></tr>
+        <tr><td><strong>La Liga Title</strong></td><td>2015</td><td>FC Barcelona</td><td>Wikipedia</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;">Sources: Wikipedia, Transfermarkt, UEFA, FotMob.</p>
+  </div>
+
+  <div class="section-title">Club Career Snapshot <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Period</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2011–2012</strong></td><td>Villarreal C</td><td>Spain</td><td>34</td><td>8</td><td>Youth/reserve</td></tr>
+        <tr><td><strong>2012–2014</strong></td><td>Villarreal B</td><td>Segunda B</td><td>70</td><td>15</td><td>—</td></tr>
+        <tr><td><strong>2014–2016</strong></td><td>Barcelona B</td><td>Segunda / Segunda B</td><td>61</td><td>12</td><td>—</td></tr>
+        <tr><td><strong>2015–2016</strong></td><td>Barcelona</td><td>La Liga</td><td>0</td><td>0</td><td>La Liga winner 2015</td></tr>
+        <tr><td><strong>2016–2017</strong></td><td>→ Girona (loan)</td><td>Segunda</td><td>3</td><td>0</td><td>Loan</td></tr>
+        <tr><td><strong>2017–2018</strong></td><td>→ Reus (loan)</td><td>Segunda</td><td>17</td><td>0</td><td>Loan</td></tr>
+        <tr><td><strong>2018–2019</strong></td><td>Miedź Legnica</td><td>Poland</td><td>27</td><td>3</td><td>Ekstraklasa</td></tr>
+        <tr><td><strong>2019–2023</strong></td><td>Jagiellonia Białystok</td><td>Poland</td><td>35</td><td>2</td><td>—</td></tr>
+        <tr><td><strong>2020–2021</strong></td><td>→ Dinamo București (loan)</td><td>Romania</td><td>12</td><td>2</td><td>Liga I</td></tr>
+        <tr><td><strong>2021</strong></td><td>→ Universitatea Craiova (loan)</td><td>Romania</td><td>12</td><td>0</td><td>Liga I</td></tr>
+        <tr><td><strong>2021–2022</strong></td><td>→ Sabah (loan)</td><td>Azerbaijan</td><td>19</td><td>4</td><td>Premier League</td></tr>
+        <tr><td><strong>2022–2023</strong></td><td>Jagiellonia II</td><td>Poland</td><td>3</td><td>0</td><td>Reserve</td></tr>
+        <tr><td><strong>2023–2024</strong></td><td>Zagłębie Sosnowiec</td><td>Poland</td><td>12</td><td>0</td><td>I liga</td></tr>
+        <tr><td><strong>2024</strong></td><td>Badalona Futur</td><td>Spain</td><td>9</td><td>0</td><td>Segunda Federación</td></tr>
+        <tr><td><strong>2024–2025</strong></td><td>Real Jaén</td><td>Spain</td><td>27</td><td>4</td><td>—</td></tr>
+        <tr><td><strong>2025–</strong></td><td>Inter Club d'Escaldes</td><td>Andorra</td><td>19</td><td>6</td><td>Current</td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>~350</strong></td><td><strong>~52</strong></td><td>Approximate</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;">Sources: Wikipedia, Transfermarkt, worldfootball.net. Based on available data; some appearances may be incomplete.</p>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff / Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#FF6600;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Michels / Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:#21468B;"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:#6CABDD;"></div></div></div><div class="philo-score">6.4</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Klopp / Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#e07820;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa / High‑Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#001C58;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Sacchi / Pressing & Organisation</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#003366;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Wenger / Development Archetype</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:#0055A4;"></div></div></div><div class="philo-score">5.6</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho / Pragmatic</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#001C58;"></div></div></div><div class="philo-score">4.8</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Journeyman Winger — Technical, Experienced, Inconsistent"</strong> — Cámara's highest philosophy fit is <strong>Cruyff / Intelligence (6.8)</strong>, reflecting his <strong>Barcelona academy background and technical ability</strong>. Michels (6.6) captures his <strong>versatility across the forward line</strong>. Guardiola (6.4) reflects his <strong>positional awareness</strong>. His <strong>lowest fit is Mourinho (4.8)</strong> — a creative winger who thrives in possession‑based systems does not fit a purely defensive, pragmatic approach. The critical question: <strong>can his technical ability and experience compensate for his age and inconsistency?</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Winger</span>
+          <span class="tag tag-spain">Born: Jaén, Spain</span>
+          <span class="tag tag-info">#7</span>
+          <span class="tag tag-info">Barcelona Academy</span>
+          <span class="tag tag-youth">32‑Year‑Old Veteran</span>
+          <span class="tag tag-gold">La Liga Winner 2015</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Attacking · EST</h3>
+      <div class="attr-row"><span class="name">Finishing (6 goals in 19 apps, 25/26)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Dribbling (winger profile, pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Crossing / Delivery (pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Off‑Ball Movement (OBI pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Positional Anticipation (OBI_P pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Link‑Up Play (experience)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Aerial Threat (184cm)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Penalty Taking (no data)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Technical · EST</h3>
+      <div class="attr-row"><span class="name">First Touch (Barcelona academy)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Ball Control (technical background)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Passing Range (winger profile)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Vision / Creativity (experience)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Pressing Resistance (experience)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Tactical Versatility (LW, RW, AM)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Weak Foot (left‑footed, limited right)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Set Piece Threat (winger, pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Physical · EST</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competence (experience)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">CHR Character (13 clubs, resilience)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (experience)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (experience)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch Response (UCL qualifiers)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">COACH Coachability (experienced)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Work Rate / Pressing (pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Discipline (0 cards in Europe)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="weighting-grid">
+    <div class="weighting-card t3w">
+      <div class="w-label">Tier 3 · Scout Intelligence</div>
+      <div class="w-value">50%</div>
+      <div class="w-desc">Character, discipline, coachability, leadership — scout‑observed only</div>
+    </div>
+    <div class="weighting-card t2w">
+      <div class="w-label">Tier 2 · Composite Intelligence</div>
+      <div class="w-value">30%</div>
+      <div class="w-desc">Analytical patterns, cross‑league context, development trajectories</div>
+    </div>
+    <div class="weighting-card t1w">
+      <div class="w-label">Tier 1 · Statistical Foundation</div>
+      <div class="w-value">20%</div>
+      <div class="w-desc">Wikipedia, Transfermarkt, UEFA, FotMob — automated baseline</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Wikipedia · Transfermarkt · UEFA · FotMob</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">AGE</div><div class="t1-hl-val">32</div><div class="t1-hl-pct">years · Veteran</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:65%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">GOALS</div><div class="t1-hl-val">6</div><div class="t1-hl-pct">Inter · 25/26 (19 apps)</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">CLUBS</div><div class="t1-hl-val">13</div><div class="t1-hl-pct">Clubs played for</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">MV</div><div class="t1-hl-val">€100K</div><div class="t1-hl-pct">Market value</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:30%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">UCL</div><div class="t1-hl-val">2</div><div class="t1-hl-pct">Apps · 123 min</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:35%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">2025/26 · Inter Club d'Escaldes</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">League Appearances · 19</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div><span class="t1-metric-val">19</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Goals</span><span class="t1-metric-desc">Goals · 6</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div><span class="t1-metric-val">6</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">UCL</span><span class="t1-metric-desc">UCL Qualifying Apps · 2</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--info)"></div></div></div><span class="t1-metric-val">2</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">UCL</span><span class="t1-metric-desc">Minutes · 123</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--info)"></div></div></div><span class="t1-metric-val">123</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">UCL</span><span class="t1-metric-desc">Fouls · 3 · 0 cards</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--info)"></div></div></div><span class="t1-metric-val">0</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Physical & Profile</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Height</span><span class="t1-metric-desc">184cm (6'0")</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--success)"></div></div></div><span class="t1-metric-val">184cm</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Foot</span><span class="t1-metric-desc">Left</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--info)"></div></div></div><span class="t1-metric-val">Left</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Joined</span><span class="t1-metric-desc">Inter · 2025</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--info)"></div></div></div><span class="t1-metric-val">2025</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Int</span><span class="t1-metric-desc">Spain U16/U17</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--success)"></div></div></div><span class="t1-metric-val">8 caps</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Estimates</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI — Creative Player Index (proxy)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">DMA — Decision Making (proxy)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">SOA — Speed on Action (proxy)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI_P — Positional Anticipation (pending)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">— PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">CRS — Clutch Response (UCL qualifiers)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Proxy Estimates</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are algorithmic estimates derived from Tier 1 statistical data. With 0/16 T3 metrics confirmed, these are unvalidated proxy scores. The Primera Divisió (LOG ~1.6) and European qualifiers (LOG ~3.0) provide some context. His 6 goals in 19 appearances suggest <strong>decent attacking output</strong>, but dribbling, crossing, and decision‑making remain unverified. All Tier 2 scores are suppressed by the lack of T3 validation.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: ~1.6</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> Primera Divisió (Andorra · 1st tier)<br>
+          <strong style="color:var(--text-primary);">Club:</strong> Inter Club d'Escaldes<br>
+          <strong style="color:var(--text-primary);">Previous Club LOG:</strong> ~2.2 (Segunda Federación — Badalona Futur)<br>
+          <strong style="color:var(--text-primary);">UCL Qualifying LOG:</strong> ~3.0<br>
+          <strong style="color:var(--text-primary);">Joined:</strong> 2025 · Free transfer<br>
+          <strong style="color:var(--text-primary);">Role:</strong> Winger / attacking midfielder<br>
+          <strong style="color:var(--success);">6 goals in 19 apps at age 32</strong><br><br>
+          <strong style="color:var(--gold);">LOG ~1.6</strong> represents the Andorran top flight — a very low level in the European football pyramid. For a 32‑year‑old winger, his experience across Europe is a positive, but the <strong>level of opposition in Andorra is a significant limitation</strong>. The question is whether his <strong>technical ability and experience</strong> could translate to a higher level if given the opportunity.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · LOG ~1.6</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off‑Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_T — PENDING (EST 6.0)</strong><br>
+            <strong style="color:var(--pending);">OBI_S — PENDING (EST 6.0)</strong><br>
+            <strong style="color:var(--pending);">OBI_P — PENDING (EST 6.5)</strong><br>
+            No video events recorded. As a winger, OBI_P (positional anticipation) is critical — does he find space between the lines? OBI_T (run timing) determines whether he arrives at the right moment for crosses. OBI_S (space creation) measures whether his movement opens corridors for teammates. All three are unverified.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">SII_T — PENDING (EST 6.0)</strong><br>
+            <strong style="color:var(--pending);">SII_R — PENDING (EST 5.5)</strong><br>
+            No video events recorded. For a winger, explosive acceleration (SII_A) is critical for 1v1 dribbling and pressing. Top‑end speed (SII_T) determines whether he can beat defenders in transition. Recovery sprint frequency (SII_R) measures his work rate and pressing intensity. T3 must verify whether he still has the physical tools to be effective.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">✗</span> All 16 metrics pending<br><br>
+            <strong>0/16 metrics confirmed</strong> across 0 matches<br><br>
+            <strong>Recommended:</strong> Inter Club d'Escaldes 2025‑26 Primera Divisió + UEFA Champions League qualifying + UEFA Conference League qualifying + Copa Constitució footage. Priority: Dribbling, crossing, decision‑making in the final third, off‑ball movement, work rate, and creative risk‑taking.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span>
+    <div>CROSS‑LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 6.0. All figures are algorithmic estimates derived from Tier 1 data — no T3 validation has been completed. Primera Divisió (LOG ~1.6) is the Andorran top tier. <strong>Critical:</strong> Cámara is 32 years old with a journeyman career across Europe. These projections represent his <strong>current level</strong> — the leap to a higher league would be significant. <strong style="color:var(--warning);">Downward‑move cap:</strong> For target leagues weaker than the player's current level, projected FGA is capped at the base score.</div>
+  </div>
+
+  <h3 class="section-title">Cross‑League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality. Cámara's <strong style="color:var(--text-primary);">6.0 FGA is an absolute composite estimate</strong> for his current Primera Divisió level — weighted toward his 6 goals in 19 appearances, La Liga winner status, and European qualifying experience. At 32, <strong style="color:var(--warning);">he is in the veteran stage of his career</strong>, and the <strong>level of competition in Andorra is a major constraint</strong>. These projections represent what he would score <strong>if transferred today</strong> — not what he might become after development.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current — Primera Divisió</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇦🇩 Andorra</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">6.0</div>
+      <div class="label">Inter Escaldes · Tier ~1.6 · 1st tier</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Segunda División</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.8</div>
+      <div class="label">Tier 2.5</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Belgian Pro League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇪 Belgium</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.7</div>
+      <div class="label">Tier 2.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Netherlands</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">3.4</div>
+      <div class="label">Tier 2.8</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Ekstraklasa</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇵🇱 Poland</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">4.2</div>
+      <div class="label">Tier 2.3 · Proven</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Liga I (Romania)</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇷🇴 Romania</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">4.5</div>
+      <div class="label">Tier 2.1 · Proven</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Primera Divisió</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇦🇩 Andorra</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">6.0</div>
+      <div class="label">Base maintained</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Developmental Assessment</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG‑Adjusted Score = Base FGA × (Current League Tier / Target League Tier).<br>
+      <strong style="color:var(--warning);">Downward‑move cap:</strong> For target leagues weaker than the player's current level (Target LOG &lt; Current LOG), the projected FGA is capped at the base score. Moving to a weaker league does not increase a player's absolute ability.<br><br>
+      <strong>Segunda División (2.5):</strong> 6.0 × (1.6 / 2.5) = <strong style="color:var(--text-primary);">3.84</strong> → <strong>3.8</strong><br>
+      <strong>Belgian Pro League (2.6):</strong> 6.0 × (1.6 / 2.6) = <strong style="color:var(--text-primary);">3.69</strong> → <strong>3.7</strong><br>
+      <strong>Eredivisie (2.8):</strong> 6.0 × (1.6 / 2.8) = <strong style="color:var(--text-primary);">3.43</strong> → <strong>3.4</strong><br>
+      <strong>Ekstraklasa (2.3):</strong> 6.0 × (1.6 / 2.3) = <strong style="color:var(--text-primary);">4.17</strong> → <strong>4.2</strong> (he has played at this level)<br>
+      <strong>Liga I (2.1):</strong> 6.0 × (1.6 / 2.1) = <strong style="color:var(--text-primary);">4.57</strong> → <strong>4.5</strong> (he has played at this level)<br>
+      <strong>Primera Divisió (1.6):</strong> Base FGA <strong style="color:var(--text-primary);">6.0</strong> maintained — downward moves do not inflate absolute ability. Player would project as a <strong style="color:var(--success);">productive winger</strong> in this context.<br><br>
+      <strong style="color:var(--success);">Developmental Assessment — The Cámara Reality:</strong><br>
+      At 32, Juan Cámara is a <strong>veteran winger with a rich and varied career</strong> — Barcelona and Villarreal academy products, La Liga winner, and 13 clubs across Europe. He has found a productive spell at Inter Escaldes with <strong>6 goals in 19 appearances</strong>. However, the <strong>level of competition is a significant limitation</strong> — the Primera Divisió is one of Europe's weakest top flights. The <strong>realistic career path</strong> is:<br>
+      1. <strong>Continue as a productive winger at Inter Escaldes</strong> (2026‑27) — maintain his goalscoring form<br>
+      2. <strong>Earn a move to a higher league</strong> — a return to the Polish Ekstraklasa or Romanian Liga I would be realistic<br>
+      3. <strong>Prove himself as a veteran contributor</strong> — his experience could be valuable to a mid‑table side in a weaker European league<br><br>
+      <strong style="color:var(--danger);">Read before sending to a club:</strong> This is a <strong>journeyman winger with a strong CV</strong>. Do not present Cámara as a player who can dominate a higher league. He has <strong>never been a consistent starter at a high level</strong> and would require <strong>adaptation</strong> to a more competitive environment. His <strong>Barcelona academy background</strong> and <strong>La Liga winner's medal</strong> are positives, but the <strong>LOG context is critical</strong> — he is playing at a very low level in Andorra.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff / Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#FF6600;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Michels / Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:#21468B;"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:64%;background:#6CABDD;"></div></div></div><div class="philo-score">6.4</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Klopp / Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#e07820;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa / High‑Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#001C58;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Sacchi / Pressing & Organisation</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#003366;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Wenger / Development Archetype</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:56%;background:#0055A4;"></div></div></div><div class="philo-score">5.6</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho / Pragmatic</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:48%;background:#001C58;"></div></div></div><div class="philo-score">4.8</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Journeyman Winger — Technical, Experienced, Inconsistent"</strong> — Cámara's highest philosophy fit is <strong>Cruyff / Intelligence (6.8)</strong>, reflecting his <strong>Barcelona academy background and technical ability</strong>. Michels (6.6) captures his <strong>versatility across the forward line</strong>. Guardiola (6.4) reflects his <strong>positional awareness</strong>. His <strong>lowest fit is Mourinho (4.8)</strong> — a creative winger who thrives in possession‑based systems does not fit a purely defensive, pragmatic approach. The critical question: <strong>can his technical ability and experience compensate for his age and inconsistency?</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Winger</span>
+          <span class="tag tag-spain">Born: Jaén, Spain</span>
+          <span class="tag tag-info">#7</span>
+          <span class="tag tag-info">Barcelona Academy</span>
+          <span class="tag tag-youth">32‑Year‑Old Veteran</span>
+          <span class="tag tag-gold">La Liga Winner 2015</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:#FF6600;">6.8</div><div class="label">Cruyff / Intelligence</div></div>
+    <div class="stat-hero"><div class="value" style="color:#21468B;">6.6</div><div class="label">Michels / Total</div></div>
+    <div class="stat-hero"><div class="value" style="color:#6CABDD;">6.4</div><div class="label">Guardiola / Positional</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">4.8</div><div class="label">Mourinho / Pragmatic</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items:start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born 13 Feb 1994 · Jaén, Spain</div><div class="timeline-text">Born in <strong>Jaén, Spain</strong>. Began his football journey in the <strong>Villarreal academy</strong> at age 12.[reference:8][reference:9]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2011–2014 · Villarreal B</div><div class="timeline-text">Progressed through the ranks at Villarreal, playing for <strong>Villarreal C</strong> (34 apps, 8 goals) and <strong>Villarreal B</strong> (70 apps, 15 goals) in the Segunda B.[reference:10]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2014–2016 · Barcelona B</div><div class="timeline-text"><strong>Move to Barcelona.</strong> Signed for Barcelona B, making <strong>61 appearances and scoring 12 goals</strong>. Made the first team and won <strong>La Liga in 2015</strong>.[reference:11][reference:12]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2016–2018 · Loans (Girona, Reus)</div><div class="timeline-text">Loaned to <strong>Girona</strong> (3 apps) and <strong>Reus</strong> (17 apps) in the Spanish Segunda División.[reference:13]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2018–2019 · Miedź Legnica</div><div class="timeline-text"><strong>First move abroad.</strong> Signed for Polish club <strong>Miedź Legnica</strong> in the Ekstraklasa, making <strong>27 appearances and scoring 3 goals</strong>.[reference:14]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2019–2023 · Jagiellonia Białystok</div><div class="timeline-text">Joined <strong>Jagiellonia Białystok</strong> on a four‑year deal. Made <strong>35 appearances with 2 goals</strong>.[reference:15]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2020–2022 · Loans (Romania, Azerbaijan)</div><div class="timeline-text">Loaned to <strong>Dinamo București</strong> (12 apps, 2 goals), <strong>Universitatea Craiova</strong> (12 apps), and <strong>Sabah</strong> (19 apps, 4 goals).[reference:16]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2023–2024 · Zagłębie Sosnowiec</div><div class="timeline-text">Signed with Polish I liga side <strong>Zagłębie Sosnowiec</strong> on a one‑year deal. Made <strong>12 appearances</strong>.[reference:17]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024 · Badalona Futur</div><div class="timeline-text"><strong>Return to Spain.</strong> Joined <strong>CF Badalona Futur</strong> in the Segunda Federación. Made <strong>9 appearances</strong>.[reference:18]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2024–2025 · Real Jaén</div><div class="timeline-text">Signed for <strong>Real Jaén</strong> in his hometown. Made <strong>27 appearances and scored 4 goals</strong>.[reference:19]</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2025– · Inter Club d'Escaldes</div><div class="timeline-text"><strong>Andorran move.</strong> Signed for <strong>Inter Club d'Escaldes</strong>. Has made <strong>19 league appearances with 6 goals</strong> as of June 2026.[reference:20]</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2026 · European Campaign</div><div class="timeline-text"><strong>UCL & UECL qualifying.</strong> Played 2 UCL qualifying matches (123 minutes) and featured in the UECL qualifying squad for Inter Escaldes.[reference:21]</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Period</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2011–2012</strong></td><td>Villarreal C</td><td>Spain</td><td>34</td><td>8</td><td>—</td></tr>
+          <tr><td><strong>2012–2014</strong></td><td>Villarreal B</td><td>Segunda B</td><td>70</td><td>15</td><td>—</td></tr>
+          <tr><td><strong>2014–2016</strong></td><td>Barcelona B</td><td>Segunda / Segunda B</td><td>61</td><td>12</td><td>—</td></tr>
+          <tr><td><strong>2016–2017</strong></td><td>→ Girona (loan)</td><td>Segunda</td><td>3</td><td>0</td><td>—</td></tr>
+          <tr><td><strong>2017–2018</strong></td><td>→ Reus (loan)</td><td>Segunda</td><td>17</td><td>0</td><td>—</td></tr>
+          <tr><td><strong>2018–2019</strong></td><td>Miedź Legnica</td><td>Poland</td><td>27</td><td>3</td><td>Ekstraklasa</td></tr>
+          <tr><td><strong>2019–2023</strong></td><td>Jagiellonia Białystok</td><td>Poland</td><td>35</td><td>2</td><td>—</td></tr>
+          <tr><td><strong>2020–2021</strong></td><td>→ Dinamo București (loan)</td><td>Romania</td><td>12</td><td>2</td><td>Liga I</td></tr>
+          <tr><td><strong>2021</strong></td><td>→ Universitatea Craiova (loan)</td><td>Romania</td><td>12</td><td>0</td><td>Liga I</td></tr>
+          <tr><td><strong>2021–2022</strong></td><td>→ Sabah (loan)</td><td>Azerbaijan</td><td>19</td><td>4</td><td>—</td></tr>
+          <tr><td><strong>2023–2024</strong></td><td>Zagłębie Sosnowiec</td><td>Poland</td><td>12</td><td>0</td><td>I liga</td></tr>
+          <tr><td><strong>2024</strong></td><td>Badalona Futur</td><td>Spain</td><td>9</td><td>0</td><td>Segunda Federación</td></tr>
+          <tr><td><strong>2024–2025</strong></td><td>Real Jaén</td><td>Spain</td><td>27</td><td>4</td><td>—</td></tr>
+          <tr><td><strong>2025–</strong></td><td>Inter Club d'Escaldes</td><td>Andorra</td><td>19</td><td>6</td><td>Current</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career Total</strong></td><td><strong>~350</strong></td><td><strong>~52</strong></td><td>Approximate</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;">Sources: Wikipedia, Transfermarkt, worldfootball.net. Based on available data; some appearances may be incomplete.</p>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Period</th><th>Caps</th><th>Goals</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Spain U16</strong></td><td>2009</td><td>4</td><td>0</td><td>—</td></tr>
+          <tr><td><strong>Spain U17</strong></td><td>2010</td><td>4</td><td>0</td><td>—</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Total Youth Caps</strong></td><td><strong>8</strong></td><td><strong>0</strong></td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;">Source: Wikipedia.[reference:22]</p>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer Intelligence — August 2026</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="transfer-row"><span class="transfer-club">🇦🇩 Inter Club d'Escaldes</span><span class="transfer-status">Current club · Since 2025</span><span class="transfer-badge tb-active">Active</span></div>
+        <div class="transfer-row"><span class="transfer-club">🇪🇸 Real Jaén</span><span class="transfer-status">2024‑2025 · 27 apps, 4 goals</span><span class="transfer-badge tb-pending">Former</span></div>
+        <div class="transfer-row"><span class="transfer-club">🇪🇸 Badalona Futur</span><span class="transfer-status">2024 · 9 apps</span><span class="transfer-badge tb-pending">Former</span></div>
+        <div class="transfer-row"><span class="transfer-club">🇵🇱 Zagłębie Sosnowiec</span><span class="transfer-status">2023‑2024 · 12 apps</span><span class="transfer-badge tb-pending">Former</span></div>
+        <div class="transfer-row"><span class="transfer-club">🇪🇺 EU Status</span><span class="transfer-status">Spanish national · Full EU passport</span><span class="transfer-badge tb-active">✅</span></div>
+      </div>
+      <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:8px;">Has played for <strong>13 clubs</strong> across Spain, Poland, Romania, and Azerbaijan.</p>
+    </div>
+  </div>
+  <div class="section-title">Physical & Medical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">184cm (6'0")</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">—</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Winger (LW / RW / AM)</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#7 (Inter Escaldes)</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Tall, athletic</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Spain</span></div>
+        <div class="physical-item"><span class="label">Age</span><span class="value">32 years (born 1994)</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Medical & Durability</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury History</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant long‑term injury history documented. Has been available for 19 league appearances in 2025/26 and 2 UCL matches.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Physical Profile</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>32 years old, 184cm</strong> — a good frame for a winger. At 32, his physical attributes may be declining, but his experience and technical ability remain.</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">Disciplinary Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>0 yellow cards, 0 red cards</strong> in UCL qualifying. Clean disciplinary record.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Barcelona academy product — elite technical foundation</strong> — Developed at one of the world's best academies, known for producing technically exceptional players.</li>
+      <li><strong>La Liga winner (2015)</strong> — Won the Spanish top flight with Barcelona, the highest level of club football.</li>
+      <li><strong>13 clubs across 5 countries — extensive experience</strong> — Has played in Spain, Poland, Romania, Azerbaijan, and Andorra, adapting to different leagues and cultures.</li>
+      <li><strong>Productive 2025/26 season — 6 goals in 19 apps</strong> — Has found a goalscoring groove at Inter Escaldes.</li>
+      <li><strong>UCL and UECL qualifying experience</strong> — Featured in European matches for Inter Escaldes.</li>
+      <li><strong>Versatility — LW, RW, AM</strong> — Can play across the forward line, increasing his tactical utility.</li>
+      <li><strong>Clean disciplinary record in Europe</strong> — No cards in UCL qualifying.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>0/16 T3 metrics confirmed</strong> — No video validation. His dribbling, crossing, and decision‑making are assumed from stats, not verified in isolated footage.</li>
+      <li><strong>Primera Divisió level — LOG ~1.6</strong> — The Andorran league is one of Europe's weakest top flights. His 6 goals in 19 appearances are impressive in context, but the step up to a higher league would be significant.</li>
+      <li><strong>Age 32 — declining physical attributes</strong> — At 32, he is in the veteran stage of his career. His pace and stamina may not be what they once were.</li>
+      <li><strong>Journeyman career — never settled at a high level</strong> — Has played for 13 clubs, suggesting he has never been a long‑term starter at a top club.</li>
+      <li><strong>No senior caps for Spain</strong> — Has only played at U16 and U17 level for Spain.</li>
+      <li><strong>Limited UCL output — 0 goals, 0 assists in 123 minutes</strong> — Has not yet contributed to a goal in European competition.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>No T3 video assessment completed</strong> — The single biggest gap. Every metric is a guess until a scout watches him play in isolated footage.</li>
+      <li><strong>Dribbling and 1v1 ability unproven at higher level</strong> — Can he still beat defenders with pace and skill?</li>
+      <li><strong>Crossing accuracy unverified</strong> — Can he deliver quality crosses into the box?</li>
+      <li><strong>Decision‑making in the final third unverified</strong> — Does he make the right choices when in scoring positions?</li>
+      <li><strong>Work rate and defensive contribution unverified</strong> — Does he track back and help his full‑back?</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 6.0 — Spanish Winger · Barcelona Academy · Journeyman Career.</strong> The T1 data reveals a <strong>32‑year‑old winger with a rich career</strong> — Villarreal and Barcelona academy products, La Liga winner, and 13 clubs across Europe. He has found a productive spell at Inter Escaldes with <strong>6 goals in 19 appearances</strong>. However, <strong>0/16 T3 metrics have been validated</strong> — no video analysis has been conducted. His <strong>dribbling, crossing, and decision‑making</strong> remain unverified at the level required for a higher league. <strong>T3 validation is critical</strong> to confirm his ability to beat defenders, deliver crosses, and contribute defensively. <strong>Recommended for immediate monitoring with full video assessment.</strong> A <strong>veteran winger with a journeyman profile</strong> who has found a goalscoring groove in Andorra. For Inter: a productive winger. For external clubs: <strong>monitor closely, consider if T3 validates technical ability and experience.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span>
+    <div><strong>No Empire FGA Assessment Matches Available.</strong> No full‑match isolated footage has been registered in the T3 system. Below are available video resources for future scout registration. Priority: Inter Club d'Escaldes 2025‑26 Primera Divisió + UEFA Champions League qualifying + UEFA Conference League qualifying + Copa Constitució footage. <strong>Same match links as Borja Arellano (Inter Club d'Escaldes) are provided below.</strong></div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--success);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">📹 2025-26 Season Footage — Click to Open</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/x4dhsu0h3n7w4brhusf3u/Inter-Club-d-Escaldes-Lincoln-Red-Imps-Football-Club.mp4?rlkey=ya5zpk8dib9dbag18rydjpnbo&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(26,58,106,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Inter Club d'Escaldes vs Lincoln Red Imps 🇦🇩🇬🇮</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UEFA Champions League Qualifying 2026</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Dropbox link provided.</strong> Full match footage available for T3 scout registration. Validates Cámara's dribbling and crossing in European competition. LOG ~3.0.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/ghl0fdl3o4zpd4o2tr1f8/Inter-Club-d-Escaldes-Mittetulundus-hing-Jalgpalliklubi-Football-Club-Flora.mp4?rlkey=k8q19mvpbf26epho9nb06b54l&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(26,58,106,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Inter Club d'Escaldes vs Flora Tallinn 🇦🇩🇪🇪</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UEFA Champions League Qualifying 2026</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Dropbox link provided.</strong> Full match footage available for T3 scout registration. Validates Cámara's performance against Estonian opposition. LOG ~3.0.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/weoowtx0rs5tpihhg3ksp/Lincoln-Red-Imps-Football-Club-Inter-Club-d-Escaldes.mp4?rlkey=dx3mei824h6a6qvnz6hz9svpx&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(26,58,106,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Lincoln Red Imps vs Inter Club d'Escaldes 🇬🇮🇦🇩</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UEFA Champions League Qualifying 2026</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Dropbox link provided.</strong> Full match footage available for T3 scout registration. Validates Cámara's performance away from home in European competition. LOG ~3.0.
+        </div>
+      </div>
+    </a>
+    <a href="https://www.dropbox.com/scl/fi/hkmzdg9dkzxmtqtfxlpt1/Uni-Esportiva-Santa-Coloma-Inter-Club-d-Escaldes.mp4?rlkey=4pdr1dpyed7vem1e7v3otp5hj&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(26,58,106,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">UE Santa Coloma vs Inter Club d'Escaldes 🇦🇩</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">Primera Divisió 2025-26</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Dropbox link provided.</strong> Full match footage available for T3 scout registration. Validates Cámara's performance in the Primera Divisió. LOG ~1.6.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Priority Match Register</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 1 — UEFA Champions League Qualifying Footage</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M1:</strong> Inter vs Lincoln Red Imps (Dropbox)<br>
+          <strong style="color:var(--info);">M2:</strong> Inter vs Flora Tallinn (Dropbox)<br>
+          <strong style="color:var(--info);">M3:</strong> Lincoln Red Imps vs Inter (Dropbox)<br><br>
+          <strong>LOG ~3.0</strong>. The highest level of club football Cámara has played. Will determine whether his dribbling and crossing translate to European competition.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 2 — Primera Divisió Footage</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">M4:</strong> UE Santa Coloma vs Inter (Dropbox)<br>
+          <strong style="color:var(--gold);">M5+:</strong> Other Inter Primera Divisió matches<br><br>
+          <strong>Supplementary but critical.</strong> These matches provide the context for his goalscoring record. Validates his movement, finishing, and creativity against Andorran opposition.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 3 — Full 90‑Minute Assessment</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M6+:</strong> Any match where Cámara starts and plays 75+ minutes<br><br>
+          <strong>LOG ~1.6</strong> (Andorra) or <strong>~3.0</strong> (UCL). Minimum 5 matches required for T3 validation per ESN methodology. Must include at least 2 matches where he plays 60+ minutes to assess stamina, concentration, late‑game decision‑making, and creative output over full duration.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.0;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Finishing','Dribbling','Crossing','Off‑Ball Movement','Link‑Up Play','Pressing','Work Rate','Discipline'],
+      datasets: [{
+        label: 'Cámara EST (32)',
+        data: [6.5, 6.5, 6.0, 6.0, 6.0, 5.5, 5.5, 8.0],
+        backgroundColor: 'rgba(26,58,106,0.2)',
+        borderColor: '#1a3a6a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Primera Divisió winger avg',
+        data: [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 6.5],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 2, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Cruyff','Michels','Guardiola','Klopp','Bielsa','Sacchi'],
+    datasets: [{
+      label: 'Cámara',
+      data: [6.8, 6.6, 6.4, 6.2, 6.0, 5.8],
+      backgroundColor: 'rgba(26,58,106,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#FF6600','#21468B','#6CABDD','#e07820','#001C58','#003366'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 2, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Foundation 20%','T2 Composite 30%','T3 Scout 50%'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#3b82f6', '#ffb800', '#00d084'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
