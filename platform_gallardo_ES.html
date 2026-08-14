@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire FGA | Inteligencia de Scouting — Andorra & Luxemburgo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:#090D12;--bg1:#0D1520;--bg2:#111C2A;--bg3:#172234;--bg4:#1C2A3E;
+  --gold:#C9921A;--gold2:#EDB84E;--goldlo:rgba(201,146,26,.1);
+  --cyan:#2DD4BF;--cyanlo:rgba(45,212,191,.1);--cyandim:rgba(45,212,191,.3);
+  --red:#F04545;--grn:#22D46A;
+  --t1:#F0F6FF;--t2:#8BA5C0;--t3:#44627A;
+  --ln:rgba(255,255,255,.06);--ln2:rgba(255,255,255,.11);
+  --D:'Inter',sans-serif;--B:'Inter',sans-serif;--M:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--B);background:var(--bg);color:var(--t1);font-size:14px;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+select,input{font-family:inherit}
+a{color:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--cyandim)}
+
+#app{display:grid;grid-template-rows:54px 42px 1fr;height:100vh;overflow:hidden}
+
+/* NAV */
+#nav{background:var(--bg1);border-bottom:2px solid var(--gold);display:flex;align-items:center;padding:12px 20px;z-index:60;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.logo{display:flex;align-items:center;gap:12px;margin-right:20px;flex-shrink:1;min-width:0}
+.logo img{height:44px;width:44px;object-fit:contain;border-radius:6px;background:#fff;padding:3px;flex-shrink:0}
+.logo-fallback{height:44px;width:44px;border-radius:6px;background:linear-gradient(135deg,var(--gold),var(--cyan));color:#0A0D12;display:flex;align-items:center;justify-content:center;font-family:var(--D);font-weight:700;font-size:.75rem;letter-spacing:.5px;flex-shrink:0}
+.logo-text{min-width:0;overflow:hidden;max-width:180px}
+.logo-name{font-family:var(--D);font-size:1.25rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:linear-gradient(90deg,var(--gold) 0%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1}
+.logo-sub{font-family:var(--M);font-size:.56rem;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;height:54px;align-items:stretch;gap:1px}
+.tb{display:flex;align-items:center;gap:6px;padding:0 13px;font-family:var(--D);font-size:.78rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);border-bottom:3px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.tb:hover{color:var(--t2)}
+.tb.on{color:var(--gold);border-bottom-color:var(--gold)}
+.tb i{font-size:.75rem;opacity:.8}
+.tb-badge{font-family:var(--M);font-size:.56rem;background:var(--bg3);color:var(--cyan);border:1px solid var(--cyandim);padding:1px 5px;border-radius:2px;letter-spacing:0}
+.nav-user{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:14px;border-left:1px solid var(--ln)}
+.nu-name{font-family:var(--D);font-size:.8rem;font-weight:600;color:var(--t1);letter-spacing:1px;text-transform:uppercase}
+.nu-role{font-family:var(--M);font-size:.55rem;color:var(--t3)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--goldlo);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--D);font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0}
+
+/* FILTER BAR */
+#fbar{background:var(--bg2);border-bottom:1px solid var(--ln);display:flex;align-items:center;padding:0 20px;gap:7px;overflow-x:auto;overflow-y:hidden}
+#fbar::-webkit-scrollbar{height:3px}
+.fl{font-family:var(--D);font-size:.65rem;font-weight:600;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;flex-shrink:0}
+.fsep{width:1px;height:18px;background:var(--ln2);flex-shrink:0}
+.fsel{background:var(--bg3);border:1px solid var(--ln2);color:var(--t1);padding:5px 20px 5px 8px;font-family:var(--B);font-size:.78rem;border-radius:3px;flex-shrink:0;appearance:none;min-width:108px;max-width:148px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M0 0l5 6 5-6' fill='none' stroke='%2344627A' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .15s}
+.fsel:focus{outline:none;border-color:var(--cyandim)}
+.fsearch{background:var(--bg3);border:1px solid var(--ln2);color:var(--t1);padding:5px 8px 5px 26px;font-family:var(--B);font-size:.78rem;border-radius:3px;width:170px;flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' fill='none' stroke='%2344627A' stroke-width='2'%3E%3Ccircle cx='6' cy='6' r='5'/%3E%3Cpath d='m10.5 10.5 3 3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:7px center;transition:border-color .15s}
+.fsearch::placeholder{color:var(--t3)}
+.fsearch:focus{outline:none;border-color:var(--cyandim)}
+.frange{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.frl{font-family:var(--M);font-size:.58rem;color:var(--t3);letter-spacing:1px;white-space:nowrap}
+.fnum{width:44px;background:var(--bg3);border:1px solid var(--ln2);color:var(--t1);padding:5px 5px;border-radius:3px;font-family:var(--M);font-size:.7rem;text-align:center}
+.fnum:focus{outline:none;border-color:var(--cyandim)}
+.fdash{font-family:var(--M);font-size:.65rem;color:var(--t3)}
+.freset{background:rgba(240,69,69,.08);border:1px solid rgba(240,69,69,.2);color:var(--red);padding:5px 10px;border-radius:3px;font-family:var(--D);font-size:.65rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;transition:background .15s}
+.freset:hover{background:rgba(240,69,69,.16)}
+.fresults{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--ln);padding:4px 10px;border-radius:3px}
+.fr-n{font-family:var(--M);font-size:.88rem;font-weight:600;color:var(--cyan)}
+.fr-l{font-family:var(--D);font-size:.6rem;color:var(--t3);letter-spacing:1px;text-transform:uppercase}
+
+/* CONTENT */
+#content{overflow-y:auto;overflow-x:hidden;padding:18px 20px 32px}
+.section{display:none}
+.section.on{display:block}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:18px}
+.kpi{background:var(--bg2);border:1px solid var(--ln);border-radius:6px;padding:15px 16px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s;display:flex;flex-direction:column;min-height:94px}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--cyan));opacity:.4}
+.kpi:hover{border-color:var(--ln2);transform:translateY(-1px)}
+.kpi-lbl{font-family:var(--D);font-size:.63rem;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.kpi-val{font-family:var(--D);font-size:1.85rem;font-weight:700;line-height:1;color:var(--gold2)}
+.kpi-sub{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-top:auto;padding-top:6px;line-height:1.35}
+
+/* METRIC LEGEND CARDS */
+.mleg-section-title{font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.mleg-section-title::after{content:'';flex:1;height:1px;background:var(--ln2)}
+.mleg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.mleg-card{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:13px 15px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s}
+.mleg-card:hover{border-color:var(--ln2)}
+.mleg-card.primary{border-color:rgba(201,146,26,.35);background:rgba(201,146,26,.04)}
+.mleg-card.primary .mleg-code{color:var(--gold2)}
+.mleg-code{font-family:var(--D);font-size:1.1rem;font-weight:700;color:var(--cyan);min-width:40px;line-height:1.1;flex-shrink:0;letter-spacing:1px}
+.mleg-body{flex:1;min-width:0}
+.mleg-name{font-family:var(--D);font-size:.82rem;font-weight:600;color:var(--t1);letter-spacing:.3px;display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.core-tag{font-family:var(--M);font-size:.54rem;color:var(--gold);background:var(--goldlo);border:1px solid rgba(201,146,26,.2);padding:1px 5px;border-radius:2px}
+.mleg-def{font-family:var(--B);font-size:.72rem;color:var(--t2);margin-top:4px;line-height:1.5}
+.mleg-formula{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-top:5px;padding:4px 8px;background:var(--bg3);border-radius:2px;line-height:1.6;word-break:break-all}
+.mleg-weight{font-family:var(--M);font-size:.58rem;margin-top:4px}
+
+/* CHARTS */
+.charts3{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:11px;margin-bottom:18px}
+.charts2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}
+.panel{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:14px 16px}
+.ptitle{font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.ptitle i{opacity:.6;margin-right:5px}
+.hbar{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.hbar-lbl{font-family:var(--D);font-size:.68rem;color:var(--t2);width:48px;text-align:right;flex-shrink:0}
+.hbar-lbl.wide{width:112px;font-size:.64rem}
+.hbar-track{flex:1;height:14px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:2px;position:relative;transition:width .7s ease}
+.hbar-fill::after{content:attr(data-v);position:absolute;right:5px;top:50%;transform:translateY(-50%);font-family:var(--M);font-size:.56rem;color:rgba(255,255,255,.5)}
+.hbar-n{font-family:var(--M);font-size:.62rem;color:var(--t3);width:28px;text-align:right}
+.toprow{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:3px;border-bottom:1px solid rgba(255,255,255,.022);transition:background .1s}
+.toprow:hover{background:var(--bg3)}
+.tr-rank{font-family:var(--M);font-size:.62rem;color:var(--t3);width:14px;text-align:right}
+.tr-rank.g{color:var(--gold2)}
+.tr-name{font-family:var(--D);font-size:.85rem;font-weight:500;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-meta{font-family:var(--M);font-size:.55rem;color:var(--t3)}
+.tr-fga{font-family:var(--M);font-size:.8rem;color:var(--gold);width:38px;text-align:right;flex-shrink:0}
+
+/* TABLE */
+.tblwrap{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;overflow:hidden}
+.tblhead{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ln);background:var(--bg1)}
+.tbl-title{font-family:var(--D);font-size:.92rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--t1)}
+.tbl-acts{display:flex;align-items:center;gap:6px}
+.srtb{background:var(--bg3);border:1px solid var(--ln);color:var(--t3);padding:4px 8px;border-radius:3px;font-family:var(--D);font-size:.62rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.srtb.on{border-color:var(--cyandim);color:var(--cyan)}
+.srtb:hover{border-color:var(--ln2);color:var(--t2)}
+.pg-inf{font-family:var(--M);font-size:.58rem;color:var(--t3)}
+.tblscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg1);border-bottom:2px solid rgba(45,212,191,.13)}
+th{padding:8px 8px;font-family:var(--D);font-size:.62rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);text-align:left;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--gold2)}
+th.c{text-align:center}
+th.fga-col{color:var(--gold2) !important}
+td{padding:7px 8px;font-family:var(--B);font-size:.79rem;color:var(--t2);border-bottom:1px solid rgba(255,255,255,.02);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr.dr:hover td{background:var(--bg3);color:var(--t1)}
+td.pname{font-family:var(--D);font-size:.84rem;font-weight:500;color:var(--cyan);letter-spacing:.2px;cursor:pointer}
+td.pname:hover{color:var(--gold2);text-decoration:underline}
+td.c{text-align:center}
+td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
+.pos-chip{font-family:var(--D);font-size:.6rem;font-weight:500;padding:2px 5px;border-radius:2px;display:inline-block}
+.GK{background:rgba(234,184,78,.1);color:#EAB84E;border:1px solid rgba(234,184,78,.2)}
+.DF{background:rgba(45,212,191,.08);color:#2DD4BF;border:1px solid rgba(45,212,191,.16)}
+.MF{background:rgba(34,212,106,.08);color:#22D46A;border:1px solid rgba(34,212,106,.16)}
+.FW{background:rgba(240,69,69,.08);color:#F04545;border:1px solid rgba(240,69,69,.16)}
+.lgchip{font-family:var(--D);font-size:.56rem;font-weight:500;padding:2px 5px;border-radius:2px;display:inline-block;white-space:nowrap}
+.fga-cell{display:flex;align-items:center;gap:5px}
+.fga-num{font-family:var(--M);font-size:.78rem;font-weight:600;min-width:36px;flex-shrink:0}
+.fga-bar{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;min-width:40px}
+.fga-fill{height:100%;border-radius:2px}
+.actbtn{padding:3px 7px;border-radius:2px;font-family:var(--D);font-size:.58rem;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:background .15s}
+.add{background:rgba(34,212,106,.08);color:var(--grn);border:1px solid rgba(34,212,106,.2)}
+.add:hover{background:rgba(34,212,106,.18)}
+.rem{background:rgba(240,69,69,.08);color:var(--red);border:1px solid rgba(240,69,69,.2)}
+.rem:hover{background:rgba(240,69,69,.18)}
+.pgn{display:flex;align-items:center;justify-content:center;gap:4px;padding:9px 14px;border-top:1px solid var(--ln);background:var(--bg1)}
+.pgb{background:var(--bg3);border:1px solid var(--ln);color:var(--t3);padding:3px 8px;border-radius:3px;font-family:var(--M);font-size:.66rem;transition:all .1s;min-width:28px;text-align:center}
+.pgb:hover:not(:disabled){border-color:var(--cyandim);color:var(--cyan)}
+.pgb.on{background:var(--cyanlo);border-color:var(--cyandim);color:var(--cyan)}
+.pgb:disabled{opacity:.3;cursor:not-allowed}
+.pgdots{font-family:var(--M);font-size:.66rem;color:var(--t3);padding:0 3px}
+
+/* MODAL */
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:flex-start;justify-content:center;padding-top:40px;backdrop-filter:blur(4px)}
+#ov.show{display:flex}
+#modal{background:var(--bg1);border:1px solid var(--ln2);border-radius:6px;width:min(840px,96vw);max-height:88vh;overflow-y:auto;position:relative;box-shadow:0 28px 90px rgba(0,0,0,.7)}
+.m-top{display:flex;align-items:flex-start;gap:16px;padding:20px 22px 16px;border-bottom:1px solid var(--ln)}
+.m-pos{font-family:var(--D);font-size:1.7rem;font-weight:700;padding:10px 13px;border-radius:4px;flex-shrink:0;line-height:1}
+.m-photo{width:56px;height:56px;border-radius:6px;display:block}
+.m-name{font-family:var(--D);font-size:1.45rem;font-weight:700;color:var(--t1);letter-spacing:.5px;line-height:1.1}
+.m-meta{font-family:var(--M);font-size:.64rem;color:var(--t3);margin-top:5px}
+.m-league{font-family:var(--D);font-size:.7rem;font-weight:500;margin-top:5px}
+.m-close{position:absolute;top:13px;right:15px;color:var(--t3);font-size:.95rem;padding:4px 7px;transition:color .15s}
+.m-close:hover{color:var(--red)}
+.tm-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 14px;background:linear-gradient(135deg,rgba(45,212,191,.1),rgba(201,146,26,.08));border:1px solid rgba(45,212,191,.3);border-radius:3px;font-family:var(--D);font-size:.68rem;font-weight:600;letter-spacing:1px;color:var(--cyan);text-decoration:none;text-transform:uppercase;transition:all .15s;position:relative;overflow:hidden}
+.tm-link::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(45,212,191,.15),rgba(201,146,26,.1));opacity:0;transition:opacity .15s}
+.tm-link:hover{border-color:var(--cyandim);color:var(--gold2)}
+.tm-link:hover::before{opacity:1}
+.tm-link .tm-icon{font-size:.8rem;transition:transform .15s}
+.tm-link:hover .tm-icon{transform:translateX(2px)}
+.m-body{padding:16px 22px 22px}
+.m-sec{font-family:var(--D);font-size:.65rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--ln);margin-top:16px}
+.m-sec:first-child{margin-top:0}
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:4px}
+.sbox{background:var(--bg3);border-radius:3px;padding:9px;text-align:center}
+.sbox-n{font-family:var(--M);font-size:1.05rem;color:var(--t1);font-weight:500}
+.sbox-l{font-family:var(--D);font-size:.56rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+/* FGA hierarchy in modal */
+.fga-hier{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:4px}
+.hier-card{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:12px 13px;position:relative;overflow:hidden}
+.hier-card.main{border-color:rgba(201,146,26,.4);background:rgba(201,146,26,.04)}
+.hier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.hier-card.main::before{background:var(--gold)}
+.hier-card.sec::before{background:var(--cyan)}
+.hier-card.ter::before{background:var(--t3)}
+.hier-code{font-family:var(--D);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;color:var(--t3)}
+.hier-val{font-family:var(--M);font-size:1.35rem;font-weight:600;line-height:1}
+.hier-lbl{font-family:var(--D);font-size:.62rem;color:var(--t3);margin-top:3px}
+.hier-bar{height:3px;background:var(--bg3);border-radius:2px;margin-top:7px;overflow:hidden}
+.hier-bar-fill{height:100%;border-radius:2px}
+/* sub metrics grid in modal */
+.sub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.status-grid{display:flex;flex-direction:column;gap:8px}
+.status-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg2);border:1px solid var(--ln);border-radius:4px}
+.status-lbl{font-family:var(--B);font-size:.82rem;color:var(--t2)}
+.status-val{font-family:var(--M);font-size:.8rem;font-weight:600}
+.sub-c{background:var(--bg3);border-radius:3px;padding:10px 11px}
+.sub-code{font-family:var(--M);font-size:.58rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+.sub-val{font-family:var(--M);font-size:.95rem;margin-top:2px}
+.sub-name{font-family:var(--D);font-size:.64rem;color:var(--t2);margin-top:1px}
+.sub-desc{font-family:var(--B);font-size:.62rem;color:var(--t3);margin-top:2px;line-height:1.4}
+.sub-minbar{height:2px;background:var(--bg4);border-radius:2px;margin-top:6px;overflow:hidden}
+.sub-minbar-fill{height:100%;border-radius:2px}
+/* philosophy row */
+.phil-row{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--bg2);border-radius:4px;border:1px solid var(--ln)}
+.phil-badge{font-family:var(--D);font-size:.68rem;font-weight:600;padding:4px 10px;border-radius:3px}
+.phil-mgr{font-family:var(--D);font-size:.9rem;font-weight:600;color:var(--t1)}
+.phil-tag{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-top:2px}
+
+/* TARGETS */
+.tgt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:12px}
+.tgt-card{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:14px;position:relative;transition:border-color .15s}
+.tgt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--cyan));opacity:.3;border-radius:4px 4px 0 0}
+.tgt-card:hover{border-color:var(--ln2)}
+.tgt-name{font-family:var(--D);font-size:.96rem;font-weight:600;color:var(--t1);margin-bottom:2px}
+.tgt-meta{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-bottom:10px}
+.tgt-ms{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tgt-m{background:var(--bg3);border-radius:3px;padding:7px;text-align:center}
+.tgt-mv{font-family:var(--M);font-size:.92rem;line-height:1}
+.tgt-ml{font-family:var(--D);font-size:.56rem;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.tgt-rem{position:absolute;top:9px;right:9px;color:var(--t3);font-size:.7rem;padding:3px 5px;transition:color .15s}
+.tgt-rem:hover{color:var(--red)}
+.tgt-phil{font-family:var(--M);font-size:.56rem;color:var(--t2);margin-top:8px;padding-top:7px;border-top:1px solid var(--ln);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmp-wrap{margin-top:16px;background:var(--bg2);border:1px solid var(--ln);border-radius:4px;overflow:hidden}
+.cmp-hdr{padding:8px 13px;border-bottom:1px solid var(--ln);background:var(--bg1);font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2px;color:var(--cyan);text-transform:uppercase}
+.cmp-scroll{overflow-x:auto}
+.cmptbl{border-collapse:collapse}
+.cmptbl th{padding:7px 11px;font-family:var(--D);font-size:.65rem;color:var(--gold);text-align:center;border-bottom:1px solid var(--ln);white-space:nowrap}
+.cmptbl th.rh{text-align:left;color:var(--t3);font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase}
+.cmptbl td{padding:6px 11px;font-family:var(--M);font-size:.7rem;color:var(--t2);border-bottom:1px solid rgba(255,255,255,.02);text-align:center}
+.cmptbl td.rh{text-align:left;font-family:var(--D);font-size:.6rem;letter-spacing:1px;color:var(--t3);text-transform:uppercase}
+.cmptbl td.best{color:var(--gold2);font-weight:600}
+
+/* METRICS PAGE */
+.mwrap{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.mpanel{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:15px}
+.mptitle{font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:4px;padding-bottom:8px;border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between}
+.mpcnt{font-family:var(--M);font-size:.58rem;color:var(--t3);background:var(--bg3);padding:2px 6px;border-radius:2px}
+.mpsub{font-family:var(--M);font-size:.56rem;color:var(--t3);margin-bottom:9px;margin-top:3px}
+.mrow{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.02)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:var(--M);font-size:.66rem;color:var(--gold);width:28px;flex-shrink:0;padding-top:1px}
+.mtext{flex:1}
+.mname{font-family:var(--D);font-size:.78rem;font-weight:500;color:var(--t1)}
+.mdesc{font-family:var(--B);font-size:.68rem;color:var(--t3);margin-top:1px;line-height:1.4}
+.mtier{font-family:var(--D);font-size:.54rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:1px 4px;border-radius:2px;flex-shrink:0}
+.t1c{color:#22D46A;background:rgba(34,212,106,.08);border:1px solid rgba(34,212,106,.16)}
+.t2c{color:#2DD4BF;background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.16)}
+.t3c{color:var(--gold);background:var(--goldlo);border:1px solid rgba(201,146,26,.18)}
+
+/* PHILOSOPHIES */
+.spills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+.spill{background:var(--bg3);border:1px solid var(--ln);color:var(--t3);padding:4px 10px;border-radius:3px;font-family:var(--D);font-size:.63rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.spill:hover{color:var(--t2);border-color:var(--ln2)}
+.spill.on{background:var(--cyanlo);border-color:var(--cyandim);color:var(--cyan)}
+.philgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.pcard{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:12px;transition:border-color .15s}
+.pcard:hover{border-color:var(--ln2)}
+.psch{font-family:var(--M);font-size:.54rem;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.pmgr{font-family:var(--D);font-size:.9rem;font-weight:600;color:var(--t1)}
+.pdna{font-family:var(--B);font-size:.67rem;color:var(--t3);margin-top:3px;line-height:1.4}
+.pfoot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-family:var(--M);font-size:.56rem;color:var(--t3)}
+.pw{color:var(--gold)}
+
+/* UTILS */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.st{font-family:var(--D);font-size:1.1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--t1)}
+.ss{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-top:2px}
+.clrbtn{background:rgba(240,69,69,.07);border:1px solid rgba(240,69,69,.18);color:var(--red);padding:5px 11px;border-radius:3px;font-family:var(--D);font-size:.63rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:background .15s}
+.clrbtn:hover{background:rgba(240,69,69,.15)}
+.empty{text-align:center;padding:54px 20px}
+.empty-i{font-size:2rem;opacity:.1;margin-bottom:10px}
+.empty-m{font-family:var(--D);font-size:.95rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.empty-s{font-family:var(--B);font-size:.76rem;color:var(--t3);margin-top:5px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<nav id="nav">
+  <div class="logo">
+    <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="ESN" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-fallback',textContent:'ESN'}))">
+    <div class="logo-text"><div class="logo-name">EMPIRE FGA</div><div class="logo-sub">Inteligencia de Scouting · 161 Jugadores · 2 Ligas</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tb on" onclick="show('dash')"><i class="fas fa-tachometer-alt"></i>Dashboard</button>
+    <button class="tb" onclick="show('players')"><i class="fas fa-users"></i>Jugadores<span class="tb-badge" id="cnt-p">161</span></button>
+    <button class="tb" onclick="show('targets')"><i class="fas fa-crosshairs"></i>Objetivos<span class="tb-badge" id="cnt-t">0</span></button>
+    <button class="tb" onclick="show('metrics')"><i class="fas fa-atom"></i>Métricas<span class="tb-badge">779</span></button>
+    <button class="tb" onclick="show('phil')"><i class="fas fa-chess"></i>Filosofías<span class="tb-badge">60</span></button>
+  </div>
+  <div class="nav-user">
+    <a href="players.html" style="color:var(--t2);font-family:var(--D);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;margin-right:10px" title="Browse all player profile pages">Directorio</a>
+    <a href="index.html" style="color:var(--t2);font-family:var(--D);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;margin-right:10px" title="Volver al inicio">Inicio</a>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTneUE9copP0ZzmHlySPowzptlhFn9L172WB6t55WGbt0H_AAnXVu2QZj4v&s=10" alt="Brandsen Sports" style="height:30px;width:30px;object-fit:contain;border-radius:5px;background:#fff;padding:2px;margin-right:10px" onerror="this.style.display='none'">
+    <div><div class="nu-name">Jim Totime</div><div class="nu-role">Brandsen Sports CEO</div></div>
+    <div class="avatar">JT</div>
+  </div>
+</nav>
+
+<div id="fbar">
+  <span class="fl"><i class="fas fa-sliders-h"></i></span>
+  <div class="fsep"></div>
+  <input class="fsearch" type="text" id="fs" placeholder="Buscar nombre de jugador…">
+  <select class="fsel" id="f-lg">
+    <option value="">Todas las Ligas</option>
+    <option value="Andorra Primera Divisió">🇦🇩 Primera Divisió (136)</option>
+    <option value="BGL Ligue">🇱🇺 BGL Ligue (25)</option>
+  </select>
+  <select class="fsel" id="f-cl"><option value="">Todos los Clubes</option></select>
+  <select class="fsel" id="f-pos">
+    <option value="">Todas las Posiciones</option>
+    <option value="GK">GK</option><option value="DF">DF</option>
+    <option value="MF">MF</option><option value="FW">FW</option>
+  </select>
+  <div class="frange">
+    <span class="frl">EDAD</span>
+    <input class="fnum" type="number" id="f-amin" min="15" max="45" placeholder="16">
+    <span class="fdash">–</span>
+    <input class="fnum" type="number" id="f-amax" min="15" max="45" placeholder="40">
+  </div>
+  <div class="frange">
+    <span class="frl">FGA</span>
+    <input class="fnum" type="number" id="f-fmin" min="0" max="100" placeholder="0">
+    <span class="fdash">–</span>
+    <input class="fnum" type="number" id="f-fmax" min="0" max="10" placeholder="100">
+  </div>
+  <select class="fsel" id="f-sch"><option value="">Todas las Escuelas</option></select>
+  <select class="fsel" id="f-mgr"><option value="">Todos los Entrenadores</option></select>
+  <button class="freset" onclick="resetF()">✕ Reiniciar</button>
+  <div class="fresults"><span class="fr-n" id="fcnt">161</span><span class="fr-l">jugadores</span></div>
+</div>
+
+<div id="content">
+
+  <!-- DASHBOARD -->
+  <div id="s-dash" class="section on">
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+      <div class="kpi" style="border-color:rgba(212,184,150,.3);background:rgba(212,184,150,.05)"><div class="kpi-lbl" style="color:#D4B896">Jugadores Totales</div><div class="kpi-val" style="color:#D4B896">161</div><div class="kpi-sub">2 ligas · 25 clubes</div></div>
+      <div class="kpi" style="border-color:rgba(220,192,128,.3);background:rgba(220,192,128,.05)"><div class="kpi-lbl" style="color:#DCC080">🇦🇩 Primera Divisió</div><div class="kpi-val" style="color:#DCC080">136</div><div class="kpi-sub">Todos los clubes</div></div>
+      <div class="kpi" style="border-color:rgba(152,208,172,.3);background:rgba(152,208,172,.05)"><div class="kpi-lbl" style="color:#98D0AC">🇱🇺 BGL Ligue</div><div class="kpi-val" style="color:#98D0AC">25</div><div class="kpi-sub">Solo máximos goleadores/asistentes</div></div>
+      <div class="kpi" style="border-color:rgba(168,200,232,.3);background:rgba(168,200,232,.05)"><div class="kpi-lbl" style="color:#A8C8E8">Objetivos Destacados</div><div class="kpi-val" style="color:#A8C8E8">8</div><div class="kpi-sub">Lista de recomendación de Empire FGA</div></div>
+    </div>
+    
+
+    <div class="mleg-section-title"><i class="fas fa-sitemap" style="opacity:.7"></i>SISTEMA DE CALIFICACIÓN FGA — METRIC HIERARCHY EXPLAINED</div>
+    <div class="mleg-grid">
+      <div class="mleg-card primary">
+        <div class="mleg-code">FGA</div>
+        <div class="mleg-body">
+          <div class="mleg-name">FGA Rating Base <span class="core-tag">★ CORE METRIC</span></div>
+          <div class="mleg-def">The primary Empire FGA score. Weighted average of all 38 Tier 1+2+3 metrics — your foundation of raw performance stripped of philosophy context. Sort by this to compare players purely on what they deliver on the pitch. Every other metric either feeds into or extends from FGA.</div>
+          <div class="mleg-formula">FGA = AVG(21 Tier-1 automated + 6 Tier-2 composite + 11 Tier-3 scout metrics)</div>
+          <div class="mleg-weight" style="color:var(--gold)">Scale: 0–100 &nbsp;·&nbsp; 25% weight in Ultimate</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">ULT</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Ultimate FGA Rating</div>
+          <div class="mleg-def">FGA elevated by context — philosophy fit and match-level factors layered on top of the base score. Currently blocked platform-wide: several of its required inputs have no defined formula yet, so ULT stays honestly PENDING everywhere until that's resolved.</div>
+          <div class="mleg-formula">ULT = FGA + philosophy fit + context (formula incomplete — inputs undefined)</div>
+          <div class="mleg-weight" style="color:var(--t3)">Scale: 0–100 &nbsp;·&nbsp; Not yet computable for any player</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">OBI</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Inteligencia Sin Balón</div>
+          <div class="mleg-def">Calidad de movimiento sin posesión del balón — posicionamiento táctico, conciencia espacial, sincronización de desmarques. Se puntúa a partir de tres subcomponentes evaluados de forma independiente en el vídeo del partido.</div>
+          <div class="mleg-formula">OBI = (OBI_T×0.35) + (OBI_S×0.35) + (OBI_P×0.30)</div>
+          <div class="mleg-weight" style="color:var(--t3)">Escala: 0–10 &nbsp;·&nbsp; Métrica central de Tier 3 — requiere 3+ eventos en 3+ partidos por subcomponente</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">SII</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Índice de Intensidad de Sprint</div>
+          <div class="mleg-def">Calidad de movimiento de alta intensidad — aceleración, acciones a máxima velocidad, sprints de recuperación. Mismo estándar de evidencia que OBI.</div>
+          <div class="mleg-formula">SII = (SII_A×0.40) + (SII_T×0.35) + (SII_R×0.25)</div>
+          <div class="mleg-weight" style="color:var(--t3)">Escala: 0–10 &nbsp;·&nbsp; Métrica central de Tier 3 — requiere 3+ eventos en 3+ partidos por subcomponente</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">T3</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Resto de Métricas de Vídeo</div>
+          <div class="mleg-def">Las otras diez métricas de Tier 3, evaluadas independientemente: Toma de Decisiones, Carácter, Competencia Mental, Velocidad de Acción, Rendimiento Espacial, Calma, Respuesta en Momentos Clave, Compostura, Dinamismo, Riesgo Creativo. Junto con OBI y SII, estas doce son las que aparecen como "X de 12 Tier 3 validado" en cada ficha de jugador.</div>
+          <div class="mleg-formula">DMA · CHR · MCS · SOA · SPI · CLM · CRS · OMS · DYN · CRK</div>
+          <div class="mleg-weight" style="color:var(--t3)">Escala: 0–10 cada una &nbsp;·&nbsp; Mismo estándar de validación — sin atajos</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">PHI</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Métricas Prioritarias de Encaje Filosófico</div>
+          <div class="mleg-def">Nueve métricas necesarias para las fórmulas de encaje con los 60 estilos de entrenador — pases clave, pases largos/verticales/horizontales, regate, conducción, entradas, intercepciones, técnica de tiro. Añadidas a la plantilla de evaluación pero aún no registradas para ningún jugador. Por eso el Encaje Filosófico no aparece en ninguna ficha todavía — no está roto, simplemente es el siguiente paso de evaluación en video.</div>
+          <div class="mleg-formula">KEY · STK · LGP · VRP · HZP · DRB · CAR · INT · TAC</div>
+          <div class="mleg-weight" style="color:var(--t3)">Escala: 0–10 cada una &nbsp;·&nbsp; Ninguna evaluada aún — próximo paso real, no un vacío de fórmula</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts3">
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-chart-bar"></i>Distribución por Club</span></div><div id="ch-lg"></div></div>
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-signal"></i>Bandas de Calificación FGA</span></div><div id="ch-fga"></div></div>
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-users"></i>Perfil de Plantilla</span></div><div id="ch-prof"></div></div>
+    </div>
+    <div class="charts2">
+      <div class="panel">
+        <div class="ptitle">
+          <span><i class="fas fa-crown"></i>Mejores Jugadores por Calificación FGA</span>
+          <select class="fsel" style="font-size:.62rem;padding:3px 18px 3px 7px;min-width:auto;width:115px" id="top-lg" onchange="drawTop()">
+            <option value="">Todas</option>
+          <option value="Andorra Primera Divisió">Primera Divisió</option>
+          <option value="BGL Ligue">BGL Ligue</option>
+          </select>
+        </div>
+        <div id="ch-top"></div>
+      </div>
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-chess"></i>Distribución de Filosofías</span></div><div id="ch-sch"></div></div>
+    </div>
+  </div>
+
+  <!-- PLAYERS -->
+  <div id="s-players" class="section">
+    <div class="tblwrap">
+      <div class="tblhead">
+        <span class="tbl-title">Base de Datos de Jugadores</span>
+        <div class="tbl-acts">
+          <span class="pg-inf" id="pg-lbl">—</span>
+          <button class="srtb on" id="sb-fga" onclick="setSort('fga')"><i class="fas fa-sort-amount-down"></i> FGA /100</button>
+          <button class="srtb" id="sb-ult" onclick="setSort('ult')">ULT</button>
+          <button class="srtb" id="sb-age" onclick="setSort('age')">Age</button>
+          <button class="srtb" id="sb-g" onclick="setSort('g')">Goals</button>
+          <button class="srtb" id="sb-mp" onclick="setSort('mp')">MP</button>
+        </div>
+      </div>
+      <div class="tblscroll">
+        <table>
+          <thead><tr>
+            <th style="width:20px;padding-left:12px">#</th>
+            <th style="width:175px" onclick="setSort('n')">Jugador</th>
+            <th class="c" style="width:34px">Pos</th>
+            <th class="c" style="width:34px" onclick="setSort('age')">Age</th>
+            <th style="width:140px">Club</th>
+            <th class="c" style="width:72px">Liga</th>
+            <th class="c" style="width:28px" onclick="setSort('mp')">MP</th>
+            <th class="c" style="width:26px" onclick="setSort('g')">G</th>
+            <th class="c" style="width:26px" onclick="setSort('a')">A</th>
+            <th class="fga-col" style="width:148px" onclick="setSort('fga')">★ FGA / 100</th>
+            <th class="c" style="width:38px" onclick="setSort('ult')">ULT</th>
+            <th class="c" style="width:36px" onclick="setSort('cci')">CCI</th>
+            <th class="c" style="width:36px" onclick="setSort('clu')">CLU</th>
+            <th class="c" style="width:36px" onclick="setSort('har')">HAR</th>
+            <th style="width:105px">Entrenador</th>
+            <th class="c" style="width:50px">+</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="pgn" id="pgn"></div>
+    </div>
+  </div>
+
+  <!-- TARGETS -->
+  <div id="s-targets" class="section">
+    <div class="sh">
+      <div><div class="st">Scouting Targets</div><div class="ss">Personal watchlist · Session-based storage · max 20</div></div>
+      <button class="clrbtn" id="clr-btn" style="display:none" onclick="clearAll()"><i class="fas fa-trash"></i> Clear All</button>
+    </div>
+    <div class="tgt-grid" id="tgt-grid"></div>
+    <div class="cmp-wrap" id="cmp-w" style="display:none">
+      <div class="cmp-hdr"><i class="fas fa-code-compare" style="margin-right:5px"></i>Head-to-Head Comparison</div>
+      <div class="cmp-scroll"><table class="cmptbl" id="cmptbl"></table></div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div id="s-metrics" class="section">
+    <div class="sh"><div><div class="st">779 Proprietary Metrics</div><div class="ss">Tier 1: 60% automated · Tier 2: 30% composite · Tier 3: 10% expert scout</div></div></div>
+    <div class="mwrap" id="mwrap"></div>
+  </div>
+
+  <!-- PHILOSOPHIES -->
+  <div id="s-phil" class="section">
+    <div class="sh"><div><div class="st">60-Philosophy Tactical Framework</div><div class="ss">Trophy Magnet Factor = weighted average across all 60 tactical philosophies from 15 schools</div></div></div>
+    <div class="spills" id="spills"></div>
+    <div class="philgrid" id="philgrid"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="ov" onclick="closeModal(event)">
+  <div id="modal">
+    <button class="m-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div id="mc"></div>
+  </div>
+</div>
+
+<script>
+const P    = [{"n":"Borja Arellano","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Inter Club d'Escaldes","nat":"","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":"League's outright top scorer"},{"n":"Rodrigo Piloto","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":"Continental qualifier experience"},{"n":"Javi Díaz","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Inter Club d'Escaldes","nat":"","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":"Sevilla academy product"},{"n":"Juan Cámara","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Inter Club d'Escaldes","nat":"","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":""},{"n":"Raúl Gudiño","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Rànger's FC","nat":"","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":"Ex-Porto/Mexico international; contract status at risk"},{"n":"Guillaume López","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Santa Coloma","nat":"","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":"Veteran, prolific across multiple Andorra clubs"},{"n":"Yenerey Betancor","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Santa Coloma","nat":"","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":""},{"n":"Sascha Andreu","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Santa Coloma","nat":"","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":""},{"n":"Ignacio Pinilla","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Penya Encarnada","nat":"","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":""},{"n":"Marco Fabián","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Rànger's FC","nat":"","pos":"FW","age":36,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":"Ex-Mexico international, 2018 World Cup"},{"n":"Souleyman Talbi","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"","pos":"MF","age":20,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Gemelson","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"","pos":"MF","age":20,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Jean Luc","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Pablo Brito","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"","pos":"FW","age":28,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"Copa Constitució runner-up 2025; Conference League qualifier"},{"n":"Leandro Amaral","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"","pos":"FW","age":21,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Diego Nájera","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"","pos":"FW","age":20,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Gonçalo Sousa","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"","pos":"FW","age":20,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Kabir Nath","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"","pos":"FW","age":25,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Fady Said Omar","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Evan Waldrep","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Michael Grimm","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Viraj Arora","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"","pos":"FW","age":20,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":"Contract expired Jun 2026"},{"n":"Xisco Pires","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"","pos":"GK","age":27,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":"Andorra international"},{"n":"Pau Servat","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"","pos":"MF","age":23,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"Free agent — zero fee, contract expired Jun 2026"},{"n":"Isma Escobar","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"","pos":"CB","age":23,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"Free agent — zero fee, contract expired Jun 2026"},{"n":"Rodrigo Bastos","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"","pos":"DM","age":27,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"Free agent — zero fee, contract expired Jun 2026"},{"n":"Youssef El Ghazoui","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"","pos":"MF","age":25,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"2025-26 Conference League qualifier (club, 2nd in league)"},{"n":"Rely Cabral","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"","pos":"FW","age":22,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"Capped international (Cape Verde)"},{"n":"Kylian Poumot","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"","pos":"MF","age":24,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Fran Molina","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"","pos":"DF","age":23,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Miguel López","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"","pos":"DM","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"Club listed also shows Rangers FC — unresolved, flagged separately. Tier 3: 3/12 metrics validated (DMA, CHR, SOA)","gradingProgress":3},{"n":"Marcos Blasco","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"","pos":"LB","age":24,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":true,"note":"Also plays CB. Atlético Madrid academy product. Club corrected to Atlètic Club d'Escaldes (Aug 2026) — the UE Santa Coloma bio card was 2+ years stale. Contract status needs a fresh check, not the 2025 date from that old card."},{"n":"Adrià Muñoz","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Francisco Cano","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"COL","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Matías Basterrechea","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ARG","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Christian Jiménez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Yeray Carpio","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Chinchu","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Emanoel","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"BRA","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Sergio Rodríguez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Didi","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"AND","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Adrià Gallego","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"David Valero","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Hamza Bouharma","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Sohaib Boulayoune","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Marc Pujol","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"AND","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Kevin Olah","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ROU","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Juan Barragán","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Borja Morales","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Jota Sanmarful","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Atlètic Club d'Escaldes","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Christopher Izaguirre","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"MEX","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Pacho","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"COL","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Martín Scopazzo","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"ESP","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Andersson Cáceres","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"HON","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Germán Mazzarino","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"ARG","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Andrés Rodríguez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"VEN","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Edson Ramírez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"MEX","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Ahmed Baaloul","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Javi López","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Quentin Laffont","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Leo Escade","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Kévin Dagnet","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Víctor Gaba","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"MEX","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Nabil López","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Nelson Meireles","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"AND","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Omar Santillán","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"ARG","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Dylan Traore","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Jonathan Oulai","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Bangaly Diarra","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Kevin Otto","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Carroi","nat":"FRA","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Anthony Moncada","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"AND","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Ángel de la Fuente","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"AND","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"José Bejarano","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"ESP","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Gerardo Pedroza","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"HON","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Albert Montalbo","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Miki del Castillo","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"AND","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Miguel Ruiz","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Guga","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"POR","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Telmo Cardoso","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"POR","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Cláudio David","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"MAC","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Tiago Sousa","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"POR","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Duarte Ramos","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"POR","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Erwinn Nikiéma","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"FRA","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Telmo Neves","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"POR","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Alberto Garrido","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Juan Claros","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"COL","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Eric Balastegui","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"AND","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Bryan Ramírez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Luwily Massomba","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"ANG","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Alex Massa","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"CAN","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Rober","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Esperança","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"unconfirmed","featured":false,"note":""},{"n":"Alex Jauregui","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"AND","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Walid Birrou","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Julen Fernández","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Juan Mutis","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Matteo Prina","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ARG","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Daniel Sanches","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"POR","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Maikel Tijan","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Bernat Merinas","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"José Boukhetache","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Carlos Mario Garzón","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Raymond Inwen","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"FRA","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Iván Álvarez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Sohaib Boulayoune","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Marc Castells","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Ismael Ramos","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Jorge Mencía","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Juan Rael","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Armand Font","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Afonso Correia","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"POR","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Fabricio Conci","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ARG","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Ayman Hasni","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Jordi Betriu","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Imad El Kabbou","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"MAR","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Jeisson Martínez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"PER","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Brice Ghussein","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"FRA","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Arnau Teixidor","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"FC Ordino","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Marcos Olmo","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Pol Freixanet","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"GK","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Eric de Pablos","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"AND","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Sergio Casta","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Christian García","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"AND","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Guilherme Quichini","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"BRA","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Ekaitz Jiménez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Marc Mateu","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"AND","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Aritz Cuadrado","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Gonçalo Lixa","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"POR","pos":"DF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Álex Baldrich","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Pablo Margallo","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"MF","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Àlex Martínez","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"AND","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Fran Palma","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Tato","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Adrián Amorós","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"David Martín","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"ESP","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Cucu","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"UE Santa Coloma","nat":"AND","pos":"FW","age":0,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"confirmed_mid","featured":false,"note":""},{"n":"Soule Sidibe","l":"Andorra Primera Divisió","c":"Andorra","f":"🇦🇩","sq":"Inter Club d'Escaldes","nat":"MLI","pos":"FW","age":27,"mp":0,"min":0,"g":0,"a":0,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":"high","featured":false,"note":"Right winger, 186cm. Prior clubs CE Andratx/CD Ebro (Spain). Joined Inter Club d'Escaldes 2026, contract to Jun 2027. An existing profile card shows an FGA of 6.1 marked PROXY/unvalidated -- NOT wired into this platform record; will populate once real video grading is done."},{"n":"Roman Ferber","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC Atert Bissen","nat":"","pos":"FW","age":32,"mp":22,"min":0,"g":21,"a":9,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":100.0},{"n":"Adriel Santos","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC Atert Bissen","nat":"","pos":"MF","age":28,"mp":28,"min":0,"g":8,"a":12,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":80.0},{"n":"Nicolas Perez","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC UNA Strassen","nat":"","pos":"FW","age":35,"mp":29,"min":0,"g":15,"a":4,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":88.0},{"n":"Khalid Abi","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC Atert Bissen","nat":"","pos":"MF","age":25,"mp":28,"min":0,"g":12,"a":7,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":84.0},{"n":"Matheus Souza","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC UNA Strassen","nat":"","pos":"FW","age":32,"mp":23,"min":0,"g":14,"a":4,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":92.0},{"n":"Boris Mfoumou","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC Differdange 03","nat":"","pos":"FW","age":21,"mp":29,"min":0,"g":11,"a":7,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":76.0},{"n":"Samir Hadji","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC Differdange 03","nat":"","pos":"FW","age":36,"mp":29,"min":0,"g":11,"a":6,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":68.0},{"n":"Agostinho","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"F91 Dudelange","nat":"","pos":"FW","age":25,"mp":28,"min":0,"g":11,"a":6,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":72.0},{"n":"Nicolau Gomes","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"FW","age":31,"mp":28,"min":0,"g":7,"a":8,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Farid Ikene","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"Racing FC Union Lëtzebuerg","nat":"","pos":"MF","age":25,"mp":25,"min":0,"g":11,"a":3,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":64.0},{"n":"Loris Tinelli","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"FW","age":27,"mp":29,"min":0,"g":10,"a":4,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Bilal Benkhedim","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"MF","age":24,"mp":15,"min":0,"g":8,"a":6,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Diogo Fernandes Lopes","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"US Hostert","nat":"","pos":"FW","age":23,"mp":29,"min":0,"g":11,"a":2,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":40.0},{"n":"Yannis Bellali","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"UN Käerjéng 97","nat":"","pos":"FW","age":26,"mp":24,"min":0,"g":11,"a":2,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":60.0},{"n":"Jean-Paul Kumbi","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"FW","age":30,"mp":28,"min":0,"g":7,"a":6,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Omar Natami","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"MF","age":27,"mp":25,"min":0,"g":5,"a":8,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Ludovic Rauch","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"MF","age":25,"mp":27,"min":0,"g":3,"a":10,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Kenan Avdusinovic","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC Progrès Niederkorn","nat":"","pos":"FW","age":28,"mp":25,"min":0,"g":11,"a":1,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":56.0},{"n":"Bilal Hend","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"FW","age":26,"mp":28,"min":0,"g":8,"a":4,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Kino Delorge","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"DF","age":28,"mp":29,"min":0,"g":7,"a":5,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Benjamin Romeyns","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"FC UNA Strassen","nat":"","pos":"FW","age":24,"mp":29,"min":0,"g":7,"a":5,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced).","fgaProxy":14.0},{"n":"Frederick Kyereh","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"FW","age":32,"mp":29,"min":0,"g":9,"a":2,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Mickaël Jager","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"FW","age":37,"mp":25,"min":0,"g":9,"a":2,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Lilian Fournier","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"MF","age":28,"mp":28,"min":0,"g":9,"a":2,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."},{"n":"Dominik Stolz","l":"BGL Ligue","c":"Luxembourg","f":"🇱🇺","sq":"","nat":"","pos":"MF","age":36,"mp":28,"min":0,"g":8,"a":3,"crdY":0,"fga":null,"ult":null,"tmf":null,"log":null,"cci":null,"clu":null,"har":null,"thi":null,"ctx":null,"mgr":"","phil":"","sch":"","wageTier":null,"featured":false,"note":"Top scorer/assist list only -- not a full squad roster (source data reduced)."}];
+const EXISTING_PROFILES=new Set(["60philosophies.html", "Aaron_Anselmino.html", "Aaron_Bouwman.html", "Aaron_Ramsdale.html", "Aaron_Ramsey.html", "Abdoulaye_Camara.html", "Abdukodir_Khusanov.html", "Abdul_Issahaku.html", "Abedi_Pele.html", "Abel_Marc.html", "Abhishek_Singh_Tekcham.html", "Abner.html", "Aboubacar_Bassinga.html", "Aboubacar_Katty.html", "Ada_Hegerberg.html", "Adam_El_Boughlamy.html", "Adam_Zenati.html", "Adamo_Nagalo.html", "Adem_Zorgane.html", "Ademir_Da_Guia.html", "Ademir_Marques.html", "Adil_Bourabaa.html", "Adnane_Kharroubi.html", "Adne_Midtskogen.html", "Adolfo_Nef.html", "Adolfo_Pedernera.html", "Adolfo_Valencia.html", "Adrian_Gonzalez.html", "Adrian_Guillermo.html", "Adrian_Jimenez.html", "Adrian_Purzycki.html", "Adriano_Bertaccini.html", "Adriano_Delphis.html", "Adrien_Perez.html", "Afonso_Patrão.html", "Agon_Mucolli.html", "Agustin_Aranzabal.html", "Agustin_Giay.html", "Agustin_Orion.html", "Agustin_Palavecino.html", "Agustin_Rossi.html", "Agustin_Urzi.html", "Ahkeem_Rose.html", "Ahmed_Bonnah.html", "Ahmed_Majid.html", "Ahmetcan_Kaplan.html", "Aime_Gaval.html", "Aisar_Ahmed.html", "Alan_Shearer.html", "Alan_Virginius.html", "Albeiro_Usuriaga.html", "Alberto_Di_Chiara.html", "Alberto_Gonzalez.html", "Alberto_Spencer.html", "Alberto_Tarantini.html", "Albijon_Muzaci.html", "Albin_Sporrong.html", "Albion_Football_Club.html", "Alejandro_Gomes_Rodriguez.html", "Alejandro_Granados.html", "Alejandro_Mancuso.html", "Alejo_Veliz.html", "Aleksandar_Stankovic.html", "Aleksandr_Borodyuk.html", "Alessandro_Del_Piero.html", "Alessandro_Melli.html", "Alessandro_Milani.html", "Alessandro_Nesta.html", "Alessandro_Pezzoli_Dashboard.html", "Alessandro_Vogt.html", "Alessio_Marcaccini.html", "Alesson.html", "Alex_Aguinaga.html", "Alex_Cropley.html", "Alex_Gersbach.html", "Alex_Jimenez.html", "Alex_Luna.html", "Alex_Morgan.html", "Alex_Teixeira.html", "Alexander_Sorloth.html", "Alexandra_Popp.html", "Alexandre_Valbon.html", "Alexis_Araujo.html", "Alexis_Garcia.html", "Alexis_Mac_Allister.html", "Alexis_Sanchez.html", "Alexis_Vossah.html", "Alfredo_Di_Stefano.html", "Alfredo_Morelos.html", "Alfredo_Moreno.html", "Alfredo_Rojas.html", "Ali_Abdi.html", "Ali_Dembele.html", "Ali_Suljic.html", "Alisson_Becker.html", "Allan_Simonsen.html", "Alphonso_Davies.html", "Alvaro_Dominguez.html", "Alvaro_Fidalgo.html", "Alvaro_Lopez_Bedoya.html", "Alvaro_Recoba.html", "Alvin_Petit_Dol.html", "Alvyn_Sanches.html", "Amadou_Diakite.html", "Amadou_Diawara.html", "Amadou_Haidara.html", "Americo_Gallego.html", "Amin_Chiakha.html", "Amine_Harit.html", "Anan_Khalaili.html", "Anass_Salah_Eddine.html", "Anderson_Asiedu.html", "Andoni_Cedrun.html", "Andraz_Lipec.html", "Andrea_Librici.html", "Andreas_Moller.html", "Andres_Escobar.html", "Andres_Felipe_Roman.html", "Andres_Iniesta.html", "Andrew_Marie_Sainte.html", "Ange_Yoan_Bonny.html", "Angel_Di_Maria.html", "Angel_Labruna.html", "Angelo_Candido.html", "Anibal_Chala.html", "Anis_Ben_Moussa.html", "Anthony Patti.html", "Anthony_Dennis.html", "Anthony_Elanga.html", "Anthony_Pantazopoulos.html", "Anthony_Patti.html", "Antoine_Livemont.html", "Antoine_Semenyo.html", "Antone_Bossenberry.html", "Antonio_Benarrivo.html", "Antonio_Campolo.html", "Antonio_Nusa.html", "Antonio_Rattin.html", "Antonio_Roma.html", "Antonio_Valencia.html", "Anuar_Tuhami.html", "Aral_Simsir.html", "Arbnor_Mucolli.html", "Archie_Gray.html", "Arda_Akgun.html", "Arda_Guler.html", "Ariel_Krasouski.html", "Ariel_Mosor.html", "Aristide_Zossou.html", "Arjen_Robben.html", "Armando_Obispo.html", "Arnoldo_Iguaran.html", "Arsenio_Erico.html", "Artem_Dovbyk.html", "Arthur_Friedenreich.html", "Arthur_Theate.html", "Arturo_Vidal.html", "Asilbek_Aliev.html", "Assan_Ouedraogo.html", "Assane_Diao.html", "Astrada.html", "Atakan_Çankaya.html", "Atletico_CP_dashboard.html", "Augustine_Okocha.html", "Aurele_Amenda.html", "Aurele_Amendra.html", "Axel_Bamba.html", "Axel_Disasi.html", "Ayoub_Oufkir.html", "Ayyoub_Bouaddi.html", "Baris_Ekincier.html", "Bart_Verbruggen.html", "Basar_Onal.html", "Bastien_Meupiyou.html", "Ben_Davies.html", "Ben_El_Idrissi.html", "Benedikt_Pichler.html", "Benjamin_Rollheiser.html", "Berkay_Yilmaz.html", "Bernardo.html", "Bernardo_Redin.html", "Bertug_Yildirim.html", "Bianneider_Tamayo.html", "Bilel_Brahimi.html", "Blaz_Drascek.html", "Bobby_Adekanye.html", "Bobby_Moore.html", "Boniek_Garcia.html", "Boudewijn_Pahlpatz.html", "Brad_Pirioua.html", "Bradley_Sample.html", "Brandon_Borrello.html", "Brenden_Aaronson.html", "Brennan_Johnson.html", "Brian_Laudrup.html", "Brian_Madjo.html", "Brice_Wembagono.html", "Brison_Fernandes.html", "Bruce_Grobelaar.html", "Brunallergene_Junior_Etou.html", "Bruno_Guimaraes.html", "Bruno_Silva.html", "Bruny_Simba.html", "Bryan_Heynen.html", "Bryan_Ruiz.html", "Buba_Sangare.html", "Bukayo_Saka.html", "Bwanga_Tshimen.html", "Caden_Clark.html", "Cafu.html", "Caio_Henrique.html", "Carles_Gil.html", "Carlo_Ancelotti.html", "Carlos_Alberto.html", "Carlos_Bacca.html", "Carlos_Bianchi.html", "Carlos_Bilardo.html", "Carlos_Estrada.html", "Carlos_Forbs.html", "Carlos_Henao.html", "Carlos_Ischia.html", "Carlos_Mac_Allister.html", "Carlos_Munoz_Martinez.html", "Carlos_Peucelle.html", "Carlos_Ruiz_Gutierrez.html", "Carlos_Tapia.html", "Carlos_Tevez.html", "Carlos_Valderrama.html", "Carmelo_Cedrun.html", "Carmelo_Valencia.html", "Caroline_Graham_Hansen.html", "Castello_Lukeba.html", "Cathinka_Tandberg.html", "Cavenaghi.html", "Cedric_Don.html", "Cedric_Hatenboer.html", "Cedrick_Mabwati.html", "Celso_Ayala.html", "Cesar_Leyva.html", "Chafik_Abbas.html", "Chamito_Alfandega.html", "Chancel_Mbemba.html", "Charaf_Boutellaa.html", "Charles_De_Ketelaere.html", "Charles_Elie_Laprevotte.html", "Charlie_Cresswell.html", "Cheick_Oumar_Diakite.html", "Chems_Edine_Chnitif.html", "Chovanie_Amatkarijo.html", "Chris_Rigg.html", "Christian_Baumgartner.html", "Christian_Cardoso.html", "Christian_Gomis.html", "Christian_Makoun.html", "Christian_Pavon.html", "Christiane_Endler.html", "Christopher_Nkunku.html", "Clarence_Awoudor.html", "Clarence_Seedorf.html", "Claude_Makelele.html", "Claudio_Borghi.html", "Claudio_Caniggia.html", "Claudio_Etcheverri.html", "Claudio_Scalise.html", "Claudio_Spinelli.html", "Claudio_Taffarel.html", "Claudio_Ubeda.html", "Clemente_Rodriguez.html", "Cole_Palmer.html", "Colin_Dagba.html", "Conrad_Harder.html", "Couhaib_Driouech.html", "Cristian_Medina.html", "Cristian_Orozco.html", "Cristiano_Ronaldo.html", "Cristiano_Zanetti.html", "Cucho_Hernandez.html", "Cvitanich.html", "César_Huerta.html", "Daan_Rots.html", "Daisuke_Yokota.html", "Daley_Blind.html", "Damiano_Tommasi.html", "Damion_Downs.html", "Damir_Ceter.html", "Daniel_Bertoni.html", "Daniel_Munoz.html", "Daniel_Passarella.html", "Daniel_Steres.html", "Daniel_Valencia.html", "Daniel_Willington.html", "Danny_Blind.html", "Dany_Mota.html", "Danylo_Sikan.html", "Dario_Osorio.html", "David_Aguy.html", "David_Beckham.html", "David_Brooks.html", "David_Cancola.html", "David_Crespo_Zurita.html", "David_De_Gea.html", "David_Otorbi.html", "David_Raum.html", "David_Weir.html", "Davide_Frattesi.html", "Davis_Opoku.html", "Davor_Suker.html", "Davy_Roef.html", "DeJuan_Jones.html", "De_Bruyne.html", "Dean_Huijsen.html", "Debinha.html", "Deco.html", "Deiber_Caicedo.html", "Deividas_Cesnaukis.html", "Dejan_Stankovic.html", "Denis_Law.html", "Denis_Videnovic.html", "Dennis_Bergkamp.html", "Dennis_Gyamfi.html", "Dennis_Man.html", "Dennis_Seimen.html", "Derek_Gebhard.html", "Derek_Waldeck.html", "Desire_Doue.html", "Devis_Opoku.html", "Didi.html", "Didier_Drogba.html", "Diego_Carneiro_Nascimento.html", "Diego_Da_Silva.html", "Diego_Diaz.html", "Diego_Forlan.html", "Diego_Maradona.html", "Diego_Simeone.html", "Dies_Janse.html", "Dieumerci_Mbokani.html", "Dino_Zoff.html", "Diogo_Fernandes.html", "Dirk_Kuyt.html", "Djylian_Nguessan.html", "Domingos_Da_Guia.html", "Dominic_Calvert_Lewin.html", "Dominik_Kotarski.html", "Dominique_Moubeke.html", "Don_Deedson.html", "Donato.html", "Dragan_Stojkovic.html", "Dragisa_Gudelj.html", "Dro_Fernandez.html", "Duk.html", "Dunga.html", "Dusan_Vlahovic.html", "Dwight_Merrick.html", "Dylan_Scicluna.html", "EMPIRE_FGA_RAAL_LaLouviere_Report_v2.1.html", "Eba_Bekir_is.html", "Ederson_Moraes.html", "Edgar_Davids.html", "Edgardo_Bauza.html", "Edinson_Cavani.html", "Edisson_Jordanov.html", "Eduard_Streltsov.html", "Eduardho_Marcante.html", "Eduardo_Coudet.html", "Eduardo_Vargas.html", "Edvardsen.html", "Edwin_van_der_Sar.html", "Edwuin_Cetré.html", "Eemeli_Honkola.html", "Efe_Ugiagbe.html", "Eino_Pitkala.html", "El_Bitshiabu.html", "Elias_Achouri.html", "Elias_Figueroa.html", "Elies_Mahmoud.html", "Elijah_Gift.html", "Elijah_Just.html", "Eliseo_Mouriño.html", "Elkiya_Legros.html", "Elseid_Hysaj.html", "Elye_Wahi.html", "Emerson.html", "Emil_Konradsen_Ceide.html", "Emil_Weihe_Joensen.html", "Emilio_Butragueno.html", "Emilio_Ycaza.html", "Emir_Azemovic.html", "Emre_Gokay.html", "Endrick.html", "Enrico_Chiesa.html", "Enzo_Alves.html", "Enzo_Diaz.html", "Enzo_Francescoli.html", "Enzo_Kost.html", "Enzo_Molebe.html", "Enzo_Scifo.html", "Eredivisie_2025_2026_ESN.html", "Eric_Cantona.html", "Eric_Martel.html", "Eric_Otieno.html", "Erick_Nunes.html", "Erico_Castro.html", "Erling_Haaland.html", "Ernst_Ocwirk.html", "Erwan_Madihi.html", "Erwin_Koeman.html", "Esmir_Bajraktarevic.html", "Estevao_William.html", "Ethan_Ampadu.html", "Ethan_Nwaneri.html", "Eugene_Kabongo.html", "Euro_1988.html", "Eusebio.html", "Evan_Bush.html", "Evan_Diamalunda.html", "Evan_Le_Gall.html", "Evander.html", "Everton_Ribeiro.html", "Ewa_Pajor.html", "Ewandro_Costa.html", "Ezechiel_Banzuzi.html", "Ezequiel_Piovi.html", "Fabian_O_Neill.html", "Fabio_Silva.html", "Fabio_Sommella.html", "Fabrice_Lokembo_Lokaso.html", "Fabricio_Coloccini.html", "Facundo_Bruera.html", "Facundo_Pellistri.html", "Facundo_Sosa.html", "Fanicet_Conte.html", "Faryd_Mondragon.html", "Faustino_Asprilla.html", "Fausto_Vera.html", "Fedde_De_Jong.html", "Federico_Chiesa.html", "Federico_Edwards.html", "Federico_Higuain.html", "Federico_Steffanoni.html", "Federico_Valverde.html", "Ferenc_Puskas.html", "Fernando_Gago.html", "Fernando_Hierro.html", "Fernando_Kanapkis.html", "Fernando_Morena.html", "Fernando_Muslera.html", "Fernando_Redondo.html", "Ferran_Torres.html", "Ferrety_Sousa.html", "Fidel_Inolopú(spanish).html", "Filip_Bundgaard.html", "Filipe_Aguiar.html", "Filipe_Luis_Kasmirski.html", "Filippo_Inzaghi.html", "Filippo_Ranocchia.html", "Finn_Laudrup.html", "Fisnik_Asllani.html", "Fitz-Jim.html", "Florian_Danho.html", "Fran_Gonzalez.html", "Francesco_Antonioli.html", "Francesco_Camarda.html", "Francesco_Totti.html", "Francesco_Varallo.html", "Francisco_Gento.html", "Francisco_Llorente.html", "Franco_Baresi.html", "Franco_Fagundez.html", "Franco_Mastantuono.html", "Frank_Lampard.html", "Frank_Rijkaard.html", "Frank_Yallop.html", "Frank_Zambo_Anguissa.html", "Frankie_Westfield.html", "Franz_Beckenbauer.html", "Freddy_Grisales.html", "Freddy_Rincon.html", "Frederik_Rieper.html", "Fredy_Montero.html", "Frenkie_De_Jong.html", "Fridolina_Rolfö.html", "Fritz_Walter.html", "Gaaei.html", "Gabriel_Batistuta.html", "Gabriel_Biladi.html", "Gabriel_Magalhaes.html", "Gabriel_Mec.html", "Gabriel_Pereira.html", "Gael_Gibert.html", "Gaetano_Scirea.html", "Gallardo.html", "Gareth_Bale.html", "Garrincha.html", "Gary_Lineker.html", "Gary_Speed.html", "Gassimou_Sylla.html", "Gautier_Ott.html", "Gaztelu.html", "Gedeon_Ndongo.html", "George_Best.html", "George_Finidi.html", "George_Ilenikhena.html", "George_Oppong_Manneh_Weah.html", "George_Weah.html", "Georgi_Kostadinov.html", "Geovany_Quenda.html", "Gerd_Muller.html", "Geremi_Njitap.html", "German_Burgos.html", "German_Gutierrez.html", "Gerson.html", "Gheorghe_Hagi.html", "Giacinto_Facchetti.html", "Gianluca_Busio.html", "Gianluca_Prestianni.html", "Gianluca_Scamacca.html", "Gianluca_Simeone.html", "Gianluigi_Buffon.html", "Gianni_Rivera.html", "Gift_Links.html", "Gilberto_Angelucci.html", "Gilberto_Mora.html", "Gilberto_Yearwood.html", "Giorgian_De_Arrascaeta.html", "Giovani_Lo_Celso.html", "Giovanni Moreno.html", "Giovanni_Moreno.html", "Giovanni_Reyna.html", "Giovanni_Rocotelli.html", "Giovanni_Simeone.html", "Giovanny_Hernandez.html", "Giuliano Cerato.html", "Giuliano_Simeone.html", "Giuseppe_Meazza.html", "Giuseppe_Signori.html", "Givairo_Read.html", "Glenn_Hoddle.html", "Gloukh.html", "Goncalo_Negrao.html", "Gonzalo_Higuain.html", "Gorak_Ghale.html", "Goran_Sorloth.html", "Gorka_Abascal.html", "Gregor_Bajde.html", "Gue_Sung_Cho.html", "Guedalia_Nsakala.html", "Gueorgui_Asparuhov.html", "Guilherme_Christino.html", "Guillaume_Odru.html", "Guize_Medina.html", "Gunnar_Nordahl.html", "Guro_Reiten.html", "Gustav_Marcussen.html", "Gustavo_Barros.html", "Gustavo_Lombardi.html", "Gustavo_Puerta.html", "Guus_Til.html", "Hadj_Moussa.html", "Haine_Eames.html", "Hakan_Calhanoglu.html", "Hamidou_Makalou.html", "Hamissou_Dangabo.html", "Hamza_Salhi.html", "Hannes_Hunziker.html", "Hans_Vanaken.html", "Hany_Mukhtar.html", "Harry_Howell.html", "Harry_Kane.html", "Harvey_Elliott.html", "Hatenboer.html", "Hector_Baley.html", "Hector_Chumpitaz.html", "Hector_Scarone.html", "Heinz_Morschel.html", "Helder_Suker.html", "Helias_Belliard.html", "Henrik_Hanche_Hafskjold.html", "Henrik_Larsson.html", "Hernan_Jorge_Crespo.html", "Hicham_Mahou.html", "Himad_Abdelli.html", "Himran_Fofana.html", "Honest_Ahanor.html", "Honest_Anahor.html", "Hristo_Stoichkov.html", "Hugo_Camberos.html", "Hugo_De_Leon.html", "Hugo_Ekitike.html", "Hugo_Gottardi.html", "Hugo_Guillamon.html", "Hugo_Larsson.html", "Hugo_Sanchez.html", "Hyun_Ju_Lee.html", "Ian_Wright.html", "Ibrahim_Coulibaly.html", "Ibrahim_Mbaye.html", "Ibrahim_Sissoko.html", "Ibrahim_Toure.html", "Ibrahima_Cherif_Fofana.html", "Ignacio_Perruzzi.html", "Ignacio_Russo.html", "Ignasi_Miquel.html", "Igor_Dobrovolski.html", "Igor_Lichnovsky.html", "Igor_Thiago.html", "Iker_Fimbres.html", "Iker_Kortajarena.html", "Ilias_Sebaoui.html", "Ilyas_Ansah.html", "Ilyas_Benktib.html", "Ilyes_Mansouri.html", "Imre_Schlosser.html", "Inaki_Pena.html", "Inaki_Williams.html", "Irene_Paredes.html", "Iron_Gomis.html", "Isaac_Angking.html", "Isaac_Cossier.html", "Isaac_Emojong.html", "Isabelino_Gradin.html", "Isak_Hien.html", "Isco_Alarcon.html", "Ismael_Doukoure.html", "Ismael_Haddou.html", "Ismael_Saibari.html", "Ismail_Yuksek.html", "Isnaba_Ioncana_Bruma.html", "Itakura.html", "Ivan_Cordoba.html", "Ivan_De_La_Pena.html", "Ivan_De_La_Pena_Asensi.html", "Ivan_Pillud.html", "Ivan_Toney.html", "Ivan_Zamorano.html", "Ivo_Basay.html", "Ivo_Nabais.html", "JJ_Gabriel.html", "Jaap_Stam.html", "Jabir_Abdihakim_Ali.html", "Jackson_Dietrich.html", "Jacob_Ambaek.html", "Jacob_Bruunlarsen.html", "Jacob_Ramsey.html", "Jaime_Arango.html", "Jair_Cortes.html", "Jairzinho.html", "Jakub_Kaluzinski.html", "Jalal_Abdulai.html", "Jalen_Foucan.html", "Jamal_Musiala.html", "James_Mc_Connell.html", "James_Rodriguez.html", "Jan_Oblak.html", "Jan_Paolo_Debijadji.html", "Jann-Fiete_Arp.html", "Janpol_Morales.html", "Jared_Borgetti.html", "Jari_Litmanen.html", "Jarne_Steuckers.html", "Javier_Zanetti.html", "Jay_Gorter.html", "Jayden_Onia_Seke.html", "Jean_Marc_Bosman.html", "Jean_Philippe_Mateta.html", "Jean_Ricner_Bellegarde.html", "Jean_Tigana.html", "Jefferson_Farfan.html", "Jefferson_Lerma.html", "Jefferson_Savarino.html", "Jeisson_Lucumi.html", "Jephthe_Malanda.html", "Jeppe_Cassim.html", "Jeppe_Erenbjerg.html", "Jerdy_Schouten.html", "Jeremy_Doku.html", "Jeremy_Gelin.html", "Jeremy_Livolant.html", "Jerome_Opoku.html", "Jesper_Reitan_Sunde.html", "Jesus_Rodriguez.html", "Jhan_Rengifo.html", "Jhon_Arias.html", "Jhon_Cordoba.html", "Jhon_Emerson_Cordoba.html", "Jhon_Trellez.html", "Jim_Montgomery.html", "Jimmy_Floyd_Hasselbaink.html", "Jimmy_Greaves.html", "Jimmy_Kenyi.html", "Jin_Young_Yuk.html", "Jizz_Hornkamp.html", "Joao_Aragao.html", "Joao_Carvalho.html", "Joao_Gastao.html", "Joao_Oliveira.html", "Joao_Silva.html", "Joaquin_Boghossian.html", "Joaquin_Boghossian_Coach.html", "Joaquin_Irigoytia.html", "Joaquin_Seys.html", "Joe_Rodon.html", "Joel_Drommel.html", "Joel_Ordonez.html", "Joel_Ordoñez.html", "Joey_Veerman.html", "Johan_Bakayoko.html", "Johan_Cruyff.html", "Johan_Mojica.html", "Johan_Neeskens.html", "Johan_Rotsen.html", "John_Acurio.html", "John_Bosman.html", "John_Kolawole.html", "Johnny_Rodriguez.html", "Jon_Bautista.html", "Jonatas_Noro.html", "Jonathan_David.html", "Jonathan_Mexique.html", "Jonathan_Tah.html", "Jones_El_Abdellaoui.html", "Jordan_Barrera.html", "Jordan_Bos.html", "Jordy_Bos.html", "Jorge_Carrascal.html", "Jorge_Fossati.html", "Jorge_Gonzalez_Barillas.html", "Jorge_Higuain.html", "Jorge_Otero.html", "Jorge_Valdano.html", "Jorge_Valdivia.html", "Joris_Chotard.html", "Jorman_Campuzano.html", "Jorrel_Hato.html", "Jorthy_Mokio.html", "Jose_Angel_Carmona.html", "Jose_Caldera.html", "Jose_Carlos_Batista.html", "Jose_Cortes.html", "Jose_Escorcia.html", "Jose_Fontan.html", "Jose_Manuel_Moreno.html", "Jose_Manuel_Moreno_Empire_FGA_Profile.html", "Jose_Nasazzi.html", "Jose_Oscar_Flores.html", "Jose_Sampaio.html", "Jose_Sosa.html", "Josef_Bican.html", "Josef_Masopust.html", "Joshua_Vangoman.html", "Joshua_Zirkzee.html", "Josip_Posavec.html", "Joszef_Bozsik.html", "Joyeux_Masanka_Bungi.html", "Jozy_Altidore.html", "Juan_Arango.html", "Juan_Carlos_Higuita.html", "Juan_Carlos_Obregon.html", "Juan_Jose_Romero.html", "Juan_Manuel_Asensi.html", "Juan_Ramón_Verón.html", "Juan_Rengifo.html", "Juan_Riquelme_Angulo.html", "Juan_Rojas.html", "Juan_Roman_Riquelme.html", "Juan_Schiaffino.html", "Juan_Sebastian_Veron.html", "Juan_Simon.html", "Juanlu_Sanchez.html", "Jude_Bellingham.html", "Julian_De_La_Cuesta.html", "Julian_Eyestone.html", "Julian_Kania.html", "Julian_Rijkhoff.html", "Julian_Veldman.html", "Julien_Vetro.html", "Julinho.html", "Julio_Cesar_Romero.html", "Julio_Falcioni.html", "Julio_Gento.html", "Julio_Llorente.html", "Julio_Melendez.html", "Julio_Olarticoechea.html", "Julliani_Eersteling.html", "Junior_Brumado.html", "Just_Fontaine.html", "Justin_Kluivert.html", "Justin_Rasmussen.html", "Juvenal_Olmos.html", "Ka_Semedo.html", "Kai_Havertz.html", "Kaka.html", "Kaloyan_Bozhkov.html", "Kalusha_Bwalya.html", "Kamiel_Van_De_Perre.html", "Karim_Benzema.html", "Karim_Loukili.html", "KarlHeinz_Rumenigge.html", "Karl_Etta_Eyong.html", "Karl_Etta_Eyong_Player_Card.html", "Karl_Gameni_Wassom.html", "Kasper_Dolberg.html", "Kaua_Prates.html", "Kazadi_Muamba.html", "Kees_Smit.html", "Kei_Kamara.html", "Keisuke_Goto.html", "Kemar_Lawrence.html", "Kenan_Yildiz.html", "Kendry_Paez.html", "Kenneth_Eichhorn.html", "Kenneth_Taylor.html", "Kenny_Dalglish.html", "Kephren_Thuram.html", "Kerim_Alajbegovic.html", "Kevin_Amaro.html", "Kevin_Denkey.html", "Kevin_Keegan.html", "Kevin_Mac_Allister.html", "Kevin_Mbabu.html", "Kevin_Schade.html", "Keyliane_Abdallah.html", "Keylor_Navas.html", "Khouma_Babacar.html", "Kialy_Kone.html", "Kimball_Jackson.html", "Klaus_Allofs.html", "Klaus_Fischer.html", "Ko_Itakura.html", "Kodai_Sano.html", "Kolo_Toure.html", "Konrad_de_la_Fuente.html", "Konstantinos_Karetsas.html", "Konstantinos_Koulierakis.html", "Koray_Ozcan.html", "Kristian_Arnstad.html", "Kristjan_Asllani.html", "Kristoffer_Velde.html", "Krys_Foleu_Tene.html", "Kuki_Salazar.html", "Kyanno_Silva.html", "Kylian_Mbappe.html", "Ladislao_Kubala.html", "Lakhdar_Belloumi.html", "Lalrinzuala_Lalbiaknia.html", "Lamine_Camara.html", "Lamine_Yamal.html", "Lanej_Baksic.html", "Lassana_Faye.html", "Laurent_Abergel.html", "Lautaro_Martinez.html", "Lautaro_Rivero.html", "Lawrence_Thomas.html", "Leandro_Gonzalez_Pirez.html", "Leandro_Paredes.html", "Lena_Oberdorf.html", "Lennart_Karl.html", "Leny_Tela.html", "Leny_Yoro.html", "Leo_Botz.html", "Leo_Duarte.html", "Leo_Pereira.html", "Leon_Goretzka.html", "Leon_Jakirovic.html", "Leonardo_Astrada.html", "Leonardo_Balerdi.html", "Leonardo_Buta.html", "Leonel_Alvarez.html", "Leonel_Sanchez.html", "Leonidas.html", "Leonidas_Da_Silva.html", "Leopoldo_Luque.html", "Lev_Yashin.html", "Lilian_Thuram.html", "Lina_Magull.html", "Linus_Kurtz.html", "Lionel_Messi.html", "Loic_Bade.html", "Lois_Diony.html", "Lomano_LuaLua.html", "Lorenzo_Lucca.html", "Lorenzo_Minotti.html", "Lorenzo_Venturino.html", "Lothar_Matthaus.html", "Luca_Toni.html", "Luca_Williams_Barnett.html", "Lucas_Alario.html", "Lucas_Bergvall.html", "Lucas_Canizares.html", "Lucas_Petkov.html", "Lucca_Dourado.html", "Luciano_Gondou.html", "Luciano_Spalletti_Coach.html", "Luciano_Spalletti_Player.html", "Lucy_Bronze.html", "Ludovico_Varali.html", "Luigi_Riva.html", "Luis_Bastos.html", "Luis_Carlos_Perea.html", "Luis_Cubilla.html", "Luis_Esteves.html", "Luis_Fernando_Herrera.html", "Luis_Figo.html", "Luis_Gabriel_Suazo.html", "Luis_Javier_Suarez.html", "Luis_Milla_Jr.html", "Luis_Milla_Sr.html", "Luis_Monti.html", "Luis_Pereira.html", "Luis_Suarez_Miramontes.html", "Luis_Suárez.html", "Luka_Modric.html", "Luka_Socic.html", "Luka_Vuskovic.html", "Lukas_Klostermann.html", "Lukas_Roeser.html", "Luke_Biasi.html", "Lyndon_Tomlinson_Dashboard.html", "Maarten_Vandevoordt.html", "Mac.html", "Macky_Bagnack.html", "Mads_Bech_Sorensen.html", "Magnus_Mattsson.html", "Maher_Carrizo.html", "Maidana.html", "Maiky_De_La_Cruz.html", "Malek_Adrar.html", "Malick_Thiaw.html", "Malte_Pahlsson.html", "Mamadou_Diakhon.html", "Mamadou_Diako.html", "Mamadou_Kebe.html", "Mame_Cheikh_Diallo.html", "Mame_Mor_Ndiaye.html", "Maniche.html", "Mansour_Gueye.html", "Mansour_Samb.html", "Mansour_Sinyan.html", "Manu_Toledano.html", "Manuel_Amoros.html", "Manuel_Neuer.html", "Manuel_Sanchis_Jr.html", "Manuel_Sanchis_Sr.html", "Manuel_Tutu.html", "Manuel_Yendare.html", "Mapi_Leon.html", "Marcel_Canadi.html", "Marcelino_Moreno.html", "Marcelo_Salas.html", "Marcelo_Saralegui.html", "Marcelo_Trobbiani.html", "Marco_Antonio_Cate.html", "Marco_Asensio.html", "Marco_Baixinho.html", "Marco_Osio.html", "Marco_Van_Basten.html", "Marcos_Fernandez.html", "Marcos_Leonardo.html", "Marcos_Llorente.html", "Marcos_Lopez.html", "Marcos_Senesi.html", "Marculino_Ninte.html", "Marcus_Rashford.html", "Marcus_Thuram.html", "Marcus_Traore.html", "Marek_Hamsik.html", "Marek_Jankulovski.html", "Marie-Antoinette_Katoto.html", "Marin_Pongracic.html", "Marino_Hinestroza.html", "Mario_Kempes.html", "Mario_Kempes_Empire_FGA_Profile.html", "Mario_Stroeykens.html", "Mario_Vanemerak.html", "Markus_Karlsson.html", "Marlon_Mustapha.html", "Martim_Costa.html", "Martin_Arzuaga.html", "Martin_Boakye.html", "Martin_Cardetti.html", "Martin_Cuellar.html", "Martin_Koeman.html", "Martin_Morel.html", "Martin_Vazquez.html", "Martin_Zubimendi.html", "Martiniano_Irribarría.html", "Marvel.html", "Marvin_Gathuessi.html", "Mason_Greenwood.html", "Mass_Sise.html", "Massaoly_Diarra.html", "Massimo_Oddo.html", "Matej_Kovar.html", "Mateo_Karamatic.html", "Mateusz_Wieteska.html", "Matheo_Lima.html", "Mathias_Delorge.html", "Mathias_Haarup.html", "Mathias_Sindelar.html", "Mathis_Abline.html", "Mathis_Jangeal.html", "Mathys_Detourbet.html", "Mathys_Saban.html", "Mathys_Tel.html", "Matias_Lamhauge.html", "Matias_Satas.html", "Matija_Frigan.html", "Matte_Smets.html", "Matteo_Palma.html", "Matteo_Waem.html", "Matthias_Sammer.html", "Matthieu_Da_Silva.html", "Mattis_Seghers.html", "Mauricio_Gonzalez.html", "Mauricio_Pineda.html", "Mauro_Icardi.html", "Mauro_Junior.html", "Max_Bowman.html", "Maxence_Gazon.html", "Maxence_Maisonneuve.html", "Maxima_Goffi.html", "Maxime_De_Cuyper.html", "Maxime_Foulon.html", "Maximilian_Braun.html", "Maximilian_Ibrahimovic.html", "Maximiliano_Amondarain.html", "Maximo_Perrone.html", "McNelly_Torres.html", "Mehdi_Mchakhchekh.html", "Mehmet_Ozcan.html", "Memo_Rodriguez.html", "Merheg.html", "Mesaque_Dju.html", "Metrics_Glossary.html", "Michael_Essien.html", "Michael_Laudrup.html", "Michael_Manniche.html", "Michael_Owen.html", "Michel_Aebischer.html", "Michel_Gonzalez.html", "Michel_Platini.html", "Miguel_Almiron.html", "Miguel_Angel_Russo.html", "Miguel_Crespo.html", "Miguel_Merentiel.html", "Miguel_Pardeza.html", "Miguel_de_la_Fuente.html", "Mihajlo_Cvetkovic.html", "Mika_Godts.html", "Mikel_Alonso.html", "Mikel_Amondarain.html", "Mikel_Gogorza.html", "Milton_Delgado.html", "Mirko_Saric.html", "Miroslav_Klose.html", "Modibo_Sagnan.html", "Mohamed_Elyounoussi.html", "Mohamed_Nassoh.html", "Mohamed_Ouadah.html", "Mohamed_Salah.html", "Moise_Kean.html", "Mokio.html", "Momodou_Sarr.html", "Morgan_Gibbs_White.html", "Moritz_Wels.html", "Moro.html", "Morufdeen_Moshood.html", "Moses_Opondo.html", "Mouhamed_Dosso.html", "Moussa_NDiaye.html", "Moussa_Senghor.html", "Musa_Drammeh.html", "Mustafa_Hekimoglu.html", "Mutiu_Adepoju.html", "Mwepu_Ilunga.html", "Myron_Boadu.html", "Nacho_Ferri.html", "Nachon_Nsingi.html", "Nader_Ghandri.html", "Nahuel_Molina.html", "Nando_Martinez.html", "Nathan_Bourdin.html", "Nathan_De_Cat.html", "Nathan_Dylan_Saliba.html", "Nathan_Harriel.html", "Nathan_Zeze.html", "Nathanael_Saintini.html", "Nayrobi_Vargas.html", "Nazeem_Bartman.html", "Ndaye_Mulamba.html", "Nebosja_Gudelj.html", "Neco_Williams.html", "Neider_Morantes.html", "Nelinho.html", "Nelson_Acosta.html", "Nemanja_Gudelj.html", "Nestor_Gorosito.html", "Nestor_Rossi.html", "Nestor_Sensini.html", "Neymar_Jr.html", "Neymar_Junior.html", "Neymar_Uribe.html", "Ngolo_Kante.html", "Niccolo_Pisilli.html", "Niccolo_Tresoldi.html", "Nick_Woltemade.html", "Nico_Gonzalez.html", "Nico_Paz.html", "Nicolas_Andermatt.html", "Nicolas_Benedetti.html", "Nicolas_Seiwald.html", "Nicolo_Barrella.html", "Nicolo_Tresoldi.html", "Nilton_Santos.html", "Nimetigna_Sacko.html", "Nishan_Burkart.html", "Noa_Hinard.html", "Noah_Fernandez.html", "Noah_Nartey.html", "Noe_Lebreton.html", "Norman_Bassette.html", "Nunzio_Egwanda.html", "Nwankwo_Kanu.html", "Obdulio_Varela.html", "Oguzhan_Ozyakup.html", "Ole_Werner.html", "Oleg_Blokhin.html", "Oleksandr_Piscsur.html", "Oleksandr_Pyshcsur.html", "Oleksandr_Zinchenko.html", "Olivera_Gudelj.html", "Olivier_Dacourt.html", "Olivier_Kemen.html", "Ollie_Watkins.html", "Omar_Sivori.html", "Orkun_Kokcu.html", "Oscar_Alvarez_Sanjuan.html", "Oscar_Craiyacich.html", "Oscar_Gil.html", "Oscar_Gloukh.html", "Oscar_Ruggeri.html", "Oskar_Pietuszewski.html", "Osvaldo_Ardiles.html", "Otto_Tiittinen.html", "Oussama_El_Azzouzi.html", "Ozan_Kabak.html", "Pablo_Alfaro.html", "Pamela_Ballivian.html", "Panagiotis_Tsivikos.html", "Pantelis_Hatzidiakos.html", "Paolo_Futre.html", "Paolo_Guerrero.html", "Paolo_Maldini.html", "Paolo_Rossi.html", "Pape_Diong.html", "Paris_Irie.html", "Paris_Nakajima_Farran.html", "Patri_Guijarro.html", "Patrick_Kluivert.html", "Patrik_Mercado.html", "Pau_Cubarsi.html", "Pau_Juventeny.html", "Paul_Gascoigne.html", "Paul_Mc_Grath.html", "Paul_Scholes.html", "Paul_Van_Himst.html", "Paul_Wanner.html", "Paulo_Falcao.html", "Paulo_Silas.html", "Pavel_Nedved.html", "Pedro_Cea.html", "Pedro_Diniz.html", "Pedro_Do_Rio.html", "Pedro_Goncalves.html", "Pedro_Goncalves_Pote.html", "Pedro_Gonçalves.html", "Pedro_Neto.html", "Pedro_Nuno.html", "Pedro_Raul.html", "Pedro_Sarabia.html", "Pedro_Silva.html", "Pedro_Virgilio_Rocha.html", "Pele.html", "Pepelu.html", "Periko_Alonso.html", "Pervis_Estupinan.html", "Petar_Petrovic.html", "Petar_Sucic.html", "Peter_Gulacsi.html", "Peter_Ndlovu.html", "Peter_Schmeichel.html", "Peter_Wynhoff.html", "Phalguni_Singh.html", "Philip_Zinckernagel.html", "Philipp_Lahm.html", "Philipp_Otele.html", "Philippe_Vercruysse.html", "Picas.html", "Pierino_Lattuada.html", "Pio_Esposito.html", "Pizzuti.html", "Precious_Ugwu.html", "Promise_David.html", "Prosper_Peter.html", "Quinten_Timber.html", "Quique_Alvarez_Sanjuan.html", "Quique_Costas.html", "Rabah_Madjer.html", "Rafael_Dudamel.html", "Rafael_Martin_Vazquez.html", "Rafik_Belghali.html", "Raheem_Sterling.html", "Raimundo_Orsi.html", "Ramiro_Castillo.html", "Ramiro_Funes_Mori.html", "Ramon_Angel_Diaz.html", "Ramon_Ismael_Medina_Bello.html", "Ramon_Medina_Bello.html", "Raphael_Onyedika.html", "Raphael_Sarfo.html", "Raul_Gonzalez.html", "Rayan.html", "Rayan_Cherki.html", "Rayane_Bounida.html", "Rayane_Jerbi.html", "Raymond_Kopa.html", "Redouane_Belkaious.html", "Regeer.html", "Reginaldo_Ramires.html", "Regis_Salmazzo.html", "Rene_Higuita.html", "Reto_Ziegler.html", "Ricardo_Bochini.html", "Ricardo_Gareca.html", "Ricardo_Horta.html", "Ricardo_Infante.html", "Ricardo_Pepi.html", "Richard_Friday.html", "Riku_Gunji.html", "Rio_Ferdinand.html", "Rio_Ngumoha.html", "Rivaldo.html", "Rivellino.html", "Rob_De_Wit.html", "Robert_Lewandowski.html", "Robert_Sanchez.html", "Roberth_Patiño.html", "Roberto_Baggio.html", "Roberto_Bonano.html", "Roberto_Carlos.html", "Roberto_Chery.html", "Roberto_Guizasola.html", "Roberto_Mina.html", "Roberto_Monserrat.html", "Roberto_Mussi.html", "Roberto_Palacios.html", "Roberto_Penaloza.html", "Roberto_Rivellino.html", "Roberto_Rojas.html", "Roberto_Scaglione.html", "Rodrigo_Betancur.html", "Rodrigo_Dourado.html", "Rodrigo_Freitas.html", "Rodrigo_Huescas.html", "Rodrigo_Mendoza.html", "Rodrigo_Mora.html", "Roger_Milla.html", "Rogerio_Ceni.html", "Roland_Sallai.html", "Roman_Torres.html", "Romario.html", "Romeo_Vermant.html", "Romulo_Cardoso.html", "Ronald_Koeman.html", "Ronald_Koeman1.html", "Ronaldinho_Gaucho.html", "Ronaldo_Damus.html", "Ronaldo_Nazario_1996_1997.html", "Ronaldo_Nazário.html", "Ronaldo_Pajaro.html", "Ronaldo_R9.html", "Ronnie_Radford.html", "Roony_Bardghji.html", "Rosa.html", "Rossi_Bufalo.html", "Royer_Caicedo.html", "Ruben_Diez.html", "Ruben_Kluivert.html", "Ruben_van_Bommel.html", "Rudi_Voller.html", "Rudy_Matondo.html", "Rui_Costa.html", "Rushike_Kelson.html", "Ruslan_Mba.html", "Ruud-van_Nistelrooy.html", "Ruud_Gullit.html", "Ruud_Krol.html", "Ruud_van_Nistelrooy.html", "Ryan_Flamingo.html", "Ryan_Giggs.html", "Ryan_Gravenberch.html", "Saba_Kharebashvili.html", "Sacra.html", "Sadio_Mane.html", "Said_Bakari.html", "Said_El_Mala.html", "Salimou_Danfakha.html", "Salis_Abdul_Samed.html", "Salomon_Rondon.html", "Salvador_Manriquez.html", "Sam_Beukema.html", "Sam_Junqua.html", "Sam_Kerr.html", "Sam_Kersten.html", "Sambou_Soumano.html", "Sammy_Skytte.html", "Samson_Iyede.html", "Samuel_Chukwueze.html", "Samuel_Etoo.html", "Samuel_Kuffour.html", "Samuel_Lobato.html", "Samuel_Lobato_Player_Card.html", "Samuel_Martinez.html", "Samuel_Mbangula.html", "Samuele_Ricci.html", "Sandor_Kocsis.html", "Sandra_Paños.html", "Sandro_Mazzola.html", "Sandro_Vidigal.html", "Sanel_Saljic.html", "Santiago_Arias.html", "Santiago_Ascacibar.html", "Santiago_Ascacíbar.html", "Santiago_Canizares.html", "Santiago_Castro.html", "Santiago_Londoño.html", "Santiago_Londoño_Ruiz.html", "Saud_Abdelhamid.html", "Scout_Assessment_Form.html", "Scouting_Intelligence_Report_Evan_Le_Gall.html", "Scouting_Intelligence_Report_Evan_Le_Gall_FR.html", "Sebastian_Abreu.html", "Sebastian_Berhalter.html", "Sebastian_Cordova.html", "Sebastian_Leto.html", "Sebastian_Villa.html", "Sekou_Doucoure.html", "Selton_Sanchez.html", "Sergi_Enrich.html", "Sergino_Dest.html", "Sergio_Angulo.html", "Sergio_Arribas.html", "Sergio_Busquets.html", "Sergio_Cubero.html", "Sergio_Martinez.html", "Sergio_Ramos.html", "Sergio_Zarate.html", "Seydou_Dembele.html", "Shabani_Nonda.html", "Shane_Kluivert.html", "Shuto_Machino.html", "Sidny_Cabral.html", "Silas_Andersen.html", "Silvio_Piola.html", "Simon_Adingra.html", "Simon_Falette.html", "Simon_Garcia.html", "Socrates.html", "Sofian_Domoraud.html", "Sofyan_Amrabat.html", "Sofyane_Bouzamoucha.html", "Sohan_Baldoni.html", "Son_Heung_Min.html", "Sophia_Smith.html", "Souffian_El_Karouani.html", "Soufiane_Messeguem.html", "Stabile.html", "Stanley_Matthews.html", "Stefan_Bajcetic.html", "Stefan_Posch.html", "Stephan_Lichtsteiner.html", "Stephan_Zagadou.html", "Stephane_Diarra.html", "Steve_Ambri.html", "Steve_Bloomer.html", "Steve_Mc_Manaman.html", "Steven_Berghuis.html", "Steven_Gerrard.html", "Steven_Ugarkovic.html", "Stije_Resink.html", "Stiven_Valencia.html", "Suleiman_Sani.html", "Sutalo.html", "Sven_Mijnans.html", "Szymon_Kadziolka.html", "Tactical_Philosophies.html", "Tadeo_Allende.html", "Taylor.html", "Teddy_Alloh.html", "Telasco_Segovia.html", "Teo_Barisic.html", "Teofilo_Cubillas.html", "Terry_Butcher.html", "Theo_Mary.html", "Theo_Pahlpatz.html", "Theo_Planchon.html", "Therence_Koudou.html", "Thiago.html", "Thiago_Borbas.html", "Thiago_Leite.html", "Thibault_Courtois.html", "Thiebault_Vlietinck.html", "Thierry_Henry.html", "Thomas_Allofs.html", "Thomas_De_Martis.html", "Thomas_Delaney.html", "Thomas_Jørgensen.html", "Thorgan_Hazard.html", "Tiago_Augusto.html", "Tiago_Palacios.html", "Tidiane_Devernois.html", "Tijjani_Reijnders.html", "Tim_Littmann.html", "Tim_Littmann_Complete_Intelligence_Dossier.html", "Timo_Werner.html", "Titouan_Thomas.html", "Tomas_Carlovich.html", "Tomas_Marques.html", "Tomas_Molina.html", "Tomas_Palacios.html", "Toni_Fernandez.html", "Toni_Kroos.html", "Tony_Lesueur.html", "Tordoya.html", "Tostao.html", "Tostão.html", "Toulouse_FC.html", "Trent_Alexander_Arnold.html", "Tresor_Mputu.html", "Tressor_Moreno.html", "Tristan_Blackmon.html", "Troy_Parrott.html", "Tsuyoshi_Watanabe.html", "Tyrique_George.html", "Tziolis.html", "Umechi_Akuazaoku.html", "Uros_Racic.html", "Uwe_Kamps.html", "Uwe_Seeler.html", "Valdovinos.html", "Valentin_Antov.html", "Vangelis_Pavlidis.html", "Vasconcelos.html", "Vasilije_Adzic.html", "Vassilis_Hatzipanagis.html", "Venancio_Ramos.html", "Venuste_Baboula.html", "Vicente_Guaita.html", "Vicente_Valor.html", "Victor_Aristizabal.html", "Victor_Boniface.html", "Victor_Bonilla.html", "Victor_Eletu.html", "Victor_Eletu_Complete_Intelligence_Dossier.html", "Victor_Ibarbo.html", "Victor_Osimhen.html", "Victor_Ozhianvuna.html", "Vincent_Candela.html", "Vinicius_Jr.html", "Vinith_Venkatesh.html", "Vinnie_Jones.html", "Vitaly_Janelt.html", "Vitor_Hugo.html", "Vladimir_Gudelj.html", "Vladimir_Marin.html", "Volkan_Babacan.html", "Vuk_Bogdanovic.html", "Walid_Abdelali.html", "Walter_Erviti.html", "Walter_Montillo.html", "Walter_Olivera.html", "Wanda_Nara.html", "Wayne_Rooney.html", "Wei_Xiangxin.html", "Wendie_Renard.html", "Wessel_Dammers.html", "Wijndal.html", "Wilder_Viera_Empire_FGA_Profile.html", "Wilfred_Agbonavbare.html", "Will_Seymore.html", "Willington_Ortiz.html", "Wisdom_Mike.html", "Wissam_Slama.html", "World_Cup_1994.html", "Wouter_Goes.html", "Xabi_Alonso.html", "Xabier_Azkargorta.html", "Xaver_Schlager.html", "Xavi_Hernandez.html", "Xavi_Simons.html", "Xhordan_Lajthia.html", "Yacouba_Maiga.html", "Yacqub_Finey.html", "Yago_Cantero.html", "Yan_Diomande.html", "Yan_Sasse.html", "Yann_Bisseck.html", "Yann_Bodiger.html", "Yann_Kitala.html", "Yannick_Adjoumani.html", "Yannick_Woudstra.html", "Yannis_Nahounou.html", "Yarek_Gasiorowski.html", "Yari_Verschaeren.html", "Yaser_Asprilla.html", "Yaya_Toure.html", "Yllan_Okou.html", "Yoan_Wissa.html", "Yoann_Beaka.html", "Youcef_Belaili.html", "Younes_Hansal.html", "Youness_Lachhab.html", "Youri_Baas.html", "Youri_Regeer.html", "Youssef_En_Nesyri.html", "Youssoufa_Moukoko.html", "Yuber_Quinones.html", "Yuber_Quiñones.html", "Yunus_Azrak.html", "Yvann_Titi.html", "Yves_Laffet.html", "Zahana_Haouari.html", "Zakaria_Eddahchouri.html", "Zakaria_El_Ouahdi.html", "Zbigniew_Boniek.html", "Zeno_Debast.html", "Zeno_Van_den_Bosch.html", "Zico.html", "Zidane_Bedoya.html", "Zie-Mohamed_Ouattara.html", "Zinedine_Zidane.html", "Zizinho.html", "Zlatan_Ibrahimovic.html", "Zola_Matumona.html", "adam_taggart.html", "adrien-perez-profile.html", "agwa_obiech.html", "aissa_saidane.html", "alexander-stjernegaard-profile.html", "arne-engels-profile.html", "bart-verbruggen-profile.html", "bradley-sample-profile.html", "brandsen_sports_dashboard.html", "brenden-aaronson-profile.html", "carlo-ancelotti-coach-profile.html", "carlos-ischia-coach-profile.html", "client_login.html", "cristian-medina-profile.html", "daniel-carvajal-profile.html", "daniel-steres-profile.html", "david-weir-coach-NEW.html", "david-weir-coach-profile.html", "david-weir-player-profile.html", "dereck-waldeck-profile.html", "diego-da-silva-profile.html", "diego-simeone-coach-profile.html", "ederson-profile.html", "edwuin-cetre-profile.html", "emilio-ycaza-profile.html", "emmanuel_gyasi_dashboard.html", "empire_fga_hybrid_platform.html", "esn_product_brief.html", "ezequiel-piovi-profile.html", "fernando-muslera-profile.html", "filipe-luis-coach-profile.html", "gustavo_bartelt.html", "iker-casillas-profile.html", "index.html", "johnny-rodriguez-profile.html", "jorge-fossati-coach-profile.html", "jose-sosa-profile.html", "login.html", "luke-biasi-profile.html", "marcelo-saralegui-profile.html", "marco_ruben_profile.html", "mario-saralegui-profile.html", "martin-zubimendi-profile.html", "mikel-amondarain-profile.html", "mohamed-ouadah-profile.html", "nelson-acosta-coach-profile.html", "ngolo-kante-profile.html", "nicolas-benedetti-profile.html", "panagiotis-tsivikos-profile.html", "patrik-mercado-profile.html", "pep-guardiola-manager-profile.html", "pep-guardiola-player-profile.html", "pierluigi-collina-profile.html", "pitshou_muteba_dashboard.html", "platform.html", "platform_UPDATED.html", "players.html", "sam-junqua-profile.html", "santiago-ascacibar-profile.html", "sir-alex-ferguson-profile.html", "stefani_miglioranzi_dashboard.html", "test.html", "tiago-palacios-profile.html", "van_Basten.html", "vicente-del-bosque-profile.html", "viera.html", "willis-furtado-profile.html", "willy-pretel-profile.html"]);
+const CLUBS= {"Andorra Primera Divisió":["Atlètic Club d'Escaldes","Carroi","Esperança","FC Ordino","FC Santa Coloma","Inter Club d'Escaldes","Penya Encarnada","Rànger's FC","UE Santa Coloma"],"BGL Ligue":["Atert Bissen","Differdange 03","Mondorf-les-Bains","UNA Strassen","F91 Dudelange","Jeunesse Esch","Racing Union","Käerjeng 97","Hostert","Victoria Rosport","Progrès Niederkorn","Swift Hesperange","Jeunesse Canach","Mamer 32","Union Titus Pétange","Rodange"]};
+const MGRS = ["Bearzot", "Beckenbauer", "Beenhakker", "Bielsa", "Bilardo", "Busby", "Carniglia", "Cesarini", "Clough", "Conte", "Cramer", "Cruyff", "Czeizler", "DeVisser", "Deschamps", "Emery", "Ferguson", "Flick", "Fontaine", "Goethals", "Guardiola", "Happel", "Herrera", "Heynckes", "Hiddink", "Hitzfeld", "Klopp", "Kovacs", "Liedholm", "Lippi", "Lobanovskyi", "Menotti", "Michels", "Milutinovic", "Mourinho", "Munoz", "Nagelsmann", "Osim", "Penev", "Petru", "Platini", "Pochettino", "Ranieri", "Robson", "Rocco", "Sacchi", "Santana", "Shankly", "Simeone", "Suaudeau", "Trapattoni", "Tuchel", "VanGaal", "Venables", "Wenger", "Zagallo"];
+const SCHS = ["South American School", "English School", "German School", "Italian School", "Global Masters", "Dutch School", "Spanish School", "French School", "Eastern European School", "Scouting Revolution", "Belgian School", "Hungarian School", "Scandinavian Masters", "Modern Masters"];
+const LC   = {"Andorra Primera Divisió": 136, "BGL Ligue": 25};
+const PC   = {"GK": 17, "MF": 43, "DF": 44, "FW": 57};
+const AG   = {"U21": 7, "21-25": 15, "26-30": 13, "31-35": 5, "35+": 4};
+const FB   = {"80-100": 0, "60-80": 0, "40-60": 0, "20-40": 0, "0-20": 0, "PENDIENTE": 161};
+const SD   = [{"n": "Argentine School", "c": 1108}, {"n": "Italian School", "c": 483}, {"n": "English School", "c": 474}, {"n": "German School", "c": 387}, {"n": "Dutch School", "c": 309}, {"n": "Global Masters", "c": 206}, {"n": "Spanish School", "c": 161}, {"n": "Brazilian School", "c": 119}, {"n": "French School", "c": 107}, {"n": "Scandinavian Masters", "c": 49}, {"n": "Modern Masters", "c": 45}, {"n": "Eastern European", "c": 44}, {"n": "Belgian Masters", "c": 41}, {"n": "Eastern European School", "c": 39}, {"n": "Scouting Revolution", "c": 37}, {"n": "Hungarian School", "c": 25}, {"n": "Belgian School", "c": 19}, {"n": "Scandinavian", "c": 8}];
+
+const LM={
+  'Andorra Primera Divisió':{flag:'🇦🇩',sh:'AND',col:'#FFB81C'},
+  'BGL Ligue':{flag:'🇱🇺',sh:'LUX',col:'#00A651'}
+};
+const SC = {
+  'Argentine School':'#74ACDF','English School':'#4A7CC4','German School':'#FFCC00',
+  'Italian School':'#009246','Global Masters':'#9B59B6','Dutch School':'#FF7100',
+  'Spanish School':'#C60B1E','Brazilian School':'#009C3B','Scandinavian Masters':'#006AA7',
+  'French School':'#003189','Belgian School':'#FAE042','Eastern European School':'#5B9BD5',
+  'Hungarian School':'#CE2939','Scouting Revolution':'#1A5276','Modern Masters':'#E74C3C',
+  'South American School':'#00A86B',
+};
+const POS_COLORS = {GK:'#EAB84E',DF:'#2DD4BF',MF:'#22D46A',FW:'#F04545'};
+
+function fc(v){
+  if(v>=80)return '#EDB84E';
+  if(v>=65)return '#22D46A';
+  if(v>=50)return '#2DD4BF';
+  if(v>=30)return '#4A7CC4';
+  return '#2A3A4E';
+}
+function fclass(v){
+  if(v>=80)return '★★★ ELITE';
+  if(v>=65)return '★★ EXCELLENT';
+  if(v>=50)return '★ VERY GOOD';
+  if(v>=35)return 'GOOD';
+  if(v>=20)return 'STANDARD';
+  return 'DEVELOPING';
+}
+var PENDIENTE_COL='#5A6472';
+function isPending(v){return v===null||v===undefined;}
+function mcol(v){return isPending(v)?PENDIENTE_COL:fc(v);}
+function mtxtP(v,dec,p){
+  if(!isPending(v)) return v.toFixed(dec===undefined?2:dec);
+  if(p&&p.fgaProxy!==undefined&&p.fgaProxy!==null) return p.fgaProxy.toFixed(1)+'\u2020';
+  return 'PENDIENTE';
+}
+function mcolP(v,p){
+  if(!isPending(v)) return fc(v);
+  if(p&&p.fgaProxy!==undefined&&p.fgaProxy!==null) return '#8A7645';
+  return PENDING_COL;
+}
+function mtxt(v,dec){return isPending(v)?'PENDIENTE':v.toFixed(dec===undefined?2:dec);}
+function mbar(v){return isPending(v)?0:Math.round(v);}
+function mraw(v){return isPending(v)?-1:v;}
+
+var filt=P.slice(), tgts=[], sKey='fga', sDir=-1, pg=1;
+const PG=50;
+
+function show(id){
+  console.log('show called with id:', id);
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on')});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('on')});
+  var order=['dash','players','targets','metrics','phil'];
+  var i=order.indexOf(id);
+  if(i>=0){var tabs=document.querySelectorAll('.tb');if(tabs[i])tabs[i].classList.add('on');}
+  var sec=document.getElementById('s-'+id);
+  if(sec)sec.classList.add('on');
+  if(id==='players')renderTable();
+  if(id==='targets')renderTargets();
+  if(id==='metrics')renderMetrics();
+  if(id==='phil')renderPhil();
+  document.getElementById('content').scrollTop=0;
+}
+
+function initF(){
+  SCHS.forEach(function(s){var o=document.createElement('option');o.value=s;o.textContent=s;document.getElementById('f-sch').appendChild(o);});
+  MGRS.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;document.getElementById('f-mgr').appendChild(o);});
+  document.getElementById('fs').addEventListener('input',applyF);
+  document.getElementById('f-lg').addEventListener('change',function(){updClubs();applyF();});
+  ['f-cl','f-pos','f-sch','f-mgr'].forEach(function(id){document.getElementById(id).addEventListener('change',applyF);});
+  ['f-amin','f-amax','f-fmin','f-fmax'].forEach(function(id){document.getElementById(id).addEventListener('input',applyF);});
+}
+function updClubs(){
+  var lg=document.getElementById('f-lg').value;
+  var sel=document.getElementById('f-cl');
+  sel.innerHTML='<option value="">Todos los Clubes</option>';
+  var list=lg?(CLUBS[lg]||[]):[];
+  if(!lg){var all=[];Object.values(CLUBS).forEach(function(a){a.forEach(function(c){all.push(c);});});all.sort();list=all;}
+  list.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+}
+function applyF(){
+  var s=(document.getElementById('fs').value||'').toLowerCase();
+  var lg=document.getElementById('f-lg').value;
+  var cl=document.getElementById('f-cl').value;
+  var pos=document.getElementById('f-pos').value;
+  var sch=document.getElementById('f-sch').value;
+  var mgr=document.getElementById('f-mgr').value;
+  var am=parseFloat(document.getElementById('f-amin').value)||0;
+  var ax=parseFloat(document.getElementById('f-amax').value)||99;
+  var fm=parseFloat(document.getElementById('f-fmin').value)||0;
+  var fx=parseFloat(document.getElementById('f-fmax').value);if(isNaN(fx))fx=99;
+  filt=P.filter(function(p){
+    if(s&&p.n.toLowerCase().indexOf(s)<0)return false;
+    if(lg&&p.l!==lg)return false;
+    if(cl&&p.sq!==cl)return false;
+    if(pos&&p.pos!==pos)return false;
+    if(sch&&p.sch!==sch)return false;
+    if(mgr&&p.mgr!==mgr)return false;
+    if(p.age<am||p.age>ax)return false;
+    if(!isPending(p.fga)&&(p.fga<fm||p.fga>fx))return false;
+    return true;
+  });
+  sortF();pg=1;
+  var n=filt.length;
+  document.getElementById('fcnt').textContent=n.toLocaleString();
+  document.getElementById('cnt-p').textContent=n.toLocaleString();
+  var ps=document.getElementById('s-players');
+  if(ps&&ps.classList.contains('on'))renderTable();
+}
+function sortF(){
+  filt.sort(function(a,b){
+    var av=a[sKey]||0,bv=b[sKey]||0;
+    if(typeof av==='string')av=av.toLowerCase();
+    if(typeof bv==='string')bv=bv.toLowerCase();
+    return av<bv?sDir:av>bv?-sDir:0;
+  });
+}
+function resetF(){
+  ['fs','f-lg','f-cl','f-pos','f-sch','f-mgr','f-amin','f-amax','f-fmin','f-fmax'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  filt=P.slice();sortF();pg=1;
+  document.getElementById('fcnt').textContent=P.length.toLocaleString();
+  document.getElementById('cnt-p').textContent=P.length.toLocaleString();
+  var ps=document.getElementById('s-players');
+  if(ps&&ps.classList.contains('on'))renderTable();
+}
+function setSort(k){
+  if(sKey===k)sDir*=-1;else{sKey=k;sDir=k==='n'?1:-1;}
+  document.querySelectorAll('.srtb').forEach(function(b){b.classList.remove('on');});
+  var sb=document.getElementById('sb-'+k);if(sb)sb.classList.add('on');
+  sortF();pg=1;renderTable();
+}
+
+function renderTable(){
+  var tbody=document.getElementById('tbody');
+  if(!tbody)return;
+  var tot=filt.length,pages=Math.max(1,Math.ceil(tot/PG));
+  if(pg>pages)pg=pages;
+  var start=(pg-1)*PG,slice=filt.slice(start,start+PG);
+  document.getElementById('pg-lbl').textContent=tot>0?'Showing '+(start+1)+'–'+Math.min(start+PG,tot)+' of '+tot.toLocaleString():'No results';
+  var h='';
+  slice.forEach(function(p,i){
+    var rank=start+i+1;
+    var fga=p.fga,ult=p.ult,col=(isPending(fga)&&p.fgaProxy!=null)?mcolP(fga,p):mcol(fga),pct=(isPending(fga)&&p.fgaProxy!=null)?Math.round(p.fgaProxy):mbar(fga);
+    var lt=LM[p.l]||{flag:'',sh:(p.l||'').slice(0,3),col:'#4A5A6E'};
+    var isTgt=tgts.some(function(t){return t.n===p.n&&t.sq===p.sq;});
+    var key=(p.n+'|'+(p.sq||'')).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var eName=p.n.replace(/'/g,"\\'");
+    var eSq=(p.sq||'').replace(/'/g,"\\'");
+    h+='<tr class="dr">'+
+      '<td style="padding-left:12px;font-family:var(--M);font-size:.6rem;color:var(--t3)">'+rank+'</td>'+
+      '<td class="pname" onclick="openModal(\''+eName+'\',\''+eSq+'\')" title="Open player profile">'+(p.featured?'<span style="color:var(--gold)" title="Featured — Gallardo shortlist">\u2605 </span>':'')+p.n+'</td>'+
+      '<td class="c"><span class="pos-chip '+p.pos+'">'+p.pos+'</span></td>'+
+      '<td class="mono">'+p.age+'</td>'+
+      '<td style="font-size:.75rem;color:var(--t2);max-width:140px;overflow:hidden;text-overflow:ellipsis" title="'+(p.sq||'')+'">'+( p.sq||'—')+wageBadge(p,true)+'</td>'+
+      '<td class="c"><span class="lgchip" style="background:'+lt.col+'22;color:'+lt.col+';border:1px solid '+lt.col+'44">'+lt.flag+' '+lt.sh+'</span></td>'+
+      '<td class="mono">'+p.mp+'</td>'+
+      '<td class="mono">'+p.g+'</td>'+
+      '<td class="mono">'+p.a+'</td>'+
+      '<td style="background:rgba(201,146,26,.025)">'+
+        '<div class="fga-cell">'+
+          '<span class="fga-num" style="color:'+(p.gradingProgress!=null&&isPending(fga)?(p.gradingProgress>=9?'#5FA87A':'#C9A961'):col)+'">'+(p.gradingProgress!=null&&isPending(fga)?p.gradingProgress+'/12 T3':mtxtP(fga,2,p))+'</span>'+
+          '<div class="fga-bar"><div class="fga-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'+
+        progressBadge(p,true)+
+          '</div>'+
+      '</td>'+
+      '<td class="mono" style="color:'+mcol(ult)+'">'+mtxt(ult,2)+'</td>'+
+      '<td class="mono" style="color:'+mcol(p.cci)+'">'+mtxt(p.cci,1)+'</td>'+
+      '<td class="mono" style="color:'+mcol(p.clu)+'">'+mtxt(p.clu,1)+'</td>'+
+      '<td class="mono" style="color:'+mcol(p.har)+'">'+mtxt(p.har,1)+'</td>'+
+      '<td><span style="font-family:var(--B);font-size:.7rem;color:var(--t3);display:block;max-width:105px;overflow:hidden;text-overflow:ellipsis" title="'+(p.sch||'')+'">'+( p.mgr||'—')+'</span></td>'+
+      '<td class="c">'+(isTgt?
+        '<button class="actbtn rem" onclick="remTgt(this,\''+key+'\')"><i class="fas fa-minus"></i></button>':
+        '<button class="actbtn add" onclick="addTgt(this,\''+key+'\')"><i class="fas fa-plus"></i></button>'
+      )+'</td>'+
+    '</tr>';
+  });
+  tbody.innerHTML=h;
+  renderPgn(tot,pages);
+}
+
+function renderPgn(tot,pages){
+  var el=document.getElementById('pgn');if(!el)return;
+  if(pages<=1){el.innerHTML='';return;}
+  var h='<button class="pgb" onclick="goPage('+(pg-1)+')"'+(pg===1?' disabled':'')+'>‹</button>';
+  var r=[],prev=0;
+  [1,pg-2,pg-1,pg,pg+1,pg+2,pages].forEach(function(n){
+    if(n<1||n>pages)return;
+    if(prev&&n-prev>1)r.push('…');
+    if(n!==prev)r.push(n);
+    prev=n;
+  });
+  r.forEach(function(x){
+    if(x==='…')h+='<span class="pgdots">…</span>';
+    else h+='<button class="pgb'+(x===pg?' on':'')+'" onclick="goPage('+x+')">' +x+'</button>';
+  });
+  h+='<button class="pgb" onclick="goPage('+(pg+1)+')"'+(pg===pages?' disabled':'')+'>›</button>';
+  el.innerHTML=h;
+}
+function goPage(n){
+  var max=Math.ceil(filt.length/PG);
+  if(n<1||n>max)return;
+  pg=n;renderTable();document.getElementById('content').scrollTop=0;
+}
+
+// MODAL
+function openModal(name,squad){
+  var p=P.find(function(x){return x.n===name&&x.sq===squad;});
+  if(!p)p=P.find(function(x){return x.n===name;});
+  if(!p)return;
+  var fga=p.fga,ult=p.ult,cci=p.cci,clu=p.clu,har=p.har,log=p.log,tmf=p.tmf,ctx=p.ctx;
+  var col=(isPending(fga)&&p.fgaProxy!=null)?mcolP(fga,p):mcol(fga),cls=isPending(fga)?(p.gradingProgress!=null?p.gradingProgress+'/12 EVALUADO':(p.fgaProxy!=null?'FGA PROXY — SOLO ESTADÍSTICAS, TIER 3 PENDIENTE':'EVALUACIÓN PENDIENTE')):fclass(fga);
+  var lt=LM[p.l]||{flag:'',sh:'',col:'#4A5A6E'};
+  var schCol=SC[p.sch]||'#4A5A6E';
+  var posCol=POS_COLORS[p.pos]||'#8BA5C0';
+  // Build local profile filename: "Alex Luna" → "Alex_Luna.html"
+  var profileFile=p.n.trim().replace(/\s+/g,'_')+'.html';
+  var hasProfile=EXISTING_PROFILES.has(profileFile);
+
+  var html=
+    '<div class="m-top">'+
+      avatarBlock(p,posCol)+
+      '<div>'+
+        '<div class="m-name">'+p.n+'</div>'+
+        '<div class="m-meta">'+p.nat+' · '+p.age+' yrs · '+(p.sq||'—')+wageBadge(p)+'</div>'+
+        '<div class="m-league" style="color:'+lt.col+'">'+lt.flag+' '+(p.l||'—')+'</div>'+
+        (hasProfile
+          ?'<a class="tm-link" href="'+profileFile+'" target="_blank" rel="noopener"><i class="fas fa-user-circle tm-icon"></i> View Full Profile <i class="fas fa-chevron-right tm-icon" style="font-size:.55rem;opacity:.7;margin-left:2px"></i></a>'
+          :'<span class="tm-link" style="opacity:.4;cursor:default" title="Written profile not published yet"><i class="fas fa-clock tm-icon"></i> Profile Coming Soon</span>')+
+      '</div>'+
+    '</div>'+
+    '<div class="m-body">'+
+      '<div class="m-sec"><i class="fas fa-chart-bar" style="margin-right:5px;opacity:.6"></i>Season Statistics</div>'+
+      '<div class="stats-row">'+
+        '<div class="sbox"><div class="sbox-n">'+p.mp+'</div><div class="sbox-l">Matches</div></div>'+
+        '<div class="sbox"><div class="sbox-n">'+Math.round((p.min||0)/90)+'</div><div class="sbox-l">90s Played</div></div>'+
+        '<div class="sbox"><div class="sbox-n">'+p.g+'</div><div class="sbox-l">Goals</div></div>'+
+        '<div class="sbox"><div class="sbox-n">'+p.a+'</div><div class="sbox-l">Assists</div></div>'+
+        '<div class="sbox"><div class="sbox-n">'+(p.g+p.a)+'</div><div class="sbox-l">G + A</div></div>'+
+        '<div class="sbox"><div class="sbox-n" style="color:'+mcol(tmf)+'">'+mtxt(tmf,2)+'</div><div class="sbox-l">TMF</div></div>'+
+      '</div>'+
+
+      '<div class="m-sec"><i class="fas fa-sitemap" style="margin-right:5px;opacity:.6"></i>FGA Rating Breakdown</div>'+
+      '<div class="fga-hier">'+
+        '<div class="hier-card main">'+
+          '<div class="hier-code" style="color:var(--gold)">★ FGA RATING — CORE</div>'+
+          '<div class="hier-val" style="color:'+(p.gradingProgress!=null&&isPending(fga)?(p.gradingProgress>=9?'#5FA87A':'#C9A961'):col)+'">'+(p.gradingProgress!=null&&isPending(fga)?p.gradingProgress+'/12':mtxtP(fga,3,p))+'</div>'+
+          '<div class="hier-lbl" style="color:'+(p.gradingProgress!=null&&isPending(fga)?'var(--t2)':'var(--gold)')+'">'+(p.gradingProgress!=null&&isPending(fga)?'TIER 3 VALIDATED — FGA composite awaits Tier 2':cls)+'</div>'+
+          '<div class="hier-bar"><div class="hier-bar-fill" style="width:'+mbar(fga)+'%;background:'+col+'"></div></div>'+
+        '</div>'+
+        '</div>'+
+      '<div class="m-sec"><i class="fas fa-clipboard-check" style="margin-right:5px;opacity:.6"></i>Estado de Evaluaci\u00f3n</div>'+
+      '<div class="status-grid">'+
+        '<div class="status-row"><span class="status-lbl">Datos de Temporada</span><span class="status-val" style="color:#5FA87A">Completo</span></div>'+
+        '<div class="status-row"><span class="status-lbl">An\u00e1lisis de V\u00eddeo</span><span class="status-val" style="color:'+(p.gradingProgress>=12?'#5FA87A':(p.gradingProgress>=1?'#C9A961':'var(--t3)'))+'">'+(p.gradingProgress!=null?p.gradingProgress+' de 12 m\u00e9tricas':'A\u00fan no iniciado')+'</span></div>'+
+        '<div class="status-row"><span class="status-lbl">Calificaci\u00f3n Compuesta</span><span class="status-val" style="color:var(--t3)">Pendiente</span></div>'+
+      '</div>'
+    '</div>';
+
+  document.getElementById('mc').innerHTML=html;
+  document.getElementById('ov').classList.add('show');
+}
+function avatarBlock(p,posCol){
+  if(p.photo){
+    return "<img src='"+p.photo+"' class='m-pos m-photo' alt='' onerror=\"this.style.display='none';this.nextElementSibling.style.display='flex'\">"+
+      "<div class='m-pos' style='display:none;background:"+posCol+"22;color:"+posCol+";border:1px solid "+posCol+"44'>"+p.pos+"</div>";
+  }
+  return '<div class="m-pos '+p.pos+'" style="background:'+posCol+'22;color:'+posCol+';border:1px solid '+posCol+'44">'+p.pos+'</div>';
+}
+function progressBadge(p,compact){
+  if(p.gradingProgress===undefined||p.gradingProgress===null) return '';
+  var n=p.gradingProgress, col = n>=9?'#5FA87A':(n>=1?'#C9A961':'#5A6472');
+  var label = n+'/12 Tier 3 validado';
+  if(compact){
+    return '<span title="'+label+'" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600;padding:1px 5px;border-radius:2px;border:1px solid '+col+';color:'+col+';margin-left:5px">'+n+'/12</span>';
+  }
+  return '<span style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:3px 9px;border-radius:2px;border:1px solid '+col+';color:'+col+'">'+label+'</span>';
+}
+function wageBadge(p,compact){
+  if(!p.wageTier || !p.featured) return '';
+  var map = {
+    high: {label:'€€€ Nivel salarial alto (según club)', short:'€€€', col:'#C9A961'},
+    confirmed_mid: {label:'€800\u2013€1.500/mes (según club)', short:'€', col:'#5FA87A'},
+    unconfirmed: {label:'Nivel salarial no confirmado', short:'?', col:'#5A6472'}
+  };
+  var m = map[p.wageTier];
+  if(!m) return '';
+  if(compact){
+    return '<span title="'+m.label+'" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600;padding:1px 4px;border-radius:2px;border:1px solid '+m.col+';color:'+m.col+';margin-left:5px">'+m.short+'</span>';
+  }
+  return '<span class="wage-badge" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:10px;padding:2px 7px;border-radius:2px;border:1px solid '+m.col+';color:'+m.col+';margin-left:6px">'+m.label+'</span>';
+}
+function mkSub(code,name,desc,val,league){
+  var col=mcol(val),pct=mbar(val);
+  return '<div class="sub-c">'+
+    '<div class="sub-code">'+code+'</div>'+
+    '<div class="sub-val" style="color:'+col+'">'+mtxt(val,2)+'</div>'+
+    '<div class="sub-name">'+name+'</div>'+
+    '<div class="sub-desc">'+desc+'</div>'+
+    '<div class="sub-minbar"><div class="sub-minbar-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'+
+  '</div>';
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('ov'))
+    document.getElementById('ov').classList.remove('show');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('ov').classList.remove('show');});
+
+// TARGETS
+function addTgt(btn,key){
+  var parts=key.split('|'),name=parts[0],sq=parts[1]||'';
+  var player=P.find(function(p){return p.n===name&&p.sq===sq;});
+  if(!player||tgts.some(function(t){return t.n===name&&t.sq===sq;}))return;
+  if(tgts.length>=20){alert('Maximum 20 targets');return;}
+  tgts.push(player);updBadge();
+  if(btn){btn.className='actbtn rem';btn.innerHTML='<i class="fas fa-minus"></i>';btn.setAttribute('onclick','remTgt(this,\''+key+'\')');}
+}
+function remTgt(btn,key){
+  var parts=key.split('|');
+  tgts=tgts.filter(function(t){return!(t.n===parts[0]&&t.sq===(parts[1]||''));});
+  updBadge();
+  if(btn){btn.className='actbtn add';btn.innerHTML='<i class="fas fa-plus"></i>';btn.setAttribute('onclick','addTgt(this,\''+key+'\')');}
+  var ts=document.getElementById('s-targets');
+  if(ts&&ts.classList.contains('on'))renderTargets();
+}
+function clearAll(){tgts=[];updBadge();renderTargets();renderTable();}
+function updBadge(){
+  var n=tgts.length;
+  var ct=document.getElementById('cnt-t');if(ct)ct.textContent=n;
+  var dt=document.getElementById('d-tgt');if(dt)dt.textContent=n;
+  var cb=document.getElementById('clr-btn');if(cb)cb.style.display=n>0?'':'none';
+}
+function renderTargets(){
+  var g=document.getElementById('tgt-grid');if(!g)return;
+  if(!tgts.length){
+    g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-i"><i class="fas fa-crosshairs"></i></div><div class="empty-m">No Targets</div><div class="empty-s">Click + on any player to start your watchlist</div></div>';
+    document.getElementById('cmp-w').style.display='none';return;
+  }
+  g.innerHTML=tgts.map(function(p){
+    var fga=p.fga,col=mcol(fga);
+    var key=(p.n+'|'+(p.sq||'')).replace(/'/g,"\\'");
+    return '<div class="tgt-card">'+
+      '<button class="tgt-rem" onclick="remTgt(null,\''+key+'\')">✕</button>'+
+      '<div class="tgt-name">'+p.n+'</div>'+
+      '<div class="tgt-meta">'+p.pos+' · '+p.age+'y · '+(p.sq||'—')+' · '+(LM[p.l]||{}).flag+' '+(p.l||'—')+'</div>'+
+      '<div class="tgt-ms">'+
+        '<div class="tgt-m"><div class="tgt-mv" style="color:'+col+'">'+mtxtP(fga,2,p)+'</div><div class="tgt-ml">FGA</div></div>'+
+        '<div class="tgt-m"><div class="tgt-mv" style="color:'+mcol(p.ult)+'">'+mtxt(p.ult,2)+'</div><div class="tgt-ml">ULT</div></div>'+
+        '<div class="tgt-m"><div class="tgt-mv">'+p.g+'</div><div class="tgt-ml">Goals</div></div>'+
+        '<div class="tgt-m"><div class="tgt-mv">'+p.a+'</div><div class="tgt-ml">Assists</div></div>'+
+      '</div>'+
+      '<div class="tgt-phil">⚽ '+(p.mgr||'—')+' · '+(p.sch||'—')+'</div>'+
+    '</div>';
+  }).join('');
+  var cw=document.getElementById('cmp-w');
+  if(tgts.length>=2){cw.style.display='';renderCmp();}else cw.style.display='none';
+}
+function renderCmp(){
+  var t=document.getElementById('cmptbl');if(!t)return;
+  var cols=tgts.slice(0,6);
+  var rows=[
+    ['Pos',function(p){return p.pos;}],
+    ['Age',function(p){return p.age;}],
+    ['Club',function(p){return p.sq||'—';}],
+    ['League',function(p){return p.l||'—';}],
+    ['MP',function(p){return p.mp;}],
+    ['Goals',function(p){return p.g;}],
+    ['Assists',function(p){return p.a;}],
+    ['FGA',function(p){return mtxt(p.fga,1);}],
+    ['ULT',function(p){return mtxt(p.ult,1);}],
+    ['CCI',function(p){return mtxt(p.cci,2);}],
+    ['CLU',function(p){return mtxt(p.clu,2);}],
+    ['HAR',function(p){return mtxt(p.har,2);}],
+    ['LOG',function(p){return mtxt(p.log,2);}],
+    ['Manager',function(p){return p.mgr||'—';}],
+  ];
+  var h='<thead><tr><th class="rh">Metric</th>';
+  cols.forEach(function(p){h+='<th>'+p.n.split(' ').slice(-1)[0]+'</th>';});
+  h+='</tr></thead><tbody>';
+  rows.forEach(function(r){
+    h+='<tr><td class="rh">'+r[0]+'</td>';
+    var vals=cols.map(r[1]);
+    var nums=vals.map(parseFloat).filter(function(v){return!isNaN(v);});
+    var mx=nums.length>1?Math.max.apply(null,nums):null;
+    vals.forEach(function(v){
+      var best=mx!==null&&parseFloat(v)===mx;
+      h+='<td'+(best?' class="best"':'')+'>'+v+'</td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody>';t.innerHTML=h;
+}
+
+// CHARTS
+function drawCharts(){
+  // Leagues
+  var el=document.getElementById('ch-lg');
+  if(el){
+    var data=[{l:"Atlètic Club d'Escaldes",c:24},{l:'Carroi',c:24},{l:'Esperança',c:24},{l:'FC Ordino',c:31},{l:'UE Santa Coloma',c:23},{l:'FC Santa Coloma',c:3},{l:"Inter Club d'Escaldes",c:4},{l:"Rànger's FC",c:2},{l:'Penya Encarnada',c:1},{l:'FC Atert Bissen',c:3},{l:'FC UNA Strassen',c:3},{l:'FC Differdange 03',c:2},{l:'F91 Dudelange',c:1},{l:'Racing FC Union Lëtzebuerg',c:1},{l:'US Hostert',c:1},{l:'UN Käerjéng 97',c:1},{l:'FC Progrès Niederkorn',c:1}];
+    var mx=Math.max.apply(null,data.map(function(d){return d.c;}));
+    el.innerHTML=data.map(function(d){
+      var m={flag:'',sh:d.l,col:'#00A651'};var pct=Math.round(d.c/mx*100);
+      return '<div class="hbar"><span class="hbar-lbl">'+m.flag+' '+m.sh+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:linear-gradient(90deg,'+m.col+','+m.col+'99)" data-v="'+d.c+'"></div></div><span class="hbar-n">'+d.c+'</span></div>';
+    }).join('');
+  }
+  // FGA bands
+  var el2=document.getElementById('ch-fga');
+  if(el2){
+    var bands=[{r:'80–100',c:FB['80-100']||0,col:'#EDB84E',l:'Elite'},{r:'60–80',c:FB['60-80']||0,col:'#22D46A',l:'Excellent'},{r:'40–60',c:FB['40-60']||0,col:'#2DD4BF',l:'Very Good'},{r:'20–40',c:FB['20-40']||0,col:'#4A7CC4',l:'Standard'},{r:'0–20',c:FB['0-20']||0,col:'#2A3A4E',l:'Developing'},{r:'—',c:FB['PENDIENTE']||0,col:'#5A6472',l:'Pending Grading'}];
+    var mx2=Math.max.apply(null,bands.map(function(b){return b.c;}));
+    el2.innerHTML=bands.map(function(b){
+      var pct=Math.round(b.c/mx2*100);
+      return '<div class="hbar"><span class="hbar-lbl wide" style="color:'+b.col+'">'+b.r+' '+b.l+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+b.col+'55" data-v="'+b.c+'"></div></div><span class="hbar-n">'+b.c+'</span></div>';
+    }).join('');
+  }
+  // Profile
+  var el3=document.getElementById('ch-prof');
+  if(el3){
+    var ptot=(PC.GK||0)+(PC.DF||0)+(PC.MF||0)+(PC.FW||0);
+    var acols=['#3B82F6','#22C55E','#F59E0B','#EF4444','#9B59B6'];
+    var akeys=['U21','21-25','26-30','31-35','35+'];
+    var hmx=Math.max.apply(null,akeys.map(function(k){return AG[k]||0;}));
+    var out='<div style="font-family:var(--D);font-size:.58rem;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">POSITIONS</div>';
+    ['GK','DF','MF','FW'].forEach(function(pos){
+      var c=PC[pos]||0,pct=Math.round(c/ptot*100),col=POS_COLORS[pos];
+      out+='<div class="hbar"><span class="hbar-lbl" style="color:'+col+'">'+pos+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+col+'66" data-v="'+pct+'%"></div></div><span class="hbar-n">'+c+'</span></div>';
+    });
+    out+='<div style="font-family:var(--D);font-size:.58rem;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin:9px 0 6px">AGE GROUPS</div>';
+    akeys.forEach(function(k,i){
+      var c=AG[k]||0,pct=Math.round(c/hmx*100);
+      out+='<div class="hbar"><span class="hbar-lbl" style="color:'+acols[i]+';width:56px">'+k+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+acols[i]+'66" data-v="'+c+'"></div></div><span class="hbar-n">'+c+'</span></div>';
+    });
+    el3.innerHTML=out;
+  }
+  drawTop();drawSch();
+}
+function drawTop(){
+  var el=document.getElementById('ch-top');if(!el)return;
+  var lg=document.getElementById('top-lg').value;
+  var pool=lg?P.filter(function(p){return p.l===lg;}):P;
+  var top=pool.slice().sort(function(a,b){return mraw(b.fga)-mraw(a.fga);}).slice(0,10);
+  el.innerHTML=top.map(function(p,i){
+    var fga=p.fga,col=mcol(fga),m=LM[p.l]||{flag:'',sh:''};
+    return '<div class="toprow">'+
+      '<span class="tr-rank'+(i<3?' g':'')+'">'+( i+1)+'</span>'+
+      '<div style="flex:1;overflow:hidden"><div class="tr-name">'+p.n+'</div><div class="tr-meta">'+(p.sq||'—')+' · '+m.flag+' '+m.sh+'</div></div>'+
+      '<span class="pos-chip '+p.pos+'" style="flex-shrink:0">'+p.pos+'</span>'+
+      '<span class="tr-fga" style="color:'+col+'">'+mtxtP(fga,2,p)+'</span>'+
+    '</div>';
+  }).join('');
+}
+function drawSch(){
+  var el=document.getElementById('ch-sch');if(!el)return;
+  var mx=SD.length>0?SD[0].c:1;
+  el.innerHTML=SD.slice(0,10).map(function(d){
+    var col=SC[d.n]||'#4A5A6E',pct=Math.round(d.c/mx*100),sh=d.n.replace(' School','').replace(' Masters','');
+    return '<div class="hbar"><span class="hbar-lbl wide" style="color:'+col+';font-size:.61rem">'+sh+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+col+'44" data-v="'+d.c+'"></div></div><span class="hbar-n">'+d.c+'</span></div>';
+  }).join('');
+}
+
+// METRICS
+var metricsR=false;
+var MDAT=[
+  {t:'T1',c:'XPS',n:'Expected Performance Score',d:'Goals×2.5 + SoT×0.6 + shots×0.4 + assists×1.2. Core attacking contribution.'},
+  {t:'T1',c:'STK',n:'Striker Killer',d:'Shot quality, conversion rate, goals per 90. Peak finishing efficiency.'},
+  {t:'T1',c:'RDS',n:'Renard des Surfaces',d:'Penalty box instinct: conversion rate, positional scoring goals.'},
+  {t:'T1',c:'KEY',n:'Key Pass Index',d:'Chance creation: assists weighted by frequency and quality.'},
+  {t:'T1',c:'LGP',n:'Long Game Progression',d:'Vertical delivery: crosses + progressive passes per 90.'},
+  {t:'T1',c:'VRP',n:'Vertical Penetration',d:'Forward impact: goals+assists per 90 with shot accuracy bonus.'},
+  {t:'T1',c:'HZP',n:'Horizontal Play',d:'Width exploitation: crosses per 90 + fouls won as width proxy.'},
+  {t:'T1',c:'UNP',n:'Under Pressure Pass',d:'Distribution under pressure: accuracy in defensive zones.'},
+  {t:'T1',c:'DGP',n:'Diagonal Pass Score',d:'Diagonal ball delivery from deep and wide positions.'},
+  {t:'T1',c:'MRK',n:'Marking Intelligence',d:'Opponent suppression: interceptions per 90, offside forced.'},
+  {t:'T1',c:'TAC',n:'Tackle Score',d:'Ball-winning efficiency: successful tackles weighted by frequency.'},
+  {t:'T1',c:'INT',n:'Interception Score',d:'Reading the game: interceptions volume and rate per 90.'},
+  {t:'T1',c:'CLE',n:'Clearance Score',d:'Defensive clearances — headed clearances per 90, feet clearances, aerial duels won, defensive line positioning.'},
+  {t:'T1',c:'BLO',n:'Block Score',d:'Physical intervention: shot-stopping + pass-blocking composite.'},
+  {t:'T1',c:'CAR',n:'Carrying Score',d:'Ball progression: G+A per 90, fouls won as dribble proxy.'},
+  {t:'T1',c:'DRB',n:'Dribble Score',d:'1v1 quality: fouls won per 90, direct dribble completion rate.'},
+  {t:'T1',c:'SAV',n:'Save Performance',d:'GK: save percentage benchmarked vs league average.'},
+  {t:'T1',c:'DSW',n:'Distribution Width',d:'GK passing range and distribution quality — launch distance, passing to wide areas, ball distribution accuracy.'},
+  {t:'T1',c:'POS',n:'Positioning Score',d:'GK: clean sheet percentage as positional discipline proxy.'},
+  {t:'T1',c:'ONE',n:'One-on-One Save',d:'GK 1v1 performance — save percentage on low-angle shots, PSxG+/- on breakaways, 1v1 situations handled.'},
+  {t:'T1',c:'KIC',n:'Kickout Quality',d:'GK distribution: minutes-based reliability and launch proxy.'},
+  {t:'T2',c:'POI',n:'Position Intelligence',d:'4-component composite: DMA + UNP + SPI + RDS.'},
+  {t:'T2',c:'CPX',n:'Composure Index',d:'4-component: progressive contribution + dribble calmness + vision + risk.'},
+  {t:'T2',c:'MOB',n:'Mobility Rating',d:'4-component: distance + high-speed actions + acceleration + decisions.'},
+  {t:'T2',c:'PVI',n:'Pass Variety Index',d:'4-component equal-weighted blend: LGP + VRP + HZP + DGP.'},
+  {t:'T2',c:'CPI',n:'Creative Player Index',d:'4-component: xG proxy + xA proxy + shot-creating actions + key pass quality.'},
+  {t:'T2',c:'GKI',n:'Goalkeeper Intelligence',d:'4-component GK: shot-stop 35% + distribution 20% + command 30% + morale 15%.'},
+  {t:'T3',c:'DMA',n:'Decision Making',d:'Expert: G+A efficiency under pressure vs card discipline.'},
+  {t:'T3',c:'CHR',n:'Character Score',d:'Expert: consistency, fouls won vs committed ratio, team points impact.'},
+  {t:'T3',c:'MCS',n:'Mental Competence',d:'Expert: +/- contribution, goal involvement, team performance correlation.'},
+  {t:'T3',c:'SOA',n:'Speed on Action',d:'Expert: shots + fouls won per 90 as proactivity and burst proxy.'},
+  {t:'T3',c:'SPI',n:'Spatial Performance',d:'Expert: cross + interception + tackle spatial variety composite.'},
+  {t:'T3',c:'CLM',n:'Calmness Rating',d:'Expert: low card count + composure under pressure + delivery quality.'},
+  {t:'T3',c:'CRS',n:'Clutch Response',d:'Expert: goals + assists per 90 in critical and high-stakes matches.'},
+  {t:'T3',c:'OMS',n:'Omschakeling (Transition)',d:'Expert: transition speed — assists + interceptions + shots per 90.'},
+  {t:'T3',c:'SPR',n:'Sprint Performance',d:'Expert: shots + tackles + fouls won per 90 as intensity proxy.'},
+  {t:'T3',c:'DYN',n:'Dynamism',d:'Expert: G+A + crosses + fouls won per 90 as energy composite.'},
+  {t:'T3',c:'CRK',n:'Creative Risk Taking',d:'Expert: G/Sh efficiency + dribbling + creative index blend.'},
+];
+function renderMetrics(){
+  if(metricsR)return;metricsR=true;
+  var w=document.getElementById('mwrap');if(!w)return;
+  var tiers=[
+    {k:'T1',lbl:'Tier 1 — Base Metrics',sub:'21 metrics · 60% Automated · FBref + Sofascore',cls:'t1c',span:2},
+    {k:'T2',lbl:'Tier 2 — Composite Intelligence',sub:'6 metrics · 30% Semi-Automated · Multi-factor',cls:'t2c',span:1},
+    {k:'T3',lbl:'Tier 3 — Scout Intelligence',sub:'11 metrics · 10% Manual · Expert assessment',cls:'t3c',span:1},
+  ];
+  w.innerHTML=tiers.map(function(t){
+    var items=MDAT.filter(function(m){return m.t===t.k;});
+    return '<div class="mpanel" style="grid-column:span '+t.span+'">'+
+      '<div class="mptitle"><span>'+t.lbl+'</span><span class="mpcnt">'+items.length+'</span></div>'+
+      '<div class="mpsub">'+t.sub+'</div>'+
+      items.map(function(m){
+        return '<div class="mrow"><span class="mcode">'+m.c+'</span><div class="mtext"><div class="mname">'+m.n+'</div><div class="mdesc">'+m.d+'</div></div><span class="mtier '+t.cls+'">'+m.t+'</span></div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+}
+
+// PHILOSOPHIES
+var PH=[
+  {s:'Dutch School',m:'Cruyff',d:'Total Football — spatial genius, positional fluidity',w:1.45},
+  {s:'Dutch School',m:'Michels',d:'Total Football foundation — pressing, collective genius',w:1.18},
+  {s:'Dutch School',m:'Van Gaal',d:'Systematic positional play — disciplined structure',w:1.22},
+  {s:'Dutch School',m:'Kovacs',d:'Ajax continuation — technical passing, dynamic movement',w:1.26},
+  {s:'Dutch School',m:'Hiddink',d:'Cultural mastery — adaptive tactics, international versatility',w:1.30},
+  {s:'Dutch School',m:'Beenhakker',d:'Global success — tactical flexibility, man-management',w:1.28},
+  {s:'Spanish School',m:'Guardiola',d:'Positional superiority — tiki-taka, high press, spatial control',w:1.38},
+  {s:'Spanish School',m:'Carniglia',d:'European elegance — Real Madrid attacking style',w:1.31},
+  {s:'Spanish School',m:'Munoz',d:'Real Madrid sophistication — attacking brilliance',w:1.35},
+  {s:'Spanish School',m:'Aragones',d:'Spanish identity — technical base, tactical revolution',w:1.31},
+  {s:'Spanish School',m:'Villalonga',d:'Systematic excellence — organized structure and methodology',w:1.12},
+  {s:'Spanish School',m:'Emery',d:'Tournament mastery — Europa DNA, pressing intensity',w:1.24},
+  {s:'Spanish School',m:'Pellegrini',d:'South American sophistication — elegant passing football',w:1.22},
+  {s:'Italian School',m:'Herrera',d:'Defensive mastery — catenaccio, counter-attack precision',w:1.30},
+  {s:'Italian School',m:'Rocco',d:'Systematic defense — compact shape, physical intensity',w:1.29},
+  {s:'Italian School',m:'Bearzot',d:'National team pragmatism — collective unity above all',w:1.33},
+  {s:'Italian School',m:'Lippi',d:'Modern Italian elegance — technical quality meets solidity',w:1.29},
+  {s:'Italian School',m:'Sacchi',d:'High pressing revolution — zonal marking, team as unit',w:1.32},
+  {s:'Italian School',m:'Trapattoni',d:'Tactical perfection — defensive organisation mastery',w:1.26},
+  {s:'Italian School',m:'Carcano',d:'Italian football birth — foundational historical principles',w:1.19},
+  {s:'Italian School',m:'Cesarini',d:'La Maquina — Argentine creative genius in Italian football',w:1.22},
+  {s:'English School',m:'Ferguson',d:'Winning mentality — mental strength, never-say-die spirit',w:1.28},
+  {s:'English School',m:'Busby',d:'Youth integration — developing raw talent into champions',w:1.34},
+  {s:'English School',m:'Robson',d:'Box-to-box football — passion, physicality, English heart',w:1.36},
+  {s:'English School',m:'Venables',d:'English sophistication — tactical creativity and structure',w:1.29},
+  {s:'English School',m:'Winterbottom',d:'Coaching education — foundational English methodology',w:1.28},
+  {s:'English School',m:'Shankly',d:'Emotional leadership — passion, pressing, collective identity',w:1.18},
+  {s:'English School',m:'Clough',d:'Mental mastery — player psychology, unconventional genius',w:1.35},
+  {s:'English School',m:'Paisley',d:'Liverpool tradition — collective wisdom, team continuity',w:1.24},
+  {s:'German School',m:'Heynckes',d:'German efficiency — high press, clinical finishing',w:1.25},
+  {s:'German School',m:'Cramer',d:'Methodical precision — structured systematic training',w:1.24},
+  {s:'German School',m:'Hitzfeld',d:'Adaptive mastery — flexible systems, tournament excellence',w:1.21},
+  {s:'German School',m:'Happel',d:'Zonal marking pioneer — defensive organization, tactical discipline',w:1.23},
+  {s:'German School',m:'Herberger',d:'German method — systematic preparation, collective strength',w:1.17},
+  {s:'German School',m:'Beckenbauer',d:'Libero revolution — attacking defender, positional freedom',w:1.15},
+  {s:'French School',m:'Wenger',d:'Development philosophy — technical excellence and youth',w:1.27},
+  {s:'French School',m:'Suaudeau',d:'Technical flair — creative freedom and attacking expression',w:1.30},
+  {s:'French School',m:'Platini',d:'Midfield elegance — passing range, leadership, vision',w:1.35},
+  {s:'French School',m:'Fontaine',d:'Clinical finishing — attacking positioning, goal instinct',w:1.33},
+  {s:'French School',m:'Deschamps',d:'Tactical pragmatism — leadership, balance, collective strength',w:1.28},
+      {s:'South American School',m:'Santana',d:'Jogo Bonito — pure beautiful football, creative freedom',w:1.18},
+  {s:'South American School',m:'Zagallo',d:'Tactical evolution — adapting Brazilian brilliance',w:1.22},
+  {s:'South American School',m:'Feola',d:'Organisational excellence — 1958 World Cup system',w:1.16},
+  {s:'South American School',m:'Menotti',d:'Argentine artistry — beautiful football, left-wing philosophy',w:1.35},
+  {s:'South American School',m:'Bilardo',d:'Argentine pragmatism — results first, 1986 discipline',w:1.28},
+  {s:'South American School',m:'Bielsa',d:'Bielsismo — high-intensity pressing, positional obsession',w:1.31},
+  {s:'South American School',m:'Simeone',d:'Cholismo — defensive passion, collective intensity',w:1.25},
+    {s:'Hungarian School',m:'Czeizler',d:'Technical method — Hungarian precision, structured passing',w:1.33},
+  {s:'Hungarian School',m:'Sebes',d:'Hungarian revolution — 1950s total football precursor',w:1.15},
+  {s:'Scandinavian Masters',m:'Liedholm',d:'Swedish-Italian fusion — Scandinavian intelligence and rigour',w:1.31},
+  {s:'Belgian Masters',m:'Goethals',d:'Belgian excellence — Anderlecht and Brugge European DNA',w:1.26},
+  {s:'Eastern European School',m:'Osim',d:'Football intelligence — intelligent movement and awareness',w:1.29},
+  {s:'Eastern European School',m:'Lobanovskyi',d:'Scientific football — data-driven, functional fitness',w:1.18},
+  {s:'Eastern European School',m:'Petru',d:'Technical discipline — precision passing and structure',w:1.26},
+  {s:'Eastern European School',m:'Penev',d:'Bulgarian revolution — creative individuality, dynamic movement',w:1.24},
+  {s:'Global Masters',m:'Milutinovic',d:'Football globalisation — cultural adaptation and mastery',w:1.27},
+    {s:'Global Masters',m:'Ranieri',d:'Collective miracle — team spirit, believe against all odds',w:1.31},
+  {s:'Football Genesis',m:'Suppici',d:'Football genesis — foundational principles of the game',w:1.31},
+  {s:'Modern Masters',m:'Mourinho',d:'Tactical warfare — defensive masterclass and psychology',w:1.22},
+  {s:'Modern Masters',m:'Klopp',d:'Heavy metal football — gegenpressing, verticality, emotional energy',w:1.33},
+  {s:'Modern Masters',m:'Ancelotti',d:'Adaptive excellence — situational mastery, star management',w:1.30},
+  {s:'Modern Masters',m:'Conte',d:'Intense organisation — 3-at-back, tactical work, winning mentality',w:1.29},
+  {s:'Modern Masters',m:'Tuchel',d:'Positional structure — build-up mastery, defensive solidity',w:1.28},
+  {s:'Modern Masters',m:'Pochettino',d:'Physical fitness — pressing, youth development, high intensity',w:1.27},
+  {s:'Modern Masters',m:'Nagelsmann',d:'Tactical innovation — formations, adaptability, modern systems',w:1.26},
+  {s:'Modern Masters',m:'Flick',d:'High tempo — positional play, team ethic, German efficiency',w:1.25},
+  {s:'Modern Masters',m:'DeVisser',d:'Scouting revolution — global talent identification and raw potential',w:1.15},
+    ];
+var activeS='',philR=false;
+function renderPhil(){
+  var pills=document.getElementById('spills'),grid=document.getElementById('philgrid');
+  if(!pills||!grid)return;
+  if(!philR){
+    philR=true;
+    var schools=[];PH.forEach(function(p){if(schools.indexOf(p.s)<0)schools.push(p.s);});
+    pills.innerHTML='<button class="spill on" onclick="filterSch(\'\')">All</button>'+
+      schools.map(function(s){
+        var col=SC[s]||'#4A5A6E';
+        return '<button class="spill" onclick="filterSch(\''+s.replace(/'/g,"\\'")+'\''+')" style="border-color:'+col+'55;color:'+col+'" data-s="'+s+'">'
+          +s.replace(' School','').replace(' Masters','')+'</button>';
+      }).join('');
+  }
+  var list=activeS?PH.filter(function(p){return p.s===activeS;}):PH;
+  var cols=Math.min(list.length,activeS?4:5);
+  grid.style.gridTemplateColumns='repeat('+cols+',1fr)';
+  grid.innerHTML=list.map(function(p){
+    var col=SC[p.s]||'#4A5A6E';
+    var cnt=P.filter(function(pl){return pl.mgr===p.m;}).length;
+    return '<div class="pcard" style="border-color:'+col+'33">'+
+      '<div class="psch" style="color:'+col+'">'+p.s+'</div>'+
+      '<div class="pmgr">'+p.m+'</div>'+
+      '<div class="pdna">'+p.d+'</div>'+
+      '<div class="pfoot"><span class="pw">'+(p.w||0).toFixed(2)+'</span><span>'+cnt+' jugadores</span></div>'+
+    '</div>';
+  }).join('');
+}
+function filterSch(s){
+  activeS=s;
+  document.querySelectorAll('.spill').forEach(function(b){b.classList.remove('on');});
+  if(!s){var f=document.querySelector('.spill');if(f)f.classList.add('on');}
+  else{var b=document.querySelector('[data-s="'+s+'"]');if(b)b.classList.add('on');}
+  renderPhil();
+}
+
+// INIT — wires up filter dropdowns, event listeners, and dashboard charts on load
+function renderInAction(){
+  var el = document.getElementById('in-action-body');
+  if(!el) return;
+  var graded = P.filter(function(p){return p.gradingProgress!==undefined && p.gradingProgress!==null;})
+                .sort(function(a,b){return b.gradingProgress-a.gradingProgress;});
+  var total = P.length;
+  var withProgress = graded.length;
+  var html = '<div style="font-size:.8rem;color:var(--t2);margin-bottom:14px">'+
+    '<b style="color:var(--gold)">'+withProgress+'</b> jugadores tienen evaluaci\u00f3n Tier 3 en video en curso ahora mismo &nbsp;·&nbsp; '+
+    '<b style="color:var(--t1)">'+total.toLocaleString()+'</b> jugadores totales con estad\u00edsticas reales de temporada listas para explorar &nbsp;·&nbsp; '+
+    'la evaluaci\u00f3n se ampl\u00eda cada semana — esto es un proceso activo, no un archivo cerrado.'+
+  '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px">';
+  graded.forEach(function(p){
+    var eN = p.n.replace(/'/g,"\\'");
+    var eS = (p.sq||'').replace(/'/g,"\\'");
+    var n = p.gradingProgress;
+    var col = n>=9?'#5FA87A':(n>=1?'#C9A961':'#5A6472');
+    html += '<div style="background:var(--bg2);border:1px solid '+col+';border-radius:3px;padding:14px;cursor:pointer" onclick="openModal(\''+eN+'\',\''+eS+'\')">'+
+      '<div style="font-size:.95rem;font-weight:600">'+p.n+'</div>'+
+      '<div style="font-size:.7rem;color:var(--t3);margin-top:2px">'+(p.sq||'')+' · '+p.pos+'</div>'+
+      '<div style="margin-top:8px;font-family:\'IBM Plex Mono\',monospace;font-size:.85rem;font-weight:700;color:'+col+'">'+n+'/12 Tier 3</div>'+
+    '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+initF();
+updClubs();
+drawCharts();
+renderInAction();
+</script>
+</body>
+</html>
