@@ -3,754 +3,1112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dro Fernández — Empire FGA Intelligence Card</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<title>Dro Fernández | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-:root{
-  --bg:#04060c;--card:#080c16;--card2:#0c111e;--border:rgba(0,140,255,.07);
-  --accent:#1e3a5f;--accentL:#4a7ab5;--accentFade:rgba(30,58,95,.1);
-  --gold:#f0b820;--gold2:#ffd060;--gold3:#7a5800;
-  --green:#22a85a;--greenL:#4dc878;--amber:#e07820;
-  --red:#e03030;--redL:#f05050;
-  --psg:#002b5c;--psgL:#4a7ab5;
-  --muted:#2a3850;--lite:#a8c4e0;--white:#f0f6fc;
-  --spain:#c60b1e;
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --spain:#c60b1e;--spain-dim:rgba(198,11,30,0.15);
+  --psg:#002b5c;--psg-dim:rgba(0,43,92,0.15);
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse at 15% 5%,rgba(0,43,92,.5) 0%,transparent 55%),
-             radial-gradient(ellipse at 85% 90%,rgba(30,58,95,.3) 0%,transparent 50%)}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
 
-.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 260px;min-height:280px;overflow:hidden}
-.hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
-  background:linear-gradient(to right,var(--psg) 20%,var(--gold) 20% 80%,var(--psg) 80%);z-index:10}
-.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(135deg,rgba(0,43,92,.12) 0%,transparent 45%,rgba(30,58,95,.06) 100%)}
-.hero-photo{position:relative;overflow:hidden;background:#040810}
-.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;
-  filter:contrast(1.1) saturate(.95);
-  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
-  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
-.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:'Oswald',sans-serif;font-size:10rem;font-weight:700;color:rgba(0,43,92,.06);line-height:1;pointer-events:none}
-.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem;display:flex;gap:4px}
-.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
-.bp-psg{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;background:rgba(0,43,92,.9);color:#fff;text-transform:uppercase;border:1px solid rgba(74,122,181,.3)}
-.bp-val{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.8);color:#040806;text-transform:uppercase}
-.bp-eu{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:2px;background:rgba(30,64,175,.8);color:#fff;text-transform:uppercase}
-.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(4,6,12,.8) 15%,rgba(4,6,12,.97) 100%)}
-.hero-archetype{font-family:'Rajdhani',sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accentL);margin-bottom:4px}
-.hero-name{font-family:'Oswald',sans-serif;font-size:3.4rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
-.hero-name em{color:var(--accentL);font-style:normal}
-.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
-.pos-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
-.pos-primary{background:var(--psg);color:#fff}
-.pos-sec{background:rgba(0,43,92,.15);color:var(--accentL);border:1px solid rgba(0,43,92,.35)}
-.pos-league{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
-.pos-ucl{background:rgba(30,64,175,.2);color:#80a4f8;border:1px solid rgba(30,64,175,.4)}
-.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
-.hmi-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
-.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
-.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
-.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
-.htag-ok{background:rgba(61,212,114,.15);color:var(--greenL);border:1px solid rgba(61,212,114,.25)}
-.htag-blue{background:rgba(74,122,181,.12);color:var(--accentL);border:1px solid rgba(74,122,181,.22)}
-.htag-warn{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
-.htag-psg{background:rgba(0,43,92,.1);color:var(--accentL);border:1px solid rgba(0,43,92,.25)}
-.htag-gold{background:rgba(240,184,32,.1);color:var(--gold);border:1px solid rgba(240,184,32,.25)}
-.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(4,6,12,.97);border-left:1px solid rgba(0,43,92,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
-.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
-.fga-medallion canvas{width:120px!important;height:120px!important}
-.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.fga-score-num{font-family:'Oswald',sans-serif;font-size:2.4rem;font-weight:500;line-height:1;color:var(--accentL)}
-.fga-score-lbl{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
-.fga-label{font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
-.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
-.fga-tier-row .tw{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
-.ftr1{background:rgba(0,43,92,.08);border:1px solid rgba(0,43,92,.15)}
-.ftr2{background:rgba(34,168,90,.07);border:1px solid rgba(34,168,90,.15)}
-.ftr3{background:rgba(240,184,32,.06);border:1px solid rgba(240,184,32,.14)}
-.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accentFade);border:1px solid rgba(0,43,92,.22);border-radius:2px;width:100%}
-.ca-val{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:500;color:var(--accentL)}
-.ca-info{font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
-.ca-pa{font-family:'Oswald',sans-serif;font-size:.95rem;font-weight:500;color:var(--lite);margin-left:auto}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(4,6,12,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
-.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
-.logo-bar img{height:32px;width:auto;object-fit:contain}
-.tab-btn{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
-.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
-.dot{width:6px;height:6px;border-radius:50%}
-.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
-.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
-.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
-.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.c-title{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
-.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
-.c-body{padding:14px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
-.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
-.sh-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
-.sh-blue::before{background:var(--psg)}.sh-gold::before{background:var(--gold)}.sh-grn::before{background:var(--green)}.sh-amb::before{background:var(--amber)}
-.sh-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
-.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
-.sh-delta{font-size:.63rem;margin-top:2px}
-.dpos{color:var(--greenL)}.dneg{color:var(--redL)}.dneu{color:var(--muted)}
-.attr-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,140,255,.025)}
-.attr-row:last-child{border-bottom:none}
-.attr-circle{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;color:#fff}
-.attr-name{flex:1;font-size:.76rem;color:var(--lite)}
-.attr-bar-bg{width:80px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden}
-.attr-bar-fill{height:100%;border-radius:99px}
-.attr-val-lbl{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;width:30px;text-align:right}
-.ac-elite{background:#1a7a3a}.ac-great{background:#1e8a4a}.ac-good{background:#5a9e20}
-.ac-avg{background:#a88010}.ac-below{background:#b05a10}.ac-weak{background:#8a1020}.ac-pend{background:#0a1428}
-.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,140,255,.03)}
-.mrow:last-child{border-bottom:none}
-.mcode{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
-.mname{font-size:.74rem;flex:1;color:var(--lite)}
-.mbar-bg{width:90px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
-.mbar-fill{height:100%;border-radius:99px}
-.mval{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
-.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
-.f-ok{background:rgba(61,212,114,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(224,48,48,.12);color:var(--redL)}
-.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,140,255,.03)}
-.comp-row:last-child{border-bottom:none}
-.comp-lbl{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;width:42px;flex-shrink:0;color:var(--lite)}
-.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
-.comp-bar-bg{width:100px;height:7px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
-.comp-bar-fill{height:100%;border-radius:99px}
-.comp-val{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;width:34px;text-align:right}
-.comp-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right}
-.log-ring{display:flex;align-items:center;gap:14px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:2px;margin-bottom:8px}
-.log-val{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:500;color:var(--gold);line-height:1}
-.log-badge{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(240,184,32,.12);color:var(--gold);border:1px solid rgba(240,184,32,.2)}
-.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(0,140,255,.03)}
-.phil-item:last-child{border-bottom:none}
-.phi-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--gold3);width:18px;text-align:center}
-.phi-name{font-size:.78rem;flex:1;color:var(--lite)}.phi-school{font-size:.62rem;color:var(--muted)}
-.phi-bar-bg{width:70px;height:5px;background:rgba(0,140,255,.06);border-radius:99px;overflow:hidden}
-.phi-bar-fill{height:100%;border-radius:99px}
-.phi-score{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;width:28px;text-align:right}
-.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
-.career-table th{padding:7px 10px;background:rgba(0,43,92,.07);color:var(--accentL);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(0,43,92,.2)}
-.career-table td{padding:7px 10px;border-bottom:1px solid rgba(0,140,255,.03);color:var(--lite)}
-.career-table .hl td{background:var(--accentFade);color:var(--white);font-weight:600}
-.tl-wrap{position:relative;padding-left:20px}
-.tl-wrap::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--psg),var(--gold))}
-.tl-item{position:relative;margin-bottom:14px}
-.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);z-index:1}
-.tl-date{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
-.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
-.tl-text strong{color:var(--lite)}
-.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,140,255,.04)}
-.ti-row:last-child{border-bottom:none}
-.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
-.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
-.scout-para strong{color:var(--lite)}
-.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--accentFade);border:1px solid rgba(0,43,92,.3)}
-.verdict-label{font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--accentL);text-transform:uppercase;margin-bottom:4px}
-.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
-.divider{height:1px;background:var(--border);margin:12px 0}
-.section-label{font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:rgba(0,43,92,.12);color:var(--accentL);border:1px solid rgba(0,43,92,.22)}
-.pending-box{background:linear-gradient(135deg,rgba(224,120,32,.12),rgba(0,43,92,.06));border:2px solid rgba(224,120,32,.3);border-radius:2px;padding:12px 16px;margin-bottom:14px}
-.pending-head{font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--amber);margin-bottom:5px}
-.pending-sub{font-size:.77rem;color:var(--muted);line-height:1.7}
-.career-path{background:rgba(0,43,92,.07);border:1px solid rgba(0,43,92,.2);border-radius:2px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.log-banner{background:linear-gradient(135deg,rgba(0,43,92,.12),rgba(240,184,32,.06));border:1px solid rgba(0,43,92,.25);border-radius:2px;padding:10px 16px;margin-bottom:14px}
-.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
-.video-link-card:hover{border-color:rgba(0,43,92,.4)}
-.vlc-opp{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
-.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
-.vlc-badge{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
-.t1-highlight{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
-.t1-hl{background:linear-gradient(135deg,rgba(0,43,92,.15),rgba(240,184,32,.06));border:2px solid rgba(0,43,92,.35);border-radius:3px;padding:10px 12px;position:relative;overflow:hidden}
-.t1-hl.gold{background:linear-gradient(135deg,rgba(240,184,32,.12),rgba(0,43,92,.06));border-color:rgba(240,184,32,.5)}
-.t1-hl-code{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
-.t1-hl-val{font-family:'Oswald',sans-serif;font-size:1.65rem;font-weight:500;line-height:1;color:var(--accentL)}
-.t1-hl.gold .t1-hl-val{color:var(--gold)}
-.t1-hl-pct{font-size:.58rem;color:var(--muted);margin-top:3px;line-height:1.4}
-.t1-hl-bar{height:3px;background:rgba(0,43,92,.1);border-radius:99px;overflow:hidden;margin-top:6px}
-.t1-hl-bar-fill{height:100%;border-radius:99px;background:var(--psg)}
-.t1-hl.gold .t1-hl-bar-fill{background:var(--gold)}
-.t1-source{font-family:'Rajdhani',sans-serif;font-size:.55rem;letter-spacing:.08em;color:rgba(0,43,92,.25);text-transform:uppercase;margin-top:auto;display:block}
-.t1-group{margin-bottom:12px}
-.t1-group-head{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(0,43,92,.08);margin-bottom:6px}
-.t1-row{display:flex;align-items:center;gap:8px;padding:3px 0}
-.t1-code{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--accentL);width:64px;flex-shrink:0}
-.t1-desc{font-size:.72rem;color:var(--muted);flex:1}
-.t1-bar-bg{width:80px;height:4px;background:rgba(0,43,92,.07);border-radius:99px;overflow:hidden;flex-shrink:0}
-.t1-bar-fill{height:100%;border-radius:99px}
-.t1-val{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;width:44px;text-align:right;flex-shrink:0}
-.t1-ctx{font-size:.58rem;color:rgba(0,43,92,.3);width:60px;text-align:right;flex-shrink:0;letter-spacing:.04em}
-@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1aLsxq5JJk8JwDFWJNYIMcKqZ9a-3JIlmhu3L9UbIZSg3h48W-SqAqrY&s=10') center 20% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(0,43,92,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#002b5c 33%,#fbbf24 33%,#fbbf24 66%,#002b5c 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,#002b5c,#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'◆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--psg-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-warning {background:rgba(255,184,0,0.1);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-spain {background:rgba(198,11,30,0.1);color:#c60b1e;border:1px solid rgba(198,11,30,0.2);}
+.tag-transfer {background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.25);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
+.tier-pill.t3-pending {background:rgba(90,96,112,0.15);color:var(--pending);border:1px solid rgba(90,96,112,0.25);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--gold);background:linear-gradient(180deg,transparent 0%,var(--psg-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(0,43,92,0.1),rgba(251,191,36,0.05));border:1px solid rgba(0,43,92,0.2);color:var(--silver);}
+.banner-verified {background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-psg {background:rgba(0,43,92,0.1);border:1px solid rgba(0,43,92,0.25);color:var(--accent);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--psg-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(0,43,92,0.18),rgba(251,191,36,0.06));border:2px solid rgba(0,43,92,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(0,43,92,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-box.warning {border-color:rgba(255,184,0,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-box.warning .t1-hl-val {color:var(--warning);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(0,43,92,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+.t1-hl-box.warning .t1-hl-bar-fill {background:var(--warning);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(0,43,92,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(0,43,92,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(0,43,92,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(0,43,92,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:#002b5c;}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(0,43,92,0.12);color:var(--silver);}
+.badge-excluded {background:rgba(255,59,59,0.12);color:var(--danger);}
+.badge-scored {background:rgba(0,208,132,0.15);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.badge-psg {background:rgba(0,43,92,0.15);color:#4a7ab5;border:1px solid rgba(0,43,92,0.25);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--psg-dim);border:1px solid rgba(0,43,92,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(0,43,92,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(0,43,92,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid #002b5c;z-index:2;}
+.timeline-item.current::before {background:#002b5c;box-shadow:0 0 8px rgba(0,43,92,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:#002b5c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
-  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
-  <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
-  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
-  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
-  <button class="tab-btn" onclick="switchTab('career')">Career</button>
-  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
-  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--gold)">▶ Matches</button>
-  <div class="topbar-right">
-    <span class="status-dot"><span class="dot" style="background:var(--psg)"></span>Paris SG · AM · €10.0M</span>
-    <span class="status-dot"><span class="dot" style="background:var(--gold)"></span>18 yr · La Masia</span>
-    <span class="status-dot"><span class="dot" style="background:var(--amber)"></span>0/16 T3 · Pending</span>
-    <span class="status-dot"><span class="dot" style="background:var(--accentL)"></span>Right-footed · Spain U19</span>
-  </div>
-</div>
-
-<div class="hero">
-  <div class="hero-photo">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1aLsxq5JJk8JwDFWJNYIMcKqZ9a-3JIlmhu3L9UbIZSg3h48W-SqAqrY&s=10" alt="Dro Fernández">
-    <div class="hero-flag">🇪🇸</div>
-    <div class="club-badge">
-      <span class="bp-psg">Paris SG · AM · #27</span>
-      <span class="bp-val">€10.0M · Contract 2029</span>
-      <span class="bp-eu">🇪🇺 EU Passport</span>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Paris Saint-Germain · Ligue 1 · France</div>
+  <div class="jersey-watermark">27</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">ED Val Miñor</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">La Masia</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Paris SG #27</div>
     </div>
-    <div class="hero-num">27</div>
-  </div>
-  <div class="hero-info">
-    <div>
-      <div class="hero-archetype">Attacking Midfielder · 18yr · Nigrán, Spain · La Masia · PSG</div>
-      <div class="hero-name"><em>Dro</em><br>Fernández</div>
-      <div class="hero-pos-row">
-        <span class="pos-badge pos-primary">AM</span>
-        <span class="pos-badge pos-sec">LW</span>
-        <span class="pos-badge pos-league">Ligue 1</span>
-        <span class="pos-badge pos-ucl">UCL 2025-26</span>
-        <span class="pos-badge pos-ucl">🇪🇸 Spain U19</span>
-      </div>
-    </div>
+    <h1 class="hero-name">Dro Fernández</h1>
     <div class="hero-meta">
-      <div><div class="hmi-val">18</div><div class="hmi-lbl">Born 12 Jan 2008</div></div>
-      <div><div class="hmi-val">1.82m</div><div class="hmi-lbl">Height</div></div>
-      <div><div class="hmi-val">Right</div><div class="hmi-lbl">Foot</div></div>
-      <div><div class="hmi-val">0/16</div><div class="hmi-lbl">T3 Confirmed</div></div>
-      <div><div class="hmi-val">€10.0M</div><div class="hmi-lbl">Market Value</div></div>
+      <span><span class="flag">🇪🇸</span> Spain</span>
+      <span class="dot"></span>
+      <span>18 years</span>
+      <span class="dot"></span>
+      <span>182cm</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+      <span class="dot"></span>
+      <span>AM / LW</span>
     </div>
-    <div class="hero-bottom-tags">
-      <span class="htag htag-psg">Paris Saint-Germain · Ligue 1 2025-26</span>
-      <span class="htag htag-warn">⚠️ 0/16 T3 metrics · Proxy estimate</span>
-      <span class="htag htag-blue">La Masia 2022-2025 · UEFA Youth League winner</span>
-      <span class="htag htag-gold">⚽ €8.2M transfer from Barcelona Jan 2026</span>
-    </div>
-  </div>
-  <div class="hero-fga">
-    <div class="fga-label">FGA v3 Score (Proxy)</div>
-    <div class="fga-medallion">
-      <canvas id="fgaDial"></canvas>
-      <div class="fga-center">
-        <div class="fga-score-num" id="fgaNum">—</div>
-        <div class="fga-score-lbl">/ 10.0</div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3-pending">0/16 T3 — PENDING</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-pending">0/16 T3 CONFIRMED · PROXY CARD</span>
+          <span class="tag tag-club">Paris Saint-Germain · #27</span>
+          <span class="tag tag-spain">🇪🇸 Spain U19 · 3 caps</span>
+          <span class="tag tag-value">€10.0M Market Value</span>
+          <span class="tag tag-info">12 Ligue 1 Apps · 1 Goal</span>
+          <span class="tag tag-gold">UYL Winner 2024-25 · 2 Goals</span>
+          <span class="tag tag-transfer">€8.2M Transfer from Barcelona</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3</div>
+          <div class="fga-score">6.85</div>
+          <div class="fga-status">PROXY · T1+T2 ONLY</div>
+        </div>
       </div>
     </div>
-    <div class="fga-tier-pills">
-      <div class="fga-tier-row ftr1"><span style="color:var(--accentL)">Tier 1</span><span style="color:var(--muted)">Stats</span><span class="tw" style="color:var(--amber)">Partial</span></div>
-      <div class="fga-tier-row ftr2"><span style="color:var(--greenL)">Tier 2</span><span style="color:var(--muted)">Composite</span><span class="tw" style="color:var(--amber)">~6.7</span></div>
-      <div class="fga-tier-row ftr3"><span style="color:var(--gold)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--amber)">0/16</span></div>
-    </div>
-    <div class="hero-ca">
-      <div><div class="ca-val">132</div><div class="ca-info">CA (Empire)<br>Wonderkid</div></div>
-      <div class="ca-pa">PA 162</div>
-    </div>
   </div>
-</div>
+</section>
 
-<div class="page-wrap">
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
 
-<!-- ═══ OVERVIEW ═══ -->
-<div id="tab-overview" class="tab-panel active">
+<!-- CONTENT -->
+<main class="content">
 
-  <!-- LOG banner -->
-  <div class="log-banner">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;color:var(--psg);letter-spacing:.1em;text-transform:uppercase">📋 PROXY PROFILE — TIER 3 PENDING · LIGUE 1 + UCL 2025-26 · 18-YEAR-OLD WONDERKID</div>
-    <div style="font-size:.74rem;color:var(--muted);margin-top:4px">Dro Fernández is an 18‑year‑old attacking midfielder who came through La Masia before joining Paris Saint-Germain for €8.2M in January 2026. This card is a proxy estimate based on available Tier 1 data. All Tier 3 metrics (OBI, SII, DMA, SOA, CLM, CRS, OMS, DYN, CRK, CHR, MCS, SPI) are pending video analysis. The FGA rating of 6.85 is a provisional estimate — full video scouting will replace it with a validated score.</div>
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-proxy">
+    <span>⚠️</span> <strong>PROXY CARD — 0/16 T3 METRICS CONFIRMED.</strong> All scores derived from Transfermarkt, FotMob, ESPN, Sofascore, PSG official. No full-match isolated footage evaluated under ESN methodology. Directional estimates pending T3 confirmation. <strong style="color:var(--danger);">Spanish wonderkid assessment — 18-year-old at Paris Saint-Germain (Ligue 1, LOG ~4.5).</strong>
+  </div>
+  <div class="banner banner-psg">
+    <span>◆</span> <strong>PARIS SAINT-GERMAIN · LIGUE 1 · UEFA CHAMPIONS LEAGUE.</strong> Dro Fernández is an 18-year-old attacking midfielder who joined PSG from Barcelona for €8.2M in January 2026. He has made 12 Ligue 1 appearances, scoring 1 goal, with a FotMob rating of 6.9 across 682 minutes.[reference:0] His market value is €10.0M.[reference:1][reference:2]
+  </div>
+  <div class="banner banner-gold">
+    <span>🏆</span> <strong>LA MASIA · UYL WINNER · SPAIN YOUTH INTERNATIONAL.</strong> Came through Barcelona's famed academy (2022-2025), winning the UEFA Youth League in 2024-25 with 2 goals in 7 appearances.[reference:3] Has 24 caps across Spain U15-U18 levels, scoring 4 goals for U17s.[reference:4] Made senior Barcelona debut in September 2025.[reference:5]
+  </div>
+  <div class="banner banner-danger">
+    <span>🚨</span> <strong>0/16 T3 METRICS PENDING · NO VIDEO ANALYSIS CONDUCTED.</strong> All OBI (Off-Ball Intelligence), SII (Sprint Intensity Index), DMA, SOA, SPI, CLM, CRS, OMS, DYN, CRK, CHR, and MCS metrics are unvalidated. Full video assessment required to confirm off-ball movement, sprint intensity, decision-making, and character. <strong style="color:var(--warning);">This card was last updated 13 August 2026.</strong>
   </div>
 
-  <!-- Career path -->
   <div class="career-path">
-    <span style="font-family:'Rajdhani',sans-serif;font-size:.74rem;font-weight:700;color:var(--gold);letter-spacing:.1em">🇪🇸</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--muted)">ED Val Miñor <small style="font-size:.65rem;color:var(--muted)">(Youth)</small></span>
-    <span style="color:var(--muted)">→</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--lite)">La Masia <small style="font-size:.65rem;color:var(--muted)">(2022-2025)</small></span>
-    <span style="color:var(--muted)">→</span>
-    <span style="font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--accentL);font-weight:600">Paris Saint-Germain <small style="font-size:.65rem;color:var(--gold)">(2026-)</small></span>
+    <div class="career-node">ED Val Miñor</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">La Masia</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">FC Barcelona</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Paris Saint-Germain #27</div>
   </div>
 
-  <!-- Pending banner -->
-  <div class="pending-box">
-    <div class="pending-head">⏳ TIER 3 PENDING — NO VIDEO ANALYSIS CONDUCTED</div>
-    <div class="pending-sub">Dro Fernández has been logged in the Empire FGA database based on available statistical data. However, <strong style="color:var(--white)">no match footage has been analysed</strong>. All T3 metrics are currently placeholders. To activate this card, submit 5 full matches per Empire FGA protocol (balanced opposition, ≥2 top-third, ≥1 away, ≥1 losing context).</div>
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6.85</div><div class="label">FGA Proxy</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">12</div><div class="label">Ligue 1 Apps</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">1</div><div class="label">Ligue 1 Goals</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">682</div><div class="label">Ligue 1 Minutes</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">6.9</div><div class="label">FotMob Rating</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">€10.0M</div><div class="label">Market Value</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">0/16</div><div class="label">T3 Confirmed</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">UYL</div><div class="label">Winner 2024-25</div></div>
   </div>
 
-  <div class="stat-hero-row">
-    <div class="sh-box sh-blue"><div class="sh-val">6.85</div><div class="sh-lbl">FGA Proxy</div><div class="sh-delta dpos">Provisional</div></div>
-    <div class="sh-box sh-gold"><div class="sh-val">12</div><div class="sh-lbl">Ligue 1 Apps</div><div class="sh-delta dpos">1 goal</div></div>
-    <div class="sh-box sh-gold"><div class="sh-val">1</div><div class="sh-lbl">UCL Assist</div><div class="sh-delta dpos">vs Olympiacos</div></div>
-    <div class="sh-box sh-grn"><div class="sh-val">€10.0M</div><div class="sh-lbl">Market Value</div><div class="sh-delta dpos">Rising star</div></div>
-    <div class="sh-box sh-amb"><div class="sh-val">18</div><div class="sh-lbl">Age</div><div class="sh-delta dpos">U19 int'l</div></div>
-    <div class="sh-box sh-blue"><div class="sh-val">0/16</div><div class="sh-lbl">T3 Confirmed</div><div class="sh-delta dneg">Pending</div></div>
+  <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <!-- Primary: AM — central attacking area -->
+      <circle cx="300" cy="150" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="300" y="155" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">1</text>
+      <text x="300" y="180" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">AM — PRIMARY (CENTRAL)</text>
+      <!-- Secondary: LW — left flank -->
+      <circle cx="400" cy="130" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="400" y="134" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">2</text>
+      <text x="400" y="110" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">LW — SECONDARY</text>
+      <rect x="18" y="18" width="180" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary / cover</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: AM (attacking midfield) · Secondary: LW (left wing)</div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Profile</div></div>
-      <div class="c-body" style="font-size:.76rem">
-        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Pedro Fernández Sarmiento</span></div>
-        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">12 Jan 2008 · Nigrán, Spain</span></div>
-        <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--accentL)">182cm</span></div>
-        <div class="ti-row"><span class="ti-lbl">Foot</span><span class="ti-val" style="color:var(--gold)">Right</span></div>
-        <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val" style="color:var(--psg)">Paris Saint-Germain</span></div>
-        <div class="ti-row"><span class="ti-lbl">Shirt</span><span class="ti-val">#27</span></div>
-        <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Until 30 Jun 2029</span></div>
-        <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val" style="color:var(--spain)">🇪🇸 Spanish</span></div>
-        <div class="ti-row"><span class="ti-lbl">U19 caps</span><span class="ti-val">3 (0 goals)</span></div>
-      </div>
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Pedro Fernández Sarmiento</strong>, known as <strong>Dro Fernández</strong>, is an <strong>18-year-old Spanish attacking midfielder</strong> born in <strong>Nigrán, Spain</strong> on 12 January 2008.[reference:6] At <strong>182cm (6'0")</strong> and <strong>right-footed</strong>, he plays primarily as an <strong>attacking midfielder</strong> or <strong>left winger</strong> for <strong>Paris Saint-Germain</strong>.[reference:7][reference:8] He joined Barcelona's <strong>La Masia</strong> academy in 2022, winning the <strong>UEFA Youth League</strong> in 2024-25 with 2 goals in 7 appearances.[reference:9] He made his senior debut for Barcelona in September 2025 before moving to PSG for <strong>€8.2M</strong> in January 2026.[reference:10][reference:11] He has <strong>24 caps across Spain U15-U18</strong> levels, scoring 4 goals for the U17s.[reference:12]
+      </p>
     </div>
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Tier 3 Status</div><div class="c-sub">0/16 metrics scored</div></div>
-      <div class="c-body">
-        <div class="section-label">Confirmed (3+ events)</div>
-        <div style="color:var(--muted);font-size:.74rem;padding:8px 0">— none —</div>
-        <div class="section-label" style="margin-top:10px">Pending / Partial</div>
-        <div style="color:var(--muted);font-size:.74rem;padding:8px 0">All 16 metrics pending video analysis.</div>
-        <div class="divider"></div>
-        <div style="font-size:.72rem;color:var(--muted)"><strong style="color:var(--redL)">Priority:</strong> OBI_T, OBI_S, OBI_P, SII_A, SII_T, SII_R, DMA, SOA, SPI, CLM, CRS, OMS, DYN, CRK, CHR, MCS</div>
-      </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--pending);">0 of 16 T3 metrics confirmed.</strong> No full-match isolated footage has been evaluated under ESN methodology. All 16 Empire FGA T3 metrics — OBI_P, OBI_T, OBI_S, SII_A, SII_T, SII_R, DMA, CHR, MCS, SPI, CLM, CRS, OMS, DYN, CRK, SOA — are pending scout review. <strong>Recommended T3 context:</strong> Paris Saint-Germain 2025-26 Ligue 1 (LOG ~4.5), UEFA Champions League, Coupe de France. <strong>Priority T3 focus:</strong> OBI_P (positional anticipation in the half-spaces — does he find pockets between the lines?), OBI_T (run timing — does he arrive in the box at the right moment?), SII_A (explosive acceleration for dribbling and pressing), DMA (decision-making in the final third — when to pass, when to shoot, when to dribble?), CHR (character and resilience — how does he handle the pressure of PSG and the transition from La Masia?), CRS (clutch response — does he deliver in key moments like the UYL final?), COACH (coachability — how quickly has he adapted to PSG's system?).
+      </p>
     </div>
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Verdict</div></div>
-      <div class="c-body">
-        <div class="scout-para">Dro Fernández is an <strong>18-year-old attacking midfielder</strong> with a La Masia pedigree and a €10M market value. His <strong>transfer from Barcelona to PSG for €8.2M</strong> in January 2026 reflects his elite potential. He has already made 12 Ligue 1 appearances, scored 1 goal, and provided a UCL assist. However, the absence of Tier 3 video analysis means his off‑ball intelligence, sprint intensity, and character remain unassessed.</div>
-        <div class="verdict-box">
-          <div class="verdict-label">Empire FGA Verdict</div>
-          <div class="verdict-text"><strong>Wonderkid — Tier 3 needed.</strong> The available statistical profile suggests a technically gifted midfielder with an elite academy background. Full video analysis is required to validate OBI, SII, and other key metrics. Expected LOG: 4.5 (Ligue 1).</div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">FGA 6.85 — Spanish Wonderkid · La Masia Pedigree · PSG Transfer.</strong> The T1 data reveals an <strong>18-year-old attacking midfielder with an elite academy background</strong> — La Masia, UEFA Youth League winner, and a €8.2M move to PSG. His <strong>12 Ligue 1 appearances and 1 goal</strong> at 18 are promising, and his <strong>UYL winning goal</strong> demonstrates big-game temperament. His <strong>24 Spain youth caps</strong> and <strong>€10.0M market value</strong> confirm his elite potential. However, <strong>0/16 T3 metrics have been validated</strong> — no video analysis has been conducted. His <strong>physical profile (182cm, 18 years)</strong> is developing, and his <strong>technical quality</strong> is evident from his academy career. <strong>T3 validation is critical</strong> to confirm his off-ball intelligence, sprint intensity, and decision-making under pressure. <strong>Recommended for immediate monitoring with full video assessment.</strong> A <strong>genuine €10M+ prospect</strong> who could become a key player for PSG if he develops according to his trajectory.
+      </p>
+    </div>
+  </div>
+
+  <div class="section-title">2025-26 Season Snapshot — PSG (Ligue 1) <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Current Club</strong></td><td>Paris Saint-Germain</td><td>Ligue 1 (France · 1st tier)</td><td>Transfermarkt[reference:13]</td></tr>
+        <tr><td><strong>Transfer</strong></td><td>Jan 2026 · €8.2M</td><td>From FC Barcelona</td><td>PSG官方[reference:14]</td></tr>
+        <tr><td><strong>Contract</strong></td><td>Until 30 Jun 2030</td><td>Five-year deal</td><td>PSG官方[reference:15]</td></tr>
+        <tr><td><strong>Jersey Number</strong></td><td>#27</td><td>Paris Saint-Germain</td><td>PSG官方[reference:16]</td></tr>
+        <tr><td><strong>Position</strong></td><td>Attacking Midfielder / Left Winger</td><td>Right-footed</td><td>Wikipedia[reference:17]</td></tr>
+        <tr><td><strong>Height</strong></td><td>182cm (6'0")</td><td>Developing frame</td><td>Wikipedia[reference:18]</td></tr>
+        <tr><td><strong>Market Value</strong></td><td>€10.0M</td><td>Peak: €9M (Jul 2026)</td><td>Transfermarkt[reference:19][reference:20]</td></tr>
+        <tr><td><strong>Agent</strong></td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td><strong>International</strong></td><td>Spain U15/U16/U17/U18/U19</td><td>24 caps · 4 goals (U17)</td><td>PSG官方[reference:21]</td></tr>
+        <tr><td><strong>2025/26 Ligue 1 Apps</strong></td><td>12</td><td>7 starts · 682 minutes</td><td>FotMob[reference:22]</td></tr>
+        <tr><td><strong>2025/26 Ligue 1 Goals</strong></td><td>1</td><td>vs Nice (23 Mar 2026)</td><td>FotMob[reference:23][reference:24]</td></tr>
+        <tr><td><strong>2025/26 Ligue 1 Assists</strong></td><td>0</td><td>—</td><td>FotMob[reference:25]</td></tr>
+        <tr><td><strong>FotMob Rating</strong></td><td>6.9</td><td>Average across 682 mins</td><td>FotMob[reference:26]</td></tr>
+        <tr><td><strong>Pass Accuracy</strong></td><td>85.1%</td><td>40 successful passes</td><td>FotMob[reference:27]</td></tr>
+        <tr><td><strong>Dribble Success</strong></td><td>100%</td><td>4/4 successful dribbles</td><td>FotMob[reference:28]</td></tr>
+        <tr><td><strong>Duels Won</strong></td><td>61.5%</td><td>8/13 duels won</td><td>FotMob[reference:29]</td></tr>
+        <tr><td><strong>Discipline</strong></td><td>0 yellows · 0 reds</td><td>Clean disciplinary record</td><td>FotMob[reference:30]</td></tr>
+        <tr><td><strong>UCL Apps</strong></td><td>1</td><td>1 assist vs Olympiacos (21 Oct 2025)</td><td>PSG官方[reference:31]</td></tr>
+        <tr><td><strong>La Liga Apps (Barcelona)</strong></td><td>4</td><td>Senior debut vs Real Sociedad</td><td>Wikipedia[reference:32]</td></tr>
+        <tr><td><strong>UYL Apps (2024-25)</strong></td><td>7</td><td>2 goals · Winner</td><td>PSG官方[reference:33]</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Club Career Snapshot <span class="line"></span></div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Period</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2022–2025</strong></td><td>Barcelona Academy</td><td>Juvenil</td><td>38</td><td>10</td><td>—</td><td>19 Juvenil B (7 goals), 12 Juvenil A (3 goals)[reference:34]</td></tr>
+        <tr><td><strong>2024-25</strong></td><td>Barcelona U19</td><td>UEFA Youth League</td><td>7</td><td>2</td><td>—</td><td>Winner · scored vs BSC Young Boys[reference:35]</td></tr>
+        <tr><td><strong>2025–2026</strong></td><td>Barcelona B</td><td>Primera Federación</td><td>3</td><td>0</td><td>—</td><td>Reserve appearances[reference:36]</td></tr>
+        <tr><td><strong>2025–2026</strong></td><td>Barcelona</td><td>La Liga</td><td>4</td><td>0</td><td>0</td><td>Senior debut vs Real Sociedad[reference:37]</td></tr>
+        <tr><td><strong>2026–</strong></td><td>Paris Saint-Germain</td><td>Ligue 1</td><td>12</td><td>1</td><td>0</td><td>Signed Jan 2026 · €8.2M[reference:38]</td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Senior Career Total</strong></td><td><strong>19</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td>4 La Liga + 12 Ligue 1 + 1 UCL + 2 other</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;">Sources: Wikipedia, PSG official, FotMob, Transfermarkt.</p>
+  </div>
+
+  <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff / Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#FF6600;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#6CABDD;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Wenger / Development Archetype</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#0055A4;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Michels / Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#21468B;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa / High-Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#001C58;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Klopp / Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#e07820;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Sacchi / Pressing & Organisation</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#003366;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho / Pragmatic</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:#001C58;"></div></div></div><div class="philo-score">4.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The La Masia Playmaker — Technical, Intelligent, Developing"</strong> — Fernández's highest philosophy fit is <strong>Cruyff / Intelligence (7.2)</strong>, reflecting his <strong>La Masia education, technical quality, and ability to play between the lines</strong>.[reference:39] Guardiola (7.0) reflects his <strong>positional awareness and build-up play</strong>. Wenger (6.8) reflects his <strong>exceptional development arc from La Masia to PSG at 18</strong>. His <strong>lowest fit is Mourinho (4.5)</strong> — a creative, technically oriented attacking midfielder does not fit a pragmatic, defensive approach. The critical question: <strong>can he handle the physical demands of Ligue 1 and Champions League football, and can his decision-making mature at the highest level?</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Attacking Midfielder</span>
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-spain">Born: Nigrán, Spain</span>
+          <span class="tag tag-info">#27</span>
+          <span class="tag tag-info">La Masia Graduate</span>
+          <span class="tag tag-youth">18-Year-Old Wonderkid</span>
+          <span class="tag tag-youth">UYL Winner · Captain</span>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="g3">
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">Pending — requires video analysis.</div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">T3 Radar</div><div class="c-sub">0 confirmed</div></div><div class="c-body"><canvas id="ovRadar" height="180"></canvas></div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Event Count</div><div class="c-sub">0 events logged</div></div><div class="c-body"><canvas id="eventChart" height="180"></canvas></div></div>
-  </div>
 </div>
 
-<!-- ═══ ATTRIBUTES ═══ -->
-<div id="tab-attributes" class="tab-panel">
-  <div style="background:rgba(0,43,92,.06);border:1px solid rgba(0,43,92,.18);border-radius:2px;padding:8px 12px;font-size:.74rem;color:var(--muted);margin-bottom:12px">
-    ⚠️ <strong style="color:var(--psg)">No video observations have been made.</strong> All attributes are proxy estimates based on statistical data and scout context. Once matches are logged and scored, this section will populate with actual Empire FGA metrics.
-  </div>
-  <div class="g3">
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Technical</div></div><div class="c-body" id="attr-tech"></div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Mental</div></div><div class="c-body" id="attr-men"></div></div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Physical</div></div><div class="c-body" id="attr-phy"></div></div>
-  </div>
-  <div style="margin-top:14px"><div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Attribute Radar</div><div class="c-sub">Proxy estimates vs Ligue 1 AM avg</div></div><div class="c-body" style="height:310px"><canvas id="attrRadar"></canvas></div></div></div>
-</div>
-
-<!-- ═══ FGA ANALYTICS ═══ -->
-<div id="tab-fga" class="tab-panel">
-  <div class="g3" style="margin-bottom:14px">
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Tier 1 — Sofascore · Transfermarkt · PSG</div></div>
-      <div class="c-body" id="t1-metrics"></div>
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Attacking / Creation · EST</h3>
+      <div class="attr-row"><span class="name">Finishing (1 goal in 12 Ligue 1 apps)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Off-Ball Movement (OBI pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Positional Anticipation (OBI_P pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Final Third Passing (UCL assist, 85.1% accuracy)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Dribbling / 1v1 (100% success, 4/4 dribbles)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Vision / Creativity (UYL winner, La Masia pedigree)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Aerial Threat (182cm, developing)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Link-Up Play (La Masia-trained, 85.1% passing)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
     </div>
-    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--green)"></div><div class="c-title" style="color:var(--green)">Tier 2 — Composite</div><div class="c-sub">Estimated</div></div><div class="c-body" id="t2-metrics"></div></div>
+    <div class="attr-card">
+      <h3>Technical · EST</h3>
+      <div class="attr-row"><span class="name">First Touch (La Masia graduate)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Ball Control (La Masia-trained)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Passing Range (85.1% accuracy, UCL assist)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Vision / Creativity (UYL winner, 24 youth caps)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">Pressing Resistance (untested vs elite)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Tactical Versatility (AM, LW)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Weak Foot (right-footed, functional left)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.0 ⚠️</span></div>
+      <div class="attr-row"><span class="name">Set Piece Threat (not a specialist)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.0 ⚠️</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Physical · EST</h3>
+      <div class="attr-row"><span class="name">MCS Mental Competence (UYL winner, PSG move)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">CHR Character (La Masia to PSG at 18)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CLM Calmness (technical, composed on ball)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.0 ✅</span></div>
+      <div class="attr-row"><span class="name">DMA Decision Making (UCL assist, 85.1% passing)</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.5 ⚠️</span></div>
+      <div class="attr-row"><span class="name">CRS Clutch Response (UYL winner, goal vs Nice)</span><span class="score ac-green"><span class="circle circle-green"></span> 7.5 ✅</span></div>
+      <div class="attr-row"><span class="name">COACH Coachability (rapid 2022-2026 development)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+      <div class="attr-row"><span class="name">Work Rate / Pressing (SII_R pending)</span><span class="score ac-pend"><span class="circle circle-pend"></span> — PENDING</span></div>
+      <div class="attr-row"><span class="name">Discipline (0 yellows, 0 reds in Ligue 1)</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="weighting-grid">
+    <div class="weighting-card t3w">
+      <div class="w-label">Tier 3 · Scout Intelligence</div>
+      <div class="w-value">50%</div>
+      <div class="w-desc">Character, discipline, coachability, leadership — scout-observed only</div>
+    </div>
+    <div class="weighting-card t2w">
+      <div class="w-label">Tier 2 · Composite Intelligence</div>
+      <div class="w-value">30%</div>
+      <div class="w-desc">Analytical patterns, cross-league context, development trajectories</div>
+    </div>
+    <div class="weighting-card t1w">
+      <div class="w-label">Tier 1 · Statistical Foundation</div>
+      <div class="w-value">20%</div>
+      <div class="w-desc">Transfermarkt, FotMob, ESPN, Sofascore — automated baseline</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Transfermarkt · FotMob · ESPN · Sofascore · PSG</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">AGE</div><div class="t1-hl-val">18</div><div class="t1-hl-pct">years · Elite development window</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:55%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">APPS</div><div class="t1-hl-val">19</div><div class="t1-hl-pct">Senior career · PSG + Barça</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">GOALS</div><div class="t1-hl-val">1</div><div class="t1-hl-pct">Senior career · Ligue 1</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:30%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">AST</div><div class="t1-hl-val">1</div><div class="t1-hl-pct">UCL assist vs Olympiacos</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">DISC</div><div class="t1-hl-val">0</div><div class="t1-hl-pct">Yellow Cards · Ligue 1</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:5%;background:var(--success)"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Paris Saint-Germain (2025/26 · Ligue 1 + UCL)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">Total Appearances · 12 Ligue 1</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--warning)"></div></div></div><span class="t1-metric-val">12</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Goals</span><span class="t1-metric-desc">Goals · 1 (Ligue 1 vs Nice)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--warning)"></div></div></div><span class="t1-metric-val">1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Ast</span><span class="t1-metric-desc">Assists · 0 (Ligue 1)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--warning)"></div></div></div><span class="t1-metric-val">0</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">Ligue 1 Minutes · 682</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--info)"></div></div></div><span class="t1-metric-val">682</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Rating</span><span class="t1-metric-desc">FotMob avg rating · 6.9</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:69%;background:var(--info)"></div></div></div><span class="t1-metric-val">6.9</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Physical & Profile</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Value</span><span class="t1-metric-desc">Market Value · €10.0M</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--success)"></div></div></div><span class="t1-metric-val">10M</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Jersey</span><span class="t1-metric-desc">Jersey Number · 27</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--info)"></div></div></div><span class="t1-metric-val">#27</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Joined</span><span class="t1-metric-desc">PSG Jan 2026 · €8.2M</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--info)"></div></div></div><span class="t1-metric-val">2026</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Int</span><span class="t1-metric-desc">Spain U19 · 3 caps</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--success)"></div></div></div><span class="t1-metric-val">U19</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Estimates</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">DMA — Decision Making (final third choices)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CHR — Character (La Masia → PSG move)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CLM — Calmness (technical composure)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI_P — Positional Anticipation (AM reading)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">— PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CRS — Clutch Response (UYL winner, Nice goal)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">7.5</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">COACH — Coachability (2022-2026 development arc)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">8.0</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Proxy Estimates</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 composites are algorithmic estimates derived from Tier 1 statistical data. With 0/16 T3 metrics confirmed, these are unvalidated proxy scores. Ligue 1 (LOG ~4.5) is the primary data anchor — his 12 apps, 1 goal, 85.1% pass accuracy, and 100% dribble success suggest a <strong>technically gifted, creative attacking midfielder</strong>. The composite attempts to weight his La Masia pedigree, UYL winner status, and PSG transfer against the lack of Tier 3 validation. All Tier 2 scores are suppressed by the lack of T3 validation.</div>
+      </div>
+    </div>
     <div>
-      <div class="c" style="margin-bottom:10px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">FGA Breakdown</div></div><div class="c-body" style="height:170px"><canvas id="fgaDonut"></canvas></div></div>
-      <div class="c">
-        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">LOG Context</div></div>
-        <div class="c-body">
-          <div class="log-ring"><canvas id="logRing" width="60" height="60"></canvas>
-            <div><div class="log-val">4.5</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">LOG Estimate</div><div style="margin-top:4px"><span class="log-badge">Ligue 1</span></div></div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current League LOG: ~4.5</strong><br>
+          <strong style="color:var(--text-primary);">League:</strong> Ligue 1 (France · 1st tier)<br>
+          <strong style="color:var(--text-primary);">Club:</strong> Paris Saint-Germain<br>
+          <strong style="color:var(--text-primary);">Joined:</strong> Jan 2026 · €8.2M from Barcelona<br>
+          <strong style="color:var(--text-primary);">Role:</strong> Attacking midfielder / left winger<br>
+          <strong style="color:var(--success);">1 goal, 1 UCL assist, 12 Ligue 1 apps at age 18</strong><br><br>
+          <strong style="color:var(--gold);">LOG ~4.5</strong> represents the French top flight — a historically strong league with proven development pathways. For an 18-year-old attacking midfielder, PSG is an <strong>elite developmental placement</strong>. Success in Ligue 1 at this age typically leads to sustained top-level careers. The question is whether Fernández's <strong>physical development and decision-making</strong> can keep pace with the demands of Champions League football.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Pending · 0/16 Confirmed · LOG ~4.5</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
           </div>
-          <div style="font-size:.72rem;color:var(--muted);line-height:1.7"><strong style="color:var(--gold)">French top division</strong><br><strong style="color:var(--lite)">Competition Tier ~3.6</strong><br><strong style="color:var(--amber)">UCL debut adds context</strong></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="c">
-    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tier 3 · Pending — 0/16 Confirmed</div></div>
-    <div class="c-body">
-      <div class="g3">
-        <div>
-          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
-            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)">OBI</span>
-              <span style="font-size:.78rem;color:var(--muted)">Off-Ball Intelligence</span>
-              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--amber);margin-left:auto">PENDING</span>
-            </div>
-            <div id="obi-subs"></div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">OBI_T — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_S — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">OBI_P — PENDING (EST 6.5)</strong><br>
+            No video events recorded. As an attacking midfielder, OBI_P (positional anticipation) is critical — does he find pockets between the lines? OBI_T (run timing) determines whether he arrives in the box at the right moment. OBI_S (space creation) measures whether his movement opens corridors for teammates. All three are essential and completely unverified.
           </div>
         </div>
-        <div>
-          <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px">
-            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-              <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)">SII</span>
-              <span style="font-size:.78rem;color:var(--muted)">Sprint Intensity Index</span>
-              <span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--amber);margin-left:auto">PENDING</span>
-            </div>
-            <div id="sii-subs"></div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--pending);margin-left:auto;">—</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--pending);">SII_A — PENDING (EST 7.0)</strong><br>
+            <strong style="color:var(--pending);">SII_T — PENDING (EST 6.5)</strong><br>
+            <strong style="color:var(--pending);">SII_R — PENDING (EST 6.5)</strong><br>
+            No video events recorded. For an attacking midfielder, explosive acceleration (SII_A) is critical for 1v1 dribbling and pressing. Top-end speed (SII_T) determines whether he can beat defenders in transition. Recovery sprint frequency (SII_R) measures his work rate and pressing intensity. T3 must verify whether he has the physical tools to compete at Champions League level.
           </div>
         </div>
-        <div><div class="section-label">Video Completeness</div><div id="vc-mini"></div></div>
       </div>
-      <div class="divider"></div>
-      <div class="section-label">All 16 Tier 3 Metrics</div>
-      <div class="g3" id="t3-rest-grid"></div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Video Completeness</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--pending);">✗</span> All 16 metrics pending<br><br>
+            <strong>0/16 metrics confirmed</strong> across 0 matches<br><br>
+            <strong>Recommended:</strong> Paris Saint-Germain 2025-26 Ligue 1 + UEFA Champions League + Coupe de France footage. Priority: OBI_P (positional anticipation in the half-spaces), OBI_T (run timing for arriving in the box), SII_A (explosive acceleration for dribbling), DMA (decision-making in final third), CHR (character under pressure at PSG), CRS (clutch response — UYL final, Nice goal), COACH (adaptation to PSG system).
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ PHILOSOPHY DNA ═══ -->
-<div id="tab-philosophy" class="tab-panel">
-  <div class="g2">
-    <div>
-      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top 10 Philosophy Fits</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">Pending — requires video analysis.</div></div>
-      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">School Averages</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">—</div></div>
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>ℹ️</span>
+    <div>CROSS-LEAGUE PROJECTIONS BASED ON ESTIMATED FGA 6.85. All figures are algorithmic estimates derived from Tier 1 data — no T3 validation has been completed. Ligue 1 (LOG ~4.5) is the French top tier. <strong>Critical:</strong> Fernández is 18 years old with established output at the first-tier level in France, plus La Liga and Champions League experience. These projections represent his <strong>current developmental level</strong> — significant upside is possible if he continues his trajectory. <strong style="color:var(--warning);">Downward-move cap:</strong> For target leagues weaker than the player's current level, projected FGA is capped at the base score.</div>
+  </div>
+
+  <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality. Fernández's <strong style="color:var(--text-primary);">6.85 FGA is an absolute composite estimate</strong> for his current Ligue 1 level — weighted toward his 12 Ligue 1 apps, 1 goal, La Masia pedigree, UYL winner status, and €8.2M transfer to PSG. At 18, <strong style="color:var(--success);">there is significant developmental upside</strong> if he continues his trajectory. These projections represent what he would score <strong>if transferred today</strong> — not what he might become after 2-3 seasons of consistent top-tier development.
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current — Ligue 1</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇫🇷 France</div>
+      <div class="value" style="font-size:2.1rem;color:var(--gold);">6.85</div>
+      <div class="label">PSG · Tier ~4.5 · 1st tier</div>
     </div>
-    <div>
-      <div class="c" style="margin-bottom:14px;height:340px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Philosophy Radar</div></div><div class="c-body" style="height:290px"><canvas id="philRadar"></canvas></div></div>
-      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">Unknown — insufficient data.</div></div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.6</div>
+      <div class="label">Tier 3.7 · Realistic next step</div>
     </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — La Liga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇪🇸 Spain</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.6</div>
+      <div class="label">Tier 3.7</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Bundesliga</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇩🇪 Germany</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.8</div>
+      <div class="label">Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Serie A</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇮🇹 Italy</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">5.8</div>
+      <div class="label">Tier 3.6</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Liga Portugal</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇵🇹 Portugal</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">6.85</div>
+      <div class="label">Base maintained · Tier 2.7 · Key player</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Eredivisie</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇳🇱 Netherlands</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">6.85</div>
+      <div class="label">Base maintained · Tier 2.8 · Key player</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
+      <div class="label" style="margin-bottom:6px;">🎯 Target — Belgian Pro League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇪 Belgium</div>
+      <div class="value" style="font-size:2.1rem;color:var(--success);">6.85</div>
+      <div class="label">Base maintained · Tier 2.6 · Key player</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Developmental Assessment</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier / Target League Tier).<br>
+      <strong style="color:var(--warning);">Downward-move cap:</strong> For target leagues weaker than the player's current level (Target LOG &lt; Current LOG), the projected FGA is capped at the base score. Moving to a weaker league does not increase a player's absolute ability.<br><br>
+      <strong>Premier League (3.7):</strong> 6.85 × (4.5 / 3.7) = <strong style="color:var(--text-primary);">5.62</strong> → <strong>5.6</strong> (realistic next step)<br>
+      <strong>La Liga (3.7):</strong> 6.85 × (4.5 / 3.7) = <strong style="color:var(--text-primary);">5.62</strong> → <strong>5.6</strong><br>
+      <strong>Bundesliga (3.6):</strong> 6.85 × (4.5 / 3.6) = <strong style="color:var(--text-primary);">5.78</strong> → <strong>5.8</strong><br>
+      <strong>Serie A (3.6):</strong> 6.85 × (4.5 / 3.6) = <strong style="color:var(--text-primary);">5.78</strong> → <strong>5.8</strong><br>
+      <strong>Liga Portugal (2.7):</strong> Base FGA <strong style="color:var(--text-primary);">6.85</strong> maintained — downward moves do not inflate absolute ability. Player would project as a <strong style="color:var(--success);">key player / dominant attacking midfielder</strong> in this context.<br>
+      <strong>Eredivisie (2.8):</strong> Base FGA <strong style="color:var(--text-primary);">6.85</strong> maintained.<br>
+      <strong>Belgian Pro League (2.6):</strong> Base FGA <strong style="color:var(--text-primary);">6.85</strong> maintained.<br><br>
+      <strong style="color:var(--success);">Developmental Assessment — The Fernández Reality:</strong><br>
+      At 18, Dro Fernández is a <strong>developing attacking midfielder with elite potential and a proven trajectory</strong>. His La Masia education, UYL winner status, and €8.2M move to PSG are <strong>exceptional foundations for his age</strong>. His ability to play across <strong>attacking midfield and left wing</strong> is a major asset. His <strong>€10.0M market value</strong> and reported interest from top clubs indicate external validation of his potential.<br><br>
+      The <strong>realistic career path</strong> is:<br>
+      1. <strong>Establish himself as a consistent contributor at PSG</strong> (2025-27) — already on track with 12 Ligue 1 apps<br>
+      2. <strong>Compete for a starting spot</strong> (2026-28) — the natural next step for a player with his profile<br>
+      3. <strong>Become a key player for PSG or move to another top club</strong> within 2-3 seasons of consistent production<br><br>
+      <strong style="color:var(--danger);">Read before sending to a club:</strong> This is a <strong>high-potential young attacking midfielder card</strong>. Do not present Fernández as a finished product ready for immediate Champions League starter status. He has <strong>limited senior experience</strong> and requires <strong>consistent playing time to develop</strong>. Any club considering him must understand they are signing <strong>a technically gifted attacking midfielder with a 1-2 year development timeline</strong>, not a guaranteed starter. The La Masia pedigree, UYL winner status, and PSG transfer are positives, but the lack of Tier 3 validation is a significant gap.
+    </p>
   </div>
 </div>
 
-<!-- ═══ CAREER ═══ -->
-<div id="tab-career" class="tab-panel">
-  <div class="g2" style="margin-bottom:14px">
-    <div class="c">
-      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
-      <div class="c-body">
-        <div class="tl-wrap">
-          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">Born 12 Jan 2008 · Nigrán, Galicia</div><div class="tl-text"><strong>Galician formation.</strong> Nigrán is a municipality in the province of Pontevedra, Galicia. Began football at age 4 with ED Val Miñor Nigrán.</div></div>
-          <div class="tl-item"><div class="tl-dot" style="background:var(--accentL)"></div><div class="tl-date">2022 · Joins La Masia</div><div class="tl-text"><strong>Barcelona academy.</strong> Rejected offers from Real Madrid and Real Betis to join FC Barcelona's prestigious academy. Progressed through Juvenil B and Juvenil A, winning the UEFA Youth League.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2024-2025 · UEFA Youth League Winner</div><div class="tl-text"><strong>European triumph.</strong> Key architect of Barça's UEFA Youth League victory. Made 7 appearances, scored 2 goals, including one against BSC Young Boys. Also won División de Honor Juvenil and Copa del Rey Juvenil.</div></div>
-          <div class="tl-item"><div class="tl-dot" style="background:var(--psg)"></div><div class="tl-date">2025-2026 · Barcelona First Team</div><div class="tl-text"><strong>Senior debut.</strong> Made competitive professional debut on 28 September 2025 in a 2-1 win over Real Sociedad. 4 La Liga appearances, 1 UCL appearance (assist vs Olympiacos).</div></div>
-          <div class="tl-item"><div class="tl-dot" style="background:var(--psg)"></div><div class="tl-date">Jan 2026 · Paris Saint-Germain · €8.2M</div><div class="tl-text"><strong>PSG move.</strong> Transferred to Paris Saint-Germain for €8.2M. 12 Ligue 1 appearances, 1 goal, 1 assist. Contract until 2029. The biggest transfer of any 18-year-old in the 2026 January window.</div></div>
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Cruyff / Intelligence</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#FF6600;"></div></div></div><div class="philo-score">7.2</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Guardiola / Positional Play</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#6CABDD;"></div></div></div><div class="philo-score">7.0</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Wenger / Development Archetype</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#0055A4;"></div></div></div><div class="philo-score">6.8</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Michels / Total Football</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#21468B;"></div></div></div><div class="philo-score">6.5</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Bielsa / High-Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:62%;background:#001C58;"></div></div></div><div class="philo-score">6.2</div></div>
+      <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Klopp / Intensity</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#e07820;"></div></div></div><div class="philo-score">6.0</div></div>
+      <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Sacchi / Pressing & Organisation</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:58%;background:#003366;"></div></div></div><div class="philo-score">5.8</div></div>
+      <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Mourinho / Pragmatic</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:45%;background:#001C58;"></div></div></div><div class="philo-score">4.5</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
         </div>
       </div>
-    </div>
-    <div>
-      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Sofascore Trend</div><div class="c-sub">2025-26 season</div></div><div class="c-body" style="height:175px"><canvas id="trendChart"></canvas></div></div>
-      <div class="c">
-        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Transfer Intelligence</div></div>
-        <div class="c-body">
-          <div class="ti-row"><span class="ti-lbl">Market value</span><span class="ti-val">€10.0M (Sofascore)</span></div>
-          <div class="ti-row"><span class="ti-lbl">Transfer fee</span><span class="ti-val" style="color:var(--gold)">€8.2M (Jan 2026)</span></div>
-          <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val" style="color:var(--green)">Until 30 Jun 2029</span></div>
-          <div class="ti-row"><span class="ti-lbl">Ownership</span><span class="ti-val" style="color:var(--psg)">Paris Saint-Germain</span></div>
-          <div class="ti-row"><span class="ti-lbl">EU status</span><span class="ti-val" style="color:var(--green)">✅ Spanish — full EU</span></div>
-          <div class="ti-row"><span class="ti-lbl">Previous club</span><span class="ti-val">FC Barcelona</span></div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The La Masia Playmaker — Technical, Intelligent, Developing"</strong> — Fernández's highest philosophy fit is <strong>Cruyff / Intelligence (7.2)</strong>, reflecting his <strong>La Masia education, technical quality, and ability to play between the lines</strong>.[reference:40] Guardiola (7.0) reflects his <strong>positional awareness and build-up play</strong>. Wenger (6.8) reflects his <strong>exceptional development arc from La Masia to PSG at 18</strong>. His <strong>lowest fit is Mourinho (4.5)</strong> — a creative, technically oriented attacking midfielder does not fit a pragmatic, defensive approach. The critical question: <strong>can he handle the physical demands of Ligue 1 and Champions League football, and can his decision-making mature at the highest level?</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Attacking Midfielder</span>
+          <span class="tag tag-club">Left Winger</span>
+          <span class="tag tag-spain">Born: Nigrán, Spain</span>
+          <span class="tag tag-info">#27</span>
+          <span class="tag tag-info">La Masia Graduate</span>
+          <span class="tag tag-youth">18-Year-Old Wonderkid</span>
+          <span class="tag tag-youth">UYL Winner · Captain</span>
         </div>
       </div>
     </div>
   </div>
-  <div class="c">
-    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">2025-26 Season Statistics</div></div>
-    <div class="c-body">
-      <table class="career-table">
-        <thead><tr><th>Competition</th><th>Apps</th><th>Starts</th><th>Mins</th><th>Goals</th><th>Assists</th><th>Rating</th></tr></thead>
+  <div class="section-title">School Averages <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:#FF6600;">7.2</div><div class="label">Cruyff / Intelligence</div></div>
+    <div class="stat-hero"><div class="value" style="color:#6CABDD;">7.0</div><div class="label">Guardiola / Positional</div></div>
+    <div class="stat-hero"><div class="value" style="color:#0055A4;">6.8</div><div class="label">Wenger / Development</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">4.5</div><div class="label">Mourinho / Pragmatic</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items:start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born 12 Jan 2008 · Nigrán, Spain</div><div class="timeline-text">Born in <strong>Nigrán, Spain</strong>.[reference:41] Began football at age 4 with <strong>ED Val Miñor Nigrán</strong>, coached by former Barcelona player Jose Antonio Covelo.[reference:42]</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022 · Joins La Masia</div><div class="timeline-text"><strong>Barcelona academy.</strong> Rejected offers from Real Madrid and Real Betis to join FC Barcelona's prestigious academy.[reference:43] Progressed through Juvenil B and Juvenil A.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2024-25 · UEFA Youth League Winner</div><div class="timeline-text"><strong>European triumph.</strong> Key architect of Barça's UEFA Youth League victory. Made <strong>7 appearances, scoring 2 goals</strong>, including one against BSC Young Boys.[reference:44] Also won <strong>División de Honor Juvenil and Copa del Rey Juvenil</strong> double.[reference:45]</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jul 2025 · First Senior Goal</div><div class="timeline-text">Scored his <strong>first senior goal</strong> for Barcelona against <strong>Vissel Kobe</strong> on 27 July 2025 during the summer tour of Japan.[reference:46]</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sep 2025 · Senior Debut</div><div class="timeline-text">Made his <strong>competitive professional debut</strong> in a 2-1 win over <strong>Real Sociedad</strong> on 28 September 2025.[reference:47]</div></div>
+        <div class="timeline-item"><div class="timeline-date">Oct 2025 · First UCL Assist</div><div class="timeline-text">Notched his <strong>first professional assist</strong> in a <strong>6-1 win over Olympiacos</strong> in the UEFA Champions League.[reference:48]</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 2026 · PSG Move · €8.2M</div><div class="timeline-text"><strong>Transferred to Paris Saint-Germain</strong> for <strong>€8.2M</strong>, signing a contract until <strong>2030</strong>.[reference:49]</div></div>
+        <div class="timeline-item"><div class="timeline-date">Mar 2026 · First PSG Goal</div><div class="timeline-text">Scored his <strong>first PSG goal</strong> in a <strong>4-0 Ligue 1 win at Nice</strong> on 23 March 2026.[reference:50]</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2025-26 · Ligue 1 Season</div><div class="timeline-text"><strong>12 Ligue 1 appearances, 7 starts, 682 minutes, 1 goal, 6.9 FotMob rating.</strong>[reference:51]</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Period</th><th>Club</th><th>League</th><th>Apps</th><th>Goals</th><th>Assists</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td>Ligue 1 (PSG)</td><td>12</td><td>—</td><td>—</td><td>1</td><td>0</td><td>6.8</td></tr>
-          <tr><td>La Liga (Barcelona)</td><td>4</td><td>0</td><td>—</td><td>0</td><td>0</td><td>6.5</td></tr>
-          <tr><td>UEFA Champions League</td><td>1</td><td>0</td><td>—</td><td>0</td><td>1</td><td>7.2</td></tr>
-          <tr><td>Barcelona B</td><td>3</td><td>—</td><td>—</td><td>0</td><td>0</td><td>—</td></tr>
-          <tr class="hl"><td><strong>Total Senior</strong></td><td><strong>20</strong></td><td><strong>0</strong></td><td><strong>—</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td><strong>—</strong></td></tr>
+          <tr><td><strong>2022–2025</strong></td><td>Barcelona Academy</td><td>Juvenil</td><td>38</td><td>10</td><td>—</td><td>19 Juvenil B (7 goals), 12 Juvenil A (3 goals)[reference:52]</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Barcelona U19</td><td>UEFA Youth League</td><td>7</td><td>2</td><td>—</td><td>Winner · scored vs BSC Young Boys[reference:53]</td></tr>
+          <tr><td><strong>2025–2026</strong></td><td>Barcelona B</td><td>Primera Federación</td><td>3</td><td>0</td><td>—</td><td>Reserve appearances[reference:54]</td></tr>
+          <tr><td><strong>2025–2026</strong></td><td>Barcelona</td><td>La Liga</td><td>4</td><td>0</td><td>0</td><td>Senior debut vs Real Sociedad[reference:55]</td></tr>
+          <tr><td><strong>2026–</strong></td><td>Paris Saint-Germain</td><td>Ligue 1</td><td>12</td><td>1</td><td>0</td><td>Signed Jan 2026 · €8.2M[reference:56]</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Senior Career Total</strong></td><td><strong>19</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td>4 La Liga + 12 Ligue 1 + 1 UCL + 2 other</td></tr>
         </tbody>
       </table>
-      <div style="font-size:.68rem;color:var(--muted);margin-top:8px">Sources: Sofascore, Transfermarkt, Wikipedia. Also: 24 youth caps across U15-U19 levels (8 goals). UEFA Youth League winner 2024-25.</div>
+      <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;">Sources: Wikipedia, PSG official, FotMob, Transfermarkt.</p>
+      <h3 class="section-title" style="margin:24px 0 16px;">International Career</h3>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Period</th><th>Caps</th><th>Goals</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Spain U15</strong></td><td>2022</td><td>8</td><td>2</td><td>—[reference:57]</td></tr>
+          <tr><td><strong>Spain U16</strong></td><td>2023</td><td>4</td><td>0</td><td>—[reference:58]</td></tr>
+          <tr><td><strong>Spain U17</strong></td><td>2024</td><td>9</td><td>4</td><td>U17 Euro qualifying winner vs Norway[reference:59]</td></tr>
+          <tr><td><strong>Spain U18</strong></td><td>2025-</td><td>3</td><td>0</td><td>—[reference:60]</td></tr>
+          <tr><td><strong>Spain U19</strong></td><td>2026-</td><td>3</td><td>0</td><td>Current[reference:61]</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Total Youth Caps</strong></td><td><strong>24</strong></td><td><strong>6</strong></td><td>Across U15-U19 levels[reference:62]</td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Transfer Intelligence — July 2026</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="transfer-row"><span class="transfer-club">🇫🇷 Paris Saint-Germain</span><span class="transfer-status">Current club · Contract to 2030</span><span class="transfer-badge tb-active">Active</span></div>
+        <div class="transfer-row"><span class="transfer-club">🇪🇸 FC Barcelona</span><span class="transfer-status">Sold Jan 2026 · €8.2M</span><span class="transfer-badge tb-rejected">Sold</span></div>
+        <div class="transfer-row"><span class="transfer-club">🇪🇸 La Masia</span><span class="transfer-status">2022-2025 · UYL Winner</span><span class="transfer-badge tb-pending">Former</span></div>
+        <div class="transfer-row"><span class="transfer-club">🇪🇺 EU Status</span><span class="transfer-status">Spanish national · Full EU passport</span><span class="transfer-badge tb-active">✅</span></div>
+      </div>
     </div>
   </div>
-</div>
-
-<!-- ═══ SCOUTING INTEL ═══ -->
-<div id="tab-scouting" class="tab-panel">
-  <div class="g2">
-    <div>
-      <div class="c" style="margin-bottom:14px">
-        <div class="c-head"><div class="c-dot" style="background:var(--accent)"></div><div class="c-title" style="color:var(--accent)">Scouting Report</div><div class="c-sub">Jim Totime · Proxy · No video assessment</div></div>
-        <div class="c-body">
-          <div class="scout-para">Dro Fernández is an <strong>18-year-old attacking midfielder</strong> from Nigrán, Galicia, who joined Paris Saint-Germain for €8.2M in January 2026 from FC Barcelona. He came through La Masia, Barcelona's world-renowned academy, after rejecting Real Madrid and Real Betis. He was a key architect of Barcelona's UEFA Youth League triumph in 2024-25, scoring 2 goals in 7 appearances. He made his senior debut for Barcelona on 28 September 2025.</div>
-          <div class="scout-para">Statistically, he has shown <strong>promising attacking output</strong>: 12 Ligue 1 appearances with 1 goal, and 1 UCL assist in limited minutes. His Sofascore ratings have averaged around 6.8, with a peak of 7.2 in the UCL. His market value has risen to €10.0M, reflecting his elite potential.</div>
-          <div class="scout-para">Physically, at <strong>182cm</strong> and right-footed, he has a profile suited to a modern attacking midfielder or left winger. His playing style is described as creative, with vision and ability to play between the lines.</div>
-          <div class="scout-para">The assessment is incomplete. <strong>All Tier 3 metrics (OBI, SII, DMA, SOA, SPI, CLM, CRS, OMS, DYN, CRK, CHR, MCS)</strong> are pending video analysis. A full Empire FGA evaluation requires watching a minimum of 5 matches to observe his off-ball movement, sprint intensity, decision-making, and character.</div>
-          <div class="verdict-box">
-            <div class="verdict-label">Empire FGA Verdict</div>
-            <div class="verdict-text"><strong>Wonderkid — Tier 3 required.</strong> At 18 years old, Dro Fernández has an elite academy background (La Masia) and has already made a significant transfer to PSG. The statistical profile suggests a technically gifted midfielder with high potential. To progress this card, submit 5 full match videos (balanced opposition: ≥2 top-third, ≥1 away, ≥1 losing context) and complete the OBI + SII + 11 metric protocol. Provisional FGA: 6.85.</div>
-          </div>
+  <div class="section-title">Physical & Medical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">182cm (6'0")[reference:63]</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">—</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Right[reference:64]</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Attacking Midfielder / Left Winger[reference:65]</span></div>
+        <div class="physical-item"><span class="label">Jersey</span><span class="value">#27 (PSG)[reference:66]</span></div>
+        <div class="physical-item"><span class="label">Build</span><span class="value">Tall, developing, athletic</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Spain</span></div>
+        <div class="physical-item"><span class="label">Age</span><span class="value">18 years (born 2008)[reference:67]</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Medical & Durability</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">No Major Injury History</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No significant long-term injury history documented. Has been available for 12 Ligue 1 matches and 4 La Liga matches in his debut senior season.</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">Physical Development Trajectory</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">At 18, Fernández is entering his <strong>physical development window</strong> as an attacking midfielder. His frame (182cm, 6'0") is <strong>tall for an attacking midfielder</strong> — ideal for a player who needs to hold off defenders and shield the ball. The question is not whether he has the body for professional football — he does. The question is whether his <strong>strength and conditioning</strong> can keep pace with the demands of Champions League football.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Disciplinary Record</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>0 yellow cards, 0 red cards</strong> in his senior career (Ligue 1 + La Liga + UCL). His disciplinary record is <strong>excellent</strong>, indicating a player who is <strong>composed and controlled</strong> even at a young age.[reference:68]</div>
         </div>
       </div>
     </div>
-    <div>
-      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All T3 Scores</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">All pending — 0/16.</div></div>
-      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--accentL)"></div><div class="c-title" style="color:var(--accentL)">Key Event Log</div><div class="c-sub">0 events logged</div></div><div class="c-body" style="color:var(--muted);text-align:center;padding:20px 0">No events — video analysis pending.</div></div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>Age 18 — elite development window for an attacking midfielder</strong> — Attacking midfielders typically peak at 24-28. At 18, Fernández has 6-10 years of physical and technical development ahead. The developmental runway is a major asset.</li>
+      <li><strong>La Masia pedigree — world-class technical and tactical foundation</strong> — Developed in Barcelona's famed academy, known for producing <strong>technically excellent, tactically intelligent</strong> players. He rejected Real Madrid and Real Betis to join.[reference:69]</li>
+      <li><strong>UEFA Youth League winner — big-game experience</strong> — Key architect of Barça's UYL victory with 2 goals in 7 appearances.[reference:70] Scored against BSC Young Boys. This demonstrates <strong>clutch performance</strong> at a young age.</li>
+      <li><strong>€8.2M transfer to PSG — elite club validation</strong> — PSG paid €8.2M for an 18-year-old, signing him until 2030.[reference:71] This is a <strong>clear endorsement</strong> of his potential by one of Europe's biggest clubs.</li>
+      <li><strong>24 Spain youth caps — international pedigree</strong> — Has represented Spain at U15, U16, U17, U18, and U19 levels, scoring 4 goals for the U17s.[reference:72]</li>
+      <li><strong>Clean disciplinary record — 0 yellows in senior career</strong> — Composed and controlled on the pitch.[reference:73]</li>
+      <li><strong>100% dribble success rate in Ligue 1 (4/4)</strong> — Elite ball-carrying ability in limited minutes.[reference:74]</li>
+      <li><strong>85.1% pass accuracy — reliable in possession</strong> — Good decision-making and technical security.[reference:75]</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Limited senior experience — 19 senior appearances</strong> — Has only made 19 senior appearances across La Liga, Ligue 1, and UCL. Still a <strong>very raw prospect</strong>.</li>
+      <li><strong>0/16 T3 metrics confirmed</strong> — No video validation. His "elite potential" is assumed from stats and reputation, not verified in isolated footage against top-tier opposition.</li>
+      <li><strong>Physical development still in progress</strong> — At 18, he is still developing physically. Ligue 1 and Champions League football can be <strong>physically demanding</strong> for young players.</li>
+      <li><strong>Limited goal output — 1 goal in 19 senior apps</strong> — Needs to improve his <strong>end product</strong> to become a top-level attacking midfielder.</li>
+      <li><strong>No Spain senior caps yet</strong> — For an 18-year-old with his profile, this is not unusual, but the Spain senior team has depth in attacking midfield.</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>No T3 video assessment completed</strong> — The single biggest gap. Every metric is a guess until a scout watches him play in isolated footage. For a player with La Masia pedigree and a PSG transfer, this is urgent.</li>
+      <li><strong>Decision-making under pressure unproven</strong> — Has he faced and neutralised elite opposition in high-pressure situations? His UYL experience is positive but a small sample.</li>
+      <li><strong>Physical durability under Ligue 1 intensity untested</strong> — Ligue 1 physicality is significantly higher than youth football. His body is still developing.</li>
+      <li><strong>Aerial ability — 182cm but unproven</strong> — At 182cm, he has the height for aerial duels but has not been tested consistently at senior level.</li>
+      <li><strong>Consistency over 90 minutes unproven</strong> — Averaging 682 minutes across 12 Ligue 1 appearances (~57 min/game). Can he maintain intensity and decision-making quality for a full 90 minutes?</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">FGA 6.85 — Spanish Wonderkid · La Masia Pedigree · PSG Transfer.</strong> The T1 data reveals an <strong>18-year-old attacking midfielder with an elite academy background</strong> — La Masia, UEFA Youth League winner, and a €8.2M move to PSG. His <strong>12 Ligue 1 appearances and 1 goal</strong> at 18 are promising, and his <strong>UYL winning goal</strong> demonstrates big-game temperament. His <strong>24 Spain youth caps</strong> and <strong>€10.0M market value</strong> confirm his elite potential. However, <strong>0/16 T3 metrics have been validated</strong> — no video analysis has been conducted. His <strong>physical profile (182cm, 18 years)</strong> is developing, and his <strong>technical quality</strong> is evident from his academy career. <strong>T3 validation is critical</strong> to confirm his off-ball intelligence, sprint intensity, and decision-making under pressure. <strong>Recommended for immediate monitoring with full video assessment.</strong> A <strong>genuine €10M+ prospect</strong> who could become a key player for PSG if he develops according to his trajectory. For PSG: a long-term investment. For external clubs: <strong>monitor closely, consider future approach if T3 validates elite potential and playing time at PSG is limited.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-proxy">
+    <span>⚠️</span>
+    <div><strong>No Empire FGA Assessment Matches Available.</strong> No full-match isolated footage has been registered in the T3 system. Below are available video resources for future scout registration. Priority: Paris Saint-Germain 2025-26 Ligue 1 + UEFA Champions League + Coupe de France footage. <strong>1 Dropbox link provided by user is clickable below.</strong></div>
+  </div>
+
+  <div style="font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--success);margin:24px 0 12px;text-transform:uppercase;letter-spacing:0.5px;">📹 2025-26 Season Footage — Click to Open</div>
+  <div class="match-grid">
+    <a href="https://www.dropbox.com/scl/fi/4txldv73j8wosaepky7yb/Paris-Saint-Germain-Football-Club-Aston-Villa-Football-Club.mp4?rlkey=8r1lt6jnifz40kvpbg493r9dv&raw=1" target="_blank" class="match-card">
+      <div class="match-thumb">
+        <div class="play-icon" style="background:rgba(0,43,92,0.9);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">Paris Saint-Germain vs Aston Villa 🇫🇷🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
+        <div class="match-meta">
+          <span class="match-badge badge-comp">UEFA Super Cup 2026</span>
+          <span class="match-badge badge-pending">T3 PENDING</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Dropbox link provided.</strong> Full match footage available for T3 scout registration. Validates Fernández's performance against Premier League opposition in a high-stakes European final. LOG ~4.8.
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h3 class="section-title" style="margin-bottom:16px;">T3 Priority Match Register</h3>
+    <div class="grid-3">
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 1 — 2025-26 Ligue 1 Footage</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M1:</strong> PSG vs Aston Villa (UEFA Super Cup · Dropbox)<br>
+          <strong style="color:var(--info);">M2+:</strong> PSG Ligue 1 matches (2025-26)<br><br>
+          <strong>LOG ~4.5</strong>. The true baseline for his professional quality in French top flight. Will determine whether his positional play, 1v1 duels, and creative output are solid against varied Ligue 1 opposition.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 2 — European & International Footage</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--gold);">M5:</strong> PSG vs Olympiacos (UCL, Oct 2025 — assist)<br>
+          <strong style="color:var(--gold);">M6:</strong> Spain U19 matches (2025-26)<br><br>
+          <strong>Supplementary but critical.</strong> The UCL match vs Olympiacos is the single most important European validation context — Fernández provided an assist. Validates CHR (big-stage performance), CRS (clutch response), and COACH (adaptation to European football). Must be paired with Ligue 1 footage for complete T3 scoring.
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Priority 3 — Full 90-Minute Assessment</h4>
+        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+          <strong style="color:var(--info);">M7+:</strong> Any match where Fernández starts and plays 75+ minutes<br><br>
+          <strong>LOG ~4.5</strong>. Minimum 5 matches required for T3 validation per ESN methodology. Must include at least 2 matches where he plays 60+ minutes to assess stamina, concentration, late-game decision-making, and creative output over full duration. Priority on UCL and top Ligue 1 opposition matches.
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ MATCHES TAB ═══ -->
-<div id="tab-links" class="tab-panel">
-  <div style="background:rgba(0,43,92,.07);border:1px solid rgba(0,43,92,.22);border-radius:2px;padding:10px 16px;margin-bottom:16px">
-    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--psg)">CAREER HIGHLIGHTS — LA MASIA · BARCELONA · PSG · SPAIN U19</span>
-    <span style="font-size:.74rem;color:var(--muted);margin-left:12px">Match footage provided</span>
-  </div>
-
-  <div class="section-label">ASSESSMENT MATCH — PSG vs ANGERS (Ligue 1)</div>
-  <div class="g2" style="margin-bottom:14px">
-    <a class="video-link-card" href="https://www.dropbox.com/scl/fi/a01dgnoj0voaf402hdqcl/Paris-Saint-Germain-Football-Club-Angers-Sporting-Club-de-l-Ouest.mp4?rlkey=7w8aftqbuy7q5vugmovcaer4f&raw=1" target="_blank">
-      <div style="width:36px;height:36px;border-radius:2px;background:rgba(0,43,92,.7);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">PSG vs Angers SCO — Ligue 1</div><div class="vlc-meta">Full match · Dro Fernández featured</div></div>
-      <span class="vlc-badge" style="background:rgba(0,43,92,.2);color:var(--accentL);border:1px solid rgba(0,43,92,.3)">Ligue 1</span>
-    </a>
-  </div>
-
-  <div class="section-label">CAREER HIGHLIGHTS REELS</div>
-  <div class="g2" style="margin-bottom:14px">
-    <a class="video-link-card" href="#" target="_blank" style="opacity:0.6;pointer-events:none">
-      <div style="width:36px;height:36px;border-radius:2px;background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">La Masia — Barcelona academy</div><div class="vlc-meta">UEFA Youth League winner 2024-25</div></div>
-      <span class="vlc-badge" style="background:rgba(106,122,148,.2);color:var(--muted)">Pending</span>
-    </a>
-    <a class="video-link-card" href="#" target="_blank" style="opacity:0.6;pointer-events:none">
-      <div style="width:36px;height:36px;border-radius:2px;background:rgba(204,51,51,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">FC Barcelona — Senior debut</div><div class="vlc-meta">La Liga · UCL 2025-26</div></div>
-      <span class="vlc-badge" style="background:rgba(106,122,148,.2);color:var(--muted)">Pending</span>
-    </a>
-    <a class="video-link-card" href="#" target="_blank" style="opacity:0.6;pointer-events:none">
-      <div style="width:36px;height:36px;border-radius:2px;background:rgba(0,43,92,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
-      <div><div class="vlc-opp">Paris Saint-Germain — Highlights</div><div class="vlc-meta">Ligue 1 2025-26 · 1 goal, 1 assist</div></div>
-      <span class="vlc-badge" style="background:rgba(106,122,148,.2);color:var(--muted)">Pending</span>
-    </a>
-  </div>
-
-  <div class="pending-box" style="margin-top:8px">
-    <div class="pending-head" style="color:var(--accentL)">⏳ Additional video files pending</div>
-    <div class="pending-sub">To fully activate the video section and complete the Tier 3 assessment, please provide 5 full match videos per Empire FGA protocol (balanced opposition). A full match against Angers has been provided — additional matches required.</div>
-  </div>
-</div>
-
-</div>
+</main>
 
 <script>
-// ── PROXY TIER 3 DATA (Placeholder) ──
-const OBI = [
-  {c:"OBI_T",n:"Run Timing",v:0,w:"35%",ok:false},
-  {c:"OBI_S",n:"Space Architecture",v:0,w:"35%",ok:false},
-  {c:"OBI_P",n:"Positional Anticipation",v:0,w:"30%",ok:false}
-];
-const SII = [
-  {c:"SII_A",n:"Explosive Accel",v:0,w:"40%",ok:false},
-  {c:"SII_T",n:"Top-End Speed",v:0,w:"35%",ok:false},
-  {c:"SII_R",n:"Recovery Sprint",v:0,w:"25%",ok:false}
-];
-
-// ── TIER 1 HIGHLIGHTS ──
-const T1_HIGHLIGHTS = [
-  {code:'Age',label:'Age',val:'18',pct:65,pctLabel:'Spain U19 · 3 caps',bar:65,gold:false,src:'Transfermarkt'},
-  {code:'Height',label:'Height',val:'182cm',pct:70,pctLabel:'AM frame',bar:70,gold:false,src:'Transfermarkt'},
-  {code:'MV',label:'Market Value',val:'€10.0M',pct:85,pctLabel:'Peak €10.0M',bar:85,gold:true,src:'Sofascore'},
-  {code:'Fee',label:'Transfer Fee',val:'€8.2M',pct:80,pctLabel:'Jan 2026 to PSG',bar:80,gold:true,src:'Transfermarkt'},
-  {code:'UYL',label:'UEFA Youth League',val:'Winner',pct:90,pctLabel:'2024-25 · 2 goals',bar:90,gold:true,src:'PSG.fr'}
-];
-
-const T1_STATS = {
-  season:[
-    {c:'L1',d:'Ligue 1 apps (PSG)',v:'12',raw:7.0,ctx:'Sofascore'},
-    {c:'L1G',d:'Ligue 1 goals',v:'1',raw:7.0,ctx:'Sofascore'},
-    {c:'LL',d:'La Liga apps (Barcelona)',v:'4',raw:6.5,ctx:'Wikipedia'},
-    {c:'UCL',d:'UCL apps',v:'1',raw:7.5,ctx:'Wikipedia'},
-    {c:'UCLA',d:'UCL assists',v:'1',raw:8.0,ctx:'Wikipedia'},
-    {c:'Rating',d:'Sofascore avg',v:'6.8',raw:7.0,ctx:'Sofascore'},
-  ],
-  context:[
-    {c:'UYL',d:'UEFA Youth League',v:'Winner 2024-25',raw:9.0,ctx:'PSG.fr'},
-    {c:'Academy',d:'La Masia',v:'2022-2025',raw:9.0,ctx:'Wikipedia'},
-    {c:'Contract',d:'Contract expiry',v:'2029',raw:7.5,ctx:'Transfermarkt'},
-    {c:'Youth',d:'Spain youth caps',v:'24 (8 goals)',raw:8.0,ctx:'Wikipedia'},
-  ]
-};
-
-const sc=v=>v>=8.5?'#1e8a4a':v>=7.5?'#2e9e5a':v>=6.5?'#5a9e20':v>=5.0?'#a88010':v>=3.5?'#b05a10':v>0?'#8a1020':'#2a3850';
-const pct=v=>Math.round(v*10);
-function safe(id){return document.getElementById(id)}
-function renderSubM(el,arr){if(!el)return;el.innerHTML=arr.map(m=>{
-  const col=m.ok?sc(m.v):'#2a3850';
-  const flag=m.ok?'<span class="mflag f-ok">✅</span>':'<span class="mflag f-p">PEND</span>';
-  return`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${col}"></div></div><span class="comp-val" style="color:${col}">—</span><span class="comp-wt">${m.w}</span>${flag}</div>`;
-}).join('')}
-
-function init(){
-  // T1 render
-  const t1=safe('t1-metrics');
-  if(t1){
-    let hl='<div class="t1-highlight">';
-    T1_HIGHLIGHTS.forEach(m=>{
-      hl+=`<div class="t1-hl${m.gold?' gold':''}">
-        <div class="t1-hl-code">${m.code}</div>
-        <div class="t1-hl-val">${m.val}</div>
-        <div class="t1-hl-pct">${m.pctLabel}</div>
-        <div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${m.bar}%"></div></div>
-        <span class="t1-source">${m.src}</span>
-      </div>`;
-    });
-    hl+='</div>';
-
-    const grpOrder=[['season','📊 2025-26 Season (Barcelona + PSG)'],['context','📈 Context']];
-    grpOrder.forEach(([key,label])=>{
-      hl+=`<div class="t1-group"><div class="t1-group-head">${label}</div>`;
-      T1_STATS[key].forEach(m=>{
-        const col=sc(m.raw);
-        hl+=`<div class="t1-row">
-          <span class="t1-code" style="color:${m.raw>=6?'var(--accentL)':'var(--muted)'}">${m.c}</span>
-          <span class="t1-desc">${m.d}</span>
-          <div class="t1-bar-bg"><div class="t1-bar-fill" style="width:${pct(m.raw)}%;background:${col}"></div></div>
-          <span class="t1-val" style="color:${col}">${m.v}</span>
-          <span class="t1-ctx">${m.ctx}</span>
-        </div>`;
-      });
-      hl+='</div>';
-    });
-    t1.innerHTML=hl;
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
   }
+}
 
-  // T2 placeholder
-  const t2=safe('t2-metrics');
-  if(t2){
-    const T2_EST = [
-      {c:"POI",n:"Position Intelligence (est.)",v:6.8,w:"25%"},
-      {c:"CPX",n:"Composure (est.)",v:6.5,w:"20%"},
-      {c:"MOB",n:"Mobility (est.)",v:6.8,w:"15%"},
-      {c:"AMS",n:"Anticipatory (est.)",v:6.8,w:"20%"},
-      {c:"GRI",n:"Ghost Run (est.)",v:6.5,w:"20%"}
-    ];
-    t2.innerHTML=T2_EST.map(m=>`<div class="comp-row"><span class="comp-lbl">${m.c}</span><span class="comp-desc">${m.n}</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${pct(m.v)}%;background:${sc(m.v)}"></div></div><span class="comp-val" style="color:${sc(m.v)}">${m.v.toFixed(1)}</span><span class="comp-wt">${m.w}</span></div>`).join('');
-  }
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 6.85;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
 
-  // T3 placeholder
-  renderSubM(safe('obi-subs'),OBI);
-  renderSubM(safe('sii-subs'),SII);
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Finishing','Off-Ball Movement','Positional Anticipation','Final Third Passing','Dribbling','Tactical Versatility','Work Rate','Discipline'],
+      datasets: [{
+        label: 'Fernández EST (18)',
+        data: [6.0, 6.5, 6.5, 7.0, 7.5, 7.0, 6.5, 8.0],
+        backgroundColor: 'rgba(0,43,92,0.2)',
+        borderColor: '#002b5c',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Ligue 1 AM avg',
+        data: [6.5, 6.5, 6.5, 7.0, 7.0, 6.5, 7.0, 7.0],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 2, max: 10,
+          ticks: { display: false, stepSize: 1 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
 
-  const vc=safe('vc-mini');
-  if(vc){
-    const allm=['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM'];
-    vc.innerHTML=allm.map(m=>`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem">
-      <span style="width:6px;height:6px;border-radius:50%;background:#2a3850;display:inline-block;flex-shrink:0"></span>
-      <span style="color:var(--muted);width:44px;font-family:'Rajdhani',sans-serif;font-weight:700">${m}</span>
-      <span class="mflag f-p">PEND</span>
-    </div>`).join('');
-  }
-
-  const rEl=safe('t3-rest-grid');
-  if(rEl){
-    const metrics=['DMA','CHR','MCS','SOA','SPI','CLM','CRS','OMS','DYN','CRK'];
-    rEl.innerHTML=metrics.map(m=>`<div class="mrow"><span class="mcode">${m}</span><span class="mname">${m}</span><div class="mbar-bg"><div class="mbar-fill" style="width:0%"></div></div><span class="mval">—</span><span class="mflag f-p">PEND</span></div>`).join('');
-  }
-
-  // ---- ATTRIBUTES (Proxy estimates) ----
-  const attrTech = [
-    {n:"Passing (est.)",v:7.5},{n:"Dribbling (est.)",v:7.0},{n:"Technique (est.)",v:7.5},{n:"Vision (est.)",v:7.0}
-  ];
-  const attrMen = [
-    {n:"Vision (est.)",v:7.0},{n:"Decisions (est.)",v:6.5},{n:"Anticipation (est.)",v:6.8},{n:"Work Rate (est.)",v:6.5}
-  ];
-  const attrPhy = [
-    {n:"Pace (est.)",v:6.8},{n:"Agility (est.)",v:7.0},{n:"Stamina (est.)",v:6.5},{n:"Strength (est.)",v:6.0}
-  ];
-  function renderAttrList(el,arr){
-    el.innerHTML = arr.map(a=>`<div class="attr-row"><div class="attr-circle ${a.v>=7.5?'ac-great':a.v>=6.5?'ac-good':'ac-avg'}">${Math.round(a.v)}</div><span class="attr-name">${a.n}</span><div class="attr-bar-bg"><div class="attr-bar-fill" style="width:${pct(a.v)}%;background:${sc(a.v)}"></div></div><span class="attr-val-lbl" style="color:${sc(a.v)}">${a.v.toFixed(1)}</span></div>`).join('');
-  }
-  renderAttrList(safe('attr-tech'),attrTech);
-  renderAttrList(safe('attr-men'),attrMen);
-  renderAttrList(safe('attr-phy'),attrPhy);
-
-  // ---- CHARTS ----
-  const DFT={
-    scales:{r:{min:0,max:10,grid:{color:'rgba(0,140,255,.06)'},angleLines:{color:'rgba(0,140,255,.06)'},
-      ticks:{stepSize:2,color:'#2a3850',backdropColor:'transparent',font:{size:9}},
-      pointLabels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif",weight:'700'}}}},
-    plugins:{legend:{labels:{color:'#a8c4e0',font:{size:10,family:"'Rajdhani',sans-serif"},usePointStyle:true}},
-      tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,140,255,.3)',borderWidth:1,titleColor:'#4db8ff',bodyColor:'#f0f6fc'}},
-    responsive:true,maintainAspectRatio:false
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Cruyff','Guardiola','Wenger','Michels','Bielsa','Klopp'],
+    datasets: [{
+      label: 'Fernández',
+      data: [7.2, 7.0, 6.8, 6.5, 6.2, 6.0],
+      backgroundColor: 'rgba(0,43,92,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#FF6600','#6CABDD','#0055A4','#21468B','#001C58','#e07820'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
   };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 2, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r1 = document.getElementById('philosophyRadar');
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r1) new Chart(r1.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
 
-  const dc=safe('fgaDial');
-  if(dc){
-    dc.width=120;dc.height=120;const dctx=dc.getContext('2d');const score=6.85;
-    dctx.clearRect(0,0,120,120);
-    dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);
-    dctx.strokeStyle='rgba(0,140,255,.06)';dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
-    const grad=dctx.createLinearGradient(14,70,106,70);
-    grad.addColorStop(0,'#002b5c');grad.addColorStop(.5,'#4a7ab5');grad.addColorStop(1,'#f0b820');
-    dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(score/10)*Math.PI);
-    dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap='round';dctx.stroke();
-    safe('fgaNum').textContent=score.toFixed(1);
-  }
-
-  const lc=safe('logRing');
-  if(lc){
-    const lctx=lc.getContext('2d');lctx.clearRect(0,0,60,60);
-    lctx.beginPath();lctx.arc(30,30,22,0,2*Math.PI);lctx.strokeStyle='rgba(0,140,255,.06)';lctx.lineWidth=6;lctx.stroke();
-    lctx.beginPath();lctx.arc(30,30,22,-Math.PI/2,(-Math.PI/2)+(4.5/6.5)*2*Math.PI);
-    lctx.strokeStyle='#f0b820';lctx.lineWidth=6;lctx.lineCap='round';lctx.stroke();
-  }
-
-  new Chart(safe('fgaDonut'),{type:'doughnut',data:{labels:['Tier 1 · 20%','Tier 2 · 30%','Tier 3 · 50% (Pending)'],datasets:[{data:[20,30,50],backgroundColor:['rgba(0,43,92,.4)','rgba(34,168,90,.3)','rgba(240,184,32,.2)'],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
-      plugins:{legend:{position:'bottom',labels:{color:'#2a4050',font:{size:10,family:"'Rajdhani',sans-serif"},padding:10}},
-        tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,140,255,.3)',borderWidth:1}}}});
-
-  new Chart(safe('ovRadar'),{type:'radar',data:{labels:['OBI','SII','DMA','SOA','CLM','CRS'],datasets:[{data:[0,0,0,0,0,0],borderColor:'#2a3850',backgroundColor:'rgba(42,56,80,.1)',borderWidth:2}]},options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
-
-  new Chart(safe('attrRadar'),{type:'radar',data:{labels:['Passing','Vision','Technique','Pace','Agility','Dribbling'],datasets:[{label:'Fernández (proxy)',data:[7.5,7.0,7.5,6.8,7.0,7.0],borderColor:'#002b5c',backgroundColor:'rgba(0,43,92,.1)'},{label:'Ligue 1 AM avg',data:[7.5,7.5,7.5,7.5,7.5,7.5],borderColor:'rgba(255,255,255,.25)',borderDash:[4,4]}]},options:{...DFT,maintainAspectRatio:false}});
-
-  new Chart(safe('philRadar'),{type:'radar',data:{labels:['Spanish','French','Dutch','English','German','Brazilian'],datasets:[{data:[0,0,0,0,0,0],borderColor:'#2a3850',backgroundColor:'rgba(42,56,80,.1)'}]},options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
-
-  new Chart(safe('trendChart'),{type:'line',
-    data:{labels:['Sep','Nov','Jan','Mar','May'],
-      datasets:[{label:'Sofascore Monthly Avg',data:[6.6,6.4,6.7,6.9,6.7],
-        borderColor:'#002b5c',backgroundColor:'rgba(0,43,92,.1)',fill:true,tension:.3,pointBackgroundColor:'#002b5c'}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      scales:{x:{grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:8}}},
-        y:{min:6,max:7.5,grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,140,255,.3)',borderWidth:1}}}});
-
-  new Chart(safe('eventChart'),{type:'bar',
-    data:{labels:['OBI','SII','DMA','SOA','CLM','CRS'],
-      datasets:[{label:'Events logged',data:[0,0,0,0,0,0],
-        backgroundColor:['#2a3850','#2a3850','#2a3850','#2a3850','#2a3850','#2a3850'],borderRadius:2}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      scales:{x:{grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:8}}},
-        y:{min:0,max:5,grid:{color:'rgba(0,140,255,.04)'},ticks:{color:'#2a3850',font:{size:9}}}},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#080c16',borderColor:'rgba(0,140,255,.3)',borderWidth:1}}}});
-}
-
-function switchTab(id){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  event.target.classList.add('active');
-}
-document.addEventListener('DOMContentLoaded',init);
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Foundation 20%','T2 Composite 30%','T3 Scout 50%'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#3b82f6', '#ffb800', '#00d084'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
 </script>
+
 </body>
 </html>
