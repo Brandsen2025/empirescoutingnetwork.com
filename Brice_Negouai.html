@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brice Négouai — Empire FGA Intelligence Card v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#020a14;--card:#06101c;--card2:#0b1826;--border:rgba(0,68,170,.08);
+  --kbl:#0044AA;--kblL:#3388ff;--kblFade:rgba(0,68,170,.13);
+  --red:#D42020;--redL:#ff4444;--redFade:rgba(212,32,32,.1);
+  --gold:#f5c300;--amber:#e07820;
+  --green:#22a85a;--greenL:#4dc878;
+  --wc:#ff0000;--wcFade:rgba(255,0,0,.08);
+  --muted:#5a7ea0;--lite:#c0d8f0;--white:#f0f8ff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--white);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;opacity:.022;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 5%,rgba(0,68,170,.9) 0%,transparent 50%),
+             radial-gradient(ellipse at 85% 85%,rgba(212,32,32,.5) 0%,transparent 50%)}
+.hero{position:relative;z-index:1;display:grid;grid-template-columns:280px 1fr 255px;min-height:280px;overflow:hidden}
+.hero::before{content:"";position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--kbl) 50%,var(--red) 50%);z-index:10}
+.hero-photo{position:relative;overflow:hidden;background:#020a14}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:contrast(1.08) saturate(.9);
+  mask-image:linear-gradient(to right,#000 65%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 65%,transparent 100%)}
+.hero-num{position:absolute;bottom:-10px;left:-6px;font-family:"Oswald",sans-serif;font-size:10rem;font-weight:700;color:rgba(0,68,170,.06);line-height:1;pointer-events:none}
+.hero-flag{position:absolute;top:12px;left:12px;font-size:1.1rem}
+.club-badge{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.bp-x{font-family:"Rajdhani",sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:2px;text-transform:uppercase}
+.hero-info{position:relative;z-index:2;padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(90deg,transparent 0%,rgba(2,10,20,.8) 15%,rgba(2,10,20,.97) 100%)}
+.hero-archetype{font-family:"Rajdhani",sans-serif;font-size:.73rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--kblL);margin-bottom:4px}
+.hero-name{font-family:"Oswald",sans-serif;font-size:3.2rem;font-weight:600;line-height:.88;text-transform:uppercase;color:var(--white)}
+.hero-name em{color:var(--kblL);font-style:normal}
+.hero-pos-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pos-badge{font-family:"Rajdhani",sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;text-transform:uppercase}
+.pos-primary{background:var(--kbl);color:#fff}
+.pos-sec{background:rgba(0,68,170,.18);color:var(--kblL);border:1px solid rgba(0,68,170,.35)}
+.pos-r{background:var(--redFade);color:var(--redL);border:1px solid rgba(212,32,32,.3)}
+.pos-g{background:rgba(245,195,0,.12);color:var(--gold);border:1px solid rgba(245,195,0,.3)}
+.hero-meta{display:grid;grid-template-columns:repeat(5,auto);gap:18px;margin-top:14px}
+.hmi-val{font-family:"Oswald",sans-serif;font-size:1.4rem;font-weight:500;color:var(--white);line-height:1}
+.hmi-lbl{font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.hero-bottom-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.htag{font-size:.62rem;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.htag-b{background:var(--kblFade);color:var(--kblL);border:1px solid rgba(0,68,170,.28)}
+.htag-r{background:var(--redFade);color:var(--redL);border:1px solid rgba(212,32,32,.25)}
+.htag-g{background:rgba(245,195,0,.1);color:var(--gold);border:1px solid rgba(245,195,0,.25)}
+.htag-ok{background:rgba(34,168,90,.12);color:var(--greenL);border:1px solid rgba(34,168,90,.25)}
+.htag-w{background:rgba(224,120,32,.12);color:var(--amber);border:1px solid rgba(224,120,32,.25)}
+.hero-fga{position:relative;z-index:2;padding:20px;background:rgba(2,10,20,.97);border-left:1px solid rgba(0,68,170,.2);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:10px}
+.fga-medallion{position:relative;width:120px;height:120px;flex-shrink:0}
+.fga-medallion canvas{width:120px!important;height:120px!important}
+.fga-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fga-score-num{font-family:"Oswald",sans-serif;font-size:2.4rem;font-weight:500;line-height:1;color:var(--kblL)}
+.fga-score-lbl{font-size:.58rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.fga-tier-pills{display:flex;flex-direction:column;gap:4px;width:100%}
+.fga-tier-row{display:flex;align-items:center;gap:6px;font-size:.66rem;padding:4px 8px;border-radius:2px}
+.fga-tier-row .tw{font-family:"Rajdhani",sans-serif;font-weight:700;font-size:.74rem;margin-left:auto}
+.ftr1{background:rgba(0,68,170,.08);border:1px solid rgba(0,68,170,.15)}
+.ftr2{background:rgba(0,80,30,.07);border:1px solid rgba(0,80,30,.15)}
+.ftr3{background:rgba(245,195,0,.06);border:1px solid rgba(245,195,0,.14)}
+.hero-ca{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--kblFade);border:1px solid rgba(0,68,170,.22);border-radius:2px;width:100%}
+.ca-val{font-family:"Oswald",sans-serif;font-size:1.6rem;font-weight:500;color:var(--kblL)}
+.ca-info{font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4}
+.ca-pa{font-family:"Oswald",sans-serif;font-size:.95rem;font-weight:500;color:var(--lite);margin-left:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(2,10,20,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo-bar{padding-right:24px;border-right:1px solid var(--border);margin-right:8px;display:flex;align-items:center}
+.logo-bar img{height:32px;width:auto;object-fit:contain}
+.tab-btn{font-family:"Rajdhani",sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--lite)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:20px}
+.c{background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.c-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-family:"Rajdhani",sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.c-sub{font-size:.66rem;color:var(--muted);margin-left:auto}
+.c-body{padding:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat-hero-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.sh-box{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+.sh-box::before{content:"";position:absolute;bottom:0;left:0;right:0;height:2px}
+.sh-b::before{background:var(--kbl)}.sh-g::before{background:var(--gold)}.sh-ok::before{background:var(--green)}.sh-r::before{background:var(--red)}.sh-a::before{background:var(--amber)}
+.sh-val{font-family:"Oswald",sans-serif;font-size:1.8rem;font-weight:500;line-height:1;color:var(--white)}
+.sh-lbl{font-size:.62rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.sh-delta{font-size:.63rem;margin-top:2px}
+.dp{color:var(--greenL)}.dw{color:var(--amber)}.dm{color:var(--muted)}.dr{color:var(--red)}
+.mrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,68,170,.025)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:"Rajdhani",sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);width:52px;flex-shrink:0}
+.mname{font-size:.74rem;flex:1;color:var(--lite)}
+.mbar-bg{width:90px;height:5px;background:rgba(0,68,170,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.mbar-fill{height:100%;border-radius:99px}
+.mval{font-family:"Rajdhani",sans-serif;font-size:.9rem;font-weight:700;width:36px;text-align:right}
+.mflag{font-size:.6rem;padding:1px 5px;border-radius:2px;min-width:30px;text-align:center;flex-shrink:0}
+.f-ok{background:rgba(34,168,90,.15);color:var(--greenL)}.f-w{background:rgba(224,120,32,.15);color:var(--amber)}.f-p{background:rgba(212,32,32,.12);color:var(--redL)}
+.comp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,68,170,.025)}
+.comp-row:last-child{border-bottom:none}
+.comp-lbl{font-family:"Rajdhani",sans-serif;font-size:.78rem;font-weight:700;width:52px;flex-shrink:0;color:var(--lite)}
+.comp-desc{font-size:.72rem;color:var(--muted);flex:1}
+.comp-bar-bg{width:100px;height:7px;background:rgba(0,68,170,.06);border-radius:99px;overflow:hidden;flex-shrink:0}
+.comp-bar-fill{height:100%;border-radius:99px}
+.comp-val{font-family:"Rajdhani",sans-serif;font-size:.95rem;font-weight:700;width:44px;text-align:right}
+.paradox-box{background:linear-gradient(135deg,rgba(0,68,170,.15),rgba(212,32,32,.08));border:2px solid rgba(212,32,32,.4);border-radius:2px;padding:14px 18px;margin-bottom:14px}
+.red-card-box{background:rgba(212,32,32,.09);border:2px solid rgba(212,32,32,.4);border-radius:2px;padding:12px 14px;margin-bottom:14px}
+.dma-box{background:rgba(224,120,32,.08);border:1px solid rgba(224,120,32,.25);border-radius:2px;padding:10px 14px;margin-bottom:14px}
+.obit-box{background:rgba(0,68,170,.1);border:1px solid rgba(0,68,170,.3);border-radius:2px;padding:12px 14px;margin-bottom:14px}
+.wc-badge{background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.25);border-radius:2px;padding:6px 12px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.tl-wrap{position:relative;padding-left:20px}
+.tl-wrap::before{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--kbl),var(--red))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--kblL);border:2px solid var(--bg);z-index:1}
+.tl-date{font-family:"Rajdhani",sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--kblL);text-transform:uppercase}
+.tl-text{font-size:.77rem;color:var(--muted);line-height:1.5;margin-top:3px}
+.tl-text strong{color:var(--lite)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,68,170,.04)}
+.ti-row:last-child{border-bottom:none}
+.ti-lbl{font-size:.75rem;color:var(--muted)}.ti-val{font-size:.78rem;font-weight:600;color:var(--white)}
+.scout-para{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.scout-para strong{color:var(--lite)}
+.verdict-box{padding:12px;border-radius:2px;margin-top:8px;background:var(--kblFade);border:1px solid rgba(0,68,170,.3)}
+.verdict-label{font-family:"Rajdhani",sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--kblL);text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.8rem;color:var(--lite);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.section-label{font-family:"Rajdhani",sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.trait-pill{display:inline-block;margin:3px;padding:3px 9px;border-radius:2px;font-size:.68rem;font-weight:600;letter-spacing:.04em;background:var(--kblFade);color:var(--kblL);border:1px solid rgba(0,68,170,.22)}
+.video-link-card{background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s}
+.video-link-card:hover{border-color:rgba(0,68,170,.4)}
+.vlc-opp{font-family:"Oswald",sans-serif;font-size:1rem;color:var(--white);letter-spacing:.04em;line-height:1}
+.vlc-meta{font-size:.67rem;color:var(--muted);margin-top:2px}
+.vlc-badge{margin-left:auto;font-family:"Rajdhani",sans-serif;font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table th{padding:7px 10px;background:rgba(0,68,170,.07);color:var(--kblL);font-family:"Rajdhani",sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;border-bottom:1px solid rgba(0,68,170,.2)}
+.career-table td{padding:7px 10px;border-bottom:1px solid rgba(0,68,170,.03);color:var(--lite)}
+.career-table .hl td{background:var(--kblFade);color:var(--white);font-weight:600}
+.t2-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.t2-card{background:var(--card2);border-radius:2px;padding:11px 13px;position:relative;overflow:hidden;border:1px solid var(--border)}
+.t2-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px}
+.t2c-conf::before{background:var(--kbl)}.t2c-part::before{background:var(--amber)}
+.t2-code{font-family:"Rajdhani",sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--kblL)}
+.t2-score{font-family:"Oswald",sans-serif;font-size:1.6rem;font-weight:500;line-height:1}
+.t2-bar-bg{height:4px;background:rgba(0,68,170,.08);border-radius:99px;overflow:hidden;margin:6px 0}
+.t2-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.t2-chip{font-family:"Rajdhani",sans-serif;font-size:.58rem;font-weight:600;padding:2px 6px;border-radius:2px;letter-spacing:.04em;background:var(--kblFade);color:var(--kblL);border:1px solid rgba(0,68,170,.2)}
+.log-badge{font-family:"Rajdhani",sans-serif;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:2px;background:rgba(224,120,32,.15);color:var(--amber);border:1px solid rgba(224,120,32,.2)}
+.phil-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(0,68,170,.03)}
+.phil-item:last-child{border-bottom:none}
+@media(max-width:1100px){.hero{grid-template-columns:200px 1fr 210px}.g3{grid-template-columns:1fr 1fr}.stat-hero-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:780px){.hero{grid-template-columns:1fr;grid-template-rows:280px auto auto}.g3,.g2{grid-template-columns:1fr}}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo-bar"><img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire FGA"></div>
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+  <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+  <button class="tab-btn" onclick="switchTab('career')">Career</button>
+  <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+  <button class="tab-btn" onclick="switchTab('links')" style="color:var(--gold)">Matches</button>
+  <div class="topbar-right">
+    <span class="status-dot"><span class="dot" style="background:var(--kbl)"></span>FC Koper · Slovenska Prva Liga · CB · #69 · France/Martinique 🇫🇷 · Canada int'l</span>
+    <span class="status-dot"><span class="dot" style="background:var(--greenL)"></span>OBI_T 9.0 ✅ · CLM 9.0 ✅ · SOA 8.33 ✅ · OBI_P 8.2 ✅ · 7/12 confirmed</span>
+    <span class="status-dot"><span class="dot" style="background:var(--red)"></span>RED CARD M2 59:20 (MCS 2/10) · DMA 5.57 ✅ (5/7 events at 4-5/10) — ball-in-play decision gap</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-photo">
+    <img src="https://www.regionalobala.si/data/albums/news_width/6-untitled-1003-x-667-px-13-65.jpg" alt="Brice Negouai" onerror="this.style.background='#020a14'">
+    <div class="hero-flag">🇫🇷</div>
+    <div class="club-badge">
+      <span class="bp-x" style="background:rgba(0,68,170,.9);color:#fff;border:1px solid rgba(51,136,255,.35)">FC Koper · CB #69</span>
+      <span class="bp-x" style="background:rgba(212,32,32,.2);color:#ff8080;border:1px solid rgba(212,32,32,.35)">🇨🇦 Canada int'l · WC2026</span>
+      <span class="bp-x" style="background:rgba(212,32,32,.7);color:#fff">RED CARD M2 · MCS 2/10</span>
+    </div>
+    <div class="hero-num">69</div>
+  </div>
+  <div class="hero-info">
+    <div>
+      <div class="hero-archetype">CB · 24yr · 185cm · Right foot · France/Martinique 🇫🇷 · FC Koper · Slovenska Prva Liga · Canada int'l</div>
+      <div class="hero-name"><em>Brice</em><br>Négouai</div>
+      <div class="hero-pos-row">
+        <span class="pos-badge pos-primary">CB</span>
+        <span class="pos-badge pos-sec">Centre Back</span>
+        <span class="pos-badge pos-r">RED CARD M2 59:20</span>
+        <span class="pos-badge pos-g">🇨🇦 Canada · WC 2026</span>
+        <span class="pos-badge" style="background:rgba(0,68,170,.12);color:var(--kblL);border:1px solid rgba(0,68,170,.28)">LOG 3.2 · Prva Liga</span>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="hmi-val">24</div><div class="hmi-lbl">Born Feb 17 2002</div></div>
+      <div><div class="hmi-val">OBI_T 9.0</div><div class="hmi-lbl">✅ · 4evt · 10/10 peak</div></div>
+      <div><div class="hmi-val">CLM 9.0</div><div class="hmi-lbl">✅ · 4evt · all 8.5-9</div></div>
+      <div><div class="hmi-val">7/12</div><div class="hmi-lbl">T3 Confirmed</div></div>
+      <div><div class="hmi-val">DMA 5.57</div><div class="hmi-lbl">✅ · 7evt · ⚠ low</div></div>
+    </div>
+    <div class="hero-bottom-tags">
+      <span class="htag htag-r">🟥 RED CARD M2 59:20 — violent argument vs Gasper Petek · villain foul on Maj Fojec · VAR review · Denis Sabanagic sends off</span>
+      <span class="htag htag-b">OBI_T 9.0 · Zan Besir 1v1 speed duel — "excellent run timing and ball recovery" 10/10 · OBI_P 8.2/11evt</span>
+      <span class="htag htag-g">CLM 9.0 ✅ (ball composure) vs MCS 2/10 (confrontation composure) — same player, opposite registers</span>
+      <span class="htag htag-w">DMA 5.57 — "for the third time in 2 games, succeeds 1v1 dribble but loses ball by lack of accuracy"</span>
+    </div>
+  </div>
+  <div class="hero-fga">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">FGA v3 Score</div>
+    <div class="fga-medallion">
+      <canvas id="fgaDial"></canvas>
+      <div class="fga-center">
+        <div class="fga-score-num">7.5</div>
+        <div class="fga-score-lbl">/ 10.0</div>
+      </div>
+    </div>
+    <div class="fga-tier-pills">
+      <div class="fga-tier-row ftr1"><span style="color:var(--kblL)">Tier 1</span><span style="color:var(--muted)">TM / Sofascore</span><span class="tw" style="color:var(--amber)">Partial</span></div>
+      <div class="fga-tier-row ftr2"><span style="color:var(--greenL)">Tier 2</span><span style="color:var(--muted)">OBI 8.41</span><span class="tw" style="color:var(--amber)">⚠ pend.</span></div>
+      <div class="fga-tier-row ftr3"><span style="color:var(--gold)">Tier 3</span><span style="color:var(--muted)">Scout</span><span class="tw" style="color:var(--greenL)">7/12 ✅</span></div>
+    </div>
+    <div class="hero-ca">
+      <div><div class="ca-val">130</div><div class="ca-info">CA (Empire Equiv.)<br>Prva Liga · CB · LOG 3.2</div></div>
+      <div class="ca-pa">PA 162</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+<!-- OVERVIEW -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="paradox-box">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--redL);margin-bottom:5px">⚡ THE CORE PARADOX — CLM 9.0 (BALL COMPOSURE) vs MCS 2/10 RED CARD (CONFRONTATION COMPOSURE)</div>
+    <div style="font-size:.79rem;color:var(--lite);line-height:1.7">
+      CLM 9.0 across 4 events — all between 8.5 and 9/10 — describes a CB who is technically calm under ball pressure. Step over at M1 59:17 (CLM 9, SOA 9, CRK 9 simultaneously), composed positioning at M2 19:21 (CLM 9), decisive late-game action at M3 92:44 (CLM 9). This is a player who does not panic on the ball.
+      
+      M2 59:20 (MCS 2/10): <strong>"Arguing violently face to face vs Gasper Petek due to a villain foul he committed on Maj Fojec. After consulting the VAR, the referee Denis Sabanagic sent him off."</strong>
+      
+      Same player. Two minutes between the last CLM 9 event and the red card would be coincidental — but these come from different matches. The pattern: <strong>technically composed, emotionally volatile.</strong> CLM measures how he performs with the ball. MCS measures how he responds to physical and emotional pressure from opponents. These are not contradictory — they are orthogonal attributes. A CB who is calm in technical situations and explosive in confrontational ones is a documented player type. The red card in M2 (Primorje away, losing) confirms the pattern was not isolated.
+    </div>
+  </div>
+
+  <div class="red-card-box">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.76rem;font-weight:700;color:var(--redL);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">🟥 RED CARD — M2 59:20 — VAR REVIEW — PRIMORJE AWAY (LOSING) — MCS 2/10</div>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.65">
+      The full event: Négouai commits a villain foul on Maj Fojec. He then argues violently face to face with Gasper Petek. The referee Denis Sabanagic sends him off after VAR consultation. MCS 2/10 — the lowest possible score outside an outright assault. The specific mention of VAR suggests the initial foul was borderline but the subsequent confrontation made dismissal inevitable. Combined with the aggressive MCS events in M1 (45:49, MCS 6) and M2 earlier (24:17 recovery event where MCS 9 came from physical dominance rather than aggression), the MCS data shows a player whose physical intensity is an asset in duels and a liability in fouls/confrontations. Four YC in 2025-26 season (from TM) is consistent with this pattern.
+    </div>
+  </div>
+
+  <div class="dma-box">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">⚠️ DMA 5.57 ✅ (7 events) — "FOR THE THIRD TIME IN 2 GAMES, SUCCEEDS 1V1 DRIBBLE BUT LOSES BALL BY LACK OF ACCURACY OR BAD DECISION" (ANALYST · M2 17:46)</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.65">
+      Seven DMA events. Five score 4-5/10. The pattern across M1 and M2 is explicit by the analyst's own language at M2 17:46: "For the third time in 2 games, he succeeds his 1v1 dribble vs his opponent but he lost the ball by lack of accuracy or bad decision" — the third time in two matches. DMA breaks at the decision-to-output stage: he wins the physical contest (SOA 9 events, OBI_T 9 events confirm athleticism) but cannot convert athletic advantage into accurate output. M1 1:42 DMA 5 ("takes too many time to take decision, loses ball in own keeper area"), M2 46:39+1 DMA 4 ("excellent run timing but once again lack of accuracy"), M2 47:10+1 DMA 4 ("1v1 attacking successful but cross goes behind the goal"). The two positive DMA events (M2 50:00 DMA 8 "one touch pass", M3 92:44 DMA 9) show the capability exists under lower-pressure conditions. The ceiling is real; the floor is dangerous for a CB.
+    </div>
+  </div>
+
+  <div class="obit-box">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:var(--kblL);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">⭐ OBI_T 9.0 ✅ · M2 24:17 — "ZAN BESIR TRIES TO BEAT HIM IN 1V1 SPEED — EXCELLENT RUN TIMING AND BALL RECOVERY" — 10/10</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.65">
+      The M2 24:17 event is the assessment's peak: OBI_T 10, SII_T 10, MCS 9 simultaneously — three metrics scored 10/9/10 from a single defensive recovery action. Zan Besir attempts a speed run to beat Négouai but the CB's run timing is precise enough to recover the ball without fouling. OBI_T 9.0 overall (4 events: 10/9/8/8.5) describes a CB whose positional recovery timing is consistently above average. SII_T 9.5 directional (2 events, both 9-10/10) confirms the speed to execute those recoveries physically. The athletic ceiling is confirmed — the challenge is connecting that ceiling to accurate ball use afterward.
+    </div>
+  </div>
+
+  <div class="stat-hero-row">
+    <div class="sh-box sh-b"><div class="sh-val">OBI_T 9.0</div><div class="sh-lbl">4evt · 10/10 peak</div><div class="sh-delta dp">↑ Recovery specialist</div></div>
+    <div class="sh-box sh-b"><div class="sh-val">CLM 9.0</div><div class="sh-lbl">4evt ball composure</div><div class="sh-delta dp">↑ Technical calm</div></div>
+    <div class="sh-box sh-ok"><div class="sh-val">SOA 8.33</div><div class="sh-lbl">6evt step over + 1v1</div><div class="sh-delta dp">↑ Athletic ceiling</div></div>
+    <div class="sh-box sh-r"><div class="sh-val">MCS 2/10</div><div class="sh-lbl">Red card M2 59:20</div><div class="sh-delta dr">↓ Confrontation limit</div></div>
+    <div class="sh-box sh-a"><div class="sh-val">DMA 5.57</div><div class="sh-lbl">7evt · 5x at 4-5/10</div><div class="sh-delta dw">↔ Ball output gap</div></div>
+    <div class="sh-box sh-b"><div class="sh-val">OBI_P 8.2</div><div class="sh-lbl">11evt positional vol.</div><div class="sh-delta dp">↑ Positioning solid</div></div>
+  </div>
+
+  <div class="g3">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--kblL)"></div><div class="c-title" style="color:var(--kblL)">Profile</div></div>
+      <div class="c-body" style="font-size:.76rem">
+        <div class="ti-row"><span class="ti-lbl">Full name</span><span class="ti-val">Brice Négouai</span></div>
+        <div class="ti-row"><span class="ti-lbl">Born</span><span class="ti-val">Feb 17, 2002 · France 🇫🇷</span></div>
+        <div class="ti-row"><span class="ti-lbl">Nationality</span><span class="ti-val">French / Martinique</span></div>
+        <div class="ti-row"><span class="ti-lbl">International</span><span class="ti-val" style="color:var(--redL)">🇨🇦 Canada · WC 2026</span></div>
+        <div class="ti-row"><span class="ti-lbl">Height</span><span class="ti-val" style="color:var(--kblL)">185 cm · Right foot</span></div>
+        <div class="ti-row"><span class="ti-lbl">Jersey</span><span class="ti-val">#69 · Centre Back</span></div>
+        <div class="ti-row"><span class="ti-lbl">Club</span><span class="ti-val">FC Koper (from Jul 2025)</span></div>
+        <div class="ti-row"><span class="ti-lbl">Contract</span><span class="ti-val">Until May 31, 2027</span></div>
+        <div class="ti-row"><span class="ti-lbl">Value</span><span class="ti-val">€172K–€300K</span></div>
+        <div class="ti-row"><span class="ti-lbl">Previous</span><span class="ti-val">FC Villefranche Beaujolais</span></div>
+        <div class="ti-row"><span class="ti-lbl">Stadium</span><span class="ti-val">ŠRC Bonifika (4,190)</span></div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--kbl)"></div><div class="c-title" style="color:var(--kbl)">7 Confirmed T3 Metrics</div><div class="c-sub">VIDEO_COMPLETENESS: 10/12 ✅</div></div>
+      <div class="c-body">
+        <div class="section-label">Confirmed (3+ events)</div>
+        <div id="confirmed-list"></div>
+        <div class="section-label" style="margin-top:10px">Partial (1–2 events)</div>
+        <div id="partial-list"></div>
+        <div class="divider"></div>
+        <div style="font-size:.72rem;color:var(--muted)"><strong style="color:var(--redL)">SII_R · SPI · CRS · DYN:</strong> 0 events — Pass 4 needed</div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--kbl)"></div><div class="c-title" style="color:var(--kbl)">Verdict</div></div>
+      <div class="c-body">
+        <div class="scout-para">Athletically elite CB (OBI_T 9.0, SII_T 9.5 directional, SOA 8.33). The DMA 5.57 and MCS red card are the honest limits — he wins physical battles and then loses ball possession or loses his temper. CLM 9.0 confirms composure in technical situations. The paradox is real and needs Pass 4 to test whether the DMA gap closes in pressure situations.</div>
+        <div class="verdict-box">
+          <div class="verdict-label">Empire FGA Verdict</div>
+          <div class="verdict-text"><strong>Athletic CB Ceiling · Positional Recovery Elite · DMA Ball-Output Gap + Red Card Confrontation Risk · 24yr · Canada WC2026 · LOG 3.2.</strong> The physical profile (OBI_T 9.0, SOA 8.33, OBI_P 8.2/11evt) places him in the top tier of confirmed athletic CBs in this series. DMA 5.57 and MCS 2/10 red card block the complete profile. SII_R, SPI, CRS, DYN needed before FGA_v3_Final.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:14px">
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top Philosophy Fits</div></div><div class="c-body" id="ov-phil"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--kblL)"></div><div class="c-title" style="color:var(--kblL)">T3 Radar — 7 confirmed</div></div><div class="c-body"><canvas id="ovRadar" height="220"></canvas></div></div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="tab-fga" class="tab-panel">
+  <div class="g3" style="margin-bottom:14px">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--kblL)"></div><div class="c-title" style="color:var(--kblL)">Tier 1 — TM / Sofascore</div></div>
+      <div class="c-body" id="t1-metrics"></div>
+    </div>
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--greenL)"></div><div class="c-title" style="color:var(--greenL)">Tier 2 — Composites</div></div>
+      <div class="c-body">
+        <div class="section-label">OBI Composite: 8.41 ⚠️</div>
+        <div id="obi-subs"></div>
+        <div style="font-size:.7rem;color:var(--amber);margin-top:6px">OBI_S 2 events only — composite estimate. OBI_T + OBI_P both confirmed ✅.</div>
+        <div class="divider"></div>
+        <div class="section-label">SII — All Partial</div>
+        <div id="sii-subs"></div>
+        <div style="font-size:.7rem;color:var(--amber);margin-top:6px">SII_T 9.5 directional (M2 24:17 10/10 + M1 80:13 9/10). SII_A 2 events. SII_R = 0. SII composite not calculable.</div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:10px">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">LOG Context · Prva Liga</div></div>
+        <div class="c-body">
+          <div style="display:flex;align-items:center;gap:14px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:2px;margin-bottom:8px">
+            <canvas id="logRing" width="60" height="60"></canvas>
+            <div><div style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:500;color:var(--amber);line-height:1">3.2</div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">LOG Ref.</div><div style="margin-top:4px"><span class="log-badge">Slovenska Prva Liga</span></div></div>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.7"><strong style="color:var(--lite)">M1 vs Primorje (bottom) = LOG 2.9</strong><br><strong style="color:var(--lite)">M2 vs Primorje (bottom, losing) = LOG 2.9</strong><br><strong style="color:var(--lite)">M3 vs Aluminij (top) = LOG 3.3</strong><br><strong style="color:var(--lite)">M4 vs Bravo (mid) = LOG 3.2</strong><br><strong style="color:var(--lite)">M5 vs Domzale (top) = LOG 3.3</strong></div>
+        </div>
+      </div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">MCS Events Detail</div></div>
+        <div class="c-body">
+          <div class="mrow"><span class="mcode" style="color:var(--amber)">M1 45:49</span><span class="mname">MCS 6 — physical intensity event</span><div class="mbar-bg"><div class="mbar-fill" style="width:60%;background:#a88010"></div></div><span class="mval" style="color:#a88010">6</span></div>
+          <div class="mrow"><span class="mcode" style="color:var(--greenL)">M2 24:17</span><span class="mname">MCS 9 — Besir duel recovery</span><div class="mbar-bg"><div class="mbar-fill" style="width:90%;background:#1e8a4a"></div></div><span class="mval" style="color:#1e8a4a">9</span></div>
+          <div class="mrow"><span class="mcode" style="color:var(--amber)">M2 56:07</span><span class="mname">MCS 8</span><div class="mbar-bg"><div class="mbar-fill" style="width:80%;background:#2e9e5a"></div></div><span class="mval" style="color:#2e9e5a">8</span></div>
+          <div class="mrow" style="background:rgba(212,32,32,.04)"><span class="mcode" style="color:var(--redL)">M2 59:20</span><span class="mname" style="color:var(--redL)">MCS 2 — 🟥 RED CARD · violent argument · VAR</span><div class="mbar-bg"><div class="mbar-fill" style="width:20%;background:#D42020"></div></div><span class="mval" style="color:var(--redL)">2</span></div>
+          <div style="font-size:.68rem;color:var(--muted);margin-top:8px;border-top:1px solid var(--border);padding-top:6px">MCS composite: (6+9+8+2)/4 = <strong style="color:var(--amber)">6.25</strong> ✅ — the single 2/10 red card event drops what would be 7.67 down to 6.25. The card's impact on MCS is precisely quantifiable.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tier 3 · Jim Totime · 3 Matches Assessed · 7/12 Confirmed · 3 Passes</div></div>
+    <div class="c-body">
+      <div class="g3">
+        <div>
+          <div class="section-label">DMA Event Distribution — 7 events</div>
+          <canvas id="dmaChart" height="160"></canvas>
+          <div style="font-size:.66rem;color:var(--muted);margin-top:4px">5 of 7 events between 4-5/10. Two positive outliers: M2 50:00 DMA 8 (one-touch pass) and M3 92:44 DMA 9. The consistent low scores are not noise — they are the documented DMA pattern.</div>
+        </div>
+        <div>
+          <div class="section-label">Video Completeness</div>
+          <div id="vc-mini"></div>
+        </div>
+        <div>
+          <div class="section-label">Remaining T3 Metrics</div>
+          <div id="t3-rest-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div id="tab-philosophy" class="tab-panel">
+  <div class="g2">
+    <div><div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Top 10 Philosophy Fits</div></div><div class="c-body" id="phil-full"></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--kblL)"></div><div class="c-title" style="color:var(--kblL)">School Averages</div></div><div class="c-body" id="school-avgs"></div></div></div>
+    <div><div class="c" style="margin-bottom:14px;height:340px"><div class="c-head"><div class="c-dot" style="background:var(--kblL)"></div><div class="c-title" style="color:var(--kblL)">Philosophy Radar</div></div><div class="c-body" style="height:290px"><canvas id="philRadar"></canvas></div></div>
+    <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Tactical Archetype</div></div><div class="c-body">
+      <div class="scout-para">OBI_T 9.0 (recovery timing) + OBI_P 8.2/11evt (positional intelligence) + SOA 8.33 (explosive action) + CLM 9.0 (technical composure) — alongside DMA 5.57 (ball-in-play errors) and MCS red card (confrontation volatility) = the <strong>physically dominant athletic CB archetype who is technically limited under pressure</strong>. Best fits: Simeone/Sacchi combative defensive CB who excels in physical duels but needs coaching on ball use and emotional regulation. Mourinho's "warrior CB" template.</div>
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:2px;padding:10px;margin-top:8px">
+        <span class="trait-pill">Positional CB</span><span class="trait-pill">Recovery Specialist</span>
+        <span class="trait-pill">Technical CLM</span><span class="trait-pill">Ball-Output Gap</span>
+        <span class="trait-pill">Confrontation Risk</span>
+      </div>
+    </div></div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="tab-career" class="tab-panel">
+  <div class="wc-badge">
+    <span style="font-size:1.2rem">🇨🇦</span>
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--redL);letter-spacing:.1em;text-transform:uppercase">CANADA · FIFA WORLD CUP 2026 CONTEXT</div>
+    <div style="font-size:.7rem;color:var(--muted)">Jim Totime assessment filed under "Canada / World Cup 2026 season." Négouai represents Canada at international level (France/Martinique eligible via Canadian citizenship). WC 2026 hosted in USA / Canada / Mexico.</div></div>
+  </div>
+  <div class="g2">
+    <div class="c">
+      <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">Career Timeline</div></div>
+      <div class="c-body">
+        <div class="tl-wrap">
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">Born Feb 17, 2002 · France 🇫🇷 / Martinique</div><div class="tl-text">French of Martiniquan origin. Eligible for Canada via Canadian citizenship/residency. 24 years old as of February 2026 — career-prime for a developing CB.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Youth / Early career · France</div><div class="tl-text">French football formation. Emerged through the French semi-professional system before reaching the Slovenian top flight.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">FC Villefranche Beaujolais · France</div><div class="tl-text"><strong>FC Villefranche Beaujolais</strong> — Beaujolais district, Ain department. French semi-professional football (National 2 / National level, French 4th/3rd tier). Free transfer to FC Koper confirmed (Grokipedia source).</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--kblL)"></div><div class="tl-date">Jul 2025 · FC Koper · Slovenska Prva Liga</div><div class="tl-text"><strong>Free transfer from FC Villefranche Beaujolais.</strong> FC Koper, Koper (Capodistria), Slovenia's main port city. Slovenska Prva Liga (TOP flight, 10 clubs). ŠRC Bonifika stadium (4,190). Contract until May 31, 2027. Jersey #69.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-date">2025-26 · 4 YC documented · Red card M2 59:20</div><div class="tl-text">4 yellow cards in 2025-26 season (TM data). The M2 59:20 red card from T3 assessment — violent argument vs Gasper Petek, VAR review, Denis Sabanagic sends off. Against NK Primorje (away, losing). MCS 2/10 event.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-date">Canada · FIFA WC 2026</div><div class="tl-text">ESN assessment filed under "Canada / World Cup 2026." Canada is a WC 2026 host nation (alongside USA and Mexico). Négouai's international eligibility via Canadian connection.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--kblL)"></div><div class="c-title" style="color:var(--kblL)">Career Record (T1)</div></div>
+        <div class="c-body">
+          <table class="career-table">
+            <thead><tr><th>Season</th><th>Club</th><th>Competition</th><th>Apps</th><th>YC</th></tr></thead>
+            <tbody>
+              <tr><td>Pre-2025</td><td>FC Villefranche BJ</td><td>France Nat. 2 / Nat.</td><td>—</td><td>—</td></tr>
+              <tr class="hl"><td><strong>2025-26</strong></td><td><strong>FC Koper</strong></td><td><strong>Slovenska Prva Liga</strong></td><td>—</td><td><strong>4 ⚠</strong></td></tr>
+            </tbody>
+          </table>
+          <div class="divider"></div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.6"><strong style="color:var(--amber)">4 YC in 2025-26</strong> (TM). Combined with the red card logged in T3 M2 59:20 (which may or may not be in that total), the disciplinary pattern is consistent with the MCS data. High physical intensity CB who generates fouls under pressure.</div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><div class="c-dot" style="background:var(--amber)"></div><div class="c-title" style="color:var(--amber)">Match Register (3 assessed of 5)</div></div>
+        <div class="c-body">
+          <table class="career-table">
+            <thead><tr><th>M</th><th>Opponent</th><th>Context</th><th>LOG</th><th>Key Events</th></tr></thead>
+            <tbody>
+              <tr class="hl"><td>M1</td><td>Primorje (away)</td><td>Away · W · Bottom</td><td>2.9</td><td>OBI_T 9 (80:13) · OBI_P 9+9+8+8+6 · SOA 9 step over (59:17) · CLM 9 step over · CRK 9 step over · MCS 6 (45:49) · DMA 5 (1:42 — slow decision in own box)</td></tr>
+              <tr class="hl" style="background:rgba(212,32,32,.04)"><td>M2</td><td>Primorje (away)</td><td>Away · L · Bottom · 🟥 RED CARD</td><td>2.9</td><td>OBI_T 10+9+8 · SII_T 10 (24:17 Besir duel) · MCS 9+8+2(RC) · CLM 9 · OBI_S 8+8 · DMA 8+4+4+4+5 · SOA 9+8+8+8 · OMS 8+7</td></tr>
+              <tr><td>M3</td><td>Aluminij (home)</td><td>Home · W · Top</td><td>3.3</td><td>OBI_T 8.5 (88:56) · OBI_P 9+9+6.5 · OMS 8 (78:10) · CLM 9 (92:44) · DMA 9 (92:44)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING -->
+<div id="tab-scouting" class="tab-panel">
+  <div class="g2">
+    <div>
+      <div class="c" style="margin-bottom:14px">
+        <div class="c-head"><div class="c-dot" style="background:var(--kbl)"></div><div class="c-title" style="color:var(--kbl)">Full Scouting Report</div><div class="c-sub">Jim Totime · 3 matches assessed</div></div>
+        <div class="c-body">
+          <div class="scout-para">Brice Négouai is a 24-year-old French/Martiniquais centre back at FC Koper in the Slovenian Prva Liga, born February 17, 2002. 185cm, right-footed. Jersey #69. Joined FC Koper in July 2025 on a free transfer from FC Villefranche Beaujolais. Contract until May 31, 2027. International: Canada (assessment filed under "Canada / World Cup 2026" context). Value: €172K–€300K. T3 assessment: 3 passes, 3 matches (M1 Away vs Primorje Won, M2 Away vs Primorje Lost, M3 Home vs Aluminij Won). 7/12 T3 metrics confirmed. VIDEO_COMPLETENESS: 10/12 ✅. FGA estimate: 7.5.</div>
+
+          <div class="scout-para"><strong>OBI_T 9.0 ✅ (4 events) — the defining physical quality.</strong> The M2 24:17 event is triple-scored at OBI_T 10 + SII_T 10 + MCS 9: "Zan Besir tries to beat him in 1v1 speed but excellent run timing and ball recovery." This is the cleanest defensive recovery action in the assessment — a speed opponent is neutralised through precise run timing rather than fouling or hoping. OBI_T 9.0 across 4 events (10/9/8/8.5) describes a CB whose positional recovery timing is consistently high. M2 46:39+1 (OBI_T 9): "Excellent run timing to recover the ball — but once again lack of accuracy to succeed his pass." This is the paradox condensed into one event: the physical timing is 9/10, the ball use afterward is DMA 4/10. He arrives on time and then misses.</div>
+
+          <div class="scout-para"><strong>DMA 5.57 ✅ (7 events) — the structural ball-output gap.</strong> The analyst's M2 17:46 note is the key document: "For the third time in 2 games, he succeed his 1v1 dribble vs his opponent but he lost the ball by lack of accuracy or bad decision." By the third incident the analyst has enough evidence to describe this as a pattern. The full DMA breakdown: M1 1:42 (5 — slow decision in own box), M2 1:17 (5), M2 17:46 (4 — blind side, pattern noted), M2 46:39+1 (4 — recovery timing elite, ball use poor), M2 47:10+1 (4 — 1v1 won but cross behind goal), M2 50:00 (8 — one-touch pass, showing the ceiling), M3 92:44 (9 — composed late-match action). The pattern: DMA 4-5 under pressure, DMA 8-9 in controlled situations. This is a decision-speed gap that manifests specifically when the CB is required to convert physical advantages into technical output under time pressure.</div>
+
+          <div class="scout-para"><strong>CLM 9.0 ✅ vs MCS 2/10 — the same player, two different emotional registers.</strong> Four CLM events at 8.5-9/10 describe composed technical actions: step over with dribble (M1 59:17), positioning under pressure (M2 19:21), late-match composure (M3 92:44). CLM measures how the player handles the ball in difficult technical situations — and here he is calm. MCS 2/10 at M2 59:20 documents the confrontational register: "Arguing violently face to face vs Gasper Petek due to a villain foul he committed on Maj Fojec. After consulting the VAR, the referee Denis Sabanagic sent him off." CLM and MCS measure different emotional contexts. A player can be calm technically and volatile interpersonally. The 4 YC in 2025-26 (TM T1 data) confirms the pattern extends across the season.</div>
+
+          <div class="scout-para"><strong>SOA 8.33 ✅ (6 events) — genuine first-touch quality.</strong> Six events: M1 15:49 (8), M1 59:17 (9 — step over), M2 1:15 (8), M2 17:46 (8), M2 47:10+1 (9 — 1v1 attacking won), M2 48:28 (8 — beats opponent by speed). SOA 8.33 is above average for a CB at Prva Liga level. The step over at M1 59:17 (SOA 9, CLM 9, CRK 9 simultaneously) is particularly notable — this is an attacking action from a CB who is comfortable initiating dribbles. The tension with DMA 5.57 is direct: his first touch (SOA) and initial action (SOA) are above average, but the subsequent decision and execution (DMA) drop significantly. The split-second between SOA and DMA is where Négouai loses quality.</div>
+
+          <div class="verdict-box">
+            <div class="verdict-label">Empire FGA Final Assessment</div>
+            <div class="verdict-text"><strong>Physically Elite CB Ceiling · Positional Recovery Best-in-Class · Ball-Output Gap + Confrontation Volatility = Development Priority · 24yr · Canada WC2026 · LOG 3.2.</strong> The physical and positional data (OBI_T 9.0, OBI_P 8.2/11evt, SOA 8.33, SII_T 9.5 directional) establishes an athletic CB who reads the game well and recovers excellently. DMA 5.57 (5/7 events at 4-5/10, analyst confirms recurring pattern) and MCS red card (2/10, VAR review, violent confrontation) are the specific development targets. CLM 9.0 confirms the emotional ceiling is accessible — the question is which context unlocks it consistently. Pass 4 target: SII_R, SPI, CRS, DYN to complete the profile.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="c" style="margin-bottom:14px"><div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">All T3 Scores</div></div><div class="c-body" id="psych-bars"></div></div>
+      <div class="c"><div class="c-head"><div class="c-dot" style="background:var(--kblL)"></div><div class="c-title" style="color:var(--kblL)">Key Event Log</div><div class="c-sub">49 events · 3 matches</div></div><div class="c-body" id="event-log-display" style="max-height:380px;overflow-y:auto"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="tab-links" class="tab-panel">
+  <div style="background:var(--kblFade);border:1px solid rgba(0,68,170,.2);border-radius:2px;padding:10px 16px;margin-bottom:16px">
+    <span style="font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--kblL)">4 RECORDINGS · M1 PRIMORJE (W) · M2 PRIMORJE (L, 🟥RC) · M3 ALUMINIJ (W) · PLUS 1 INLINE LINK</span>
+  </div>
+  <a class="video-link-card" href="https://www.dropbox.com/scl/fi/bgarv9w503mokfkahj18x/Football-Club-Koper-Nogometni-Klub-Aluminij-Kidri-evo.mp4?rlkey=999hiseu0caeo9kgyklg60zm9&raw=1" target="_blank">
+    <div style="width:36px;height:36px;border-radius:2px;background:rgba(0,68,170,.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+    <div><div class="vlc-opp">FC Koper vs NK Aluminij Kidričevo (M3 — Home · W · Top)</div><div class="vlc-meta">OBI_T 8.5 (88:56) · OBI_P 9+9 late · CLM 9+DMA 9 (92:44) · OMS 8 (78:10) — most composed match</div></div>
+    <span class="vlc-badge" style="background:rgba(0,68,170,.12);color:var(--kblL);border:1px solid rgba(0,68,170,.25)">M3 · Aluminij · LOG 3.3</span>
+  </a>
+  <a class="video-link-card" href="https://uce47b37bdaf3281d6aa4d65e024.dl.dropboxusercontent.com/cd/0/inline/DDTZUZ-1XHmCBrYos8az_kCEIydwQvCWbHAt0FJZgv9tyoWyc0y80qQxyL4l2qLUY1Up7xPu2BZLF_fE_1xqK14wWrmiIqmU4aI7cKUe7rp4ExmeakQDHt-9TAB9IIqX7OLVlHZuKX-6MgWW4pD94qxm/file#" target="_blank">
+    <div style="width:36px;height:36px;border-radius:2px;background:rgba(0,68,170,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+    <div><div class="vlc-opp">Match recording — inline Dropbox link</div><div class="vlc-meta">Secondary recording for match analysis</div></div>
+    <span class="vlc-badge" style="background:rgba(0,68,170,.1);color:var(--kblL);border:1px solid rgba(0,68,170,.2)">Inline link</span>
+  </a>
+  <a class="video-link-card" href="https://www.dropbox.com/scl/fi/awy12o9uorqd5aa0u3kin/Nogometni-Klub-Primorje-Football-Club-Koper.mp4?rlkey=um3jjzhp11334lir7a2zn308z&raw=1" target="_blank">
+    <div style="width:36px;height:36px;border-radius:2px;background:rgba(212,32,32,.5);display:flex;align-items:center;justify-content:justify-content;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+    <div><div class="vlc-opp">NK Primorje vs FC Koper (M1 or M2 — Away vs Primorje)</div><div class="vlc-meta">M1 (Away W) OR M2 (Away L + 🟥 RED CARD 59:20) — villain foul Maj Fojec · violent argument Gasper Petek · VAR · Denis Sabanagic RC</div></div>
+    <span class="vlc-badge" style="background:rgba(212,32,32,.12);color:var(--redL);border:1px solid rgba(212,32,32,.25)">Primorje · Away · 🟥 RC in M2</span>
+  </a>
+  <a class="video-link-card" href="https://uc975bc7c094d899c98457c0e84a.dl.dropboxusercontent.com/cd/0/inline/DDSWN_3ZIhs_oh78J5ZDa2pRPe0EV_dP6PZnhEko51lF4kdOlPhAvDDCWmJ4wtgTaVUQ1pCwLf-ljFzqdlTXxUnw-nvolG_POM9wfoUA4RhBqfTK0lumGQC2wOeSJlZI559rIqiwJDrGtrlF8n11W7Bo/file#" target="_blank">
+    <div style="width:36px;height:36px;border-radius:2px;background:rgba(0,68,170,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:.85rem">▶</div>
+    <div><div class="vlc-opp">Match recording — inline Dropbox link 2</div><div class="vlc-meta">Additional recording · Primorje away context</div></div>
+    <span class="vlc-badge" style="background:rgba(0,68,170,.1);color:var(--kblL);border:1px solid rgba(0,68,170,.2)">Inline link 2</span>
+  </a>
+  <div class="c" style="margin-top:14px">
+    <div class="c-head"><div class="c-dot" style="background:var(--gold)"></div><div class="c-title" style="color:var(--gold)">M2 Critical Timestamps — Primorje Away (Losing · Red Card)</div></div>
+    <div class="c-body">
+      <div style="font-size:.78rem;color:var(--muted);line-height:2.0">
+        <strong style="color:var(--kblL)">24:17</strong> — <strong style="color:var(--white)">OBI_T 10 + SII_T 10 + MCS 9: Zan Besir 1v1 speed — EXCELLENT run timing and ball recovery</strong><br>
+        <strong style="color:var(--kblL)">24:27</strong> — CRK 9: Lob pass<br>
+        <strong style="color:var(--kblL)">46:39+1</strong> — OBI_T 9 + SII_A 9 + DMA 4: Excellent run timing to recover — BUT ONCE AGAIN lack of accuracy, ball lost<br>
+        <strong style="color:var(--kblL)">47:10+1</strong> — SOA 9 + DMA 4: 1v1 attacking successful but cross goes behind the goal<br>
+        <strong style="color:var(--kblL)">48:28</strong> — SOA 8: Beats opponent by speed but through pass not accurate<br>
+        <strong style="color:var(--kblL)">50:00</strong> — DMA 8: One-touch pass (positive — shows ceiling)<br>
+        <strong style="color:var(--kblL)">56:07</strong> — MCS 8<br>
+        <strong style="color:var(--redL)">59:20</strong> — <strong style="color:var(--redL)">MCS 2 · 🟥 RED CARD: Argues violently face to face vs Gasper Petek · villain foul on Maj Fojec · VAR consultation · Referee Denis Sabanagic sends off</strong>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var PHIL=[
+  {r:1,n:"Simeone Combative Positional CB",s:"South American",v:8.5,col:"#E41E20"},
+  {r:2,n:"Sacchi High-Line Defensive CB",s:"Italian School",v:8.3,col:"#8b1a1a"},
+  {r:3,n:"Mourinho Warrior CB",s:"Modern Masters",v:8.0,col:"#9b59b6"},
+  {r:4,n:"Ferguson Dominant Centre Back",s:"English School",v:7.8,col:"#ff0000"},
+  {r:5,n:"Conte Aggressive CB",s:"Modern Masters",v:7.5,col:"#3498db"},
+  {r:6,n:"Heynckes Physical CB",s:"German School",v:7.5,col:"#e07820"},
+  {r:7,n:"Guardiola Ball-Playing CB",s:"Modern Masters",v:6.5,col:"#6CABDD"},
+  {r:8,n:"Cruyff Technical CB",s:"Dutch School",v:6.0,col:"#27ae60"},
+  {r:9,n:"Wenger Composed CB",s:"French School",v:6.0,col:"#2980b9"},
+  {r:10,n:"Bielsa High-Press CB",s:"South American",v:7.0,col:"#e07820"}
+];
+var T1=[
+  {c:"Club",n:"FC Koper · Prva Liga Slovenia · 2025-26",v:8.0},
+  {c:"Value",n:"EUR 172K-300K · free transfer from Villefranche",v:7.0},
+  {c:"YC 25-26",n:"4 yellow cards in 2025-26 season · TM",v:3.5},
+  {c:"Contract",n:"Until May 31 2027 · FC Koper",v:8.0},
+  {c:"Canada",n:"International · World Cup 2026 context",v:8.5}
+];
+var OBI=[
+  {c:"OBI_T",n:"Run Timing",v:9.0,w:"35%",ok:true},
+  {c:"OBI_S",n:"Space Architecture",v:8.0,w:"35%",ok:false},
+  {c:"OBI_P",n:"Positional Anticipation",v:8.2,w:"30%",ok:true}
+];
+var SII=[
+  {c:"SII_A",n:"Explosive Accel",v:8.0,w:"40%",ok:false},
+  {c:"SII_T",n:"Top-End Speed",v:9.5,w:"35%",ok:false},
+  {c:"SII_R",n:"Recovery Sprint",v:0,w:"25%",ok:false,zero:true}
+];
+var T3R=[
+  {c:"DMA",n:"Decision Making",v:5.57,conf:true},{c:"CHR",n:"Character",v:8.0,conf:false,partial:true},
+  {c:"MCS",n:"Mental Comp.",v:6.25,conf:true},{c:"SOA",n:"Speed on Action",v:8.33,conf:true},
+  {c:"SPI",n:"Spatial Perf.",v:0,conf:false},{c:"CLM",n:"Calmness",v:9.0,conf:true,elite:true},
+  {c:"CRS",n:"Clutch Response",v:0,conf:false},{c:"OMS",n:"Transition",v:7.5,conf:true},
+  {c:"DYN",n:"Dynamism",v:0,conf:false},{c:"CRK",n:"Creative Risk",v:9.0,conf:false,partial:true,elite:true}
+];
+var KEY_EVENTS=[
+  {t:"M1 1:42",m:"DMA 5",d:"Takes too many time to take decision — loses ball in own keeper area"},
+  {t:"M1 2:03",m:"OBI_P 8",d:"OBI_P 8"},
+  {t:"M1 11:05",m:"OBI_P 9",d:"Aerial duel 1v1 successful"},
+  {t:"M1 15:49",m:"SOA 8",d:"SOA 8"},
+  {t:"M1 22:17",m:"OBI_P 8",d:"Good positioning to cut crossing"},
+  {t:"M1 22:58",m:"OMS 7",d:"OMS 7"},
+  {t:"M1 26:24",m:"SII_A 7",d:"SII_A 7"},
+  {t:"M1 45:49",m:"MCS 6",d:"MCS 6 — physical intensity event"},
+  {t:"M1 48:49",m:"CLM 8.5",d:"CLM 8.5"},
+  {t:"M1 52:16",m:"OBI_P 8",d:"Good block"},
+  {t:"M1 59:17",m:"SOA 9+CLM 9+CRK 9",d:"STEP OVER — triple metric 9/9/9 simultaneously (SOA + CLM + CRK)"},
+  {t:"M1 62:59",m:"CHR 8",d:"Replace his teammate — CHR 8"},
+  {t:"M1 74:48",m:"OBI_P 6",d:"Late tackle. Foul committed nearby the area"},
+  {t:"M1 80:13",m:"OBI_P 9+SII_T 9",d:"Excellent covering (OBI_P 9 + SII_T 9 simultaneous)"},
+  {t:"M2 1:15",m:"SOA 8",d:"SOA 8"},
+  {t:"M2 1:17",m:"DMA 5",d:"DMA 5"},
+  {t:"M2 17:46",m:"SOA 8+DMA 4",d:"SOA 8 + DMA 4 (blind side) — for the THIRD TIME in 2 games: succeeds 1v1 dribble but loses ball by lack of accuracy"},
+  {t:"M2 19:21",m:"OBI_P 8+CLM 9",d:"OBI_P 8 + CLM 9 simultaneous"},
+  {t:"M2 24:17",m:"SII_T 10+OBI_T 10+MCS 9",d:"ZAN BESIR 1v1 speed — EXCELLENT run timing and ball recovery — TRIPLE 9-10/10"},
+  {t:"M2 24:27",m:"CRK 9",d:"Lob pass — CRK 9"},
+  {t:"M2 46:38",m:"OMS 8",d:"OMS 8"},
+  {t:"M2 46:39+1",m:"SII_A 9+OBI_T 9+DMA 4",d:"Excellent run timing to recover ball — BUT ONCE AGAIN lacks accuracy. Ball lost"},
+  {t:"M2 46:49",m:"OBI_S 8",d:"Good overlap but misses his pass"},
+  {t:"M2 47:10+1",m:"SOA 9+DMA 4",d:"1v1 attacking successful but cross goes behind the goal"},
+  {t:"M2 47:47+1",m:"OBI_P 8",d:"Good ball recovery after approximate control by Ishaq Kayode Rafiu"},
+  {t:"M2 48:28",m:"SOA 8",d:"Beats opponent by speed but through pass not accurate"},
+  {t:"M2 50:00",m:"DMA 8",d:"One touch pass (positive — shows DMA ceiling)"},
+  {t:"M2 51:25",m:"OBI_T 8+OMS 7",d:"Good run timing but too energic. Foul committed (OBI_T 8 + OMS 7)"},
+  {t:"M2 55:15",m:"OBI_S 8",d:"OBI_S 8"},
+  {t:"M2 56:07",m:"MCS 8",d:"MCS 8"},
+  {t:"M2 59:20",m:"MCS 2 — 🟥 RED CARD",d:"ARGUING VIOLENTLY vs Gasper Petek · villain foul on Maj Fojec · VAR · Referee Denis Sabanagic SENDS OFF"},
+  {t:"M3 78:08",m:"OBI_P 6.5",d:"OBI_P 6.5"},
+  {t:"M3 78:10",m:"OMS 8",d:"OMS 8"},
+  {t:"M3 88:56",m:"OBI_T 8.5",d:"OBI_T 8.5"},
+  {t:"M3 89:10",m:"OBI_P 9",d:"OBI_P 9"},
+  {t:"M3 92:44",m:"OBI_P 9+CLM 9+DMA 9",d:"OBI_P 9 + CLM 9 + DMA 9 simultaneous — composed late-match action"}
+];
+var SCHOOL_AVGS=[
+  {n:"Simeone/SAm",v:8.5},{n:"Sacchi/Italian",v:8.3},{n:"Mourinho",v:8.0},
+  {n:"Ferguson/ENG",v:7.8},{n:"Conte",v:7.5},{n:"Cruyff/Dutch",v:6.0}
+];
+
+function safe(id){return document.getElementById(id);}
+var sc=function(v){return v>=8.5?"#1e8a4a":v>=7.5?"#2e9e5a":v>=6.5?"#5a9e20":v>=5.0?"#a88010":v>=3.5?"#b05a10":v>0?"#8a1020":"#1e0810";};
+var pct=function(v){return Math.round(v*10);};
+var fmt=function(v){return v>0?(v%1!==0?parseFloat(v.toFixed(2)):v):"—";};
+
+function init(){
+  var c1=[
+    {n:"OBI_T",v:9.0,evt:4,star:true},{n:"CLM",v:9.0,evt:4,star:true},
+    {n:"SOA",v:8.33,evt:6},{n:"OBI_P",v:8.2,evt:11},
+    {n:"OMS",v:7.5,evt:4},{n:"MCS",v:6.25,evt:4},
+    {n:"DMA",v:5.57,evt:7}
+  ];
+  var el1=safe("confirmed-list");
+  if(el1){var h="";for(var i=0;i<c1.length;i++){var m=c1[i];var warn=m.v<6.5;h+='<div class="mrow"><span class="mcode">'+m.n+'</span><span class="mname" style="color:'+(m.star?"var(--gold)":warn?"var(--amber)":"var(--lite)")+'">'+fmt(m.v)+(m.star?" \u2b50":warn?" \u26a0\ufe0f":"")+'</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:'+pct(m.v)+'%;background:'+sc(m.v)+'"></div></div><span style="font-size:.67rem;color:var(--muted);width:36px;text-align:right">'+m.evt+'e</span><span class="mflag '+(warn?"f-p":"f-ok")+'">'+(warn?"\u26a0\ufe0f":"\u2705")+'</span></div>';}el1.innerHTML=h;}
+  var p1=[{n:"OBI_S",v:8.0,evt:2},{n:"SII_T",v:9.5,evt:2,elite:true},{n:"SII_A",v:8.0,evt:2},{n:"CRK",v:9.0,evt:2,elite:true},{n:"CHR",v:8.0,evt:1}];
+  var el2=safe("partial-list");
+  if(el2){var h="";for(var i=0;i<p1.length;i++){var m=p1[i];h+='<div class="mrow"><span class="mcode">'+m.n+'</span><span class="mname" style="color:'+(m.elite?"var(--gold)":"var(--lite)")+'">'+fmt(m.v)+(m.elite?" \u2b50":"")+'</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:'+pct(m.v)+'%;background:'+sc(m.v)+'"></div></div><span style="font-size:.67rem;color:var(--muted);width:36px;text-align:right">'+m.evt+'e</span><span class="mflag f-w">\u26a0\ufe0f</span></div>';}el2.innerHTML=h;}
+
+  var renderSubM=function(el,arr){if(!el)return;var h="";for(var i=0;i<arr.length;i++){var m=arr[i];var col=m.ok?sc(m.v):(m.zero?"#f07070":"var(--amber)");var flag=m.ok?'<span class="mflag f-ok">\u2705</span>':(m.zero?'<span class="mflag f-p">0evt</span>':'<span class="mflag f-w">\u26a0\ufe0f</span>');h+='<div class="comp-row"><span class="comp-lbl">'+m.c+'</span><span class="comp-desc">'+m.n+'</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:'+pct(m.v)+'%;background:'+col+'"></div></div><span class="comp-val" style="color:'+col+'">'+(m.v>0?fmt(m.v):"—")+'</span><span style="font-size:.6rem;color:var(--muted);min-width:28px;text-align:center">'+m.w+'</span>'+flag+'</div>';}el.innerHTML=h;};
+  renderSubM(safe("obi-subs"),OBI);
+  renderSubM(safe("sii-subs"),SII);
+
+  var t1=safe("t1-metrics");
+  if(t1){var h="";for(var i=0;i<T1.length;i++){var m=T1[i];h+='<div class="comp-row"><span class="comp-lbl">'+m.c+'</span><span class="comp-desc">'+m.n+'</span><div class="comp-bar-bg"><div class="comp-bar-fill" style="width:'+pct(m.v)+'%;background:'+sc(m.v)+'"></div></div><span class="comp-val" style="color:'+sc(m.v)+'">'+fmt(m.v)+'</span></div>';}t1.innerHTML=h;}
+
+  var philEl=safe("ov-phil");
+  if(philEl){var h="";for(var i=0;i<Math.min(5,PHIL.length);i++){var p=PHIL[i];h+='<div class="phil-item"><span style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:.9rem;color:'+p.col+';width:18px;text-align:center">'+p.r+'</span><div style="flex:1"><div style="font-size:.78rem;color:var(--lite)">'+p.n+'</div><div style="font-size:.62rem;color:var(--muted)">'+p.s+'</div></div><div style="width:70px;height:5px;background:rgba(0,68,170,.06);border-radius:99px;overflow:hidden"><div style="width:'+pct(p.v)+'%;height:100%;border-radius:99px;background:'+p.col+'"></div></div><span style="font-family:Rajdhani,sans-serif;font-size:.9rem;font-weight:700;color:'+p.col+';width:28px;text-align:right">'+p.v+'</span></div>';}philEl.innerHTML=h;}
+  var pf=safe("phil-full");
+  if(pf){var h="";for(var i=0;i<PHIL.length;i++){var p=PHIL[i];h+='<div class="phil-item"><span style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:.9rem;color:'+p.col+';width:18px;text-align:center">'+p.r+'</span><div style="flex:1"><div style="font-size:.78rem;color:var(--lite)">'+p.n+'</div><div style="font-size:.62rem;color:var(--muted)">'+p.s+'</div></div><div style="width:70px;height:5px;background:rgba(0,68,170,.06);border-radius:99px;overflow:hidden"><div style="width:'+pct(p.v)+'%;height:100%;border-radius:99px;background:'+p.col+'"></div></div><span style="font-family:Rajdhani,sans-serif;font-size:.9rem;font-weight:700;color:'+p.col+';width:28px;text-align:right">'+p.v+'</span></div>';}pf.innerHTML=h;}
+  var sa=safe("school-avgs");
+  if(sa){var h="";for(var i=0;i<SCHOOL_AVGS.length;i++){var s=SCHOOL_AVGS[i];h+='<div class="comp-row"><span style="font-size:.74rem;color:var(--lite);flex:1">'+s.n+'</span><div class="comp-bar-bg" style="width:120px"><div class="comp-bar-fill" style="width:'+pct(s.v)+'%;background:'+sc(s.v)+'"></div></div><span class="comp-val" style="color:'+sc(s.v)+'">'+s.v+'</span></div>';}sa.innerHTML=h;}
+
+  var rEl=safe("t3-rest-grid");
+  if(rEl){var h="";for(var i=0;i<T3R.length;i++){var m=T3R[i];var cl=m.conf?sc(m.v):(m.partial?"var(--amber)":"#1e0810");var fl=m.conf?(m.elite?'<span class="mflag f-ok">\u2b50</span>':'<span class="mflag f-ok">\u2705</span>'):(m.partial?'<span class="mflag f-w">\u26a0\ufe0f</span>':'<span class="mflag f-p">0evt</span>');h+='<div class="mrow"><span class="mcode">'+m.c+'</span><span class="mname">'+m.n+'</span><div class="mbar-bg"><div class="mbar-fill" style="width:'+pct(m.v)+'%;background:'+cl+'"></div></div><span class="mval" style="color:'+cl+'">'+(m.v>0?fmt(m.v):"—")+'</span>'+fl+'</div>';}rEl.innerHTML=h;}
+
+  var vc=safe("vc-mini");
+  if(vc){var all=["OBI_T","OBI_S","OBI_P","SII_A","SII_T","SII_R","DMA","MCS","SOA","CLM","OMS"];var conf=["OBI_T","OBI_P","DMA","MCS","SOA","CLM","OMS"];var part=["OBI_S","SII_A","SII_T","CHR","CRK"];var h="";for(var i=0;i<all.length;i++){var m=all[i];var ok=conf.indexOf(m)>=0;var pt=part.indexOf(m)>=0;h+='<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.7rem"><span style="width:6px;height:6px;border-radius:50%;background:'+(ok?"var(--greenL)":pt?"var(--amber)":"#f07070")+';display:inline-block;flex-shrink:0"></span><span style="color:var(--muted);width:44px;font-family:Rajdhani,sans-serif;font-weight:700">'+m+'</span><span class="mflag '+(ok?"f-ok":!pt?"f-p":"f-w")+'">'+(ok?"\u2705":pt?"<3evt":"0evt")+'</span></div>';}vc.innerHTML=h;}
+
+  var evEl=safe("event-log-display");
+  if(evEl){var h="";for(var i=0;i<KEY_EVENTS.length;i++){var e=KEY_EVENTS[i];var isRC=e.d.indexOf("RED CARD")>=0||e.d.indexOf("SENDS OFF")>=0||e.d.indexOf("VIOLENTLY")>=0;var isHigh=e.d.indexOf("TRIPLE")>=0||e.d.indexOf("EXCELLENT run timing and ball recovery")>=0||e.d.indexOf("STEP OVER")>=0;var isDMA=e.d.indexOf("THIRD TIME")>=0||e.d.indexOf("once again")>=0||e.d.indexOf("behind the goal")>=0;var bg=isRC?"rgba(212,32,32,.08)":isHigh?"rgba(0,68,170,.06)":isDMA?"rgba(224,120,32,.04)":"transparent";var tc=isRC?"var(--redL)":isHigh?"var(--kblL)":"var(--lite)";h+='<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,68,170,.025);font-size:.7rem;background:'+bg+'"><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:'+tc+';width:80px;flex-shrink:0">'+e.t+'</span><span style="background:rgba(0,68,170,.1);color:var(--kblL);padding:1px 4px;border-radius:2px;width:120px;text-align:center;flex-shrink:0;font-family:Rajdhani,sans-serif;font-weight:700;font-size:.58rem">'+e.m+'</span><span style="color:var(--muted);flex:1">'+e.d+'</span></div>';}evEl.innerHTML=h;}
+
+  var pb=safe("psych-bars");
+  if(pb){var all_s=[{n:"OBI_T \u2705 \u2b50 4evt (9.0)",v:9.0},{n:"CLM \u2705 \u2b50 4evt (9.0)",v:9.0},{n:"SII_T \u26a0\ufe0f 2evt directional",v:9.5},{n:"CRK \u26a0\ufe0f 2evt (step over+lob)",v:9.0},{n:"SOA \u2705 6evt (8.33)",v:8.33},{n:"OBI_P \u2705 11evt (8.2)",v:8.2},{n:"SII_A \u26a0\ufe0f 2evt",v:8.0},{n:"OBI_S \u26a0\ufe0f 2evt",v:8.0},{n:"CHR \u26a0\ufe0f 1evt",v:8.0},{n:"OMS \u2705 4evt (7.5)",v:7.5},{n:"MCS \u2705 4evt incl. 2/10 RC",v:6.25},{n:"DMA \u2705 7evt (5.57) \u26a0\ufe0f",v:5.57},{n:"SPI: 0 events",v:0},{n:"CRS: 0 events",v:0},{n:"SII_R: 0 events",v:0},{n:"DYN: 0 events",v:0}];var h="";for(var i=0;i<all_s.length;i++){var p=all_s[i];h+='<div class="mrow"><span class="mcode" style="width:200px;color:var(--muted)">'+p.n+'</span><div class="mbar-bg" style="flex:1"><div class="mbar-fill" style="width:'+pct(p.v)+'%;background:'+(p.v>0?sc(p.v):"#1e0810")+'"></div></div><span class="mval" style="color:'+(p.v>0?sc(p.v):"var(--muted)")+'">'+(p.v>0?p.v:"—")+'</span></div>';}pb.innerHTML=h;}
+
+  var DFT={scales:{r:{min:0,max:10,grid:{color:"rgba(0,68,170,.06)"},angleLines:{color:"rgba(0,68,170,.06)"},ticks:{stepSize:2,color:"#0a1428",backdropColor:"transparent",font:{size:9}},pointLabels:{color:"#c0d8f0",font:{size:10,family:"Rajdhani,sans-serif",weight:"700"}}}},plugins:{legend:{labels:{color:"#c0d8f0",font:{size:10,family:"Rajdhani,sans-serif"},usePointStyle:true}},tooltip:{backgroundColor:"#06101c",borderColor:"rgba(0,68,170,.3)",borderWidth:1,titleColor:"#3388ff",bodyColor:"#f0f8ff"}},responsive:true,maintainAspectRatio:false};
+
+  var dc=safe("fgaDial");
+  if(dc){dc.width=120;dc.height=120;var dctx=dc.getContext("2d");dctx.clearRect(0,0,120,120);dctx.beginPath();dctx.arc(60,70,46,Math.PI,2*Math.PI);dctx.strokeStyle="rgba(0,68,170,.07)";dctx.lineWidth=10;dctx.lineCap="round";dctx.stroke();var grad=dctx.createLinearGradient(14,70,106,70);grad.addColorStop(0,"#0044AA");grad.addColorStop(0.5,"#3388ff");grad.addColorStop(1,"#D42020");dctx.beginPath();dctx.arc(60,70,46,Math.PI,Math.PI+(7.5/10)*Math.PI);dctx.strokeStyle=grad;dctx.lineWidth=10;dctx.lineCap="round";dctx.stroke();}
+  var lc=safe("logRing");
+  if(lc){var lctx=lc.getContext("2d");lctx.clearRect(0,0,60,60);lctx.beginPath();lctx.arc(30,30,22,0,2*Math.PI);lctx.strokeStyle="rgba(0,68,170,.06)";lctx.lineWidth=6;lctx.stroke();lctx.beginPath();lctx.arc(30,30,22,-Math.PI/2,(-Math.PI/2)+(3.2/6.5)*2*Math.PI);lctx.strokeStyle="#e07820";lctx.lineWidth=6;lctx.lineCap="round";lctx.stroke();}
+
+  new Chart(safe("ovRadar"),{type:"radar",data:{labels:["OBI_T","CLM","SOA","OBI_P","OMS","MCS","DMA"],datasets:[{label:"N\u00e9gouai",data:[9.0,9.0,8.33,8.2,7.5,6.25,5.57],borderColor:"#0044AA",backgroundColor:"rgba(0,68,170,.12)",borderWidth:2,pointBackgroundColor:["#1e8a4a","#1e8a4a","#2e9e5a","#2e9e5a","#5a9e20","#a88010","#8a1020"],pointRadius:4}]},options:{...DFT,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  new Chart(safe("philRadar"),{type:"radar",data:{labels:["Simeone","Sacchi","Mourinho","Ferguson","Guardiola","Cruyff"],datasets:[{label:"Fit",data:[8.5,8.3,8.0,7.8,6.5,6.0],borderColor:"var(--gold)",backgroundColor:"rgba(245,195,0,.1)",borderWidth:2,pointBackgroundColor:["#E41E20","#8b1a1a","#9b59b6","#ff0000","#6CABDD","#27ae60"],pointRadius:5}]},options:{...DFT,maintainAspectRatio:false,plugins:{...DFT.plugins,legend:{display:false}}}});
+
+  var dmaVals=[5,5,4,4,4,8,9];
+  new Chart(safe("dmaChart"),{type:"bar",data:{labels:["M1 1:42","M2 1:17","M2 17:46","M2 46:39","M2 47:10","M2 50:00","M3 92:44"],datasets:[{label:"DMA",data:dmaVals,backgroundColor:dmaVals.map(function(v){return v>=7?"rgba(30,138,74,.8)":v>=6?"rgba(90,158,32,.7)":"rgba(212,32,32,.65)";}),borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{display:true,ticks:{color:"#5a7ea0",font:{size:7},maxRotation:30}},y:{min:0,max:10,grid:{color:"rgba(0,68,170,.04)"},ticks:{color:"#5a7ea0",font:{size:8}}}},plugins:{legend:{display:false},tooltip:{backgroundColor:"#06101c",borderColor:"rgba(0,68,170,.3)",borderWidth:1},title:{display:true,text:"DMA 5.57 avg — 5 of 7 events at 4-5/10",color:"rgba(90,126,160,.7)",font:{size:8}}}}});
+}
+
+function switchTab(id){document.querySelectorAll(".tab-panel").forEach(function(p){p.classList.remove("active");});document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("active");});document.getElementById("tab-"+id).classList.add("active");event.target.classList.add("active");}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
