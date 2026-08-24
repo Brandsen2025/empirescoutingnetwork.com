@@ -84,9 +84,29 @@
 <script>
 (function(){
   var SALT = 'ESN-FGA-2026';
-  var USER_HASH = '69c9d06146efd905b8d918551e5d00846c56cf64effb6e8d9fd4d3953deae984';
-  var PASS_HASH = '5a6afeefae9b32c6ad11a6ebc70e9c360a010cb7844f14bfa7eb2e4c919f1298';
-  var REDIRECT = 'platform.html';
+  var DEFAULT_REDIRECT = 'platform.html';
+
+  // Each account is its own SHA-256(SALT + value) pair — same scheme as
+  // before, just extended from one hardcoded pair to a short list so more
+  // than one person can sign in. Add more accounts the same way: hash
+  // SALT + username and SALT + password (see the same recipe used below),
+  // never store either value in plaintext here. Optional "redirect" sends
+  // that account to a different dashboard file instead of the default.
+  var ACCOUNTS = [
+    {
+      // Original account
+      uh: '69c9d06146efd905b8d918551e5d00846c56cf64effb6e8d9fd4d3953deae984',
+      ph: '5a6afeefae9b32c6ad11a6ebc70e9c360a010cb7844f14bfa7eb2e4c919f1298'
+    },
+    {
+      // Oswaldo Urdiales — Gerente Deportivo / Sporting Manager
+      // username: oswaldo.urdiales / password set by Jim on 2026-08-23
+      // Personal session: Spanish-language dashboard, own name/role in header
+      uh: '0bfc045594d6da44b43770eaf35ebaf79c4ae7dd238cdc01ee4b668f306e83e8',
+      ph: '4376f96a510db0bc6c3f0b5bbcb564c78388a9872d8b4195208721574e748026',
+      redirect: 'platform_es.html'
+    }
+  ];
 
   async function sha256(msg){
     var enc = new TextEncoder().encode(msg);
@@ -101,10 +121,14 @@
     var uh = await sha256(SALT + u);
     var ph = await sha256(SALT + p);
     var err = document.getElementById('err');
-    if(uh === USER_HASH && ph === PASS_HASH){
+    var matched = null;
+    for (var i = 0; i < ACCOUNTS.length; i++) {
+      if (uh === ACCOUNTS[i].uh && ph === ACCOUNTS[i].ph) { matched = ACCOUNTS[i]; break; }
+    }
+    if(matched){
       sessionStorage.setItem('esn_fga_auth', '1');
       sessionStorage.setItem('esn_fga_user', u);
-      window.location.replace(REDIRECT);
+      window.location.replace(matched.redirect || DEFAULT_REDIRECT);
     } else {
       err.classList.add('show');
     }
