@@ -212,11 +212,50 @@ def build_sitemap(files):
     return "\n".join(lines) + "\n"
 
 
+class PlatformFileUnsafe(Exception):
+    """Raised when platform.html looks broken and should not be touched."""
+
+
+def check_platform_html_is_safe(content: str) -> None:
+    """Refuse to edit platform.html if it looks like a broken/mid-conflict
+    file. Added 2026-08-26 after this script committed corrupted output
+    twice: once by leaving a stale duplicate EXISTING_PROFILES line in place
+    after a botched merge, once by running against a file that still had
+    literal git conflict markers in it. Both would have been caught here.
+    """
+    for marker in ("<<<<<<< ", "\n=======\n", ">>>>>>> "):
+        if marker in content:
+            raise PlatformFileUnsafe(
+                f"platform.html contains a literal git conflict marker "
+                f"({marker.strip()!r}). Refusing to edit — resolve the "
+                f"merge conflict properly first."
+            )
+
+    p_array_count = len(re.findall(r"const\s+P\s*=\s*\[", content))
+    if p_array_count != 1:
+        raise PlatformFileUnsafe(
+            f"Expected exactly one 'const P=[...]' player array, found "
+            f"{p_array_count}. File is likely duplicated from a bad merge — "
+            f"refusing to edit."
+        )
+
+    profiles_count = len(re.findall(r"const EXISTING_PROFILES=new Set\(", content))
+    if profiles_count != 1:
+        raise PlatformFileUnsafe(
+            f"Expected exactly one EXISTING_PROFILES declaration, found "
+            f"{profiles_count}. File is likely duplicated from a bad merge "
+            f"— refusing to edit."
+        )
+
+
 def update_platform_existing_profiles(files):
     platform_path = ROOT / "platform.html"
     if not platform_path.exists():
         return
     content = platform_path.read_text(encoding="utf-8")
+
+    check_platform_html_is_safe(content)
+
     new_line = "const EXISTING_PROFILES=new Set(" + json.dumps(files, ensure_ascii=False) + ");"
     pattern = re.compile(r"const EXISTING_PROFILES=new Set\(.*?\);")
     if pattern.search(content):
