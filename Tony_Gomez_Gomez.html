@@ -98,16 +98,31 @@ footer{background:var(--card);padding:26px;text-align:center;border-top:1px soli
 </footer>
 
 <script>
-// Season/record selector scaffold. Exactly one record today; a future
-// batch that finds the same real person again should append to RECORDS
-// (see this file's own generation script for the convention) instead of
-// creating a second physical page.
+// Season/record selector. Two records: the original guide this page
+// was generated from, plus a later batch that matched the same real
+// person. Selecting a season swaps the Club Context + Squad Listing
+// cards below; everything else on the page (name, DOB pill, source
+// notice) is shared since it's one person.
 var RECORDS = [
   {
-    label: '1996/97 (Solo Fútbol Guía)',
-    season: '1996/97'
+    label: "1996/97 (Solo Fútbol Guía)",
+    season: "1996/97",
+    subLine: "b. 23 de septiembre de 1966, Melo-Cerro Largo (ROU)",
+    bodyHtml: "\n\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Club Context &mdash; 1996/97 (Solo Fútbol Guía)</h2>\n          <p class=\"small\">Estudiantes–LP was founded 4 de agosto de 1905, with Daniel Oscar De La Fuente as club president at the time of this guide. Club colors: roja y blanca, a rayas verticales. Home ground: \"Jorge Luis Hirsch\", Av. 1 Esq. 57 (1900) La Plata, Buenos Aires. Head coach for the 1996/97 preseason per the guide: Daniel Antonio Córdoba. Tony Gomez Gomez was one of 31 players listed in the Estudiantes–LP first-team squad in this edition of the guide, playing as a midfielder (Vol.(8) in the source).</p>\n        </div>\n\n        <div class=\"card section\">\n          <h2>Squad Listing (Solo F&uacute;tbol Gu&iacute;a 1996/97)</h2>\n          <table>\n            <tr><th>Apellido/Nombres (as printed)</th><th>F./Nacim.</th><th>Lugar</th><th>Puesto</th><th>Procedencia</th><th>Condici&oacute;n</th></tr>\n            <tr><td>GOMEZ GOMEZ, Tony César</td><td>23-09-66</td><td>Melo-Cerro Largo (ROU)</td><td>Vol.(8)</td><td>Independiente</td><td>Del club</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's page in the guide. This edition prints Procedencia and Condici&oacute;n as two separate columns (unlike the 1986/87 edition's single combined field). Not editorially expanded beyond common football-transfer shorthand: already registered with the club (“del club”); the source's “procedencia” field names Independiente.</p>\n        </div>\n\n      "
+  },
+  {
+    label: "1992 (SuperUruguay)",
+    season: "1992",
+    subLine: "b. 23 de septiembre de 1966, Melo (URU)",
+    bodyHtml: "\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Club Context &mdash; 1992 (SuperUruguay)</h2>\n          <p class=\"small\">Club Nacional De Football was founded 14 de mayo de 1899. Headquarters: Avda. 8 de octubre 2847. Teléfono: 80.07.70. Home ground: Parque Central, en Carlos Anaya 2900. Teléfonos: 80.11.02 y 80.36.89. Uniform: camiseta blanca, con escudo del lado izquierdo, cuello y puños en vivos azul, blanco y rojo; pantalón azul; medias azules. Honors: Campeón de Primera \"A\": 34 veces. Campeón del Competencia: 10 veces. Campeón Torneo de Honor: 15 veces. Campeón de la Liguilla Pro-Libertadores: 2 veces. En 1982 y 90. Campeón de la Libertadores de : 3 veces. En 1971; 80 y 88. Campeón Intercontinental: 3 veces. En 1971, 80 y 88. Campeón Interamericano: 2 veces. En 1972 y 88 y Campeón de la Recopa: 1 vez. En 1989. Staff per this guide: head coach Roberto Fleitas, fitness coach Cono Caminatti, assistant coach Rafael Sánchez.</p>\n        </div>\n\n        <div class=\"card section\">\n          <h2>Squad Listing (SuperUruguay 1992)</h2>\n          <table>\n            <tr><th>Apellido y Nombres (as printed)</th><th>Fecha Nac.</th><th>Lugar</th><th>N&ordm; (squad number, as printed)</th></tr>\n            <tr><td>GOMEZ, Tony César</td><td>23-09-66</td><td>Melo</td><td>4</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's squad list in a different guide (SuperUruguay 1992) than the record above. The source prints only a squad number per player, not a position label or nationality field; position (DF) is inferred from that number using the standard South American squad-numbering convention (1 GK; 2/3/4/6 DF; 5/8/10 MF; 7/9/11 FW), and nationality is inferred from the birthplace column. This is the same real person as the other record on this page (matched on name, birth year, and nationality/birthplace) &mdash; not a separate individual.</p>\n        </div>\n"
   }
 ];
+function renderRecord(i){
+  var r = RECORDS[i];
+  document.getElementById('season-record-body').innerHTML = r.bodyHtml;
+  var subEl = document.querySelector('.sub');
+  if (subEl && r.subLine) subEl.textContent = r.subLine;
+}
 (function(){
   var sel = document.getElementById('season-select');
   if (RECORDS.length > 1) {
@@ -117,6 +132,7 @@ var RECORDS = [
       sel.appendChild(o);
     });
     sel.hidden = false;
+    sel.addEventListener('change', function(){ renderRecord(this.value); });
   }
 })();
 </script>

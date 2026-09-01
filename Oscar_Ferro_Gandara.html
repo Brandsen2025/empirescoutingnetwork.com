@@ -98,16 +98,31 @@ footer{background:var(--card);padding:26px;text-align:center;border-top:1px soli
 </footer>
 
 <script>
-// Season/record selector scaffold. Exactly one record today; a future
-// batch that finds the same real person again should append to RECORDS
-// (see this file's own generation script for the convention) instead of
-// creating a second physical page.
+// Season/record selector. Two records: the original guide this page
+// was generated from, plus a later batch that matched the same real
+// person. Selecting a season swaps the Club Context + Squad Listing
+// cards below; everything else on the page (name, DOB pill, source
+// notice) is shared since it's one person.
 var RECORDS = [
   {
-    label: '1996/97 (Solo Fútbol Guía)',
-    season: '1996/97'
+    label: "1996/97 (Solo Fútbol Guía)",
+    season: "1996/97",
+    subLine: "b. 2 de marzo de 1967, Montevideo (ROU)",
+    bodyHtml: "\n\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Club Context &mdash; 1996/97 (Solo Fútbol Guía)</h2>\n          <p class=\"small\">Ferro Carril Oeste was founded 28 de julio de 1904, with Felipe Antonio Evangelista as club president at the time of this guide. Club colors: verde, con vivos blancos. Home ground: \"Arq. Ricardo Etcheverry\", Av. Avellaneda 1240 (1405) Capital Federal. Head coach for the 1996/97 preseason per the guide: Oscar Alfredo Garré. Oscar Ferro Gandara was one of 26 players listed in the Ferro Carril Oeste first-team squad in this edition of the guide, playing as a goalkeeper (Arq.(1) in the source).</p>\n        </div>\n\n        <div class=\"card section\">\n          <h2>Squad Listing (Solo F&uacute;tbol Gu&iacute;a 1996/97)</h2>\n          <table>\n            <tr><th>Apellido/Nombres (as printed)</th><th>F./Nacim.</th><th>Lugar</th><th>Puesto</th><th>Procedencia</th><th>Condici&oacute;n</th></tr>\n            <tr><td>FERRO GANDARA, Oscar Julio</td><td>02-03-67</td><td>Montevideo (ROU)</td><td>Arq.(1)</td><td>Peñarol (Urug)</td><td>Préstamo</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's page in the guide. This edition prints Procedencia and Condici&oacute;n as two separate columns (unlike the 1986/87 edition's single combined field). Not editorially expanded beyond common football-transfer shorthand: on loan from Peñarol (Urug) for this season (“préstamo”).</p>\n        </div>\n\n      "
+  },
+  {
+    label: "1992 (SuperUruguay)",
+    season: "1992",
+    subLine: "b. 2 de marzo de 1967, Montevideo (URU)",
+    bodyHtml: "\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Club Context &mdash; 1992 (SuperUruguay)</h2>\n          <p class=\"small\">Club Atlético Peñarol was founded 28 de setiembre de 1891. Headquarters: \"Palacio Cdor. Gastón Güelfi\" en Magallanes 1.721. Te.: 41.73.54 y 49.34.25. Home ground: \"Las Acacias\", en Posolo 4097. Te.: 58.85.56. Uniform: \"A\": camiseta a franjas verticales amarilla y negra; pantalón y medias negro. \"B\": camiseta amarilla; pantalón y medias negro.. Honors: Campeón Uruguayo: 40 veces. En 1900; 01; 05; 07; 11; 18; 21; 24 (F. Uruguaya); 26; 28; 29; 32; 35; 36; 37; 38; 44; 45; 49; 51; 53; 54; 58; 59; 60; 61; 62; 64; 65; 67; 68; 73; 74; 75; 78; 79; 81; 82; 85 y 86. Competencia: 11 veces. En 1936; 41; 43; 46; 47; 49; 51; 53; 56; 57 y 86. Torneo de Honor: 15 veces. En 1907; 09; 11; 18; 44; 45; 47; 49; 50; 51; 52; 53; 56; 58 y 64. Liguilla: 9 veces. En 1974; 75; 77; 78; 80; 84; 86 y 87. Libertadores de América: 5 veces. En 1960; 61; 66; 82 y 87. Copa Intercontinental: 3 veces. En 1961; 66 y 82. Staff per this guide: head coach Ljubo Petrovic, fitness coach Alejandro Valenzuela, assistant coach Roque Máspoli y Ladislao Mazurkiewicz.</p>\n        </div>\n\n        <div class=\"card section\">\n          <h2>Squad Listing (SuperUruguay 1992)</h2>\n          <table>\n            <tr><th>Apellido y Nombres (as printed)</th><th>Fecha Nac.</th><th>Lugar</th><th>N&ordm; (squad number, as printed)</th></tr>\n            <tr><td>FERRO, Oscar</td><td>02-03-67</td><td>Montevideo</td><td>1</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's squad list in a different guide (SuperUruguay 1992) than the record above. The source prints only a squad number per player, not a position label or nationality field; position (GK) is inferred from that number using the standard South American squad-numbering convention (1 GK; 2/3/4/6 DF; 5/8/10 MF; 7/9/11 FW), and nationality is inferred from the birthplace column. This is the same real person as the other record on this page (matched on name, birth year, and nationality/birthplace) &mdash; not a separate individual.</p>\n        </div>\n"
   }
 ];
+function renderRecord(i){
+  var r = RECORDS[i];
+  document.getElementById('season-record-body').innerHTML = r.bodyHtml;
+  var subEl = document.querySelector('.sub');
+  if (subEl && r.subLine) subEl.textContent = r.subLine;
+}
 (function(){
   var sel = document.getElementById('season-select');
   if (RECORDS.length > 1) {
@@ -117,6 +132,7 @@ var RECORDS = [
       sel.appendChild(o);
     });
     sel.hidden = false;
+    sel.addEventListener('change', function(){ renderRecord(this.value); });
   }
 })();
 </script>
