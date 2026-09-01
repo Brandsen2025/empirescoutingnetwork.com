@@ -98,26 +98,39 @@ footer{background:var(--card);padding:26px;text-align:center;border-top:1px soli
 </footer>
 
 <script>
-// Season/record selector scaffold. Exactly one record today; a future
-// batch that finds the same real person again should append to RECORDS
-// (see this file's own generation script for the convention) instead of
-// creating a second physical page.
+// Season/record selector. Appended to by a later batch that finds the
+// same real person again -- see each batch's own generation script.
 var RECORDS = [
   {
-    label: '1992 (SuperUruguay)',
-    season: '1992'
+    label: "1992 (SuperUruguay)",
+    season: "1992",
+    subLine: "b. 25 de marzo de 1968, Montevideo (URU)",
+    bodyHtml: "\n\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Club Context &mdash; 1992 (SuperUruguay)</h2>\n          <p class=\"small\">Club Atlético Bella Vista was founded 4 de octubre de 1920. Headquarters: en Avenida Agraciada y Maturana. Teléfono: 23.06.15. Home ground: Parque \"José Nasazzi\", en Lucas Obes 849. Teléfono: 39.44.41. Uniform: camiseta en dos mitades, blanca en la parte izquierda y amarilla en la parte derecha; pantalón azul; medias amarillas, con puños de vivos blancos. Honors: Campeón Uruguayo de Primera \"A\": 1 vez. En 1990. Campeón Uruguayo de Primera \"B\": 5 veces. En 1922/1949/1959/1968 y 1976. Campeón Uruguayo de Primera \"C\": 2 veces en 1922 y 1959. Staff per this guide: head coach Aníbal Montero, fitness coach Roberto Castro, assistant coach Armando Martínez.</p>\n        </div>\n\n        <div class=\"card section\">\n          <h2>Squad Listing (SuperUruguay 1992)</h2>\n          <table>\n            <tr><th>Apellido y Nombres (as printed)</th><th>Fecha Nac.</th><th>Lugar</th><th>N&ordm; (squad number, as printed)</th></tr>\n            <tr><td>FALERO, Raúl E.</td><td>25-03-68</td><td>Montevideo</td><td>10</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's squad list in the guide. The source prints only a squad number per player, not a position label or nationality field; position above is inferred from that number (see note above), and nationality is inferred from the birthplace column (a parenthetical country annotation when the source prints one, otherwise assumed Uruguayan).</p>\n        </div>\n\n      "
+  },
+  {
+    label: "1989-90 (El Gráfico)",
+    season: "1989-90",
+    subLine: "b. 25-3-68, Montevideo (Urug.) (URU)",
+    bodyHtml: "\n        \n\n        <div class=\"card section\">\n          <h2>Season Record (1989-90, El Gr&aacute;fico)</h2>\n          <table>\n            <tr><th>Jugador (as printed)</th><th>Lugar y fecha de nacimiento</th><th>Debut en primera</th><th>Procedencia</th><th>Partidos jugados</th><th>Goles</th><th>Prom. de El Gr&aacute;fico</th></tr>\n            <tr><td>FALERO, Raul Eduardo</td><td>Montevideo (Urug.), 25-3-68</td><td>1989, Newell's</td><td>Bella Vista (Uruguay)</td><td>9</td><td>1</td><td>4.77 (9)</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's \"Jugador por Jugador\" table in a different guide (El Gr&aacute;fico Especial 62 &mdash; Anuario del F&uacute;tbol 1989-90) than the record above. Position (FW) is printed directly as a section header in this source (not inferred). Nationality (URU) is inferred from the birthplace column. The \"Prom. de El Gr&aacute;fico\" figure is a third-party magazine rating average, not an Empire FGA score. This is the same real person as the other record on this page (matched on name and birth year) &mdash; not a separate individual.</p>\n        </div>\n"
   }
 ];
+function renderRecord(i) {
+  var r = RECORDS[i];
+  var subEl = document.querySelector('.sub');
+  if (subEl) subEl.innerHTML = r.subLine;
+  var bodyEl = document.getElementById('season-record-body');
+  if (bodyEl) bodyEl.innerHTML = r.bodyHtml;
+}
 (function(){
   var sel = document.getElementById('season-select');
-  if (RECORDS.length > 1) {
-    RECORDS.forEach(function(r, i){
-      var o = document.createElement('option');
-      o.value = i; o.textContent = r.label;
-      sel.appendChild(o);
-    });
-    sel.hidden = false;
-  }
+  RECORDS.forEach(function(r, i){
+    var o = document.createElement('option');
+    o.value = i; o.textContent = r.label;
+    sel.appendChild(o);
+  });
+  sel.hidden = false;
+  sel.selectedIndex = 0;
+  sel.addEventListener('change', function(){ renderRecord(parseInt(sel.value, 10)); });
 })();
 </script>
 </body>
