@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stije Resink — Empire FGA Intelligence Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #181c22;
+    --border: #1e2530;
+    --accent: #e8ff47;
+    --accent2: #47c8ff;
+    --text: #f0f2f5;
+    --muted: #6b7585;
+    --danger: #ff5247;
+    --mid: #ffaa33;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  .card {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Diagonal accent stripe */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: var(--accent);
+    opacity: 0.04;
+    transform: rotate(45deg);
+  }
+
+  /* Header */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    padding: 28px 32px 24px;
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+  }
+
+  .brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .player-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  .player-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .meta-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .meta-tag.highlight {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Score block */
+  .score-block {
+    text-align: right;
+  }
+
+  .score-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .score-main {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .score-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Body grid */
+  .body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .section {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section:nth-child(odd) {
+    border-right: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* Stat rows */
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .stat-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Score bars */
+  .score-bar-row {
+    margin-bottom: 11px;
+  }
+
+  .score-bar-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  .score-bar-label {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .score-bar-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  .bar-track {
+    height: 3px;
+    background: var(--border);
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 1s ease;
+  }
+
+  .bar-fill.mid { background: var(--accent2); }
+  .bar-fill.low { background: var(--muted); }
+
+  /* Philosophy block */
+  .philosophy-block {
+    grid-column: 1 / -1;
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .phil-score-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--accent2);
+    line-height: 1;
+  }
+
+  .phil-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .phil-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+
+  .phil-school {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .trophy-block {
+    text-align: right;
+  }
+
+  .trophy-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--mid);
+    line-height: 1;
+  }
+
+  /* Highlight stats row */
+  .highlights {
+    grid-column: 1 / -1;
+    padding: 20px 32px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hl-item {
+    text-align: center;
+    padding: 0 16px;
+    border-right: 1px solid var(--border);
+  }
+
+  .hl-item:last-child { border-right: none; }
+
+  .hl-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .hl-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .partial-badge {
+    display: inline-block;
+    background: rgba(255,170,51,0.1);
+    border: 1px solid var(--mid);
+    color: var(--mid);
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="brand">Empire FGA Intelligence Card · Eredivisie 2025/26 · Statistical Assessment</div>
+      <div class="player-name">Stije<br>Resink</div>
+      <div class="player-meta">
+        <span class="meta-tag highlight">MF</span>
+        <span class="meta-tag">FC Groningen</span>
+        <span class="meta-tag">NED · Age 22</span>
+        <span class="meta-tag">L3 — Eredivisie</span>
+      </div>
+    </div>
+    <div class="score-block">
+      <div class="score-label">FGA Statistical Score</div>
+      <div class="score-main">7.61</div>
+      <div class="score-sub">Tier 1 + Tier 2 · out of 10<span class="partial-badge">Video pending</span></div>
+    </div>
+  </div>
+
+  <!-- HIGHLIGHTS BAR -->
+  <div class="highlights">
+    <div class="hl-item">
+      <div class="hl-val">22</div>
+      <div class="hl-label">Matches</div>
+    </div>
+    <div class="hl-item">
+      <div class="hl-val">1946</div>
+      <div class="hl-label">Minutes</div>
+    </div>
+    <div class="hl-item">
+      <div class="hl-val">4</div>
+      <div class="hl-label">Goals</div>
+    </div>
+    <div class="hl-item">
+      <div class="hl-val">5</div>
+      <div class="hl-label">Assists</div>
+    </div>
+    <div class="hl-item">
+      <div class="hl-val">9</div>
+      <div class="hl-label">G+A</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- Tier 1 Stats -->
+    <div class="section">
+      <div class="section-title">Tier 1 — Statistical Foundation</div>
+      <div class="stat-row">
+        <span class="stat-label">Shots per 90</span>
+        <span class="stat-value">2.41</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Shots on Target %</span>
+        <span class="stat-value">21.2%</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Tackles Won per 90</span>
+        <span class="stat-value">1.62</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Interceptions per 90</span>
+        <span class="stat-value">0.97</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Crosses per 90</span>
+        <span class="stat-value">0.79</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Fouls Won per 90</span>
+        <span class="stat-value">1.16</span>
+      </div>
+    </div>
+
+    <!-- Tier 2 Composite -->
+    <div class="section">
+      <div class="section-title">Tier 2 — Composite Intelligence</div>
+      <div class="score-bar-row">
+        <div class="score-bar-header">
+          <span class="score-bar-label">Mobility (MOB)</span>
+          <span class="score-bar-val">8.31</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:83.1%"></div></div>
+      </div>
+      <div class="score-bar-row">
+        <div class="score-bar-header">
+          <span class="score-bar-label">Creative Player Index (CPI)</span>
+          <span class="score-bar-val">7.56</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:75.6%"></div></div>
+      </div>
+      <div class="score-bar-row">
+        <div class="score-bar-header">
+          <span class="score-bar-label">Pass Variety Index (PVI)</span>
+          <span class="score-bar-val">7.22</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill mid" style="width:72.2%"></div></div>
+      </div>
+      <div class="score-bar-row">
+        <div class="score-bar-header">
+          <span class="score-bar-label">Position Intelligence (POI)</span>
+          <span class="score-bar-val">7.06</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill mid" style="width:70.6%"></div></div>
+      </div>
+      <div class="score-bar-row">
+        <div class="score-bar-header">
+          <span class="score-bar-label">Composure (CPX)</span>
+          <span class="score-bar-val">7.07</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill mid" style="width:70.7%"></div></div>
+      </div>
+      <div class="score-bar-row">
+        <div class="score-bar-header">
+          <span class="score-bar-label">Clutch Index (CLU)</span>
+          <span class="score-bar-val">8.60</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:86.0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Philosophy -->
+    <div class="philosophy-block">
+      <div>
+        <div class="phil-label">Tactical DNA Fit Score</div>
+        <div class="phil-score-big">9.77</div>
+      </div>
+      <div>
+        <div class="phil-label">Primary Philosophy Match</div>
+        <div class="phil-name">Robson — English Soul</div>
+        <div class="phil-school">English School · Weight 1.36 · High-intensity pressing, direct play, leadership under pressure</div>
+      </div>
+      <div class="trophy-block">
+        <div class="phil-label">Trophy Magnet Factor</div>
+        <div class="trophy-score">8.60</div>
+        <div class="phil-label" style="margin-top:4px">60-Philosophy avg</div>
+      </div>
+    </div>
+
+    <!-- Summary note -->
+    <div class="section" style="grid-column: 1 / -1; padding: 20px 32px;">
+      <div class="section-title">Assessment Note</div>
+      <p style="font-size:12px; color: var(--muted); line-height:1.7; max-width:680px;">
+        Resink ranks <strong style="color:var(--text)">#1 at FC Groningen</strong> by FGA Statistical Score across 22 starts and 1,946 minutes. 
+        Standout metrics are Mobility (8.31), Clutch Index (8.60), and Hardiness (8.04), indicating a midfielder who performs 
+        under pressure and sustains output over a full season. Tactical DNA fit peaks at Robson's English Soul framework (9.77/10), 
+        consistent with a high-press, box-to-box profile. Tier 3 video assessment pending — FGA_v3_Final will update on completion.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span class="footer-note">FGA v3.0 · Tier 1 + Tier 2 only · Video assessment not yet completed · Do not redistribute</span>
+    <span class="footer-brand">Empire Scouting Network · empirescoutingnetwork.com</span>
+  </div>
+
+</div>
+
+</body>
+</html>

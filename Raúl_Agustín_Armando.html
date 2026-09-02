@@ -98,26 +98,39 @@ footer{background:var(--card);padding:26px;text-align:center;border-top:1px soli
 </footer>
 
 <script>
-// Season/record selector scaffold. Exactly one record today; a future
-// batch that finds the same real person again should append to RECORDS
-// (see this file's own generation script for the convention) instead of
-// creating a second physical page.
+// Season/record selector. Appended to by a later batch that finds the
+// same real person again -- see each batch's own generation script.
 var RECORDS = [
   {
-    label: '1989-90 (El Gráfico)',
-    season: '1989-90'
+    label: "1989-90 (El Gráfico)",
+    season: "1989-90",
+    subLine: "b. 23-6-65, Providencia (Santa Fe) (ARG)",
+    bodyHtml: "\n\n        \n\n        <div class=\"card section\">\n          <h2>Season Record (1989-90, El Gr&aacute;fico)</h2>\n          <table>\n            <tr><th>Jugador (as printed)</th><th>Lugar y fecha de nacimiento</th><th>Debut en primera</th><th>Procedencia</th><th>Partidos jugados</th><th>Goles</th><th>Prom. de El Gr&aacute;fico</th></tr>\n            <tr><td>ARMANDO, Raúl Agustín</td><td>Providencia (Santa Fe), 23-6-65</td><td>1987, Unión</td><td>Sp. Sunchales (Santa Fe)</td><td>5</td><td>1</td><td>5.33 (3)</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's \"Jugador por Jugador\" table in the yearbook. Position (FW) is printed directly as a section header in the source table (Arqueros/Defensores/Mediocampistas or Volantes/Delanteros), not inferred. Nationality above is inferred from the birthplace column (a parenthetical country annotation when the source prints one, otherwise assumed Argentine). \"Debut en primera\" is the year and club where the player made their first-division debut, as printed; \"Procedencia\" is the club the player arrived from, as printed (this can differ from the debut club).</p>\n        </div>\n\n      "
+  },
+  {
+    label: "1995-96 (El Gráfico, Primera B Nacional)",
+    season: "1995-96",
+    subLine: "b. 23-6-65, Providencia (SF)",
+    bodyHtml: "\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Squad Listing (1995-96, El Gr&aacute;fico &mdash; Primera B Nacional)</h2>\n          <table>\n            <tr><th>Jugador (as printed)</th><th>Lugar y fecha de nacimiento</th><th>Club</th><th>Procedencia</th><th>Pj</th><th>Goles</th></tr>\n            <tr><td>Raúl Agustín ARMANDO</td><td>Providencia (SF), 23-6-65</td><td>Unión (Santa Fe)</td><td>Lanús</td><td>1</td><td>0</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from a different guide (El Gr&aacute;fico Especial 105 &mdash; Anuario del F&uacute;tbol 1995-96, Primera B Nacional section) than the record above. Position (DF) is printed directly as a section header in this source. This is the same real person as the other record(s) on this page (matched on name and birth year) &mdash; not a separate individual.</p>\n          \n        </div>"
   }
 ];
+function renderRecord(i) {
+  var r = RECORDS[i];
+  var subEl = document.querySelector('.sub');
+  if (subEl) subEl.innerHTML = r.subLine;
+  var bodyEl = document.getElementById('season-record-body');
+  if (bodyEl) bodyEl.innerHTML = r.bodyHtml;
+}
 (function(){
   var sel = document.getElementById('season-select');
-  if (RECORDS.length > 1) {
-    RECORDS.forEach(function(r, i){
-      var o = document.createElement('option');
-      o.value = i; o.textContent = r.label;
-      sel.appendChild(o);
-    });
-    sel.hidden = false;
-  }
+  RECORDS.forEach(function(r, i){
+    var o = document.createElement('option');
+    o.value = i; o.textContent = r.label;
+    sel.appendChild(o);
+  });
+  sel.hidden = false;
+  sel.selectedIndex = 0;
+  sel.addEventListener('change', function(){ renderRecord(parseInt(sel.value, 10)); });
 })();
 </script>
 </body>

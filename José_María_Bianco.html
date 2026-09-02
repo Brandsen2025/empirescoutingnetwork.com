@@ -101,26 +101,39 @@ footer{background:var(--card);padding:26px;text-align:center;border-top:1px soli
 </footer>
 
 <script>
-// Season/record selector scaffold. Exactly one record today; a future
-// batch that finds the same real person again should append to RECORDS
-// (see this file's own generation script for the convention) instead of
-// creating a second physical page.
+// Season/record selector. Appended to by a later batch that finds the
+// same real person again -- see each batch's own generation script.
 var RECORDS = [
   {
-    label: '1989-90 (El Gráfico)',
-    season: '1989-90'
+    label: "1989-90 (El Gráfico)",
+    season: "1989-90",
+    subLine: "b. 14-9-61, Rosario (ARG)",
+    bodyHtml: "\n\n        \n\n        <div class=\"card section\">\n          <h2>Season Record (1989-90, El Gr&aacute;fico)</h2>\n          <table>\n            <tr><th>Jugador (as printed)</th><th>Lugar y fecha de nacimiento</th><th>Debut en primera</th><th>Procedencia</th><th>Partidos jugados</th><th>Goles</th><th>Prom. de El Gr&aacute;fico</th></tr>\n            <tr><td>BIANCO, José María</td><td>Rosario, 14-9-61</td><td>1981, Newell's</td><td>Racing (Cba.)</td><td>31</td><td>2</td><td>6.03 (31)</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's \"Jugador por Jugador\" table in the yearbook. Position (MF) is printed directly as a section header in the source table (Arqueros/Defensores/Mediocampistas or Volantes/Delanteros), not inferred. Nationality above is inferred from the birthplace column (a parenthetical country annotation when the source prints one, otherwise assumed Argentine). \"Debut en primera\" is the year and club where the player made their first-division debut, as printed; \"Procedencia\" is the club the player arrived from, as printed (this can differ from the debut club).</p>\n        </div>\n\n      "
+  },
+  {
+    label: "1995-96 (El Gráfico Trayectoria)",
+    season: "1995-96",
+    subLine: "b. 14-9-61, Rosario",
+    bodyHtml: "\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Season Record (1995-96 Trayectoria, El Gr&aacute;fico)</h2>\n          <table>\n            <tr><th>Jugador (as printed)</th><th>Lugar y fecha de nacimiento</th><th>Club</th><th>Debut</th><th>Trayectoria &mdash; Partidos</th><th>Trayectoria &mdash; Goles</th></tr>\n            <tr><td>José María Bianco</td><td>Rosario, 14-9-61</td><td>Gimnasia y Esgrima La Plata</td><td>1981</td><td>385</td><td>12</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's Trayectoria table in a different guide (El Gr&aacute;fico Especial 105 &mdash; Anuario del F&uacute;tbol 1995-96) than the record above. Position (MF) is printed directly as a section header in this source (not inferred). This is the same real person as the other record(s) on this page (matched on name and birth year) &mdash; not a separate individual.</p>\n          \n        </div>"
   }
 ];
+function renderRecord(i) {
+  var r = RECORDS[i];
+  var subEl = document.querySelector('.sub');
+  if (subEl) subEl.innerHTML = r.subLine;
+  var bodyEl = document.getElementById('season-record-body');
+  if (bodyEl) bodyEl.innerHTML = r.bodyHtml;
+}
 (function(){
   var sel = document.getElementById('season-select');
-  if (RECORDS.length > 1) {
-    RECORDS.forEach(function(r, i){
-      var o = document.createElement('option');
-      o.value = i; o.textContent = r.label;
-      sel.appendChild(o);
-    });
-    sel.hidden = false;
-  }
+  RECORDS.forEach(function(r, i){
+    var o = document.createElement('option');
+    o.value = i; o.textContent = r.label;
+    sel.appendChild(o);
+  });
+  sel.hidden = false;
+  sel.selectedIndex = 0;
+  sel.addEventListener('change', function(){ renderRecord(parseInt(sel.value, 10)); });
 })();
 </script>
 </body>

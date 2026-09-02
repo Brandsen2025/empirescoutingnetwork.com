@@ -98,26 +98,39 @@ footer{background:var(--card);padding:26px;text-align:center;border-top:1px soli
 </footer>
 
 <script>
-// Season/record selector scaffold. Exactly one record today; a future
-// batch that finds the same real person again should append to RECORDS
-// (see this file's own generation script for the convention) instead of
-// creating a second physical page.
+// Season/record selector. Appended to by a later batch that finds the
+// same real person again -- see each batch's own generation script.
 var RECORDS = [
   {
-    label: '1996/97 (Solo Fútbol Guía)',
-    season: '1996/97'
+    label: "1996/97 (Solo Fútbol Guía)",
+    season: "1996/97",
+    subLine: "b. 15 de mayo de 1972, Quilmes (BUE)",
+    bodyHtml: "\n\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Club Context &mdash; 1996/97 (Solo Fútbol Guía)</h2>\n          <p class=\"small\">Racing Club was founded 25 de marzo de 1903, with Osvaldo Otero as club president at the time of this guide. Club colors: celeste y blanca, a rayas verticales. Home ground: \"Presidente Perón\", Mozart y Pje. Omar Orestes Corbatta (1870) Avellaneda, Buenos Aires. Head coach for the 1996/97 preseason per the guide: Alfio Basile. Claudio Marini was one of 31 players listed in the Racing Club first-team squad in this edition of the guide, playing as a midfielder (Vol.(8) in the source).</p>\n        </div>\n\n        <div class=\"card section\">\n          <h2>Squad Listing (Solo F&uacute;tbol Gu&iacute;a 1996/97)</h2>\n          <table>\n            <tr><th>Apellido/Nombres (as printed)</th><th>F./Nacim.</th><th>Lugar</th><th>Puesto</th><th>Procedencia</th><th>Condici&oacute;n</th></tr>\n            <tr><td>MARINI, Claudio Javier</td><td>15-05-72</td><td>Quilmes (BUE)</td><td>Vol.(8)</td><td>Huracán</td><td>Del club</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's page in the guide. This edition prints Procedencia and Condici&oacute;n as two separate columns (unlike the 1986/87 edition's single combined field). Not editorially expanded beyond common football-transfer shorthand: already registered with the club (“del club”); the source's “procedencia” field names Huracán.</p>\n        </div>\n\n      "
+  },
+  {
+    label: "1995-96 (El Gráfico Trayectoria)",
+    season: "1995-96",
+    subLine: "b. 15-5-72, Quilmes (BA)",
+    bodyHtml: "\n        <div class=\"card section\" style=\"margin-top:0;\">\n          <h2>Season Record (1995-96 Trayectoria, El Gr&aacute;fico)</h2>\n          <table>\n            <tr><th>Jugador (as printed)</th><th>Lugar y fecha de nacimiento</th><th>Club</th><th>Debut</th><th>Trayectoria &mdash; Partidos</th><th>Trayectoria &mdash; Goles</th></tr>\n            <tr><td>Claudio Javier Marini</td><td>Quilmes (BA), 15-5-72</td><td>Huracán</td><td>Not stated</td><td>157</td><td>6</td></tr>\n          </table>\n          <p class=\"small\" style=\"margin-top:10px;\">Transcribed verbatim from the club's Trayectoria table in a different guide (El Gr&aacute;fico Especial 105 &mdash; Anuario del F&uacute;tbol 1995-96) than the record above. Position (MF) is printed directly as a section header in this source (not inferred). This is the same real person as the other record(s) on this page (matched on name and birth year) &mdash; not a separate individual.</p>\n          \n        </div>"
   }
 ];
+function renderRecord(i) {
+  var r = RECORDS[i];
+  var subEl = document.querySelector('.sub');
+  if (subEl) subEl.innerHTML = r.subLine;
+  var bodyEl = document.getElementById('season-record-body');
+  if (bodyEl) bodyEl.innerHTML = r.bodyHtml;
+}
 (function(){
   var sel = document.getElementById('season-select');
-  if (RECORDS.length > 1) {
-    RECORDS.forEach(function(r, i){
-      var o = document.createElement('option');
-      o.value = i; o.textContent = r.label;
-      sel.appendChild(o);
-    });
-    sel.hidden = false;
-  }
+  RECORDS.forEach(function(r, i){
+    var o = document.createElement('option');
+    o.value = i; o.textContent = r.label;
+    sel.appendChild(o);
+  });
+  sel.hidden = false;
+  sel.selectedIndex = 0;
+  sel.addEventListener('change', function(){ renderRecord(parseInt(sel.value, 10)); });
 })();
 </script>
 </body>
