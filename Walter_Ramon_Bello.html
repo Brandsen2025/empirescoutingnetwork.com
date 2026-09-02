@@ -3,128 +3,1337 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walter Ramon Bello &mdash; Empire FGA Bio Stub</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>Walter Bello | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+</script>
 <style>
-:root{--bg:#071122;--card:#0b1624;--white:#f0f6fc;--muted:#8b949e;--accent1:#0b5bb0;--accent2:#ffd24d;--warn:#ff6b6b;--warnbg:rgba(255,107,107,.08);--warnbd:rgba(255,107,107,.35);}
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{min-height:100%;background:radial-gradient(900px 500px at 8% 12%,rgba(11,91,176,.06),transparent 10%),radial-gradient(800px 400px at 92% 88%,rgba(255,210,77,.04),transparent 8%),var(--bg);color:var(--white);-webkit-font-smoothing:antialiased;font-family:'Inter',sans-serif;}
-header{max-width:1300px;margin:18px auto;padding:0 22px;display:flex;align-items:center;justify-content:space-between;}
-.header-left{display:flex;align-items:center;gap:12px;}
-.header-title{font-size:20px;font-weight:800;color:var(--accent2);}
-.container{max-width:1300px;margin:18px auto;padding:22px;display:grid;grid-template-columns:340px 1fr;gap:26px;}
-.card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,.04);margin-bottom:18px;}
-.title{font-size:30px;font-weight:900;margin:10px 0 4px;color:var(--white);}
-.sub{color:var(--muted);margin-bottom:10px;font-size:14px;}
-.pill{display:inline-block;background:rgba(11,91,176,.12);padding:6px 11px;border-radius:999px;font-weight:700;font-size:12px;color:var(--white);margin:4px 6px 4px 0;border:1px solid rgba(255,210,77,.18);}
-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}
-th,td{padding:9px;border:1px solid rgba(255,255,255,.06);vertical-align:top;text-align:left;}
-th{background:linear-gradient(90deg,rgba(11,91,176,.85),rgba(255,210,77,.85));font-weight:800;color:#071122;}
-.section h2{font-size:21px;font-weight:800;color:var(--accent2);margin-bottom:12px;}
-.section h3{font-size:15px;font-weight:700;color:var(--accent2);margin:14px 0 8px;}
-.small{color:var(--muted);font-size:13.5px;line-height:1.65;}
-.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);}
-.info-row:last-child{border-bottom:none;}
-.info-label{color:var(--muted);font-size:13px;}
-.info-value{color:var(--white);font-weight:600;font-size:13px;text-align:right;}
-.banner{border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.6;}
-.banner-warn{background:var(--warnbg);border:1px solid var(--warnbd);color:#ffd8d8;}
-.banner-info{background:rgba(11,91,176,.10);border:1px solid rgba(11,91,176,.35);color:#cfe4ff;}
-.banner-gold{background:rgba(255,210,77,.08);border:1px solid rgba(255,210,77,.45);color:#ffe9ad;}
-.banner b{color:#fff;}
-select#season-select{background:var(--card);color:var(--white);border:1px solid rgba(255,210,77,.35);border-radius:8px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;margin-bottom:14px;}
-footer{background:var(--card);padding:26px;text-align:center;border-top:1px solid rgba(255,210,77,.12);margin-top:20px;}
-@media (max-width:980px){.container{grid-template-columns:1fr;}}
+/* ===== Core styles (same as previous dashboards) ===== */
+:root {
+    --bg-primary: #0a0a0f;
+    --bg-card: #0f0f1a;
+    --bg-card-hover: #151525;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-medium: rgba(255, 255, 255, 0.1);
+    --text-primary: #f0f0f5;
+    --text-secondary: #9b9bb0;
+    --text-tertiary: #5a5a70;
+    --accent: #d4a020;
+    --accent-dim: rgba(212, 160, 32, 0.15);
+    --gold: #fbbf24;
+    --gold-dim: rgba(251, 191, 36, 0.15);
+    --silver: #94a3b8;
+    --success: #00d084;
+    --warning: #ffb800;
+    --danger: #ff3b3b;
+    --info: #3b82f6;
+    --teal: #00c5a8;
+    --tier1: #00d084;
+    --tier2: #ffb800;
+    --tier3: #d4a020;
+    --pending: #5a5a70;
+    --font-display: 'Oswald', sans-serif;
+    --font-heading: 'Rajdhani', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+.hero { position: relative; height: 540px; overflow: hidden; border-bottom: 1px solid var(--border-subtle); }
+.hero-photo { position: absolute; inset: 0; background: url('https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818') center 35% / cover no-repeat; filter: brightness(0.45) saturate(0.9); transition: background-image 0.7s ease-in-out, transform 8s ease; background-size: cover; background-position: center 35%; }
+.hero:hover .hero-photo { transform: scale(1.03); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,15,0.3) 0%, rgba(212,160,32,0.2) 40%, rgba(10,10,15,0.85) 70%, var(--bg-primary) 100%); }
+.hero-branding { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #d4a020 33%, #fbbf24 33%, #fbbf24 66%, #d4a020 66%); z-index: 10; }
+.champ-badge { position: absolute; top: 20px; right: 24px; z-index: 5; background: linear-gradient(135deg, var(--accent), #0f172a); padding: 6px 14px; border-radius: 8px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); border: 1px solid rgba(251,191,36,0.3); display: flex; align-items: center; gap: 6px; }
+.champ-badge::before { content: 'ARG'; font-size: 0.7rem; font-weight: 800; }
+.hero-content { position: relative; z-index: 5; max-width: 1200px; margin: 0 auto; padding: 40px 24px 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.jersey-watermark { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); font-family: var(--font-display); font-size: 240px; font-weight: 700; color: rgba(251,191,36,0.04); line-height: 1; pointer-events: none; z-index: 2; }
+.club-badge-strip { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.badge-item { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); padding: 2px 7px; border-radius: 100px; border: 1px solid var(--border-subtle); font-family: var(--font-heading); font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.badge-item .arrow { color: var(--text-tertiary); font-size: 0.6rem; }
+.hero-name { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.05; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 8px; background: linear-gradient(135deg, #fff 0%, var(--silver) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.hero-meta span { font-family: var(--font-heading); font-size: 0.95rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.hero-meta .dot { width: 4px; height: 4px; background: var(--gold); border-radius: 50%; }
+.hero-meta .flag { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+.hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 32px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { padding: 5px 12px; border-radius: 6px; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
+.tag-club { background: var(--accent-dim); color: var(--silver); border: 1px solid rgba(148,163,184,0.25); }
+.tag-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(251,191,36,0.25); }
+.tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+.tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+.tag-ult { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.3); }
+.tag-cci { background: rgba(0,208,132,0.12); color: var(--success); border: 1px solid rgba(0,208,132,0.25); }
+.tag-clu { background: rgba(59,130,246,0.12); color: var(--info); border: 1px solid rgba(59,130,246,0.25); }
+.tag-har { background: rgba(212,160,32,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.25); }
+.tag-era { background: rgba(0,197,168,0.12); color: var(--teal); border: 1px solid rgba(0,197,168,0.25); }
+.tag-record { background: rgba(212,160,32,0.15); color: var(--gold); border: 1px solid rgba(212,160,32,0.3); }
+.tag-season { background: rgba(245,200,66,0.12); color: var(--gold); border: 1px solid rgba(245,200,66,0.25); }
+.tag-verified { background: rgba(0,208,132,0.12); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+.tag-warning { background: rgba(255,184,0,0.12); color: var(--warning); border: 1px solid rgba(255,184,0,0.2); }
+
+.fga-dial-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.fga-dial-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.fga-dial-inner .fga-label { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); }
+.fga-dial-inner .fga-score { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.fga-dial-inner .fga-status { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--pending); margin-top: 2px; }
+
+.tier-pills { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.tier-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+.tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+.tier-pill.t3 { background: rgba(212,160,32,0.12); color: var(--tier3); border: 1px solid rgba(212,160,32,0.2); }
+
+.season-selector { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; background: var(--bg-card); padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border-subtle); }
+.season-selector label { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.season-selector select { background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-medium); border-radius: 8px; padding: 8px 16px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; cursor: pointer; outline: none; min-width: 220px; }
+.season-selector select:hover { border-color: var(--accent); }
+.season-selector select option { background: var(--bg-primary); color: var(--text-primary); }
+.season-average { font-family: var(--font-heading); font-size: 0.85rem; color: var(--text-secondary); margin-left: auto; padding: 4px 12px; background: var(--accent-dim); border-radius: 100px; border: 1px solid rgba(212,160,32,0.2); display: flex; align-items: center; gap: 8px; }
+.season-average strong { color: var(--gold); font-size: 1rem; }
+.trend-arrow { font-size: 1.2rem; line-height: 1; }
+.trend-up { color: var(--success); }
+.trend-down { color: var(--danger); }
+.trend-flat { color: var(--text-tertiary); }
+
+.tab-bar { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+.tab-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; }
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-btn { flex: 1; min-width: 110px; padding: 16px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-tertiary); font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active { color: var(--silver); border-bottom-color: var(--silver); background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%); }
+
+.content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-title .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s, background 0.2s; }
+.card:hover { background: var(--bg-card-hover); border-color: var(--border-medium); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+.pos-map-wrap { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; }
+.pos-map-wrap svg { max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto; background: #1a3a1a; border-radius: 4px; }
+.pos-map-caption { font-family: var(--font-heading); font-size: 0.72rem; color: var(--text-tertiary); margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; }
+.banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+.banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+.banner-gold { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: var(--gold); }
+.banner-champ { background: linear-gradient(135deg, rgba(212,160,32,0.1), rgba(251,191,36,0.05)); border: 1px solid rgba(212,160,32,0.2); color: var(--silver); }
+.banner-verified { background: rgba(0,208,132,0.08); border: 1px solid rgba(0,208,132,0.2); color: var(--success); }
+.banner-era { background: rgba(0,197,168,0.08); border: 1px solid rgba(0,197,168,0.2); color: var(--teal); }
+.banner-warning { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+
+.stat-hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-hero { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+.stat-hero:hover { transform: translateY(-2px); border-color: var(--border-medium); }
+.stat-hero .value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.stat-hero .label { font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-top: 6px; }
+
+.career-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.career-node { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
+.career-node.current { background: var(--accent-dim); border-color: rgba(148,163,184,0.3); color: var(--silver); }
+.career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+.attr-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; }
+.attr-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; color: var(--text-primary); }
+.attr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 4px; }
+.attr-row:last-child { border-bottom: none; }
+.attr-row .name { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-secondary); flex: 1; }
+.attr-row .score { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.attr-row .confidence { font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 12px; background: var(--bg-card-hover); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }
+.confidence-high { color: var(--success); border-color: rgba(0,208,132,0.3); }
+.confidence-medium { color: var(--warning); border-color: rgba(255,184,0,0.3); }
+.confidence-low { color: var(--danger); border-color: rgba(255,59,59,0.3); }
+.ac-green { color: var(--success); } .ac-yellow { color: var(--warning); } .ac-red { color: var(--danger); } .ac-pend { color: var(--pending); }
+.circle { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.circle-green { background: var(--success); } .circle-yellow { background: var(--warning); } .circle-red { background: var(--danger); } .circle-pend { background: var(--pending); }
+
+.progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+.t1-metric-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; }
+.t1-metric-row:last-child { border-bottom: none; }
+.t1-metric-code { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 700; color: var(--silver); width: 50px; flex-shrink: 0; text-transform: uppercase; }
+.t1-metric-desc { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
+.t1-metric-bar-wrap { width: 100px; flex-shrink: 0; }
+.t1-metric-val { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); width: 70px; text-align: right; flex-shrink: 0; }
+
+.t1-highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.t1-hl-box { background: linear-gradient(135deg, rgba(212,160,32,0.18), rgba(251,191,36,0.06)); border: 2px solid rgba(212,160,32,0.4); border-radius: 6px; padding: 12px; position: relative; overflow: hidden; }
+.t1-hl-box.gold { background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(212,160,32,0.06)); border-color: rgba(251,191,36,0.5); }
+.t1-hl-code { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+.t1-hl-val { font-family: var(--font-display); font-size: 1.65rem; font-weight: 500; color: var(--silver); line-height: 1; }
+.t1-hl-box.gold .t1-hl-val { color: var(--gold); }
+.t1-hl-pct { font-size: 0.58rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
+.t1-hl-bar { height: 3px; background: rgba(212,160,32,0.1); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.t1-hl-bar-fill { height: 100%; border-radius: 99px; background: var(--silver); }
+.t1-hl-box.gold .t1-hl-bar-fill { background: var(--gold); }
+
+.t1-group { margin-bottom: 14px; }
+.t1-group-head { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); padding: 6px 0; border-bottom: 1px solid rgba(212,160,32,0.08); margin-bottom: 8px; }
+
+.philo-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.philo-row:last-child { border-bottom: none; }
+.philo-rank { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-tertiary); width: 28px; text-align: center; }
+.philo-name { flex: 1; font-family: var(--font-body); font-size: 0.85rem; color: var(--text-primary); }
+.philo-score { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--gold); width: 36px; text-align: right; }
+.philo-bar-wrap { width: 120px; }
+
+.match-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.match-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; display: block; cursor: default; }
+.match-card:hover { transform: translateY(-3px); border-color: var(--silver); box-shadow: 0 8px 24px rgba(212,160,32,0.1); }
+.match-thumb { height: 120px; background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.match-thumb .play-icon { width: 48px; height: 48px; background: rgba(212,160,32,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; border: 2px dashed rgba(212,160,32,0.3); }
+.match-thumb .play-icon svg { width: 18px; height: 18px; fill: rgba(255,255,255,0.3); margin-left: 3px; }
+.match-info { padding: 16px; }
+.match-teams { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
+.match-meta { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-tertiary); display: flex; gap: 8px; flex-wrap: wrap; }
+.match-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+.badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+.badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+.badge-champ { background: rgba(212,160,32,0.12); color: var(--silver); }
+.badge-record { background: rgba(212,160,32,0.15); color: var(--gold); border: 1px solid rgba(212,160,32,0.3); }
+.badge-era { background: rgba(0,197,168,0.12); color: var(--teal); border: 1px solid rgba(0,197,168,0.2); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.data-table th { text-align: left; padding: 10px 12px; font-family: var(--font-heading); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-medium); background: rgba(255,255,255,0.02); }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+.data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+.scout-box { border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.scout-box h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+.scout-pos h4 { color: var(--success); }
+.scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+.scout-caut h4 { color: var(--warning); }
+.scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+.scout-gap h4 { color: var(--danger); }
+.scout-verdict { background: var(--accent-dim); border: 1px solid rgba(212,160,32,0.2); }
+.scout-verdict h4 { color: var(--silver); }
+.scout-box ul { list-style: none; padding: 0; margin: 0; }
+.scout-box li { padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 8px; }
+.scout-box li::before { content: '\2014'; color: var(--text-tertiary); flex-shrink: 0; }
+
+.physical-card { background: linear-gradient(135deg, rgba(212,160,32,0.08) 0%, rgba(10,10,15,0.5) 100%); border: 1px solid rgba(212,160,32,0.15); border-radius: 12px; padding: 20px; }
+.physical-card h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--silver); margin-bottom: 12px; }
+.physical-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.physical-item { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+.physical-item .label { color: var(--text-tertiary); }
+.physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border-subtle); border-radius: 1px; }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); z-index: 2; }
+.timeline-item.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(212,160,32,0.4); }
+.timeline-item.hist::before { background: var(--success); border-color: var(--success); }
+.timeline-item.champ::before { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(251,191,36,0.3); }
+.timeline-item.danger::before { background: var(--danger); border-color: var(--danger); box-shadow: 0 0 8px rgba(255,59,59,0.3); }
+.timeline-date { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.timeline-item.hist .timeline-date { color: var(--success); }
+.timeline-item.champ .timeline-date { color: var(--gold); }
+.timeline-item.danger .timeline-date { color: var(--danger); }
+.timeline-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+.timeline-text strong { color: var(--text-primary); }
+
+.radar-container { width: 100%; max-width: 520px; margin: 0 auto; aspect-ratio: 500/450; position: relative; }
+.radar-container canvas { width: 100% !important; height: 100% !important; }
+
+.legend { margin-top: 15px; display: flex; gap: 20px; font-size: 14px; justify-content: center; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+.season-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.season-stat-box { background: var(--bg-card-hover); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px; text-align: center; }
+.season-stat-box .label { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+.season-stat-box .value { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+
+.recommendation-card { border-left: 4px solid var(--gold); background: linear-gradient(135deg, rgba(212,160,32,0.08), rgba(10,10,15,0.5)); }
+.recommendation-card .tag { font-size: 0.8rem; padding: 6px 16px; }
+
+.key-strengths { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.strength-item { background: var(--bg-card-hover); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; gap: 8px; }
+.strength-item .label { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+.strength-item .value { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--gold); }
+
+@media (max-width: 768px) {
+    .hero { height: 440px; }
+    .jersey-watermark { font-size: 140px; }
+    .hero-bottom { flex-direction: column; align-items: flex-start; }
+    .fga-dial-wrap { width: 110px; height: 110px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .match-grid { grid-template-columns: 1fr; }
+    .t1-metric-bar-wrap { width: 60px; }
+    .t1-metric-val { width: 50px; }
+    .season-selector { flex-direction: column; align-items: stretch; }
+    .season-average { margin-left: 0; text-align: center; }
+    .key-strengths { flex-direction: column; align-items: stretch; }
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="header-left"><div class="header-title">EMPIRE FGA SCOUTING NETWORK</div></div>
-</header>
 
-<div class="container">
-  <div>
-    <div class="card">
-      <div class="title">Walter Ramon Bello</div>
-      <div class="sub">b. 5-10-65, Rosario (ARG)</div>
-      <span class="pill">BIO STUB &mdash; NOT GRADED</span>
-      <span class="pill">FW</span>
-      <div class="section">
-        <div class="info-row"><span class="info-label">Height / Weight</span><span class="info-value">Not stated in source</span></div>
-        <div class="info-row"><span class="info-label">Nationality</span><span class="info-value">ARG (inferred from birthplace)</span></div>
-        <div class="info-row"><span class="info-label">Position</span><span class="info-value">FW (as printed -- section header, not inferred)</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <div class="card">
-      <div class="banner banner-warn">
-        <b>This is a bio stub, not a graded Empire FGA profile.</b> There is no video evidence behind this page &mdash; no OBI/SII, no core-12 sub-metrics, no ultProxy. Every field below comes from a single secondary source: <i>El Gr&aacute;fico Especial 62 &mdash; Anuario del F&uacute;tbol 1989-90</i> (Argentine Primera Divisi&oacute;n season yearbook). Facts (birthdates, birthplaces, season stats) are reproduced directly since facts aren't copyrightable. The "Prom. de El Gr&aacute;fico" figure below is <i>El Gr&aacute;fico</i> magazine's own historical player-rating average from 1989-90 &mdash; a third-party journalistic rating, not an Empire FGA score of any kind.
-      </div>
-      <div class="banner banner-info">
-        Part of a full-league Argentina 1989-90 batch: all 20 clubs of that season's Primera Divisi&oacute;n, transcribed from the yearbook's club-by-club "Jugador por Jugador" tables (scope confirmed against that yearbook's own final league table, which lists the same 20 clubs).
-      </div>
-      <div class="banner banner-info">
-        Also has a profile from a <b>1986/87</b> source, filed separately (different guide/database, different season): <a href="Walter_Bello.html" style="color:#ffd24d;">Walter Bello</a>. Same real person, matched on name and birth year.
-      </div>
-      
-
-      <select id="season-select" hidden></select>
-      <div id="season-record-body">
-
-        <div class="card section" style="margin-top:0;">
-          <h2>Club Context &mdash; 1989-90 (El Gr&aacute;fico)</h2>
-          <div style="text-align:left;"><div class="info-row"><span class="info-label">Posición</span><span class="info-value">Vigesimo (ultimo).</span></div><div class="info-row"><span class="info-label">Fundación</span><span class="info-value">8 de agosto de 1918.</span></div><div class="info-row"><span class="info-label">Sede</span><span class="info-value">Jujuy 2702, (5000) Cordoba.</span></div><div class="info-row"><span class="info-label">Capacidad</span><span class="info-value">18.000 populares y 3.000 plateas. Total: 21.000.</span></div><div class="info-row"><span class="info-label">Teléfonos</span><span class="info-value">(051) 731927/5481-717662.</span></div><div class="info-row"><span class="info-label">Socios</span><span class="info-value">8.808.</span></div><div class="info-row"><span class="info-label">Historial</span><span class="info-value">Gano los campeonatos de la Asociacion Cordobesa los siguientes anos: 1925-26-27-28, 1961, 66, 72. Participo tambien de varios campeonatos nacionales, siendo su campana mas recordada la de 1973 -con una famosa delantera integrada por Saldano, Ardiles, Kempes, Beltran y Ceballos-. Desde 1981 participa de los campeonatos en los que intervienen los clubes directamente afiliados a AFA. Las pesimas actuaciones en las dos ultimas temporadas decretaron su descenso.</span></div><div class="info-row"><span class="info-label">Máximo goleador</span><span class="info-value">Oscar Dertycia (1982-88): 83.</span></div><div class="info-row"><span class="info-label">Más partidos jugados</span><span class="info-value">Enrique Roberto Nieto (1980-82 y 1984-89): 271.</span></div><div class="info-row"><span class="info-label">Técnico 1989-90</span><span class="info-value">Andres Orlando Rebottaro (hasta la 2a fecha), Rene Arregui (la 3a), Jorge Eduardo Dominichi (desde la 4a a la 18a), Subcomision de Futbol (la 19a), Oscar Cardars (de la 20a a la 28a), Hilario Bravi (la 29a), Subcomision de Futbol (la 30a), Hugo Edgardo Tevez (desde la 31a hasta el final).</span></div><div class="info-row"><span class="info-label">Presidente</span><span class="info-value">Miguel Zemborain.</span></div></div>
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-photo" id="heroPhoto"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-branding"></div>
+    <div class="champ-badge" id="heroBadge">Instituto (Córdoba) · 1989-90 · Forward</div>
+    <div class="jersey-watermark">9</div>
+    <div class="hero-content">
+        <div class="club-badge-strip" id="clubStrip">
+            <div class="badge-item">Newell's Old Boys</div>
+            <div class="badge-item"><span class="arrow">→</span></div>
+            <div class="badge-item">San Lorenzo</div>
+            <div class="badge-item"><span class="arrow">→</span></div>
+            <div class="badge-item current" id="currentClubBadge">Instituto (Córdoba) (1989-90)</div>
         </div>
-
-        <div class="card section">
-          <h2>Season Record (1989-90, El Gr&aacute;fico)</h2>
-          <table>
-            <tr><th>Jugador (as printed)</th><th>Lugar y fecha de nacimiento</th><th>Debut en primera</th><th>Procedencia</th><th>Partidos jugados</th><th>Goles</th><th>Prom. de El Gr&aacute;fico</th></tr>
-            <tr><td>BELLO, Walter Ramon</td><td>Rosario, 5-10-65</td><td>1988, San Lorenzo</td><td>San Lorenzo</td><td>27</td><td>10</td><td>5.59 (27)</td></tr>
-          </table>
-          <p class="small" style="margin-top:10px;">Transcribed verbatim from the club's "Jugador por Jugador" table in the yearbook. Position (FW) is printed directly as a section header in the source table (Arqueros/Defensores/Mediocampistas or Volantes/Delanteros), not inferred. Nationality above is inferred from the birthplace column (a parenthetical country annotation when the source prints one, otherwise assumed Argentine). "Debut en primera" is the year and club where the player made their first-division debut, as printed; "Procedencia" is the club the player arrived from, as printed (this can differ from the debut club).</p>
+        <h1 class="hero-name">Walter Bello</h1>
+        <div class="hero-meta">
+            <span><span class="flag">ARG</span> Argentina</span>
+            <span class="dot"></span>
+            <span id="heroAge">21-24 years</span>
+            <span class="dot"></span>
+            <span>— cm</span>
+            <span class="dot"></span>
+            <span>Right-footed</span>
+            <span class="dot"></span>
+            <span>Forward</span>
+            <span class="dot"></span>
+            <span id="heroCaps">0 Caps</span>
         </div>
-
-      </div>
+        <div class="hero-bottom">
+            <div>
+                <div class="tier-pills">
+                    <div class="tier-pill t1">T1 Basic</div>
+                    <div class="tier-pill t2">T2 Pending</div>
+                    <div class="tier-pill t3" id="t3Pill">0/12 T3 Pending</div>
+                </div>
+                <div class="hero-tags" id="heroTags" style="margin-top:10px;">
+                    <!-- injected -->
+                </div>
+            </div>
+            <div class="fga-dial-wrap">
+                <canvas id="heroDial" width="140" height="140"></canvas>
+                <div class="fga-dial-inner">
+                    <div class="fga-label">FGA v3 · Pending</div>
+                    <div class="fga-score" id="heroFgaScore">—</div>
+                    <div class="fga-status" id="heroFgaStatus">AWAITING SCOUT</div>
+                </div>
+            </div>
+        </div>
     </div>
+</section>
 
-    <div class="card section">
-      <h2>Source</h2>
-      <p class="small">
-        El Gr&aacute;fico Especial 62 &mdash; Anuario del F&uacute;tbol 1989-90 (Argentine Primera Divisi&oacute;n season yearbook). Uploaded by Jim Totime, 1 September 2026. Cross-reference against a modern source (Transfermarkt / RSSSF) recommended before this is used for anything client-facing &mdash; this stub has not been independently verified against a second source.
-      </p>
-    </div>
-  </div>
+<!-- SEASON SELECTOR -->
+<div class="season-selector" style="max-width:1200px;margin:20px auto 0;padding:0 24px;">
+    <label for="seasonSelect">Season</label>
+    <select id="seasonSelect" onchange="updateSeason()">
+        <!-- options injected by JavaScript -->
+    </select>
+    <span class="season-average">
+        <span>Peak FGA: <strong id="careerPeakFga">—</strong></span>
+        <span id="trendIndicator" class="trend-arrow trend-flat">—</span>
+    </span>
 </div>
 
-<footer>
-  <p style="color:var(--muted);font-size:13px;"><strong style="color:var(--accent2);">Empire FGA Scouting Network</strong> &mdash; Bio stub, not Tier-3 graded</p>
-</footer>
+<!-- KEY STRENGTHS -->
+<div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
+    <div class="key-strengths" id="keyStrengths">
+        <div class="strength-item"><span class="label">Assessment Status</span><span class="value">Pending</span></div>
+        <div class="strength-item"><span class="label">Tier 3</span><span class="value">0/12</span></div>
+    </div>
+</div>
+
+<!-- TABS -->
+<nav class="tab-bar">
+    <div class="tab-bar-inner">
+        <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+        <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+        <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+        <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+        <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+        <button class="tab-btn" onclick="switchTab('career')">Career</button>
+        <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+        <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+    </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+    <!-- OVERVIEW -->
+    <div id="overview" class="tab-panel active">
+        <div id="overviewBanners">
+            <div class="banner banner-warning">
+                <span>⏳</span> <strong>TIER 3 VIDEO ASSESSMENT PENDING.</strong> This profile is a bio stub — not a graded Empire FGA profile. There is no video evidence behind this page. All data comes from secondary sources: <i>Solo Fútbol Guía 1986/87</i> (preseason squad listing), <i>El Gráfico Especial 62 — Anuario del Fútbol 1989-90</i> (season stats and average rating), and <i>BDFutbol</i>. <strong>Tier 3 (OBI/SII/core-12) requires scouted footage.</strong>
+            </div>
+            <div class="banner banner-info">
+                <span>ℹ</span> <strong>BDFUTBOL REFERENCE.</strong> <a href="https://www.bdfutbol.com/en/j/j13635.html" target="_blank" style="color:var(--info);">View profile</a> — 29 appearances, 10 goals for Instituto in 1989-90.
+            </div>
+        </div>
+        <div class="career-path" id="careerPath">
+            <div class="career-node">Newell's Old Boys</div>
+            <div class="career-arrow">→</div>
+            <div class="career-node">San Lorenzo</div>
+            <div class="career-arrow">→</div>
+            <div class="career-node current">Instituto (Córdoba) (1989-90)</div>
+        </div>
+        <div class="stat-hero-grid" id="heroStatsGrid">
+            <div class="stat-hero"><div class="value" style="color:var(--pending);">—</div><div class="label">FGA</div></div>
+            <div class="stat-hero"><div class="value">29</div><div class="label">Apps (1989-90)</div></div>
+            <div class="stat-hero"><div class="value">10</div><div class="label">Goals (1989-90)</div></div>
+            <div class="stat-hero"><div class="value" style="color:var(--warning);">Pending</div><div class="label">T3 Status</div></div>
+            <div class="stat-hero"><div class="value">1985-1990</div><div class="label">Known Career Span</div></div>
+            <div class="stat-hero"><div class="value">4</div><div class="label">Clubs</div></div>
+            <div class="stat-hero"><div class="value">0</div><div class="label">Caps</div></div>
+            <div class="stat-hero"><div class="value" style="color:var(--info);">Arg. Primera</div><div class="label">Level</div></div>
+        </div>
+        <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+        <div class="pos-map-wrap">
+            <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+                <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
+                <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
+                <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+                <circle cx="260" cy="170" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+                <text x="260" y="175" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">?</text>
+                <text x="260" y="200" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">FW — PRIMARY</text>
+            </svg>
+            <div class="pos-map-caption">Tactical board · Primary: Forward · Position based on source</div>
+        </div>
+        <div class="grid-3" id="overviewProfileCards">
+            <div class="card">
+                <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+                    <strong>Walter Ramón Bello</strong> (born <strong>5 October 1965</strong> in Rosario, Santa Fe, Argentina) is a former Argentine footballer who played as a <strong>forward</strong>. He started his professional career at <strong>Argentino de Rosario</strong> in 1985, then moved to <strong>Newell's Old Boys</strong> (1986/87 preseason), made his first-division debut in <strong>1988 with San Lorenzo</strong>, and had his most documented season in <strong>1989-90 with Instituto de Córdoba</strong>, where he scored <strong>10 goals in 29 appearances</strong>[reference:0]. After 1990, he played for clubs in Peru (Sport Boys), Mexico (Tecos), and Ecuador (Deportivo Quito)[reference:1][reference:2]. He earned <strong>no senior caps</strong> for Argentina and later became a football manager[reference:3].
+                </p>
+            </div>
+            <div class="card">
+                <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+                    <strong style="color:var(--warning);">0 of 12 T3 metrics confirmed.</strong> This is a <strong>bio stub</strong>, not a graded Empire FGA profile. All mental, physical, and positional metrics (CHR, DMA, MCS, SOA, SPI, CLM, CRS, OMS, SPR, DYN, CRK, COACH) are <strong style="color:var(--warning);">pending</strong> — require scouted video analysis. The available sources provide basic squad listings and season statistics but <strong>no video evidence</strong> has been assessed.
+                </p>
+            </div>
+            <div class="card">
+                <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+                    <strong style="color:var(--text-primary);">Awaiting Assessment.</strong> No definitive rating can be given until Tier 3 video analysis is completed. Bello had a modest career in Argentine Primera División, with a notable goal-scoring season for Instituto in 1989-90 (10 goals in 29 apps)[reference:4], followed by spells in Peru, Mexico, and Ecuador[reference:5]. <strong style="color:var(--warning);">Recommendation:</strong> Scout 5+ full matches from his Instituto or San Lorenzo period to unlock full intelligence.
+                </p>
+            </div>
+        </div>
+        <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+        <div class="grid-2" id="philosophyFits">
+            <div class="card">
+                <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Argentine Forward Tradition</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#009b3a;"></div></div></div><div class="philo-score">—</div></div>
+                <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Menotti — Attacking Instinct</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#009b3a;"></div></div></div><div class="philo-score">—</div></div>
+                <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Bilardo — Pragmatic Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#e07820;"></div></div></div><div class="philo-score">—</div></div>
+            </div>
+            <div class="card">
+                <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+                    <strong style="color:var(--text-primary);">"Unknown — Pending Video Analysis"</strong> — Bello's playing style is not well-documented. He was a forward who scored goals for Instituto. Video analysis is required to determine his tactical tendencies.
+                </p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <span class="tag tag-club">Forward</span>
+                    <span class="tag tag-info">ARG</span>
+                    <span class="tag tag-pending">T3 Pending</span>
+                </div>
+            </div>
+        </div>
+        <div class="card recommendation-card" style="margin-top:12px;" id="recommendationCard">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <span class="tag tag-gold" style="font-size:0.85rem;padding:6px 18px;">◆ RECOMMENDATION</span>
+                <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">
+                    <strong style="color:var(--text-primary);">Scout Required.</strong> Bello is a little‑known Argentine forward. Full Empire FGA analysis requires <strong>5+ full matches</strong> of video footage to assess Tier 3 metrics. <strong>Suggested sources:</strong> Instituto de Córdoba matches from the 1989-90 season, or San Lorenzo matches from 1988-89.
+                </div>
+                <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">
+                    Bio Stub · 0 matches<br />Tier 3: 0/12
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATTRIBUTES -->
+    <div id="attributes" class="tab-panel">
+        <div class="banner banner-warning">
+            <span>⏳</span> <strong>ALL TIER 3 METRICS PENDING.</strong> Attributes below are placeholders. Assign scores after video analysis.
+        </div>
+        <div class="grid-3">
+            <div class="attr-card">
+                <h3>Technical</h3>
+                <div class="attr-row"><span class="name">SOA · Speed on Action</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">CRK · Creative Risk</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">DYN · Dynamism</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">DMA · Decision Making</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">Dribbling</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Finishing · 10 goals in 29 apps</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Ball Carries</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Body Shielding</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+            </div>
+            <div class="attr-card">
+                <h3>Mental</h3>
+                <div class="attr-row"><span class="name">CRS · Clutch Response</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">CLM · Calmness</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">MCS · Mental Competence</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">OMS · Transition</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">CHR · Character</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">Provocation response</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Resilience</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Concentration</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+            </div>
+            <div class="attr-card">
+                <h3>Physical</h3>
+                <div class="attr-row"><span class="name">SII_A · Explosive Accel</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">SII_T · Top-End Speed</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">SII_R · Recovery</span><span class="score ac-pend"><span class="circle circle-pend"></span> — <span class="confidence confidence-low">Pending</span></span></div>
+                <div class="attr-row"><span class="name">Agility</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Balance / Body Shield</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Stamina</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Strength</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+                <div class="attr-row"><span class="name">Acceleration</span><span class="score ac-pend"><span class="circle circle-pend"></span> —</span></div>
+            </div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+            <div style="max-width:500px;margin:0 auto;text-align:center;color:var(--text-tertiary);padding:40px 0;">
+                <span style="font-size:1.2rem;">📊</span><br />
+                <strong>Radar chart will populate after Tier 3 assessment</strong>
+                <div style="height:100px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FGA ANALYTICS -->
+    <div id="fga" class="tab-panel">
+        <div class="grid-3">
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 · Sources</h3>
+                <div class="t1-highlight-grid">
+                    <div class="t1-hl-box"><div class="t1-hl-code">Apps</div><div class="t1-hl-val">29</div><div class="t1-hl-pct">1989-90 season · Instituto</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+                    <div class="t1-hl-box gold"><div class="t1-hl-code">Goals</div><div class="t1-hl-val">10</div><div class="t1-hl-pct">1989-90 season</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:60%;background:var(--gold)"></div></div></div>
+                    <div class="t1-hl-box"><div class="t1-hl-code">Age</div><div class="t1-hl-val">24</div><div class="t1-hl-pct">Born 1965</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:24%"></div></div></div>
+                    <div class="t1-hl-box"><div class="t1-hl-code">Pos</div><div class="t1-hl-val">FW</div><div class="t1-hl-pct">Forward</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+                </div>
+                <div class="t1-group">
+                    <div class="t1-group-head">Physical Profile</div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">Age</span><span class="t1-metric-desc">Age</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:24%"></div></div></div><span class="t1-metric-val">24</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">Height</span><span class="t1-metric-desc">Height</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div><span class="t1-metric-val">—</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">Foot</span><span class="t1-metric-desc">Preferred foot</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div></div><span class="t1-metric-val">Right (assumed)</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">Pos</span><span class="t1-metric-desc">Primary position</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div></div><span class="t1-metric-val">FW</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">Nat</span><span class="t1-metric-desc">Nationality</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%"></div></div></div><span class="t1-metric-val">ARG</span></div>
+                </div>
+                <div class="t1-group">
+                    <div class="t1-group-head">Known Career</div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1985</span><span class="t1-metric-desc">Argentino de Rosario</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div></div><span class="t1-metric-val">Debut</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1986-87</span><span class="t1-metric-desc">Newell's Old Boys</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div></div><span class="t1-metric-val">Squad</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1988</span><span class="t1-metric-desc">San Lorenzo</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div></div><span class="t1-metric-val">1ª Debut</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1989-90</span><span class="t1-metric-desc">Instituto (Córdoba)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div></div><span class="t1-metric-val">29 apps, 10 gls</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1990-91</span><span class="t1-metric-desc">Sport Boys (Peru)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div></div><span class="t1-metric-val">—</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1991-92</span><span class="t1-metric-desc">Tecos (Mexico)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div></div><span class="t1-metric-val">—</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1992-93</span><span class="t1-metric-desc">Douglas Haig</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div></div><span class="t1-metric-val">—</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">1993</span><span class="t1-metric-desc">Deportivo Quito</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div></div><span class="t1-metric-val">—</span></div>
+                </div>
+                <div class="t1-group">
+                    <div class="t1-group-head">T3 Scout Status</div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">T3</span><span class="t1-metric-desc">Video assessment</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--danger)"></div></div></div><span class="t1-metric-val">0/12 Pending</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">Matches</span><span class="t1-metric-desc">Assessed matches</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--danger)"></div></div></div><span class="t1-metric-val">0</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">Events</span><span class="t1-metric-desc">T3 events logged</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--danger)"></div></div></div><span class="t1-metric-val">0</span></div>
+                    <div class="t1-metric-row"><span class="t1-metric-code">ERA</span><span class="t1-metric-desc">Era adjustment</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div><span class="t1-metric-val">—</span></div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 · Composite Intelligence</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI · Creative Player Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS · Anticipatory Movement</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI · Ghost Run Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX · Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">MOB · Mobility</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                </div>
+                <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+                    <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Status — Pending</div>
+                    <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 scores will be calculated once Tier 3 inputs are available.</div>
+                </div>
+            </div>
+            <div>
+                <div class="card" style="margin-bottom:14px;">
+                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+                    <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG &amp; ERA Context</h3>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+                        <strong style="color:var(--text-primary);">LOG: —</strong><br />
+                        <strong style="color:var(--text-primary);">Competition:</strong> Argentine Primera División<br />
+                        <strong style="color:var(--text-primary);">Opposition (graded):</strong> Not yet assessed<br />
+                        <strong style="color:var(--teal);">ERA Multiplier: —</strong><br />
+                        <strong style="color:var(--info);">Reference standard LOG 3.5 = Professional first-team</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+            <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · Video Assessment Status — Pending</h3>
+            <div class="grid-3">
+                <div>
+                    <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+                        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+                            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+                            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+                            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--warning);margin-left:auto;">PENDING</span>
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+                            <strong style="color:var(--warning);">Requires video analysis</strong><br />
+                            <strong style="color:var(--warning);">OBI_T, OBI_S, OBI_P</strong> — all pending
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+                        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+                            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+                            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity</span>
+                            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--warning);margin-left:auto;">PENDING</span>
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+                            <strong style="color:var(--warning);">Explosive acceleration, top speed, recovery sprints</strong><br />
+                            <strong style="color:var(--warning);">All sub‑metrics pending</strong>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+                        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">All T3 Metrics Pending</div>
+                        <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+                            <span style="color:var(--warning);">●</span> CHR — Pending<br />
+                            <span style="color:var(--warning);">●</span> DMA — Pending<br />
+                            <span style="color:var(--warning);">●</span> MCS — Pending<br />
+                            <span style="color:var(--warning);">●</span> SOA — Pending<br />
+                            <span style="color:var(--warning);">●</span> SPI — Pending<br />
+                            <span style="color:var(--warning);">●</span> CLM — Pending<br />
+                            <span style="color:var(--warning);">●</span> CRS — Pending<br />
+                            <span style="color:var(--warning);">●</span> OMS — Pending<br />
+                            <span style="color:var(--warning);">●</span> SPR — Pending<br />
+                            <span style="color:var(--warning);">●</span> DYN — Pending<br />
+                            <span style="color:var(--warning);">●</span> CRK — Pending<br />
+                            <span style="color:var(--warning);">●</span> COACH — Pending<br /><br />
+                            <strong style="color:var(--warning);">Requires 5+ matches of video analysis</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CROSS-LEAGUE -->
+    <div id="crossleague" class="tab-panel">
+        <div class="banner banner-info">
+            <span>ℹ</span> <strong>NO PROJECTION AVAILABLE.</strong> Cross‑league performance projection requires a validated FGA base, which is not yet established for Bello.
+        </div>
+        <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+            Once Tier 3 assessment is complete and an FGA rating is established, this section will display LOG‑adjusted projections.
+        </p>
+        <div class="card">
+            <div style="text-align:center;padding:20px;color:var(--text-tertiary);">
+                <span style="font-size:2rem;">⏳</span><br />
+                <strong>Awaiting FGA</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHILOSOPHY DNA -->
+    <div id="philosophy" class="tab-panel">
+        <div class="grid-2">
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;">Top Philosophy Fits</h3>
+                <div class="philo-row"><div class="philo-rank">—</div><div class="philo-name">Pending</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div><div class="philo-score">—</div></div>
+                <div class="philo-row"><div class="philo-rank">—</div><div class="philo-name">Pending</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div><div class="philo-score">—</div></div>
+                <div class="philo-row"><div class="philo-rank">—</div><div class="philo-name">Pending</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div><div class="philo-score">—</div></div>
+                <div class="philo-row"><div class="philo-rank">—</div><div class="philo-name">Pending</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div><div class="philo-score">—</div></div>
+                <div class="philo-row"><div class="philo-rank">—</div><div class="philo-name">Pending</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div><div class="philo-score">—</div></div>
+            </div>
+            <div class="card">
+                <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+                    <strong style="color:var(--text-primary);">"To Be Determined"</strong> — Philosophy fit requires video analysis to identify tactical tendencies.
+                </p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <span class="tag tag-pending">Pending Assessment</span>
+                </div>
+            </div>
+        </div>
+        <div class="section-title">School Averages <span class="line"></span></div>
+        <div class="grid-4">
+            <div class="stat-hero"><div class="value" style="color:var(--pending);">—</div><div class="label">Pending</div></div>
+            <div class="stat-hero"><div class="value" style="color:var(--pending);">—</div><div class="label">Pending</div></div>
+            <div class="stat-hero"><div class="value" style="color:var(--pending);">—</div><div class="label">Pending</div></div>
+            <div class="stat-hero"><div class="value" style="color:var(--pending);">—</div><div class="label">Pending</div></div>
+        </div>
+    </div>
+
+    <!-- CAREER -->
+    <div id="career" class="tab-panel">
+        <div class="grid-2" style="align-items: start;">
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item"><div class="timeline-date">Born 5 Oct 1965</div><div class="timeline-text">Born <strong>Walter Ramón Bello</strong> in <strong>Rosario, Santa Fe, Argentina</strong>[reference:6].</div></div>
+                    <div class="timeline-item"><div class="timeline-date">1985</div><div class="timeline-text"><strong>Argentino de Rosario</strong> — Professional debut[reference:7].</div></div>
+                    <div class="timeline-item"><div class="timeline-date">1986-87</div><div class="timeline-text"><strong>Newell's Old Boys</strong> — Listed in the first-team squad (Solo Fútbol guide).</div></div>
+                    <div class="timeline-item"><div class="timeline-date">1988</div><div class="timeline-text"><strong>San Lorenzo</strong> — Made first-division debut[reference:8].</div></div>
+                    <div class="timeline-item current"><div class="timeline-date">1989-90</div><div class="timeline-text"><strong>Instituto de Córdoba</strong> — Played 29 matches, scored 10 goals[reference:9].</div></div>
+                    <div class="timeline-item"><div class="timeline-date">1990-91</div><div class="timeline-text"><strong>Sport Boys (Peru)</strong> — Played in the Peruvian league[reference:10].</div></div>
+                    <div class="timeline-item"><div class="timeline-date">1991-92</div><div class="timeline-text"><strong>Tecos (Mexico)</strong> — Played in Liga MX[reference:11].</div></div>
+                    <div class="timeline-item"><div class="timeline-date">1992-93</div><div class="timeline-text"><strong>Douglas Haig</strong> — Returned to Argentina[reference:12].</div></div>
+                    <div class="timeline-item"><div class="timeline-date">1993</div><div class="timeline-text"><strong>Deportivo Quito (Ecuador)</strong> — Last known club[reference:13].</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;">Known Career Statistics</h3>
+                <div id="careerStatsTable">
+                    <table class="data-table">
+                        <thead><tr><th>Season</th><th>Club</th><th>Apps</th><th>Goals</th><th>Rating (El Gráfico)</th></tr></thead>
+                        <tbody>
+                            <tr><td>1985</td><td>Argentino de Rosario</td><td>—</td><td>—</td><td>—</td></tr>
+                            <tr><td>1986-87</td><td>Newell's Old Boys</td><td>—</td><td>—</td><td>—</td></tr>
+                            <tr><td>1988</td><td>San Lorenzo</td><td>—</td><td>—</td><td>—</td></tr>
+                            <tr style="background:rgba(212,160,32,0.08);"><td><strong>1989-90</strong></td><td><strong>Instituto (Córdoba)</strong></td><td><strong>29</strong></td><td><strong>10</strong></td><td><strong>—</strong></td></tr>
+                            <tr><td>1990-91</td><td>Sport Boys (Peru)</td><td>—</td><td>—</td><td>—</td></tr>
+                            <tr><td>1991-92</td><td>Tecos (Mexico)</td><td>—</td><td>—</td><td>—</td></tr>
+                            <tr><td>1992-93</td><td>Douglas Haig</td><td>—</td><td>—</td><td>—</td></tr>
+                            <tr><td>1993</td><td>Deportivo Quito</td><td>—</td><td>—</td><td>—</td></tr>
+                            <tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Known Total</strong></td><td><strong>29</strong></td><td><strong>10</strong></td><td></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+                <p style="color:var(--text-tertiary);font-size:0.85rem;">None known.</p>
+            </div>
+        </div>
+        <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
+        <div class="grid-2">
+            <div class="physical-card">
+                <h4>Physical Profile</h4>
+                <div class="physical-grid">
+                    <div class="physical-item"><span class="label">Age</span><span class="value">24 (1989-90)</span></div>
+                    <div class="physical-item"><span class="label">Height</span><span class="value">—</span></div>
+                    <div class="physical-item"><span class="label">Weight</span><span class="value">—</span></div>
+                    <div class="physical-item"><span class="label">Foot</span><span class="value">Right (assumed)</span></div>
+                    <div class="physical-item"><span class="label">Position</span><span class="value">Forward</span></div>
+                    <div class="physical-item"><span class="label">Citizenship</span><span class="value">Argentina</span></div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+                <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+                    <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Bio Stub — Not Tier-3 Graded</div>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);">All data comes from secondary sources. No video evidence has been assessed. Full profile requires 5+ matches of video analysis.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCOUTING INTEL -->
+    <div id="scouting" class="tab-panel">
+        <div class="scout-box scout-pos">
+            <h4><span style="color:var(--success);">✓</span> Potential Positives</h4>
+            <ul>
+                <li><strong>Goal-scoring record</strong> — 10 goals in 29 appearances for Instituto in 1989-90[reference:14]</li>
+                <li><strong>First-division experience</strong> — Played for San Lorenzo and Instituto in Argentine Primera</li>
+                <li><strong>International experience</strong> — Played in Peru, Mexico, and Ecuador after his Argentine stint[reference:15]</li>
+                <li><strong>Young age</strong> — 24 during his best documented season</li>
+            </ul>
+        </div>
+        <div class="scout-box scout-caut">
+            <h4><span style="color:var(--warning);">◈</span> Caution Signals</h4>
+            <ul>
+                <li><strong>Limited career data</strong> — Only one season with documented stats</li>
+                <li><strong>Nomadic career</strong> — Played in multiple countries without settling</li>
+                <li><strong>No international caps</strong></li>
+            </ul>
+        </div>
+        <div class="scout-box scout-gap">
+            <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+            <ul>
+                <li><strong>No video analysis</strong> — Cannot assess off‑ball movement, sprint intensity, decision‑making, etc.</li>
+                <li><strong>No scout observations</strong> — Character, coachability, and mental traits unknown</li>
+                <li><strong>No Tier 3 metrics</strong> — All 12 core metrics pending</li>
+            </ul>
+        </div>
+        <div class="scout-box scout-verdict">
+            <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+                <strong style="color:var(--text-primary);">Awaiting Assessment.</strong> Bello is a largely unknown Argentine forward. His most notable season was 1989-90 with Instituto, where he scored 10 goals in 29 appearances[reference:16]. He later played in Peru, Mexico, and Ecuador[reference:17]. The available sources provide only basic data. <strong style="color:var(--warning);">Recommendation:</strong> Scout 5+ full matches from his Instituto or San Lorenzo period to unlock Tier 3 metrics and produce a comprehensive FGA profile.
+            </p>
+        </div>
+    </div>
+
+    <!-- MATCHES -->
+    <div id="matches" class="tab-panel">
+        <div class="banner banner-champ">
+            <span>◆</span> <strong id="matchesHeader">No matches assessed yet.</strong> Upload video links or scouted footage to begin analysis.
+        </div>
+        <div class="section-title" style="margin-bottom:16px;">Match Log <span class="line"></span></div>
+        <div class="match-grid" id="matchGrid">
+            <div class="match-card" style="cursor:default;border-color:rgba(255,184,0,0.2);">
+                <div class="match-thumb">
+                    <div class="play-icon" style="background:rgba(245,200,66,0.3);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                </div>
+                <div class="match-info">
+                    <div class="match-teams">No matches logged</div>
+                    <div class="match-meta">
+                        <span class="match-badge badge-pending">● PENDING</span>
+                    </div>
+                    <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+                        <strong>Video links pending.</strong> Once matches are identified, they will appear here.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="margin-top:24px;">
+            <h3 class="section-title" style="margin-bottom:16px;">Assessment Plan</h3>
+            <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+                <strong style="color:var(--warning);">Tier 3 Video Assessment Pending.</strong> 5 matches planned for analysis. Once reviewed, CHR, DMA, MCS, SOA, SPI, CLM, CRS, OMS, SPR, DYN, CRK, and COACH metrics will be completed. <strong style="color:var(--warning);">Suggested video sources:</strong>
+                <br /><br />
+                <strong>Instituto de Córdoba (1989-90):</strong> Argentine Primera matches from that season.<br />
+                <strong>San Lorenzo (1988):</strong> Debut season matches, if available.
+            </p>
+        </div>
+    </div>
+
+</main>
 
 <script>
-// Season/record selector scaffold. Exactly one record today; a future
-// batch that finds the same real person again should append to RECORDS
-// (see this file's own generation script for the convention) instead of
-// creating a second physical page.
-var RECORDS = [
-  {
-    label: '1989-90 (El Gráfico)',
-    season: '1989-90'
-  }
-];
-(function(){
-  var sel = document.getElementById('season-select');
-  if (RECORDS.length > 1) {
-    RECORDS.forEach(function(r, i){
-      var o = document.createElement('option');
-      o.value = i; o.textContent = r.label;
-      sel.appendChild(o);
+    // ============================================================
+    // SEASON DATA - Updated with correct club (Instituto)
+    // ============================================================
+    const careerSeasons = [
+        { id: '1985', label: '1985 · Argentino de Rosario', club: 'Argentino de Rosario', league: 'Argentine Primera B', apps: null, goals: null, fga: null, eraMultiplier: 0.90, age: '20', caps: '0', badge: 'Argentino de Rosario · 1985 · Debut', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' },
+        { id: '1986-87', label: '1986-87 · Newell\'s Old Boys', club: 'Newell\'s Old Boys', league: 'Argentine Primera', apps: null, goals: null, fga: null, eraMultiplier: 0.90, age: '21', caps: '0', badge: 'Newell\'s · 1986-87 · Squad', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' },
+        { id: '1988', label: '1988 · San Lorenzo', club: 'San Lorenzo', league: 'Argentine Primera', apps: null, goals: null, fga: null, eraMultiplier: 0.90, age: '22-23', caps: '0', badge: 'San Lorenzo · 1988 · Debut', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' },
+        { id: '1989-90', label: '1989-90 · Instituto (Córdoba)', club: 'Instituto (Córdoba)', league: 'Argentine Primera', apps: 29, goals: 10, fga: null, eraMultiplier: 0.90, age: '24', caps: '0', badge: 'Instituto · 1989-90 · 29 apps / 10 gls', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' },
+        { id: '1990-91', label: '1990-91 · Sport Boys (Peru)', club: 'Sport Boys', league: 'Peruvian Primera', apps: null, goals: null, fga: null, eraMultiplier: 0.85, age: '25', caps: '0', badge: 'Sport Boys · 1990-91 · Peru', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' },
+        { id: '1991-92', label: '1991-92 · Tecos (Mexico)', club: 'Tecos', league: 'Liga MX', apps: null, goals: null, fga: null, eraMultiplier: 0.85, age: '26', caps: '0', badge: 'Tecos · 1991-92 · Mexico', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' },
+        { id: '1992-93', label: '1992-93 · Douglas Haig', club: 'Douglas Haig', league: 'Argentine Primera B', apps: null, goals: null, fga: null, eraMultiplier: 0.90, age: '27', caps: '0', badge: 'Douglas Haig · 1992-93', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' },
+        { id: '1993', label: '1993 · Deportivo Quito', club: 'Deportivo Quito', league: 'Ecuadorian Serie A', apps: null, goals: null, fga: null, eraMultiplier: 0.80, age: '28', caps: '0', badge: 'Deportivo Quito · 1993 · Ecuador', t3Status: '0/12 T3 Pending', photo: 'https://www.bdfutbol.com/i/j/13635.jpg?v=1688725818' }
+    ];
+
+    // Compute total known apps/goals
+    let totalApps = 0, totalGoals = 0;
+    careerSeasons.forEach(s => { if (s.apps) totalApps += s.apps; if (s.goals) totalGoals += s.goals; });
+
+    // Build seasonData object
+    const seasonData = {};
+    careerSeasons.forEach((s, idx) => {
+        const tags = [
+            { class: 'tag-pending', text: s.t3Status },
+            { class: 'tag-club', text: s.club },
+            { class: 'tag-info', text: s.league }
+        ];
+        if (s.apps) tags.push({ class: 'tag-value', text: s.apps + ' apps' });
+        if (s.goals) tags.push({ class: 'tag-value', text: s.goals + ' goals' });
+
+        const heroStats = [
+            { value: s.fga !== null ? s.fga.toFixed(1) : '—', label: 'FGA', color: 'var(--pending)' },
+            { value: s.apps || '—', label: 'Apps', color: 'var(--text-primary)' },
+            { value: s.goals || '—', label: 'Goals', color: 'var(--text-primary)' },
+            { value: '0/12', label: 'T3 Confirmed', color: 'var(--warning)' },
+            { value: s.eraMultiplier.toFixed(2), label: 'ERA', color: 'var(--teal)' },
+            { value: s.age, label: 'Age', color: 'var(--text-primary)' },
+            { value: s.caps, label: 'Caps', color: 'var(--text-primary)' },
+            { value: s.league, label: 'League', color: 'var(--info)' }
+        ];
+
+        const keyStrengths = [
+            { label: 'Apps', value: s.apps || '—' },
+            { label: 'Goals', value: s.goals || '—' },
+            { label: 'T3', value: '0/12' }
+        ];
+
+        const overviewBanners = [
+            { type: 'banner-warning', text: `<span>⏳</span> <strong>TIER 3 VIDEO ASSESSMENT PENDING.</strong> This profile is a bio stub — not a graded Empire FGA profile. There is no video evidence behind this page. All data comes from secondary sources: <i>Solo Fútbol Guía 1986/87</i>, <i>El Gráfico Especial 62 — Anuario del Fútbol 1989-90</i>, and <i>BDFutbol</i>.` },
+            { type: 'banner-info', text: `<span>ℹ</span> <strong>BDFUTBOL REFERENCE.</strong> <a href="https://www.bdfutbol.com/en/j/j13635.html" target="_blank" style="color:var(--info);">View profile</a> — 29 appearances, 10 goals for Instituto in 1989-90.` }
+        ];
+
+        const profileCards = [
+            { title: 'Profile', content: `<strong>Walter Ramón Bello</strong> (born <strong>5 October 1965</strong> in Rosario, Santa Fe, Argentina) is a former Argentine footballer who played as a <strong>forward</strong>. He started his professional career at <strong>Argentino de Rosario</strong> in 1985, then moved to <strong>Newell's Old Boys</strong> (1986/87 preseason), made his first-division debut in <strong>1988 with San Lorenzo</strong>, and had his most documented season in <strong>1989-90 with Instituto de Córdoba</strong>, where he scored <strong>10 goals in 29 appearances</strong>[reference:18]. After 1990, he played for clubs in Peru (Sport Boys), Mexico (Tecos), and Ecuador (Deportivo Quito)[reference:19].` },
+            { title: 'T3 Status', content: `<strong style="color:var(--warning);">0 of 12 T3 metrics confirmed.</strong> This is a <strong>bio stub</strong>, not a graded Empire FGA profile. All mental, physical, and positional metrics are <strong style="color:var(--warning);">pending</strong> — require scouted video analysis.` },
+            { title: 'Empire FGA Verdict', content: `<strong style="color:var(--text-primary);">Awaiting Assessment.</strong> No definitive rating can be given until Tier 3 video analysis is completed. Bello had a modest career in Argentine Primera División, with a notable goal-scoring season for Instituto in 1989-90 (10 goals in 29 apps)[reference:20], followed by spells in Peru, Mexico, and Ecuador[reference:21].` }
+        ];
+
+        const philosophyFits = [
+            { rank: 1, name: 'Argentine Forward Tradition', width: '50%', color: '#009b3a', score: '—' },
+            { rank: 2, name: 'Menotti — Attacking Instinct', width: '50%', color: '#009b3a', score: '—' },
+            { rank: 3, name: 'Bilardo — Pragmatic Forward', width: '50%', color: '#e07820', score: '—' }
+        ];
+
+        const recommendation = `<span class="tag tag-gold" style="font-size:0.85rem;padding:6px 18px;">◆ RECOMMENDATION</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Scout Required.</strong> Bello is a little‑known Argentine forward. Full Empire FGA analysis requires <strong>5+ full matches</strong> of video footage to assess Tier 3 metrics. <strong>Suggested sources:</strong> Instituto de Córdoba matches from the 1989-90 season, or San Lorenzo matches from 1988-89.</div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">Bio Stub · 0 matches<br />Tier 3: 0/12</div>`;
+
+        const fgaTier1 = {
+            highlights: [
+                { code: 'Apps', val: s.apps || '—', pct: 'Appearances', width: s.apps ? Math.min(90, 20 + s.apps) + '%' : '0%', gold: false },
+                { code: 'Goals', val: s.goals || '—', pct: 'Goals', width: s.goals ? Math.min(85, 10 + s.goals * 3) + '%' : '0%', gold: s.goals && s.goals > 5 },
+                { code: 'Age', val: s.age, pct: 'Age', width: (parseInt(s.age) || 20) + '%', gold: false },
+                { code: 'T3', val: '0/12', pct: 'T3 Status', width: '0%', gold: false }
+            ],
+            physical: [
+                { code: 'Age', desc: 'Age', width: (parseInt(s.age) || 20) + '%', val: s.age },
+                { code: 'Height', desc: 'Height', width: '0%', val: '—' },
+                { code: 'Foot', desc: 'Preferred foot', width: '50%', val: 'Right (assumed)' },
+                { code: 'Pos', desc: 'Primary position', width: '70%', val: 'FW' },
+                { code: 'Nat', desc: 'Nationality', width: '55%', val: 'ARG' }
+            ],
+            leagueStats: [
+                { code: 'Apps', desc: 'Appearances', width: s.apps ? Math.min(90, 20 + s.apps) + '%' : '0%', val: s.apps || '—' },
+                { code: 'Goals', desc: 'Goals scored', width: s.goals ? Math.min(85, 10 + s.goals * 3) + '%' : '0%', val: s.goals || '—' },
+                { code: 'Club', desc: 'Club', width: '90%', val: s.club },
+                { code: 'League', desc: 'League', width: '70%', val: s.league }
+            ],
+            t3Status: [
+                { code: 'T3', desc: 'Video assessment', width: '0%', val: '0/12 Pending' },
+                { code: 'Matches', desc: 'Assessed matches', width: '0%', val: '0' },
+                { code: 'Events', desc: 'T3 events logged', width: '0%', val: '0' },
+                { code: 'ERA', desc: 'Era adjustment', width: (s.eraMultiplier * 100) + '%', val: '×' + s.eraMultiplier }
+            ]
+        };
+
+        const matchList = [
+            { title: 'No matches logged', meta: '● PENDING', desc: '<strong>Video links pending.</strong> Once matches are identified, they will appear here.' }
+        ];
+
+        // Build club path
+        let path = [];
+        if (s.id === '1985') path = ['Argentino de Rosario'];
+        else if (s.id === '1986-87') path = ['Argentino de Rosario', 'Newell\'s Old Boys'];
+        else if (s.id === '1988') path = ['Argentino de Rosario', 'Newell\'s Old Boys', 'San Lorenzo'];
+        else if (s.id === '1989-90') path = ['Argentino de Rosario', 'Newell\'s Old Boys', 'San Lorenzo', 'Instituto (Córdoba) (1989-90)'];
+        else if (s.id === '1990-91') path = ['Argentino de Rosario', 'Newell\'s Old Boys', 'San Lorenzo', 'Instituto (Córdoba)', 'Sport Boys (Peru)'];
+        else if (s.id === '1991-92') path = ['Argentino de Rosario', 'Newell\'s Old Boys', 'San Lorenzo', 'Instituto (Córdoba)', 'Sport Boys (Peru)', 'Tecos (Mexico)'];
+        else if (s.id === '1992-93') path = ['Argentino de Rosario', 'Newell\'s Old Boys', 'San Lorenzo', 'Instituto (Córdoba)', 'Sport Boys (Peru)', 'Tecos (Mexico)', 'Douglas Haig'];
+        else if (s.id === '1993') path = ['Argentino de Rosario', 'Newell\'s Old Boys', 'San Lorenzo', 'Instituto (Córdoba)', 'Sport Boys (Peru)', 'Tecos (Mexico)', 'Douglas Haig', 'Deportivo Quito'];
+        else path = [s.club];
+
+        seasonData[s.id] = {
+            label: s.label,
+            club: s.club,
+            league: s.league,
+            apps: s.apps,
+            goals: s.goals,
+            fga: s.fga,
+            eraMultiplier: s.eraMultiplier,
+            age: s.age,
+            caps: s.caps,
+            badge: s.badge,
+            t3Status: s.t3Status,
+            photo: s.photo,
+            tags: tags,
+            clubPath: path,
+            heroStats: heroStats,
+            keyStrengths: keyStrengths,
+            overviewBanners: overviewBanners,
+            profileCards: profileCards,
+            philosophyFits: philosophyFits,
+            recommendation: recommendation,
+            fgaTier1: fgaTier1,
+            matchList: matchList,
+            matchesHeader: 'No matches assessed yet. Upload video links or scouted footage to begin analysis.'
+        };
     });
-    sel.hidden = false;
-  }
-})();
+
+    // ============================================================
+    // RENDER FUNCTIONS (same as previous cards)
+    // ============================================================
+    function renderKeyStrengths(strengths, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        strengths.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'strength-item';
+            div.innerHTML = `<span class="label">${s.label}</span><span class="value">${s.value}</span>`;
+            container.appendChild(div);
+        });
+    }
+
+    function renderBanners(banners, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        banners.forEach(b => {
+            const div = document.createElement('div');
+            div.className = 'banner ' + b.type;
+            div.innerHTML = b.text;
+            container.appendChild(div);
+        });
+    }
+
+    function renderTags(tags, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        tags.forEach(t => {
+            const span = document.createElement('span');
+            span.className = 'tag ' + t.class;
+            span.textContent = t.text;
+            container.appendChild(span);
+        });
+    }
+
+    function renderHeroStats(stats, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        stats.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'stat-hero';
+            div.innerHTML = `<div class="value" style="color:${s.color}">${s.value}</div><div class="label">${s.label}</div>`;
+            container.appendChild(div);
+        });
+    }
+
+    function renderCareerPath(path, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        path.forEach((node, index) => {
+            const span = document.createElement('span');
+            span.className = 'career-node' + (index === path.length - 1 ? ' current' : '');
+            span.textContent = node;
+            container.appendChild(span);
+            if (index < path.length - 1) {
+                const arrow = document.createElement('span');
+                arrow.className = 'career-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+        });
+    }
+
+    function renderProfileCards(cards, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        cards.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">${c.title}</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">${c.content}</p>`;
+            container.appendChild(div);
+        });
+    }
+
+    function renderPhilosophyFits(fits, containerId) {
+        const container = document.getElementById(containerId);
+        const firstCard = container.querySelector('.card:first-child');
+        if (firstCard) {
+            let html = '';
+            fits.forEach(f => {
+                html += `<div class="philo-row"><div class="philo-rank">${f.rank}</div><div class="philo-name">${f.name}</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${f.width};background:${f.color};"></div></div></div><div class="philo-score">${f.score}</div></div>`;
+            });
+            firstCard.innerHTML = html;
+        }
+    }
+
+    function renderRecommendation(text, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">${text}</div>`;
+    }
+
+    function renderFGA(tier1, containerId) {
+        const container = document.getElementById(containerId);
+        const col1 = document.createElement('div');
+        col1.className = 'card';
+        let html1 = `<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 · Sources</h3>`;
+        html1 += `<div class="t1-highlight-grid">`;
+        tier1.highlights.forEach(h => {
+            html1 += `<div class="t1-hl-box${h.gold ? ' gold' : ''}"><div class="t1-hl-code">${h.code}</div><div class="t1-hl-val">${h.val}</div><div class="t1-hl-pct">${h.pct}</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${h.width};${h.gold ? 'background:var(--gold);' : ''}"></div></div></div>`;
+        });
+        html1 += `</div>`;
+        html1 += `<div class="t1-group"><div class="t1-group-head">Physical Profile</div>`;
+        tier1.physical.forEach(p => {
+            html1 += `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
+        });
+        html1 += `</div>`;
+        html1 += `<div class="t1-group"><div class="t1-group-head">Known Career</div>`;
+        tier1.leagueStats.forEach(p => {
+            html1 += `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
+        });
+        html1 += `</div>`;
+        html1 += `<div class="t1-group"><div class="t1-group-head">T3 Scout Status</div>`;
+        tier1.t3Status.forEach(p => {
+            html1 += `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
+        });
+        html1 += `</div>`;
+        col1.innerHTML = html1;
+
+        const col2 = document.createElement('div');
+        col2.className = 'card';
+        col2.innerHTML = `
+            <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 · Composite Intelligence</h3>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI · Creative Player Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS · Anticipatory Movement</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI · Ghost Run Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX · Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">MOB · Mobility</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">Pending</span></div>
+            </div>
+            <div style="margin-top:20px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+                <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 2 Status — Pending</div>
+                <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 scores will be calculated once Tier 3 inputs are available.</div>
+            </div>
+        `;
+
+        const col3 = document.createElement('div');
+        col3.innerHTML = `
+            <div class="card" style="margin-bottom:14px;">
+                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+                <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+            </div>
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG &amp; ERA Context</h3>
+                <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+                    <strong style="color:var(--text-primary);">LOG: —</strong><br />
+                    <strong style="color:var(--text-primary);">Competition:</strong> Argentine Primera División<br />
+                    <strong style="color:var(--text-primary);">Opposition (graded):</strong> Not yet assessed<br />
+                    <strong style="color:var(--teal);">ERA Multiplier: ×${seasonData[document.getElementById('seasonSelect').value]?.eraMultiplier || '—'}</strong><br />
+                    <strong style="color:var(--info);">Reference standard LOG 3.5 = Professional first-team</strong>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = '';
+        container.appendChild(col1);
+        container.appendChild(col2);
+        container.appendChild(col3);
+        renderDonut();
+    }
+
+    function renderMatches(matches, header, containerId) {
+        document.getElementById('matchesHeader').textContent = header;
+        const grid = document.getElementById(containerId);
+        grid.innerHTML = '';
+        matches.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.innerHTML = `
+                <div class="match-thumb">
+                    <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                </div>
+                <div class="match-info">
+                    <div class="match-teams">${m.title}</div>
+                    <div class="match-meta">
+                        <span class="match-badge badge-pending">${m.meta}</span>
+                    </div>
+                    <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">${m.desc}</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderDonut() {
+        const el = document.getElementById('fgaDonut');
+        if (!el) return;
+        if (window.fgaDonutChart) window.fgaDonutChart.destroy();
+        const ctx = el.getContext('2d');
+        window.fgaDonutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['T1 Extensive 20%', 'T2 Composite 30%', 'T3 Scout 50% (0/12)'],
+                datasets: [{
+                    data: [20, 30, 50],
+                    backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+                }
+            }
+        });
+    }
+
+    function updateDial(score) {
+        const canvas = document.getElementById('heroDial');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const max = 10;
+        const angle = (score !== null ? score / max : 0) * 1.5 * Math.PI + 0.75 * Math.PI;
+        ctx.clearRect(0, 0, 140, 140);
+        ctx.beginPath();
+        ctx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        if (score !== null) {
+            ctx.beginPath();
+            ctx.arc(70, 70, 58, 0.75 * Math.PI, angle);
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+    }
+
+    function getTrend(seasonId) {
+        const ids = careerSeasons.map(s => s.id);
+        const idx = ids.indexOf(seasonId);
+        if (idx === -1 || idx === 0) return { arrow: '—', cls: 'trend-flat' };
+        const current = seasonData[seasonId].apps || 0;
+        const prev = seasonData[ids[idx - 1]].apps || 0;
+        if (current > prev) return { arrow: '↑', cls: 'trend-up' };
+        if (current < prev) return { arrow: '↓', cls: 'trend-down' };
+        return { arrow: '—', cls: 'trend-flat' };
+    }
+
+    // ============================================================
+    // UPDATE SEASON
+    // ============================================================
+    function updateSeason() {
+        const sel = document.getElementById('seasonSelect');
+        const id = sel.value;
+        const data = seasonData[id];
+        if (!data) return;
+
+        // Update hero photo
+        const heroPhoto = document.getElementById('heroPhoto');
+        if (data.photo) {
+            heroPhoto.style.backgroundImage = `url('${data.photo}')`;
+        }
+
+        document.getElementById('heroBadge').textContent = data.badge;
+        document.getElementById('heroAge').textContent = data.age;
+        document.getElementById('heroCaps').textContent = data.caps;
+        document.getElementById('t3Pill').textContent = data.t3Status;
+        document.getElementById('heroFgaScore').textContent = data.fga !== null ? data.fga.toFixed(1) : '—';
+        document.getElementById('heroFgaStatus').textContent = data.fga !== null ? 'ERA ×' + data.eraMultiplier : 'AWAITING SCOUT';
+
+        renderCareerPath(data.clubPath, 'careerPath');
+        renderHeroStats(data.heroStats, 'heroStatsGrid');
+        renderKeyStrengths(data.keyStrengths, 'keyStrengths');
+        renderBanners(data.overviewBanners, 'overviewBanners');
+        renderProfileCards(data.profileCards, 'overviewProfileCards');
+        renderPhilosophyFits(data.philosophyFits, 'philosophyFits');
+        renderRecommendation(data.recommendation, 'recommendationCard');
+        renderTags(data.tags, 'heroTags');
+        renderFGA(data.fgaTier1, 'fgaContent');
+        renderMatches(data.matchList, data.matchesHeader, 'matchGrid');
+        updateDial(data.fga);
+
+        const trend = getTrend(id);
+        document.getElementById('trendIndicator').textContent = trend.arrow;
+        document.getElementById('trendIndicator').className = 'trend-arrow ' + trend.cls;
+    }
+
+    // ============================================================
+    // CAREER STATS TABLE
+    // ============================================================
+    function renderCareerStatsTable() {
+        const container = document.getElementById('careerStatsTable');
+        let html = `<table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>Apps</th><th>Goals</th></tr></thead><tbody>`;
+        careerSeasons.forEach(s => {
+            const highlight = s.id === '1989-90' ? 'style="background:rgba(212,160,32,0.08);"' : '';
+            html += `<tr ${highlight}><td>${s.label}</td><td>${s.club}</td><td>${s.apps || '—'}</td><td>${s.goals || '—'}</td></tr>`;
+        });
+        html += `<tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Known Total</strong></td><td><strong>${totalApps || '—'}</strong></td><td><strong>${totalGoals || '—'}</strong></td></tr>`;
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    function init() {
+        // Populate dropdown
+        const select = document.getElementById('seasonSelect');
+        select.innerHTML = '';
+        careerSeasons.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = s.label;
+            select.appendChild(opt);
+        });
+        // Set default to 1989-90 (best documented)
+        select.value = '1989-90';
+        updateSeason();
+
+        // Philosophy radar placeholder
+        const philoRadar = document.getElementById('philosophyRadar2');
+        if (philoRadar) {
+            new Chart(philoRadar.getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: ['S.American', 'Dutch', 'Modern', 'German', 'Italian', 'Defensive'],
+                    datasets: [{
+                        label: 'Bello (Pending)',
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(255,255,255,0.05)',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        pointRadius: 0,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 10,
+                            ticks: { display: false },
+                            grid: { color: 'rgba(255,255,255,0.06)' },
+                            angleLines: { color: 'rgba(255,255,255,0.06)' },
+                            pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        renderDonut();
+        renderCareerStatsTable();
+    }
+
+    function switchTab(id) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+                b.classList.add('active');
+            }
+        });
+    }
+
+    window.switchTab = switchTab;
+    window.updateSeason = updateSeason;
+    document.addEventListener('DOMContentLoaded', init);
 </script>
+
 </body>
 </html>
