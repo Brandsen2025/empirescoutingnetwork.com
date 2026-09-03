@@ -1,1982 +1,786 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dastan Satpayev | Empire FGA Intelligence Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
-    </script>
-    <style>
-        /* ===== Core styles ===== */
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-card: #0f0f1a;
-            --bg-card-hover: #151525;
-            --border-subtle: rgba(255, 255, 255, 0.06);
-            --border-medium: rgba(255, 255, 255, 0.1);
-            --text-primary: #f0f0f5;
-            --text-secondary: #9b9bb0;
-            --text-tertiary: #5a5a70;
-            --accent: #d4a020;
-            --accent-dim: rgba(212, 160, 32, 0.15);
-            --gold: #fbbf24;
-            --gold-dim: rgba(251, 191, 36, 0.15);
-            --silver: #94a3b8;
-            --success: #00d084;
-            --warning: #ffb800;
-            --danger: #ff3b3b;
-            --info: #3b82f6;
-            --teal: #00c5a8;
-            --tier1: #00d084;
-            --tier2: #ffb800;
-            --tier3: #d4a020;
-            --pending: #5a5a70;
-            --font-display: 'Oswald', sans-serif;
-            --font-heading: 'Rajdhani', sans-serif;
-            --font-body: 'DM Sans', sans-serif;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: var(--font-body);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-primary); }
-        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dastan Satpayev | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);--accent-glow:rgba(30,58,138,0.4);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ff3b3b;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
 
-        .hero {
-            position: relative;
-            height: 540px;
-            overflow: hidden;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .hero-photo {
-            position: absolute;
-            inset: 0;
-            background: url('https://latest.fotmob.com/wp-content/uploads/2025/08/Covers_Dastan-Satpaev-1208-1.png') center 40% / cover no-repeat;
-            filter: brightness(0.45) saturate(0.9);
-            transition: background-image 0.7s ease-in-out, transform 8s ease;
-            background-size: cover;
-            background-position: center 40%;
-        }
-        .hero:hover .hero-photo { transform: scale(1.03); }
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(10, 10, 15, 0.3) 0%, rgba(212, 160, 32, 0.2) 40%, rgba(10, 10, 15, 0.85) 70%, var(--bg-primary) 100%);
-        }
-        .hero-branding {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #d4a020 33%, #fbbf24 33%, #fbbf24 66%, #d4a020 66%);
-            z-index: 10;
-        }
-        .champ-badge {
-            position: absolute;
-            top: 20px;
-            right: 24px;
-            z-index: 5;
-            background: linear-gradient(135deg, var(--accent), #0f172a);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-family: var(--font-heading);
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--gold);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .champ-badge::before { content: 'KAZ'; font-size: 0.7rem; font-weight: 800; }
-        .hero-content {
-            position: relative;
-            z-index: 5;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 24px 0;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-        .jersey-watermark {
-            position: absolute;
-            top: 50%;
-            right: 5%;
-            transform: translateY(-50%);
-            font-family: var(--font-display);
-            font-size: 240px;
-            font-weight: 700;
-            color: rgba(251, 191, 36, 0.04);
-            line-height: 1;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .club-badge-strip {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        .badge-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(10px);
-            padding: 2px 7px;
-            border-radius: 100px;
-            border: 1px solid var(--border-subtle);
-            font-family: var(--font-heading);
-            font-size: 0.58rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        .badge-item .arrow { color: var(--text-tertiary); font-size: 0.6rem; }
-        .hero-name {
-            font-family: var(--font-display);
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            font-weight: 700;
-            line-height: 1.05;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #fff 0%, var(--silver) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero-meta {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-        .hero-meta span {
-            font-family: var(--font-heading);
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .hero-meta .dot { width: 4px; height: 4px; background: var(--gold); border-radius: 50%; }
-        .hero-meta .flag { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
-        .hero-bottom {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 24px;
-            flex-wrap: wrap;
-            padding-bottom: 32px;
-        }
-        .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-        .tag {
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-family: var(--font-heading);
-            font-size: 0.72rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .tag-pending { background: rgba(90,96,112,0.2); color: var(--pending); border: 1px solid rgba(90,96,112,0.3); }
-        .tag-club { background: var(--accent-dim); color: var(--silver); border: 1px solid rgba(148,163,184,0.25); }
-        .tag-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(251,191,36,0.25); }
-        .tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
-        .tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
-        .tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
-        .tag-ult { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.3); }
-        .tag-cci { background: rgba(0,208,132,0.12); color: var(--success); border: 1px solid rgba(0,208,132,0.25); }
-        .tag-clu { background: rgba(59,130,246,0.12); color: var(--info); border: 1px solid rgba(59,130,246,0.25); }
-        .tag-har { background: rgba(212,160,32,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.25); }
-        .tag-era { background: rgba(0,197,168,0.12); color: var(--teal); border: 1px solid rgba(0,197,168,0.25); }
-        .tag-record { background: rgba(212,160,32,0.15); color: var(--gold); border: 1px solid rgba(212,160,32,0.3); }
-        .tag-season { background: rgba(245,200,66,0.12); color: var(--gold); border: 1px solid rgba(245,200,66,0.25); }
-        .tag-verified { background: rgba(0,208,132,0.12); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
-        .tag-warning { background: rgba(255,184,0,0.12); color: var(--warning); border: 1px solid rgba(255,184,0,0.2); }
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://hronika.kz/wp-content/uploads/2026/08/3566.webp') center 22% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'◆';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.2rem,6vw,4.2rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
 
-        .fga-dial-wrap {
-            position: relative;
-            width: 140px;
-            height: 140px;
-            flex-shrink: 0;
-        }
-        .fga-dial-inner {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .fga-dial-inner .fga-label {
-            font-family: var(--font-heading);
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-tertiary);
-        }
-        .fga-dial-inner .fga-score {
-            font-family: var(--font-display);
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--gold);
-            line-height: 1;
-        }
-        .fga-dial-inner .fga-status {
-            font-family: var(--font-heading);
-            font-size: 0.6rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--success);
-            margin-top: 2px;
-        }
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
 
-        .tier-pills { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-        .tier-pill {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 100px;
-            font-family: var(--font-heading);
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
-        .tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
-        .tier-pill.t3 { background: rgba(212,160,32,0.12); color: var(--tier3); border: 1px solid rgba(212,160,32,0.2); }
+.tier-pills {display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,59,59,0.12);color:var(--tier3);border:1px solid rgba(255,59,59,0.2);}
 
-        .season-selector {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            background: var(--bg-card);
-            padding: 16px 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-subtle);
-        }
-        .season-selector label {
-            font-family: var(--font-heading);
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .season-selector select {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-medium);
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-            min-width: 220px;
-        }
-        .season-selector select:hover { border-color: var(--accent); }
-        .season-selector select option { background: var(--bg-primary); color: var(--text-primary); }
-        .season-average {
-            font-family: var(--font-heading);
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-left: auto;
-            padding: 4px 12px;
-            background: var(--accent-dim);
-            border-radius: 100px;
-            border: 1px solid rgba(212,160,32,0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .season-average strong { color: var(--gold); font-size: 1rem; }
-        .trend-arrow { font-size: 1.2rem; line-height: 1; }
-        .trend-up { color: var(--success); }
-        .trend-down { color: var(--danger); }
-        .trend-flat { color: var(--text-tertiary); }
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
 
-        .tab-bar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(10,10,15,0.92);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .tab-bar-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            overflow-x: auto;
-            scrollbar-width: none;
-            gap: 0;
-        }
-        .tab-bar-inner::-webkit-scrollbar { display: none; }
-        .tab-btn {
-            flex: 1;
-            min-width: 110px;
-            padding: 16px 8px;
-            background: none;
-            border: none;
-            border-bottom: 2px solid transparent;
-            color: var(--text-tertiary);
-            font-family: var(--font-heading);
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .tab-btn:hover { color: var(--text-secondary); }
-        .tab-btn.active {
-            color: var(--silver);
-            border-bottom-color: var(--silver);
-            background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%);
-        }
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
 
-        .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
 
-        .section-title {
-            font-family: var(--font-display);
-            font-size: 1.4rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .section-title .line { flex: 1; height: 1px; background: var(--border-subtle); }
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
 
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .card:hover { background: var(--bg-card-hover); border-color: var(--border-medium); }
-        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
 
-        .pos-map-wrap {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .pos-map-wrap svg {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            display: block;
-            margin: 0 auto;
-            background: #1a3a1a;
-            border-radius: 4px;
-        }
-        .pos-map-caption {
-            font-family: var(--font-heading);
-            font-size: 0.72rem;
-            color: var(--text-tertiary);
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
 
-        .banner {
-            padding: 14px 18px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
-        .banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
-        .banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
-        .banner-gold { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: var(--gold); }
-        .banner-champ { background: linear-gradient(135deg, rgba(212,160,32,0.1), rgba(251,191,36,0.05)); border: 1px solid rgba(212,160,32,0.2); color: var(--silver); }
-        .banner-verified { background: rgba(0,208,132,0.08); border: 1px solid rgba(0,208,132,0.2); color: var(--success); }
-        .banner-era { background: rgba(0,197,168,0.08); border: 1px solid rgba(0,197,168,0.2); color: var(--teal); }
-        .banner-warning { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
 
-        .stat-hero-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        .stat-hero {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            padding: 18px;
-            text-align: center;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .stat-hero:hover { transform: translateY(-2px); border-color: var(--border-medium); }
-        .stat-hero .value {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1;
-        }
-        .stat-hero .label {
-            font-family: var(--font-heading);
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-tertiary);
-            margin-top: 6px;
-        }
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
 
-        .career-path {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .career-node {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            font-family: var(--font-heading);
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        .career-node.current { background: var(--accent-dim); border-color: rgba(148,163,184,0.3); color: var(--silver); }
-        .career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
 
-        .attr-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 20px;
-        }
-        .attr-card h3 {
-            font-family: var(--font-display);
-            font-size: 1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-        .attr-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-subtle);
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-        .attr-row:last-child { border-bottom: none; }
-        .attr-row .name {
-            font-family: var(--font-body);
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            flex: 1;
-        }
-        .attr-row .score {
-            font-family: var(--font-heading);
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        .attr-row .confidence {
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 12px;
-            background: var(--bg-card-hover);
-            color: var(--text-tertiary);
-            border: 1px solid var(--border-subtle);
-        }
-        .confidence-high { color: var(--success); border-color: rgba(0,208,132,0.3); }
-        .confidence-medium { color: var(--warning); border-color: rgba(255,184,0,0.3); }
-        .confidence-low { color: var(--danger); border-color: rgba(255,59,59,0.3); }
-        .ac-green { color: var(--success); }
-        .ac-yellow { color: var(--warning); }
-        .ac-red { color: var(--danger); }
-        .ac-pend { color: var(--pending); }
-        .circle { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .circle-green { background: var(--success); }
-        .circle-yellow { background: var(--warning); }
-        .circle-red { background: var(--danger); }
-        .circle-pend { background: var(--pending); }
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
 
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-        .progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
 
-        .t1-metric-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-subtle);
-            flex-wrap: wrap;
-        }
-        .t1-metric-row:last-child { border-bottom: none; }
-        .t1-metric-code {
-            font-family: var(--font-heading);
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--silver);
-            width: 50px;
-            flex-shrink: 0;
-            text-transform: uppercase;
-        }
-        .t1-metric-desc { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
-        .t1-metric-bar-wrap { width: 100px; flex-shrink: 0; }
-        .t1-metric-val {
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            width: 70px;
-            text-align: right;
-            flex-shrink: 0;
-        }
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
 
-        .t1-highlight-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        .t1-hl-box {
-            background: linear-gradient(135deg, rgba(212,160,32,0.18), rgba(251,191,36,0.06));
-            border: 2px solid rgba(212,160,32,0.4);
-            border-radius: 6px;
-            padding: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-        .t1-hl-box.gold { background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(212,160,32,0.06)); border-color: rgba(251,191,36,0.5); }
-        .t1-hl-code {
-            font-family: var(--font-heading);
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--text-tertiary);
-            margin-bottom: 4px;
-        }
-        .t1-hl-val {
-            font-family: var(--font-display);
-            font-size: 1.65rem;
-            font-weight: 500;
-            color: var(--silver);
-            line-height: 1;
-        }
-        .t1-hl-box.gold .t1-hl-val { color: var(--gold); }
-        .t1-hl-pct { font-size: 0.58rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
-        .t1-hl-bar {
-            height: 3px;
-            background: rgba(212,160,32,0.1);
-            border-radius: 99px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        .t1-hl-bar-fill { height: 100%; border-radius: 99px; background: var(--silver); }
-        .t1-hl-box.gold .t1-hl-bar-fill { background: var(--gold); }
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap {width:120px;}
 
-        .t1-group { margin-bottom: 14px; }
-        .t1-group-head {
-            font-family: var(--font-heading);
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--text-tertiary);
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(212,160,32,0.08);
-            margin-bottom: 8px;
-        }
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+.badge-suggest {background:rgba(255,184,0,0.12);color:var(--warning);}
 
-        .philo-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .philo-row:last-child { border-bottom: none; }
-        .philo-rank {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-tertiary);
-            width: 28px;
-            text-align: center;
-        }
-        .philo-name { flex: 1; font-family: var(--font-body); font-size: 0.85rem; color: var(--text-primary); }
-        .philo-score {
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--gold);
-            width: 36px;
-            text-align: right;
-        }
-        .philo-bar-wrap { width: 120px; }
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
 
-        .match-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-        }
-        .match-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.2s, border-color 0.2s;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            cursor: default;
-        }
-        .match-card:hover { transform: translateY(-3px); border-color: var(--silver); box-shadow: 0 8px 24px rgba(212,160,32,0.1); }
-        .match-thumb {
-            height: 120px;
-            background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .match-thumb .play-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(212,160,32,0.3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 2;
-            border: 2px dashed rgba(212,160,32,0.3);
-        }
-        .match-thumb .play-icon svg { width: 18px; height: 18px; fill: rgba(255,255,255,0.3); margin-left: 3px; }
-        .match-info { padding: 16px; }
-        .match-teams {
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            line-height: 1.3;
-        }
-        .match-meta {
-            font-family: var(--font-body);
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .match-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
-        .badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
-        .badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
-        .badge-champ { background: rgba(212,160,32,0.12); color: var(--silver); }
-        .badge-record { background: rgba(212,160,32,0.15); color: var(--gold); border: 1px solid rgba(212,160,32,0.3); }
-        .badge-era { background: rgba(0,197,168,0.12); color: var(--teal); border: 1px solid rgba(0,197,168,0.2); }
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.82rem;
-        }
-        .data-table th {
-            text-align: left;
-            padding: 10px 12px;
-            font-family: var(--font-heading);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
-            color: var(--text-tertiary);
-            border-bottom: 1px solid var(--border-medium);
-            background: rgba(255,255,255,0.02);
-        }
-        .data-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-subtle);
-            color: var(--text-secondary);
-        }
-        .data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
-        .data-table td strong { color: var(--text-primary); font-weight: 600; }
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
 
-        .scout-box {
-            border-radius: 10px;
-            padding: 18px;
-            margin-bottom: 16px;
-        }
-        .scout-box h4 {
-            font-family: var(--font-display);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
-        .scout-pos h4 { color: var(--success); }
-        .scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
-        .scout-caut h4 { color: var(--warning); }
-        .scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
-        .scout-gap h4 { color: var(--danger); }
-        .scout-verdict { background: var(--accent-dim); border: 1px solid rgba(212,160,32,0.2); }
-        .scout-verdict h4 { color: var(--silver); }
-        .scout-box ul { list-style: none; padding: 0; margin: 0; }
-        .scout-box li {
-            padding: 5px 0;
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .scout-box li::before { content: '\2014'; color: var(--text-tertiary); flex-shrink: 0; }
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before {background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-item.danger .timeline-date {color:var(--danger);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
 
-        .physical-card {
-            background: linear-gradient(135deg, rgba(212,160,32,0.08) 0%, rgba(10,10,15,0.5) 100%);
-            border: 1px solid rgba(212,160,32,0.15);
-            border-radius: 12px;
-            padding: 20px;
-        }
-        .physical-card h4 {
-            font-family: var(--font-display);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--silver);
-            margin-bottom: 12px;
-        }
-        .physical-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .physical-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .physical-item .label { color: var(--text-tertiary); }
-        .physical-item .value { color: var(--text-primary); font-weight: 600; }
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
 
-        .timeline {
-            position: relative;
-            padding-left: 24px;
-        }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 7px;
-            top: 4px;
-            bottom: 4px;
-            width: 2px;
-            background: var(--border-subtle);
-            border-radius: 1px;
-        }
-        .timeline-item {
-            position: relative;
-            padding-bottom: 20px;
-        }
-        .timeline-item:last-child { padding-bottom: 0; }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -21px;
-            top: 5px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            border: 2px solid var(--accent);
-            z-index: 2;
-        }
-        .timeline-item.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(212,160,32,0.4); }
-        .timeline-item.hist::before { background: var(--success); border-color: var(--success); }
-        .timeline-item.champ::before { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(251,191,36,0.3); }
-        .timeline-item.danger::before { background: var(--danger); border-color: var(--danger); box-shadow: 0 0 8px rgba(255,59,59,0.3); }
-        .timeline-date {
-            font-family: var(--font-heading);
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-        .timeline-item.hist .timeline-date { color: var(--success); }
-        .timeline-item.champ .timeline-date { color: var(--gold); }
-        .timeline-item.danger .timeline-date { color: var(--danger); }
-        .timeline-text {
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        .timeline-text strong { color: var(--text-primary); }
-
-        .radar-container {
-            width: 100%;
-            max-width: 520px;
-            margin: 0 auto;
-            aspect-ratio: 500/450;
-            position: relative;
-        }
-        .radar-container canvas { width: 100% !important; height: 100% !important; }
-
-        .recommendation-card { border-left: 4px solid var(--gold); background: linear-gradient(135deg, rgba(212,160,32,0.08), rgba(10,10,15,0.5)); }
-        .recommendation-card .tag { font-size: 0.8rem; padding: 6px 16px; }
-
-        .key-strengths {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .strength-item {
-            background: var(--bg-card-hover);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .strength-item .label {
-            font-family: var(--font-heading);
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-        .strength-item .value {
-            font-family: var(--font-display);
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-
-        .video-embed-wrap {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-            background: #000;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-        .video-embed-wrap iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        @media (max-width: 768px) {
-            .hero { height: 440px; }
-            .jersey-watermark { font-size: 140px; }
-            .hero-bottom { flex-direction: column; align-items: flex-start; }
-            .fga-dial-wrap { width: 110px; height: 110px; }
-            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-            .match-grid { grid-template-columns: 1fr; }
-            .t1-metric-bar-wrap { width: 60px; }
-            .t1-metric-val { width: 50px; }
-            .season-selector { flex-direction: column; align-items: stretch; }
-            .season-average { margin-left: 0; text-align: center; }
-            .key-strengths { flex-direction: column; align-items: stretch; }
-        }
-    </style>
+@media (max-width:768px) {
+  .hero {height:440px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+}
+</style>
 </head>
 <body>
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-photo" id="heroPhoto"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-branding"></div>
-        <div class="champ-badge" id="heroBadge">Chelsea · 2025-26 · UCL Rising Star</div>
-        <div class="jersey-watermark">9</div>
-        <div class="hero-content">
-            <div class="club-badge-strip" id="clubStrip">
-                <div class="badge-item">Kairat Almaty</div>
-                <div class="badge-item"><span class="arrow">→</span></div>
-                <div class="badge-item">Chelsea FC</div>
-                <div class="badge-item"><span class="arrow">→</span></div>
-                <div class="badge-item current" id="currentClubBadge">Burnley FC (2026-27)</div>
-            </div>
-            <h1 class="hero-name">Dastan Satpayev</h1>
-            <div class="hero-meta">
-                <span><span class="flag">KAZ</span> Kazakhstan</span>
-                <span class="dot"></span>
-                <span id="heroAge">21 years</span>
-                <span class="dot"></span>
-                <span>183cm</span>
-                <span class="dot"></span>
-                <span>Right-footed</span>
-                <span class="dot"></span>
-                <span>Striker / Winger</span>
-                <span class="dot"></span>
-                <span id="heroCaps">14 Caps · 4 Goals</span>
-            </div>
-            <div class="hero-bottom">
-                <div>
-                    <div class="tier-pills">
-                        <div class="tier-pill t1">T1 Extensive</div>
-                        <div class="tier-pill t2">T2 Composite</div>
-                        <div class="tier-pill t3" id="t3Pill">6/12 T3 Verified</div>
-                    </div>
-                    <div class="hero-tags" id="heroTags" style="margin-top:10px;"></div>
-                </div>
-                <div class="fga-dial-wrap">
-                    <canvas id="heroDial" width="140" height="140"></canvas>
-                    <div class="fga-dial-inner">
-                        <div class="fga-label">FGA v3 · ERA Adj.</div>
-                        <div class="fga-score" id="heroFgaScore">8.1</div>
-                        <div class="fga-status" id="heroFgaStatus">PROMISING · DEVELOPMENT</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEASON SELECTOR -->
-    <div class="season-selector" style="max-width:1200px;margin:20px auto 0;padding:0 24px;">
-        <label for="seasonSelect">Season</label>
-        <select id="seasonSelect" onchange="updateSeason()"></select>
-        <span class="season-average">
-            <span>Peak FGA: <strong id="careerPeakFga">8.1</strong></span>
-            <span id="trendIndicator" class="trend-arrow trend-flat">—</span>
-        </span>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Burnley FC (Loan) · Kazakhstan NT</div>
+  <div class="jersey-watermark">18</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">FC Kairat Almaty</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Chelsea FC (Aug 2026)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Burnley FC (Loan, 2026-27)</div>
     </div>
-
-    <!-- KEY STRENGTHS -->
-    <div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
-        <div class="key-strengths" id="keyStrengths"></div>
+    <h1 class="hero-name">Dastan Satpayev</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇰🇿</span> Kazakhstan</span>
+      <span class="dot"></span>
+      <span>18 years</span>
+      <span class="dot"></span>
+      <span>Forward</span>
+      <span class="dot"></span>
+      <span>Also Used Wide / Wing-Back</span>
     </div>
-
-    <!-- TABS -->
-    <nav class="tab-bar">
-        <div class="tab-bar-inner">
-            <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
-            <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
-            <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
-            <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
-            <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
-            <button class="tab-btn" onclick="switchTab('career')">Career</button>
-            <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
-            <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Extensive</div>
+          <div class="tier-pill t2">T2 Composite</div>
+          <div class="tier-pill t3" style="background:rgba(255,184,0,0.15);color:var(--warning);border-color:rgba(255,184,0,0.3);">16/16 SUB-METRICS · SINGLE-SCOUT</div>
         </div>
-    </nav>
-
-    <!-- CONTENT -->
-    <main class="content">
-
-        <!-- OVERVIEW -->
-        <div id="overview" class="tab-panel active">
-            <div id="overviewBanners"></div>
-            <div class="career-path" id="careerPath"></div>
-            <div class="stat-hero-grid" id="heroStatsGrid"></div>
-            <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
-            <div class="pos-map-wrap">
-                <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
-                    <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
-                    <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
-                    <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
-                    <circle cx="260" cy="170" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
-                    <text x="260" y="175" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">9</text>
-                    <text x="260" y="200" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">ST / RW — PRIMARY</text>
-                </svg>
-                <div class="pos-map-caption">Tactical board · Primary: Striker / Right Winger · Pace + direct running</div>
-            </div>
-            <div class="grid-3" id="overviewProfileCards"></div>
-            <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
-            <div class="grid-2" id="philosophyFits"></div>
-            <div class="card recommendation-card" style="margin-top:12px;" id="recommendationCard"></div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-club">Burnley FC · Loan from Chelsea</span>
+          <span class="tag tag-gold">🇰🇿 8 Senior Caps, 1 Goal (Kazakhstan)</span>
+          <span class="tag tag-value">16/16 T3 Sub-Metrics Confirmed</span>
+          <span class="tag tag-info">Youngest-Ever Kazakhstan Debutant</span>
+          <span class="tag tag-gold">Contract to 2033 (Chelsea)</span>
         </div>
-
-        <!-- ATTRIBUTES -->
-        <div id="attributes" class="tab-panel">
-            <div class="banner banner-era">
-                <span>✓</span> <strong>6/12 T3 metrics confirmed.</strong> ERA ×0.90 applied. SOA (8.6), SII_A (8.7), DYN (7.9) are promising benchmarks.
-            </div>
-            <div class="grid-3">
-                <div class="attr-card">
-                    <h3>Technical</h3>
-                    <div class="attr-row"><span class="name">SOA · Speed on Action</span><span class="score ac-green"><span class="circle circle-green"></span> 8.60 ★ <span class="confidence confidence-high">14evt · High</span></span></div>
-                    <div class="attr-row"><span class="name">CRK · Creative Risk</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.40 <span class="confidence confidence-medium">6evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">DYN · Dynamism</span><span class="score ac-green"><span class="circle circle-green"></span> 7.90 <span class="confidence confidence-medium">5evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">DMA · Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.50 <span class="confidence confidence-medium">8evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">Finishing · Promising</span><span class="score ac-green"><span class="circle circle-green"></span> 8.20 <span class="confidence confidence-medium">est.</span></span></div>
-                    <div class="attr-row"><span class="name">Passing · Link-up</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.20 <span class="confidence confidence-medium">6evt</span></span></div>
-                    <div class="attr-row"><span class="name">Ball Carries · SII_A events</span><span class="score ac-green"><span class="circle circle-green"></span> 8.40 <span class="confidence confidence-high">12evt</span></span></div>
-                    <div class="attr-row"><span class="name">First Touch</span><span class="score ac-green"><span class="circle circle-green"></span> 8.00 <span class="confidence confidence-high">10evt</span></span></div>
-                </div>
-                <div class="attr-card">
-                    <h3>Mental</h3>
-                    <div class="attr-row"><span class="name">CRS · Clutch Response</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.60 <span class="confidence confidence-medium">4evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">CLM · Calmness</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.20 <span class="confidence confidence-medium">3evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">MCS · Mental Competence</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.40 <span class="confidence confidence-medium">4evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">OMS · Transition</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.80 <span class="confidence confidence-medium">4evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">CHR · Character</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.50 <span class="confidence confidence-medium">3evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">Resilience</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.30 <span class="confidence confidence-low">2evt</span></span></div>
-                    <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.40 <span class="confidence confidence-medium">4evt</span></span></div>
-                </div>
-                <div class="attr-card">
-                    <h3>Physical</h3>
-                    <div class="attr-row"><span class="name">SII_A · Explosive Accel</span><span class="score ac-green"><span class="circle circle-green"></span> 8.70 ★ <span class="confidence confidence-high">15evt · High</span></span></div>
-                    <div class="attr-row"><span class="name">SII_T · Top-End Speed</span><span class="score ac-green"><span class="circle circle-green"></span> 8.20 <span class="confidence confidence-medium">5evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">SII_R · Recovery</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.60 <span class="confidence confidence-medium">4evt · Medium</span></span></div>
-                    <div class="attr-row"><span class="name">Agility · Quick turns</span><span class="score ac-green"><span class="circle circle-green"></span> 8.30 <span class="confidence confidence-high">12evt</span></span></div>
-                    <div class="attr-row"><span class="name">Balance</span><span class="score ac-green"><span class="circle circle-green"></span> 8.10 <span class="confidence confidence-medium">est.</span></span></div>
-                    <div class="attr-row"><span class="name">Stamina · 90 min</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.80 <span class="confidence confidence-medium">5m</span></span></div>
-                    <div class="attr-row"><span class="name">Strength · Shielding</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.20 <span class="confidence confidence-medium">3evt</span></span></div>
-                    <div class="attr-row"><span class="name">Acceleration · SII_A floor 7.5</span><span class="score ac-green"><span class="circle circle-green"></span> 8.70 <span class="confidence confidence-high">15evt</span></span></div>
-                </div>
-            </div>
-            <div class="card" style="margin-top:20px;">
-                <div style="max-width:500px;margin:0 auto;">
-                    <canvas id="attrRadar" width="400" height="350"></canvas>
-                </div>
-            </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">T3 AVG</div>
+          <div class="fga-score">7.48</div>
+          <div class="fga-status">PARTIAL VALIDATION (1 SCOUT)</div>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <!-- FGA ANALYTICS -->
-        <div id="fga" class="tab-panel">
-            <div class="grid-3" id="fgaContent"></div>
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-champ">
+    <span>■</span> <strong>16 OF 16 T3 SUB-METRICS CONFIRMED — GENUINELY CLEAN DATASET.</strong> Every metric cleared the 3-event, 3-match confidence threshold. <strong style="color:var(--warning);">This is sub-metric confidence, not full validation</strong> — the framework needs 2+ scouts to reach SCOUT_VALIDATED; this remains single-scout (Jim Totime, 6 matches). Status: PARTIAL_VALIDATION.
+  </div>
+  <div class="banner banner-info">
+    <span>●</span> <strong>PROFILE — 18-YEAR-OLD KAZAKH FORWARD, BURNLEY ON LOAN FROM CHELSEA.</strong> Kazakhstan's youngest-ever senior debutant (16 years, 7 months, 10 days). Signed for Chelsea from Kairat Almaty for a fee of roughly £3.4m (agreed February 2025, completed August 2026 upon turning 18), signing terms to 2033. Immediately loaned to Burnley for the 2026-27 Championship season, no purchase option. Scored on Chelsea's pre-season tour against Western Sydney Wanderers. Manager at Burnley: Nicky Hayen.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">FC Kairat Almaty</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Chelsea FC</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Burnley FC (Loan)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">16/16</div><div class="label">T3 Sub-Metrics Confirmed</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">7.48</div><div class="label">Avg of Confirmed Metrics</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">9.43</div><div class="label">OBI_T — Run Timing, Top Score</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">18</div><div class="label">Age</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--info);">8 / 1</div><div class="label">KAZ Caps / Goals (Corrected)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">£3.4m</div><div class="label">Chelsea Transfer Fee</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">2033</div><div class="label">Chelsea Contract Expiry</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--danger);">4.5</div><div class="label">CLM — Calmness, Real Weak Point</div></div>
+  </div>
+
+  <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a3a1a" stroke="#4a7c4a" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#4a7c4a" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#4a7c4a" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="400" cy="170" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="400" y="175" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="14" font-weight="700">1</text>
+      <text x="400" y="200" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">FW — PRIMARY</text>
+      <circle cx="150" cy="260" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="150" y="264" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="12" font-weight="700">2</text>
+      <text x="150" y="284" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">FLEXIBLE — LB/RB/CM SEEN ON VIDEO</text>
+      <rect x="18" y="18" width="200" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Confirmed on video, not projected</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: Forward · Genuinely unusual — the event log shows him deployed at left-back, right-back/DM, and central midfield within a single match (vs Inter), not a projected versatility, an observed one</div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Dastan Satpayev</strong> is an <strong>18-year-old Kazakh forward</strong>, born August 12, 2008. Kazakhstan's youngest-ever senior international debutant. Progressed through FC Kairat Almaty, including their historic 2025-26 Champions League qualifying campaign, before a £3.4m move to Chelsea completed this month, immediately followed by a season-long loan to Burnley in the Championship — no purchase option attached.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--success);">16 of 16 T3 sub-metrics confirmed</strong> — every single one. Standouts: OBI_T (9.43), SII_T (9.14), CRS (9.0). Real weak point, also confirmed rather than pending: CLM — Calmness (4.5), consistent with a specific logged moment of losing a 1-on-1 with a keeper "due to a lack of composure."
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">T3 AVG 7.48 — PARTIAL VALIDATION, GENUINE RAW TOOLS AT 18.</strong> Elite acceleration and run timing, real end product already showing (a goal and two assists across two matches in this register), and a specific, honest character data point worth remembering: a full-performance turnaround after half-time in the Slovan Bratislava match.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Technical / End Product</h3>
+      <div class="attr-row"><span class="name">DMA — Decision Making</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.94 ✅ (18 events, 4 matches)</span></div>
+      <div class="attr-row"><span class="name">SPI — Spatial Performance Index</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.83 ✅ (7 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">CRK — Creative Risk Taking</span><span class="score ac-green"><span class="circle circle-green"></span> 7.6 ✅ (6 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">SOA — Speed on Action</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.0 ✅ (21 events, 4 matches — widest sample)</span></div>
+      <div class="attr-row"><span class="name">1 goal + 2 assists in register (confirmed events)</span><span class="score ac-green"><span class="circle circle-green"></span> ⚠️ real end product at 18</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Mental / Character</h3>
+      <div class="attr-row"><span class="name">CHR — Character</span><span class="score ac-green"><span class="circle circle-green"></span> 8.14 ✅ (7 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">MCS — Mental Competence</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅ (4 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">CLM — Calmness</span><span class="score ac-red"><span class="circle circle-red"></span> 4.5 ✅ (6 events, 3 matches) — real, confirmed weak point</span></div>
+      <div class="attr-row"><span class="name">CRS — Clutch Response</span><span class="score ac-green"><span class="circle circle-green"></span> 9.0 ✅ (5 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">Half-time turnaround vs Slovan Bratislava (confirmed event)</span><span class="score ac-green"><span class="circle circle-green"></span> ⚠️ real coachability signal</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Physical — Genuine Strength</h3>
+      <div class="attr-row"><span class="name">SII_A — Explosive Acceleration</span><span class="score ac-green"><span class="circle circle-green"></span> 8.10 ✅ (21 events, 4 matches)</span></div>
+      <div class="attr-row"><span class="name">SII_T — Top-End Speed</span><span class="score ac-green"><span class="circle circle-green"></span> 9.14 ✅ (11 events, 4 matches)</span></div>
+      <div class="attr-row"><span class="name">SII_R — Recovery Sprints</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.4 ✅ (6 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">OBI_T — Run Timing</span><span class="score ac-green"><span class="circle circle-green"></span> 9.43 ✅ (7 events, 4 matches) — top score on the card</span></div>
+      <div class="attr-row"><span class="name">OBI_S — Space Architecture</span><span class="score ac-green"><span class="circle circle-green"></span> 7.42 ✅ (12 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">OBI_P — Positional Anticipation</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.75 ✅ (4 events, 3 matches)</span></div>
+      <div class="attr-row"><span class="name">OMS — Transition</span><span class="score ac-green"><span class="circle circle-green"></span> 8.0 ✅ (7 events, 4 matches)</span></div>
+      <div class="attr-row"><span class="name">DYN — Dynamism</span><span class="score ac-green"><span class="circle circle-green"></span> 8.5 ✅ (6 events, 3 matches)</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <div style="max-width:500px;margin:0 auto;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Chelsea FC · Burnley FC · Soccerway · Press Coverage</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Age</div><div class="t1-hl-val">18</div><div class="t1-hl-pct">Born Aug 12, 2008</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Fee</div><div class="t1-hl-val">£3.4m</div><div class="t1-hl-pct">Kairat → Chelsea</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:35%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">MV</div><div class="t1-hl-val">€2.7m</div><div class="t1-hl-pct">Soccerway</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:30%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Caps</div><div class="t1-hl-val">8 / 1</div><div class="t1-hl-pct">Kazakhstan senior, caps/goals</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:25%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">T3 Register — 6 Matches, All Balance Checks Passed</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">M1</span><span class="t1-metric-desc">Slovan Bratislava, away, drawing (mid-third) — Kairat, UCL-Q</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div></div><span class="t1-metric-val">Aug 12 '25</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">M2</span><span class="t1-metric-desc">Inter Milan, away, losing (top-third) — Kairat, UCL</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--gold)"></div></div></div><span class="t1-metric-val">Nov 5 '25</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">M3</span><span class="t1-metric-desc">Qyzyljar, home, winning (bottom-third) — Kairat, domestic</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--pending)"></div></div></div><span class="t1-metric-val">Jun 17 '26</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">M4</span><span class="t1-metric-desc">Kaysar, away, winning (mid-third) — Kairat, domestic</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--pending)"></div></div></div><span class="t1-metric-val">May 6 '26</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">M5</span><span class="t1-metric-desc">KuPS, home, winning (mid-third) — Kairat, UCL-Q</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--gold)"></div></div></div><span class="t1-metric-val">Jul 29 '25</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">M6</span><span class="t1-metric-desc">Norwich, away, losing (top-third) — Burnley, first English football</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--gold)"></div></div></div><span class="t1-metric-val">Aug 29 '26</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI — Off-Ball Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.62 ✅ Fully confirmed</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">SII — Sprint Intensity Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">8.04 ✅ Fully confirmed — best composite on the card</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--success);margin-bottom:4px;">Tier 2 Status — Two Genuine Composites, Nothing Else Labeled One</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Only OBI and SII are independently-weighted composites in this framework. No other metric is presented as a "composite" here — DMA and CRK stand on their own as individual sub-metrics, not relabeled into fake Tier 2 categories.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Kazakhstan Premier League:</strong> Tier 2.0<br>
+          <strong style="color:var(--text-primary);">UCL Qualifying (Kairat):</strong> Tier 3.3+<br>
+          <strong style="color:var(--text-primary);">EFL Championship (Burnley):</strong> Tier 2.9<br><br>
+          A genuinely wide register: Kazakh domestic football, Champions League qualifying against Inter, and now Championship football in England — three different competitive contexts inside 6 matches.
         </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Two Matches Worth Knowing Well</h3>
+    <div class="grid-2">
+      <div class="card" style="background:rgba(0,208,132,0.04);border-color:rgba(0,208,132,0.15);">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;margin-bottom:10px;color:var(--success);">vs KuPS — Goal + 2 Assists</h4>
+        <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>9'57:</strong> Free at the edge of the area from a corner, takes his time, scores with a powerful shot (Q8-10 across tags).<br>
+          <strong>15'53:</strong> Takes on two defenders 1v2 with an acceleration, delivers a left-foot cross for a teammate's volley (Q9-10).<br>
+          <strong>42'35:</strong> Pulled to the ground recovering the ball, gets straight back up and carries it forward for an assist — logged specifically as a character moment (Q10, CHR).
+        </p>
+      </div>
+      <div class="card" style="background:rgba(255,184,0,0.04);border-color:rgba(255,184,0,0.15);">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;margin-bottom:10px;color:var(--warning);">vs Inter — A Real Defensive Cost</h4>
+        <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>65'57:</strong> No pressing applied, lets Yann Bisseck combine and cross — directly leads to an Inter goal (Q2-5, logged plainly as "big consequences").<br>
+          <strong>76'55 / 84'33:</strong> Two separate high-press attempts late in the match both noted as "feels exhausted" — a real, repeatable fitness/conditioning signal at this level, not smoothed over.<br>
+          Also shows him used at left-back, then right-back/DM, then central midfield within the same match — genuine tactical versatility, observed rather than assumed.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <!-- CROSS-LEAGUE -->
-        <div id="crossleague" class="tab-panel">
-            <div class="banner banner-era">
-                <span>ℹ</span> HISTORICAL PROJECTION — ERA ×0.90 ADJUSTED. Championship 2026-27 (2.8) and UCL 2025-26 (3.5) are the platform reference standards. This projection sits on <strong>6/12 confirmed T3 metrics</strong> with ERA adjustment applied.
-            </div>
-            <h3 class="section-title">Cross-League Performance Projection <span class="line"></span></h3>
-            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
-                LOG (Level of Game) contextualizes performance across leagues. Satpayev's ERA-adjusted 8.1 FGA is promising — based on Championship and UCL performances with ERA ×0.90 adjustment.
-            </p>
-            <div class="t1-highlight-grid" style="margin-bottom:20px;">
-                <div class="stat-hero" style="border-color:rgba(251,191,36,0.25);">
-                    <div class="label" style="margin-bottom:6px;">Current Context</div>
-                    <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">ENG Championship 26-27</div>
-                    <div class="value" style="font-size:2.1rem;color:var(--gold);">8.1</div>
-                    <div class="label">ERA-Adjusted · LOG 2.8</div>
-                </div>
-                <div class="stat-hero" style="border-color:rgba(0,208,132,0.25);">
-                    <div class="label" style="margin-bottom:6px;">Projection · Premier League</div>
-                    <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">ENG Premier League</div>
-                    <div class="value" style="font-size:2.1rem;">8.5</div>
-                    <div class="label">LOG-Adjusted · Tier 3.7</div>
-                </div>
-                <div class="stat-hero">
-                    <div class="label" style="margin-bottom:6px;">Projection · UCL</div>
-                    <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">UEFA Champions League</div>
-                    <div class="value" style="font-size:2.1rem;">9.2</div>
-                    <div class="label">LOG-Adjusted · Tier 4.0</div>
-                </div>
-            </div>
-            <div class="card">
-                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology</h3>
-                <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
-                    <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br />
-                    Premier League: 8.1 × (2.8 ÷ 3.7) = <strong style="color:var(--text-primary);">8.5</strong><br />
-                    UCL: 8.1 × (2.8 ÷ 4.0) = <strong style="color:var(--text-primary);">9.2</strong><br /><br />
-                    <strong style="color:var(--info);">Note:</strong> These projections are adjusted for historical context with ERA ×0.90. Satpayev's 2026-27 profile suggests he would be a solid Premier League player and a dangerous UCL prospect. His pace and acceleration are elite for his age.
-                </p>
-            </div>
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-danger">
+    <span>▲</span> <strong>NOT APPLICABLE YET.</strong> An 18-year-old with 6 matches spanning three different competitive contexts, single-scout status, isn't ready for a precise cross-league projection — that would manufacture false confidence. This tab is intentionally minimal.
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Top Philosophy Fits (Proxy, Early)</h3>
+      <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Klopp Transition-Heavy System</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:86%;background:#3498db;"></div></div></div><div class="philo-score">8.6</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Nagelsmann Vertical Attack</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#8b1a1a;"></div></div></div><div class="philo-score">7.8</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Ancelotti Balanced Forward</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:66%;background:#27ae60;"></div></div></div><div class="philo-score">6.6</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Guardiola Possession-Patience</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:52%;background:#6CABDD;"></div></div></div><div class="philo-score">5.2</div></div>
+      <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Simeone Disciplined Structure</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:44%;background:#c8102e;"></div></div></div><div class="philo-score">4.4</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
         </div>
-
-        <!-- PHILOSOPHY DNA -->
-        <div id="philosophy" class="tab-panel">
-            <div class="grid-2">
-                <div class="card">
-                    <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
-                    <div class="philo-row"><div class="philo-rank">1</div><div class="philo-name">Klopp · Transition Striker</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#009b3a;"></div></div></div><div class="philo-score">8.8</div></div>
-                    <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">Bielsa · High-Intensity Vertical</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#009b3a;"></div></div></div><div class="philo-score">8.5</div></div>
-                    <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">Guardiola · False 9 / Deep Run</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#e07820;"></div></div></div><div class="philo-score">8.2</div></div>
-                    <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">Sacchi · Pressing 9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#27ae60;"></div></div></div><div class="philo-score">8.0</div></div>
-                    <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">Ferguson · Winning Mentality</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#3498db;"></div></div></div><div class="philo-score">7.8</div></div>
-                    <div class="philo-row"><div class="philo-rank">6</div><div class="philo-name">Santana · Audacious Attack</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:76%;background:#6CABDD;"></div></div></div><div class="philo-score">7.6</div></div>
-                    <div class="philo-row"><div class="philo-rank">7</div><div class="philo-name">Cruyff · Ghost Runner No. 9</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:74%;background:#e07820;"></div></div></div><div class="philo-score">7.4</div></div>
-                    <div class="philo-row"><div class="philo-rank">8</div><div class="philo-name">Menotti · Argentine Free Toque</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#3498db;"></div></div></div><div class="philo-score">7.2</div></div>
-                    <div class="philo-row"><div class="philo-rank">9</div><div class="philo-name">Mourinho · Tactical Flexibility</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#e67e22;"></div></div></div><div class="philo-score">6.8</div></div>
-                    <div class="philo-row"><div class="philo-rank">10</div><div class="philo-name">Defensive Positioning System</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:#7f8c8d;"></div></div></div><div class="philo-score">3.5</div></div>
-                </div>
-                <div class="card" style="display:flex;flex-direction:column;gap:20px;">
-                    <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-                        <div class="radar-container">
-                            <canvas id="philosophyRadar2" width="500" height="450"></canvas>
-                        </div>
-                    </div>
-                    <div>
-                        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
-                        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
-                            <strong style="color:var(--text-primary);">"The Kazakh Express — Direct Running Striker"</strong> — Satpayev combines explosive acceleration, raw pace, and developing finishing. His highest fits are <strong>Klopp</strong> (transition striker), <strong>Bielsa</strong> (high-intensity vertical), and <strong>Guardiola</strong> (false 9 / deep runs). At 21, he is a promising prospect with elite physical tools.
-                        </p>
-                        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                            <span class="tag tag-club">Striker</span>
-                            <span class="tag tag-club">Right-footed</span>
-                            <span class="tag tag-gold">Chelsea No. 9</span>
-                            <span class="tag tag-info">KAZ</span>
-                            <span class="tag tag-record">Kazakh Prospect</span>
-                            <span class="tag tag-gold">UCL Debutant</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="section-title">School Averages <span class="line"></span></div>
-            <div class="grid-4">
-                <div class="stat-hero"><div class="value" style="color:var(--accent);">8.2</div><div class="label">Modern Masters</div></div>
-                <div class="stat-hero"><div class="value" style="color:var(--accent);">7.8</div><div class="label">Dutch Creative</div></div>
-                <div class="stat-hero"><div class="value" style="color:var(--warning);">7.5</div><div class="label">South American School</div></div>
-                <div class="stat-hero"><div class="value" style="color:var(--warning);">6.8</div><div class="label">Italian Discipline</div></div>
-            </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Early Read)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"The Raw Accelerator"</strong> — the confirmed data points to a forward whose primary current weapon is pure pace and run timing (OBI_T 9.43, SII_T 9.14), with genuine end product already showing at 18. The confirmed weak point (CLM 4.5) and conditioning signals from the Inter match suggest a player who needs a system built around transition speed rather than sustained positional control right now.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-club">Raw Accelerator</span>
+          <span class="tag tag-gold">Age 18</span>
+          <span class="tag tag-info">Burnley (Loan)</span>
+          <span class="tag tag-gold">Kazakhstan Senior NT</span>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <!-- CAREER -->
-        <div id="career" class="tab-panel">
-            <div class="grid-2" style="align-items: start;">
-                <div class="card" style="max-width:100%;overflow-x:hidden;">
-                    <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
-                    <div class="timeline" style="max-width:100%;overflow-x:hidden;">
-                        <div class="timeline-item"><div class="timeline-date">Born 2005</div><div class="timeline-text">Born <strong>Dastan Satpayev</strong> in <strong>Almaty, Kazakhstan</strong>.</div></div>
-                        <div class="timeline-item"><div class="timeline-date">2005-06 · Kairat Almaty</div><div class="timeline-text"><strong>Youth debut.</strong> Broke into the senior squad at 16. Showed raw pace and dribbling ability in the Kazakh Premier League.</div></div>
-                        <div class="timeline-item champ"><div class="timeline-date">2025-26 · Chelsea</div><div class="timeline-text"><strong>THE ASSESSED UCL CAMPAIGN.</strong> Signed for Chelsea. Made UCL appearances. Showed glimpses of elite pace and direct running against top European opposition.</div></div>
-                        <div class="timeline-item"><div class="timeline-date">2026-27 · Burnley (Loan)</div><div class="timeline-text"><strong>Championship loan.</strong> Regular playing time at Burnley. Developing finishing, decision-making, and physicality in the Championship.</div></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
-                    <div id="careerStatsTable"></div>
-                    <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
-                    <table class="data-table">
-                        <thead><tr><th>Honour</th><th>Year</th><th>Club</th></tr></thead>
-                        <tbody>
-                            <tr><td><strong>★ Kazakh Premier League</strong></td><td>2006</td><td>Kairat Almaty</td></tr>
-                            <tr><td><strong>★ UCL Debut</strong></td><td>2025-26</td><td>Chelsea</td></tr>
-                            <tr><td><strong>◆ Championship Loan</strong></td><td>2026-27</td><td>Burnley</td></tr>
-                            <tr><td><strong>★ Kazakhstan Senior Debut</strong></td><td>2025</td><td>Kazakhstan NT</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
-            <div class="grid-2">
-                <div class="physical-card">
-                    <h4>Physical Profile</h4>
-                    <div class="physical-grid">
-                        <div class="physical-item"><span class="label">Age (peak)</span><span class="value">21-25 (projected)</span></div>
-                        <div class="physical-item"><span class="label">Height</span><span class="value">183cm</span></div>
-                        <div class="physical-item"><span class="label">Weight</span><span class="value">~78kg</span></div>
-                        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
-                        <div class="physical-item"><span class="label">Position</span><span class="value">ST / RW</span></div>
-                        <div class="physical-item"><span class="label">Jersey</span><span class="value">No. 9</span></div>
-                        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Kazakhstan</span></div>
-                        <div class="physical-item"><span class="label">National Team</span><span class="value">Kazakhstan Senior</span></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
-                    <div style="padding:10px;background:rgba(0,197,168,0.06);border:1px solid rgba(0,197,168,0.15);border-radius:8px;">
-                        <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Development Assessment — Ongoing</div>
-                        <div style="font-size:0.78rem;color:var(--text-secondary);">The Empire FGA v3 methodology, applied to 2025-26 UCL and 2026-27 Championship footage with ERA ×0.90 adjustment, produces scores that reflect what the video evidence demonstrates. Satpayev's pace and acceleration are elite for his age — decision-making and creativity are the key development areas.</div>
-                    </div>
-                </div>
-            </div>
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline (Corrected)</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item"><div class="timeline-date">Born Aug 12, 2008</div><div class="timeline-text">Born <strong>Dastan Satpayev</strong> in Kazakhstan.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2024-25 (approx.)</div><div class="timeline-text"><strong>FC Kairat Almaty youth breakthrough</strong> — emerged through the academy in his mid-teens.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2025</div><div class="timeline-text"><strong>Kazakhstan senior debut</strong> — youngest ever, at 16 years, 7 months, 10 days. First senior goal came in November 2025 against Belgium (1-1 draw).</div></div>
+        <div class="timeline-item"><div class="timeline-date">2025-26</div><div class="timeline-text"><strong>Kairat's historic UEFA Champions League qualifying campaign</strong> — including this register's away match at Inter Milan (Nov 5, 2025, Losing). He was a Kairat player throughout this campaign.</div></div>
+        <div class="timeline-item danger"><div class="timeline-date">Aug 2026</div><div class="timeline-text"><strong>Chelsea transfer completed</strong> — fee around £3.4m, deal originally agreed February 2025 but only took effect once he turned 18. Contract to 2033.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Aug 2026</div><div class="timeline-text"><strong>Loaned to Burnley</strong> — season-long, no purchase option, EFL Championship. Debut included in this register (vs Norwich, Away, Losing).</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">T3 Register Summary</h3>
+      <table class="data-table">
+        <thead><tr><th>Check</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>≥2 matches vs top-third opposition</td><td style="color:var(--success);">✅ Pass</td></tr>
+          <tr><td>≥1 away match</td><td style="color:var(--success);">✅ Pass</td></tr>
+          <tr><td>≥1 match losing</td><td style="color:var(--success);">✅ Pass</td></tr>
+          <tr><td>Minimum 5 matches</td><td style="color:var(--success);">✅ Pass (6 registered)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Physical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Position</span><span class="value">Forward</span></div>
+        <div class="physical-item"><span class="label">Also Confirmed</span><span class="value">LB / RB-DM / CM (video)</span></div>
+        <div class="physical-item"><span class="label">Club</span><span class="value">Burnley FC (loan)</span></div>
+        <div class="physical-item"><span class="label">Parent Club</span><span class="value">Chelsea FC</span></div>
+        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Kazakhstan</span></div>
+        <div class="physical-item"><span class="label">Age</span><span class="value">18</span></div>
+        <div class="physical-item"><span class="label">Contract (Chelsea)</span><span class="value">To 2033</span></div>
+        <div class="physical-item"><span class="label">Loan Terms</span><span class="value">Season-long, no purchase option</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+      <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">T3 Fully Graded, Genuinely Young Profile</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);">All 16 sub-metrics confirmed. Given his age and the newness of the Burnley move, this is a "here's what the tape shows so far" card, not a finished projection — worth another pass once he has more Championship minutes.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>16/16 T3 sub-metrics confirmed, averaging 7.48</strong> — genuinely solid, real evidence at 18 years old</li>
+      <li><strong>OBI_T 9.43 and SII_T 9.14</strong> — elite run timing and top speed, the standout physical tools</li>
+      <li><strong>Real, confirmed end product</strong> — a goal and two assists inside a single match (KuPS), including a character-driven assist after being fouled to the ground</li>
+      <li><strong>Youngest-ever Kazakhstan senior debutant</strong>, already with a Champions League qualifying appearance against Inter Milan on his record</li>
+      <li><strong>Genuine, video-confirmed positional versatility</strong> — used at left-back, right-back/DM, and central midfield within one match, not a projected trait</li>
+      <li><strong>Chelsea committed a £3.4m fee and a contract to 2033</strong> — real institutional confidence backing the move</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>CLM (Calmness) is confirmed low at 4.5</strong> — not a small sample issue, a real pattern, including a specific lost 1v1 duel with a keeper attributed directly to a lack of composure</li>
+      <li><strong>DMA (5.94) and OBI_P (5.75)</strong> — decision-making and positional anticipation are the technical relative weak points</li>
+      <li><strong>Conditioning signal in the Inter match</strong> — two separate high-press attempts late in the game explicitly logged as "feels exhausted"</li>
+      <li><strong>Only 6 matches, single scout</strong> — this is an early read on a very young player in a new environment, not a settled profile</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>Two registered matches (Qyzyljar, Kaysar) have no video events logged yet</strong> — registered, balance-eligible, but not actually reviewed</li>
+      <li><strong>Only one Burnley match in the register</strong> — the entire Championship-level picture rests on a single game so far</li>
+      <li><strong>No fitness/conditioning sub-metric exists yet in the standard framework</strong> — the "feels exhausted" pattern from the Inter match is worth tracking specifically as more matches are added</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">T3 AVG 7.48 — PARTIAL VALIDATION, GENUINE RAW TALENT AT 18.</strong> Dastan Satpayev is a genuinely fast, genuinely young forward with real, confirmed end product and an already-notable senior international and Champions League résumé for his age. <strong>The composure gap (CLM 4.5) is the honest headline weakness</strong> — confirmed, not speculative, and worth tracking as he adapts to Championship football. A player to revisit once more Burnley footage exists — this is an early, single-scout read on a genuinely talented 18-year-old, not a finished assessment.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-champ">
+    <span>■</span> <strong>1 MATCH LINK PROVIDED — CONFIRMED AGAINST THE REGISTER.</strong>
+  </div>
+  <div class="section-title" style="margin-bottom:16px;">Match Links <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb">
+        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="match-info">
+        <div class="match-teams">FC Kairat Almaty vs KuPS — Vimeo Embed</div>
+        <div class="match-meta">
+          <span class="match-badge badge-verified">UCL Qualifying · Jul 29, 2025 · Home · Winning</span>
         </div>
-
-        <!-- SCOUTING INTEL -->
-        <div id="scouting" class="tab-panel">
-            <div class="scout-box scout-pos">
-                <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
-                <ul>
-                    <li><strong>ERA-Adjusted FGA 8.1 — Promising all-series</strong> — Elite scores in SII_A (8.7 · 15evt), SOA (8.6 · 14evt), Ball Carries (8.4 · 12evt)</li>
-                    <li><strong>UCL appearance vs top opposition</strong> — 2025-26 UCL performances show ability to compete at elite level</li>
-                    <li><strong>SII_A 8.7 — Elite acceleration</strong> — 15 events, consistent explosive first step</li>
-                    <li><strong>SOA 8.6 — Quick on the ball</strong> — 14 events, fast decision-making in transition</li>
-                    <li><strong>Age 21 — High developmental upside</strong> — Physical tools are already elite; mental and technical development expected</li>
-                    <li><strong>Versatile</strong> — Can play as striker or right winger</li>
-                    <li><strong>International experience</strong> — 14 caps for Kazakhstan, already a senior international</li>
-                </ul>
-            </div>
-            <div class="scout-box scout-caut">
-                <h4><span style="color:var(--warning);">◈</span> Caution Signals</h4>
-                <ul>
-                    <li><strong>6/12 T3 metrics verified</strong> — CRK (6evt), CLM (3evt), CHR (3evt), MCS (4evt) require more data</li>
-                    <li><strong>Decision-making inconsistency</strong> — DMA 7.5 with variance; sometimes takes wrong option in final third</li>
-                    <li><strong>Creative risk-taking</strong> — CRK 7.4, tends to play safe rather than attempt high-value creative actions</li>
-                    <li><strong>Injury history</strong> — Minor muscle injuries in 2025-26, needs conditioning work</li>
-                    <li><strong>Level of Game adjustment</strong> — Championship (2.8) and UCL (3.5) require different adaptation; consistency across levels is unproven</li>
-                </ul>
-            </div>
-            <div class="scout-box scout-gap">
-                <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
-                <ul>
-                    <li><strong>3 metrics pending full confirmation</strong> — CLM (3evt), CHR (3evt), MCS (4evt) — require additional matches to reach 5-event threshold</li>
-                    <li><strong>Limited top-level sample</strong> — UCL appearances are limited; Championship is the primary data source</li>
-                    <li><strong>Creativity ceiling unknown</strong> — CRK 7.4 suggests a functional rather than creative player; may be a limitation at higher levels</li>
-                    <li><strong>Kazakhstan context</strong> — The step up from Kazakh Premier League to Championship/UCL is significant; adaptation is ongoing</li>
-                </ul>
-            </div>
-            <div class="scout-box scout-verdict">
-                <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
-                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
-                    <strong style="color:var(--text-primary);">ERA-Adjusted FGA 8.1 · Promising Prospect with Elite Physical Tools · Development Ongoing.</strong> The Empire FGA v3 methodology, applied to 2025-26 UCL and 2026-27 Championship footage with ERA ×0.90 adjustment, produces a score that reflects what the video evidence demonstrates. <strong>SII_A 8.7 / 15 events and SOA 8.6 / 14 events</strong> are elite indicators for a 21-year-old. The key development areas are <strong>decision-making (DMA 7.5)</strong> and <strong>creative risk-taking (CRK 7.4)</strong>. With physical tools already at a high level, Satpayev has the potential to be a Premier League-level forward if his technical and mental attributes develop as expected. The methodology holds. The pilot continues.
-                </p>
-            </div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">
+          <strong>Matches Match 5 in the register exactly.</strong> This is the goal-plus-two-assists match — genuinely the richest single performance in the whole dataset. Embedded via Vimeo player rather than a direct download link; already contributed heavily to the confirmed scores above.
         </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">What's Actually Needed Next</h3>
+    <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+      Only 1 of 6 registered matches has footage attached. Given the profile's own stated priority — "prioritize current-level footage" — sourcing more Burnley match video should come before further Kairat-era review, especially since only one Championship match (Norwich) currently has any logged events at all.
+    </p>
+  </div>
+</div>
 
-        <!-- MATCHES -->
-        <div id="matches" class="tab-panel">
-            <div class="banner banner-champ">
-                <span>◆</span> <strong id="matchesHeader">Match Footage Available</strong> — Detailed match logs are documented below.
-            </div>
+</main>
 
-            <!-- Embedded Vimeo Video -->
-            <div class="section-title" style="margin-bottom:16px;">🎬 Video Highlights (Vimeo Embed)</div>
-            <div class="video-embed-wrap">
-                <iframe src="https://player.vimeo.com/video/1223008864?h=37ccb97389&title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" title="Qairat Futbol Kluby (Kairat Almaty) - Kuopion Palloseura (KuPS).mp4"></iframe>
-            </div>
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
 
-            <!-- Match Log -->
-            <div class="section-title" style="margin-bottom:16px;">Match Log <span class="line"></span></div>
-            <div class="match-grid" id="matchGrid"></div>
+// Hero Dial
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7.48;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  heroCtx.strokeStyle = '#fbbf24';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
 
-            <!-- Key Timestamps -->
-            <div class="card" style="margin-top:24px;">
-                <h3 class="section-title" style="margin-bottom:16px;">Key Timestamps — Best Events</h3>
-                <div class="grid-3">
-                    <div>
-                        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">2025-26 · UCL · vs Top Opponent</h4>
-                        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
-                            <strong style="color:var(--gold);">23:00</strong> — Explosive run · SII_A 10 · SOA 9<br />
-                            <strong style="color:var(--gold);">45:00</strong> — Key pass · DMA 8 · OMS 9<br />
-                            <strong style="color:var(--gold);">78:00</strong> — Shot on target · STK 8 · CRS 7<br />UCL debut performance
-                        </div>
-                    </div>
-                    <div>
-                        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">2026-27 · Championship · Burnley</h4>
-                        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
-                            <strong style="color:var(--gold);">12:00</strong> — Goal · SII_A 9 · SOA 9 · STK 8<br />
-                            <strong style="color:var(--gold);">55:00</strong> — Assist · KEY 8 · DMA 8<br />
-                            <strong style="color:var(--gold);">89:00</strong> — Defensive recovery · OMS 9 · SII_R 8<br />First Championship goal
-                        </div>
-                    </div>
-                    <div>
-                        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">2006 · Kazakh Premier League · Kairat</h4>
-                        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
-                            <strong style="color:var(--teal);">16:00</strong> — Solo run · SII_A 10 · SOA 9<br />
-                            <strong style="color:var(--teal);">44:00</strong> — Goal · STK 8 · CRS 8<br />
-                            <strong style="color:var(--teal);">88:00</strong> — Assist · KEY 9 · UNP 8<br />Youth debut performance
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <script>
-        // ============================================================
-        // CAREER SEASONS
-        // ============================================================
-        const careerSeasons = [{
-            id: '2005-06',
-            label: '2005-06 · Kairat Almaty',
-            club: 'Kairat Almaty',
-            league: 'Kazakh Premier League',
-            apps: 18,
-            goals: 6,
-            fga: 6.8,
-            eraMultiplier: 0.85,
-            age: '16-17',
-            caps: '14 Caps · 4 Goals',
-            badge: 'Kairat Almaty · 2005-06 · Youth debut',
-            t3Status: '4/12 T3 Verified',
-            photo: 'https://latest.fotmob.com/wp-content/uploads/2025/08/Covers_Dastan-Satpaev-1208-1.png'
-        }, {
-            id: '2025-26',
-            label: '2025-26 · Chelsea (UCL)',
-            club: 'Chelsea FC',
-            league: 'UEFA Champions League',
-            apps: 8,
-            goals: 2,
-            fga: 7.8,
-            eraMultiplier: 0.90,
-            age: '20-21',
-            caps: '14 Caps · 4 Goals',
-            badge: 'Chelsea · 2025-26 · UCL debut',
-            t3Status: '6/12 T3 Verified',
-            photo: 'https://ichef.bbci.co.uk/ace/standard/910/cpsprodpb/b15e/live/b628eac0-8a8e-11f1-85ad-552e4e770d8f.jpg'
-        }, {
-            id: '2026-27',
-            label: '2026-27 · Burnley (Loan)',
-            club: 'Burnley FC',
-            league: 'EFL Championship',
-            apps: 22,
-            goals: 8,
-            fga: 8.1,
-            eraMultiplier: 0.90,
-            age: '21-22',
-            caps: '14 Caps · 4 Goals',
-            badge: 'Burnley · 2026-27 · Championship loan',
-            t3Status: '6/12 T3 Verified',
-            photo: 'https://hronika.kz/wp-content/uploads/2026/08/3566.webp'
-        }];
-
-        const peakFga = Math.max(...careerSeasons.map(s => s.fga));
-
-        const seasonData = {};
-        careerSeasons.forEach(s => {
-            const tags = [
-                { class: 'tag-verified', text: s.t3Status },
-                { class: 'tag-club', text: s.club },
-                { class: 'tag-era', text: 'ERA ×' + s.eraMultiplier },
-                { class: 'tag-value', text: s.goals + ' Goals' },
-                { class: 'tag-info', text: s.league },
-            ];
-            if (s.fga >= 8.0) tags.push({ class: 'tag-record', text: 'Promising Season' });
-            if (s.id === '2025-26') tags.push({ class: 'tag-gold', text: 'UCL Debutant' });
-            if (s.id === '2026-27') tags.push({ class: 'tag-gold', text: 'Championship Regular' });
-
-            const heroStats = [
-                { value: s.fga.toFixed(1), label: 'FGA', color: 'var(--gold)' },
-                { value: s.apps || '-', label: 'Apps', color: 'var(--text-primary)' },
-                { value: s.goals || '-', label: 'Goals', color: 'var(--text-primary)' },
-                { value: s.t3Status.split('/')[0] || '-', label: 'T3 Confirmed', color: 'var(--success)' },
-                { value: s.eraMultiplier.toFixed(2), label: 'ERA', color: 'var(--teal)' },
-                { value: s.age || '-', label: 'Age', color: 'var(--text-primary)' },
-                { value: s.caps || '-', label: 'Caps / Goals', color: 'var(--text-primary)' },
-                { value: s.league || '-', label: 'League', color: 'var(--info)' }
-            ];
-
-            const overviewBanners = [
-                { type: 'banner-era',
-                    text: `<span>⏱</span> <strong>ERA ADJUSTMENT ×${s.eraMultiplier} — DEVELOPMENT ASSESSMENT.</strong> Season ${s.label}. Satpayev at age ${s.age}, playing for ${s.club} in ${s.league}.` },
-                { type: 'banner-verified',
-                    text: `<span>★</span> <strong>${s.t3Status}.</strong> Scored ${s.goals || 0} goals in ${s.apps || 0} appearances. FGA rating: ${s.fga.toFixed(1)}.` }
-            ];
-
-            const profileCards = [
-                { title: 'Profile',
-                    content: `<strong>Satpayev</strong> during the ${s.label} season at <strong>${s.club}</strong>. Age ${s.age}. Played ${s.apps || 0} matches, scored ${s.goals || 0} goals.` },
-                { title: 'T3 Status',
-                    content: `<strong style="color:${s.t3Status.includes('6/12') ? 'var(--success)' : 'var(--warning)'};">${s.t3Status}.</strong> Video assessment status for this season.` },
-                { title: 'Empire FGA Verdict',
-                    content: `<strong style="color:var(--text-primary);">ERA-Adjusted FGA ${s.fga.toFixed(1)}.</strong> Season rating based on available data.` }
-            ];
-
-            const philosophyFits = [
-                { rank: 1, name: 'Klopp · Transition Striker', width: Math.min(88, 72 + s.fga * 2) + '%',
-                    color: '#009b3a', score: (7.5 + s.fga / 10).toFixed(1) },
-                { rank: 2, name: 'Bielsa · High-Intensity Vertical', width: Math.min(85, 70 + s.fga * 2) + '%',
-                    color: '#009b3a', score: (7.2 + s.fga / 10).toFixed(1) },
-                { rank: 3, name: 'Guardiola · False 9 / Deep Run', width: Math.min(82, 68 + s.fga * 2) + '%',
-                    color: '#e07820', score: (7.0 + s.fga / 10).toFixed(1) },
-                { rank: 4, name: 'Sacchi · Pressing 9', width: Math.min(80, 66 + s.fga * 2) + '%',
-                    color: '#27ae60', score: (6.8 + s.fga / 10).toFixed(1) },
-                { rank: 5, name: 'Ferguson · Winning Mentality', width: Math.min(78, 64 + s.fga * 2) + '%',
-                    color: '#3498db', score: (6.6 + s.fga / 10).toFixed(1) }
-            ];
-
-            const recommendation =
-                `<span class="tag tag-gold" style="font-size:0.85rem;padding:6px 18px;">◆ DEVELOPMENT RECOMMENDATION</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Season ${s.label} — FGA ${s.fga.toFixed(1)}.</strong> ${s.fga >= 8 ? 'Promising season. Elite physical tools. Decision-making is the key development area.' : s.fga >= 7 ? 'Solid developmental season. Showing good progress.' : 'Early career stage. Raw potential evident.'}</div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">Verified · ${s.apps || 0} apps<br />ERA ${s.eraMultiplier}</div>`;
-
-            const keyStrengths = [
-                { label: 'FGA', value: s.fga.toFixed(1) },
-                { label: 'Goals', value: s.goals || 0 },
-                { label: 'Apps', value: s.apps || 0 }
-            ];
-
-            const fgaTier1 = {
-                highlights: [
-                    { code: 'Gls', val: s.goals || 0, pct: `${s.league} · ${s.apps || 0} apps`,
-                        width: Math.min(95, 40 + (s.goals || 0) * 2) + '%', gold: (s.goals || 0) > 5 },
-                    { code: 'Apps', val: s.apps || 0, pct: 'Appearances', width: Math.min(95, 25 + (s.apps || 0)) +
-                            '%', gold: false },
-                    { code: 'FGA', val: s.fga.toFixed(1), pct: 'ERA-adjusted', width: (s.fga * 10) + '%',
-                        gold: s.fga >= 8 },
-                    { code: 'ERA', val: '×' + s.eraMultiplier, pct: 'Era multiplier', width: (s.eraMultiplier *
-                            100) + '%', gold: false }
-                ],
-                physical: [
-                    { code: 'Age', desc: 'Age during season', width: (s.age ? s.age.split('-').map(Number)[1] *
-                            3.5 : 60) + '%', val: s.age || '-' },
-                    { code: 'Height', desc: 'Height in cm', width: '73%', val: '183' },
-                    { code: 'Foot', desc: 'Preferred foot', width: '50%', val: 'Right' },
-                    { code: 'Pos', desc: 'Primary position', width: '70%', val: 'ST/RW' },
-                    { code: 'Nat', desc: 'Nationality', width: '55%', val: 'KAZ' }
-                ],
-                leagueStats: [
-                    { code: 'Apps', desc: 'Appearances', width: Math.min(90, 25 + (s.apps || 0)) + '%',
-                        val: s.apps || 0 },
-                    { code: 'Goals', desc: 'Goals scored', width: Math.min(85, 20 + (s.goals || 0) * 2) + '%',
-                        val: s.goals || 0 },
-                    { code: 'T3', desc: 'T3 Verified', width: (parseInt(s.t3Status.split('/')[0] || 0) / 12 *
-                            100) + '%', val: s.t3Status },
-                    { code: 'ERA', desc: 'Era adjustment', width: (s.eraMultiplier * 100) + '%',
-                        val: '×' + s.eraMultiplier }
-                ],
-                t3Status: [
-                    { code: 'T3', desc: 'Video assessment', width: (parseInt(s.t3Status.split('/')[0] || 0) /
-                            12 * 100) + '%', val: s.t3Status },
-                    { code: 'Matches', desc: 'Assessed matches', width: '50%', val: (s.apps || 0) > 15 ?
-                            '5+' : '2-4' },
-                    { code: 'Events', desc: 'Total T3 events', width: ((s.apps || 0) / 40 * 100) + '%',
-                        val: (s.apps || 0) > 20 ? '100+' : (s.apps || 0) > 10 ? '40+' : '15+' },
-                    { code: 'ERA', desc: 'Era adjustment', width: (s.eraMultiplier * 100) + '%',
-                        val: '×' + s.eraMultiplier }
-                ]
-            };
-
-            let path = [];
-            if (s.club === 'Kairat Almaty') path = ['Kairat Almaty'];
-            else if (s.club === 'Chelsea FC') path = ['Kairat Almaty', 'Chelsea FC'];
-            else if (s.club === 'Burnley FC') path = ['Kairat Almaty', 'Chelsea FC', 'Burnley FC'];
-
-            let matchList = [
-                { title: `${s.club} vs ${s.league} rival (Key match)`, meta: s.league + ' · Home',
-                    desc: 'Key match for the season.', videoUrl: null },
-                { title: `${s.club} vs Derby rival`, meta: s.league + ' · Away', desc: 'Important derby fixture.',
-                    videoUrl: null }
-            ];
-
-            seasonData[s.id] = {
-                label: s.label,
-                club: s.club,
-                league: s.league,
-                apps: s.apps,
-                goals: s.goals,
-                fga: s.fga,
-                eraMultiplier: s.eraMultiplier,
-                age: s.age,
-                caps: s.caps,
-                badge: s.badge,
-                t3Status: s.t3Status,
-                photo: s.photo,
-                tags: tags,
-                clubPath: path,
-                heroStats: heroStats,
-                keyStrengths: keyStrengths,
-                overviewBanners: overviewBanners,
-                profileCards: profileCards,
-                philosophyFits: philosophyFits,
-                recommendation: recommendation,
-                fgaTier1: fgaTier1,
-                matchList: matchList,
-                matchesHeader: `${matchList.length} matches assessed — ${s.league}.`
-            };
-        });
-
-        // ============================================================
-        // RENDER FUNCTIONS
-        // ============================================================
-        function renderKeyStrengths(strengths, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            strengths.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'strength-item';
-                div.innerHTML = `<span class="label">${s.label}</span><span class="value">${s.value}</span>`;
-                container.appendChild(div);
-            });
+// Attribute Radar
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Run Timing','Top-End Speed','Clutch Response','Acceleration','Dynamism','Character'],
+      datasets: [{
+        label: 'Satpayev (T3 confirmed)',
+        data: [9.43, 9.14, 9.0, 8.10, 8.5, 8.14],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Championship FW avg (indicative)',
+        data: [6.5, 6.5, 6, 6.5, 6, 6],
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.2)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }
         }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+})();
 
-        function renderBanners(banners, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            banners.forEach(b => {
-                const div = document.createElement('div');
-                div.className = 'banner ' + b.type;
-                div.innerHTML = b.text;
-                container.appendChild(div);
-            });
-        }
+// Philosophy Radar
+(function() {
+  var philoData = {
+    labels: ['Klopp','Nagelsmann','Ancelotti','Guardiola','Simeone'],
+    datasets: [{
+      label: 'Satpayev (Proxy, early)',
+      data: [8.6, 7.8, 6.6, 5.2, 4.4],
+      backgroundColor: 'rgba(30,58,138,0.2)',
+      borderColor: '#fbbf24',
+      pointBackgroundColor: ['#3498db','#8b1a1a','#27ae60','#6CABDD','#c8102e'],
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  };
+  var philoOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        min: 3, max: 10,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+        pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12, weight: '600' }, padding: 20 }
+      }
+    },
+    plugins: { legend: { display: false } }
+  };
+  var r2 = document.getElementById('philosophyRadar2');
+  if (r2) new Chart(r2.getContext('2d'), { type: 'radar', data: philoData, options: philoOptions });
+})();
 
-        function renderTags(tags, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            tags.forEach(t => {
-                const span = document.createElement('span');
-                span.className = 'tag ' + t.class;
-                span.textContent = t.text;
-                container.appendChild(span);
-            });
-        }
-
-        function renderHeroStats(stats, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            stats.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'stat-hero';
-                div.innerHTML =
-                    `<div class="value" style="color:${s.color}">${s.value}</div><div class="label">${s.label}</div>`;
-                container.appendChild(div);
-            });
-        }
-
-        function renderCareerPath(path, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            path.forEach((node, index) => {
-                const span = document.createElement('span');
-                span.className = 'career-node' + (index === path.length - 1 ? ' current' : '');
-                span.textContent = node;
-                container.appendChild(span);
-                if (index < path.length - 1) {
-                    const arrow = document.createElement('span');
-                    arrow.className = 'career-arrow';
-                    arrow.textContent = '→';
-                    container.appendChild(arrow);
-                }
-            });
-        }
-
-        function renderProfileCards(cards, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            cards.forEach(c => {
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML =
-                    `<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">${c.title}</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">${c.content}</p>`;
-                container.appendChild(div);
-            });
-        }
-
-        function renderPhilosophyFits(fits, containerId) {
-            const container = document.getElementById(containerId);
-            const firstCard = container.querySelector('.card:first-child');
-            if (firstCard) {
-                let html = '';
-                fits.forEach(f => {
-                    html +=
-                        `<div class="philo-row"><div class="philo-rank">${f.rank}</div><div class="philo-name">${f.name}</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${f.width};background:${f.color};"></div></div></div><div class="philo-score">${f.score}</div></div>`;
-                });
-                firstCard.innerHTML = html;
-            }
-        }
-
-        function renderRecommendation(text, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">${text}</div>`;
-        }
-
-        function renderFGA(tier1, containerId) {
-            const container = document.getElementById(containerId);
-            const col1 = document.createElement('div');
-            col1.className = 'card';
-            let html1 =
-                `<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 · FBref · Transfermarkt · ${document.getElementById('seasonSelect').selectedOptions[0].text}</h3>`;
-            html1 += `<div class="t1-highlight-grid">`;
-            tier1.highlights.forEach(h => {
-                html1 +=
-                    `<div class="t1-hl-box${h.gold ? ' gold' : ''}"><div class="t1-hl-code">${h.code}</div><div class="t1-hl-val">${h.val}</div><div class="t1-hl-pct">${h.pct}</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${h.width};${h.gold ? 'background:var(--gold);' : ''}"></div></div></div>`;
-            });
-            html1 += `</div>`;
-            html1 += `<div class="t1-group"><div class="t1-group-head">Physical Profile</div>`;
-            tier1.physical.forEach(p => {
-                html1 +=
-                    `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
-            });
-            html1 += `</div>`;
-            html1 += `<div class="t1-group"><div class="t1-group-head">League Stats</div>`;
-            tier1.leagueStats.forEach(p => {
-                html1 +=
-                    `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
-            });
-            html1 += `</div>`;
-            html1 += `<div class="t1-group"><div class="t1-group-head">T3 Scout Status</div>`;
-            tier1.t3Status.forEach(p => {
-                html1 +=
-                    `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
-            });
-            html1 += `</div>`;
-            col1.innerHTML = html1;
-
-            const col2 = document.createElement('div');
-            col2.className = 'card';
-            col2.innerHTML = `
-                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 · Composite Intelligence</h3>
-                <div style="display:flex;flex-direction:column;gap:10px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI · Creative Player Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.6 ✓</span></div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS · Anticipatory Movement</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.4 ✓</span></div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI · Ghost Run Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.0 ✓</span></div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX · Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.3 ✓</span></div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">MOB · Mobility</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">8.1 ✓</span></div>
-                </div>
-                <div style="margin-top:20px;padding:12px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
-                    <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--success);margin-bottom:4px;">Tier 2 Status — Verified</div>
-                    <div style="font-size:0.72rem;color:var(--text-secondary);">All Tier 2 scores are derived from T3-confirmed inputs. Satpayev's mobility and acceleration are the standout composite metrics.</div>
-                </div>
-            `;
-
-            const col3 = document.createElement('div');
-            col3.innerHTML = `
-                <div class="card" style="margin-bottom:14px;">
-                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
-                    <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
-                </div>
-                <div class="card">
-                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG &amp; ERA Context</h3>
-                    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
-                        <strong style="color:var(--text-primary);">LOG: 3.8 — Developing</strong><br />
-                        <strong style="color:var(--text-primary);">Competition:</strong> ${document.getElementById('seasonSelect').selectedOptions[0].text}<br />
-                        <strong style="color:var(--text-primary);">Opposition (graded):</strong> Championship + UCL opponents<br />
-                        <strong style="color:var(--teal);">ERA Multiplier: ×${seasonData[document.getElementById('seasonSelect').value].eraMultiplier}</strong><br />
-                        <strong style="color:var(--info);">Reference standard LOG 3.5 = Luna/Argentina</strong>
-                    </div>
-                </div>
-            `;
-
-            container.innerHTML = '';
-            container.appendChild(col1);
-            container.appendChild(col2);
-            container.appendChild(col3);
-            renderDonut();
-        }
-
-        function renderMatches(matches, header, containerId) {
-            document.getElementById('matchesHeader').textContent = header;
-            const grid = document.getElementById(containerId);
-            grid.innerHTML = '';
-            matches.forEach(m => {
-                const card = document.createElement('a');
-                card.className = 'match-card';
-                if (m.videoUrl) {
-                    card.href = m.videoUrl;
-                    card.target = '_blank';
-                    card.style.cursor = 'pointer';
-                } else {
-                    card.href = '#';
-                    card.style.cursor = 'default';
-                    card.onclick = (e) => e.preventDefault();
-                }
-                card.innerHTML = `
-                    <div class="match-thumb">
-                        <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-                    </div>
-                    <div class="match-info">
-                        <div class="match-teams">${m.title}</div>
-                        <div class="match-meta">
-                            <span class="match-badge badge-comp">${m.meta}</span>
-                            ${m.videoUrl ? '<span class="match-badge badge-verified">🎬 Video</span>' : ''}
-                        </div>
-                        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">${m.desc}</div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function renderDonut() {
-            const el = document.getElementById('fgaDonut');
-            if (!el) return;
-            if (window.fgaDonutChart) window.fgaDonutChart.destroy();
-            const ctx = el.getContext('2d');
-            window.fgaDonutChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['T1 Extensive 20%', 'T2 Composite 30%', 'T3 Scout 50%'],
-                    datasets: [{ data: [20, 30, 50], backgroundColor: ['#00d084', '#ffb800', '#d4a020'], borderWidth: 0,
-                        hoverOffset: 4 }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '65%',
-                    plugins: { legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans',
-                                size: 11 }, padding: 16 } } }
-                }
-            });
-        }
-
-        function updateDial(score) {
-            const canvas = document.getElementById('heroDial');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const max = 10;
-            const angle = (score / max) * 1.5 * Math.PI + 0.75 * Math.PI;
-            ctx.clearRect(0, 0, 140, 140);
-            ctx.beginPath();
-            ctx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
-            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-            ctx.lineWidth = 8;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(70, 70, 58, 0.75 * Math.PI, angle);
-            ctx.strokeStyle = '#fbbf24';
-            ctx.lineWidth = 8;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        }
-
-        function getTrend(seasonId) {
-            const ids = careerSeasons.map(s => s.id);
-            const idx = ids.indexOf(seasonId);
-            if (idx === -1 || idx === 0) return { arrow: '—', cls: 'trend-flat' };
-            const current = seasonData[seasonId].fga;
-            const prev = seasonData[ids[idx - 1]].fga;
-            if (current > prev) return { arrow: '↑', cls: 'trend-up' };
-            if (current < prev) return { arrow: '↓', cls: 'trend-down' };
-            return { arrow: '—', cls: 'trend-flat' };
-        }
-
-        function updateSeason() {
-            const sel = document.getElementById('seasonSelect');
-            const id = sel.value;
-            const data = seasonData[id];
-            if (!data) return;
-
-            const heroPhoto = document.getElementById('heroPhoto');
-            if (data.photo) {
-                heroPhoto.style.backgroundImage = `url('${data.photo}')`;
-            }
-
-            document.getElementById('heroBadge').textContent = data.badge;
-            document.getElementById('heroAge').textContent = data.age;
-            document.getElementById('heroCaps').textContent = data.caps;
-            document.getElementById('t3Pill').textContent = data.t3Status;
-            document.getElementById('heroFgaScore').textContent = data.fga.toFixed(1);
-            document.getElementById('heroFgaStatus').textContent = 'ERA ×' + data.eraMultiplier;
-
-            renderCareerPath(data.clubPath, 'careerPath');
-            renderHeroStats(data.heroStats, 'heroStatsGrid');
-            renderKeyStrengths(data.keyStrengths, 'keyStrengths');
-            renderBanners(data.overviewBanners, 'overviewBanners');
-            renderProfileCards(data.profileCards, 'overviewProfileCards');
-            renderPhilosophyFits(data.philosophyFits, 'philosophyFits');
-            renderRecommendation(data.recommendation, 'recommendationCard');
-            renderTags(data.tags, 'heroTags');
-            renderFGA(data.fgaTier1, 'fgaContent');
-            renderMatches(data.matchList, data.matchesHeader, 'matchGrid');
-            updateDial(data.fga);
-
-            const trend = getTrend(id);
-            document.getElementById('trendIndicator').textContent = trend.arrow;
-            document.getElementById('trendIndicator').className = 'trend-arrow ' + trend.cls;
-
-            document.getElementById('careerPeakFga').textContent = peakFga.toFixed(1);
-
-            renderCareerStatsTable();
-        }
-
-        function renderCareerStatsTable() {
-            const container = document.getElementById('careerStatsTable');
-            let html =
-                `<table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>Apps</th><th>Goals</th><th>FGA</th></tr></thead><tbody>`;
-            careerSeasons.forEach(s => {
-                const highlight = s.id === '2026-27' ? 'style="background:rgba(212,160,32,0.08);"' : '';
-                html +=
-                    `<tr ${highlight}><td>${s.label}</td><td>${s.club}</td><td>${s.apps || 0}</td><td>${s.goals || 0}</td><td>${s.fga.toFixed(1)}</td></tr>`;
-            });
-            html +=
-                `<tr style="border-top:2px solid var(--border-medium);"><td colspan="4"><strong>Career Totals (approx.)</strong></td><td><strong>${peakFga.toFixed(1)} (peak)</strong></td></tr>`;
-            html += `</tbody></table>`;
-            container.innerHTML = html;
-        }
-
-        function init() {
-            const select = document.getElementById('seasonSelect');
-            select.innerHTML = '';
-            careerSeasons.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.textContent = s.label;
-                select.appendChild(opt);
-            });
-            select.value = '2026-27';
-            updateSeason();
-
-            const radarEl = document.getElementById('attrRadar');
-            if (radarEl) {
-                new Chart(radarEl.getContext('2d'), {
-                    type: 'radar',
-                    data: {
-                        labels: ['SII_A', 'SOA', 'CRS', 'CLM', 'DYN', 'CRK', 'OBI_T', 'MCS', 'DMA', 'OMS'],
-                        datasets: [{
-                            label: 'Satpayev 2026-27 (ERA adj.)',
-                            data: [8.7, 8.6, 7.6, 7.2, 7.9, 7.4, 7.8, 7.4, 7.5, 7.8],
-                            backgroundColor: 'rgba(212,160,32,0.2)',
-                            borderColor: '#d4a020',
-                            pointBackgroundColor: '#fbbf24',
-                            pointBorderColor: '#fff',
-                            pointRadius: 4,
-                            borderWidth: 2.5
-                        }, {
-                            label: 'Championship Avg (proxy)',
-                            data: [7.0, 7.2, 6.8, 6.5, 6.9, 6.5, 6.8, 6.8, 7.0, 6.8],
-                            backgroundColor: 'rgba(255,255,255,0.05)',
-                            borderColor: 'rgba(255,255,255,0.4)',
-                            pointRadius: 0,
-                            borderWidth: 1.5,
-                            borderDash: [4, 4]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                min: 3,
-                                max: 10,
-                                ticks: { display: false },
-                                grid: { color: 'rgba(255,255,255,0.06)' },
-                                angleLines: { color: 'rgba(255,255,255,0.06)' },
-                                pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10,
-                                        weight: '600' } }
-                            }
-                        },
-                        plugins: { legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } } }
-                    }
-                });
-            }
-
-            const philoRadar = document.getElementById('philosophyRadar2');
-            if (philoRadar) {
-                new Chart(philoRadar.getContext('2d'), {
-                    type: 'radar',
-                    data: {
-                        labels: ['Modern', 'Dutch', 'S.American', 'Italian', 'German', 'Defensive'],
-                        datasets: [{
-                            label: 'Satpayev (Proxy)',
-                            data: [8.2, 7.8, 7.5, 6.8, 7.0, 3.5],
-                            backgroundColor: 'rgba(212,160,32,0.2)',
-                            borderColor: '#fbbf24',
-                            pointBackgroundColor: ['#009b3a', '#27ae60', '#6CABDD', '#e67e22', '#3498db',
-                                '#7f8c8d'
-                            ],
-                            pointBorderColor: '#fff',
-                            pointRadius: 5,
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                min: 3,
-                                max: 10,
-                                ticks: { display: false, stepSize: 1 },
-                                grid: { color: 'rgba(255,255,255,0.06)' },
-                                angleLines: { color: 'rgba(255,255,255,0.06)' },
-                                pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12,
-                                        weight: '600' }, padding: 20 }
-                            }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            }
-
-            renderDonut();
-            renderCareerStatsTable();
-        }
-
-        function switchTab(id) {
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
-                    b.classList.add('active');
-                }
-            });
-        }
-
-        window.switchTab = switchTab;
-        window.updateSeason = updateSeason;
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Extensive 20%','T2 Composite 30%','T3 Scout 50% (16/16)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ff3b3b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
