@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nassim Senkaz | Empire FGA GK Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#d4a020;--accent-dim:rgba(212,160,32,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--teal:#00c5a8;--tier1:#00d084;--tier2:#ffb800;--tier3:#d4a020;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg-primary);}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo{position:absolute;inset:0;background:url('https://www.image2url.com/r2/default/images/1789236420780-a9a3a90b-6a95-43ff-863e-e66a5f601e6b.png') center 25% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo{transform:scale(1.03);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(212,160,32,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#d4a020 33%,#fbbf24 33%,#fbbf24 66%,#d4a020 66%);z-index:10;}
+.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before{content:'FRA';font-size:0.7rem;font-weight:800;}
+.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}
+.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag{font-size:1.1rem;font-weight:700;color:var(--gold);}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club{background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-verified{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-warning{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-record{background:rgba(212,160,32,0.15);color:var(--gold);border:1px solid rgba(212,160,32,0.3);}
+.tag-era{background:rgba(0,197,168,0.12);color:var(--teal);border:1px solid rgba(0,197,168,0.25);}
+.fga-dial-wrap{position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--success);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3{background:rgba(212,160,32,0.12);color:var(--tier3);border:1px solid rgba(212,160,32,0.2);}
+.season-selector{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;background:var(--bg-card);padding:16px 20px;border-radius:12px;border:1px solid var(--border-subtle);}
+.season-selector label{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+.season-selector select{background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-medium);border-radius:8px;padding:8px 16px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;cursor:pointer;outline:none;min-width:280px;}
+.season-selector select:hover{border-color:var(--accent);}
+.season-selector select option{background:var(--bg-primary);color:var(--text-primary);}
+.season-average{font-family:var(--font-heading);font-size:0.85rem;color:var(--text-secondary);margin-left:auto;padding:4px 12px;background:var(--accent-dim);border-radius:100px;border:1px solid rgba(212,160,32,0.2);display:flex;align-items:center;gap:8px;}
+.season-average strong{color:var(--gold);font-size:1rem;}
+.trend-arrow{font-size:1.2rem;line-height:1;}
+.trend-up{color:var(--success);}
+.trend-down{color:var(--danger);}
+.trend-flat{color:var(--text-tertiary);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-verified{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-era{background:rgba(0,197,168,0.08);border:1px solid rgba(0,197,168,0.2);color:var(--teal);}
+.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.career-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow{color:var(--text-tertiary);font-size:0.8rem;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.pos-map-wrap svg{max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;background:#1a5a1a;}
+.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;gap:4px;}
+.attr-row:last-child{border-bottom:none;}
+.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);flex:1;}
+.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.ac-green{color:var(--success);}
+.ac-yellow{color:var(--warning);}
+.ac-red{color:var(--danger);}
+.ac-pend{color:var(--pending);}
+.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green{background:var(--success);}
+.circle-yellow{background:var(--warning);}
+.circle-red{background:var(--danger);}
+.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.t1-metric-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;}
+.t1-metric-row:last-child{border-bottom:none;}
+.t1-metric-code{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:60px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc{font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap{width:100px;flex-shrink:0;}
+.t1-metric-val{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+.t1-group{margin-bottom:14px;}
+.t1-group-head{font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(212,160,32,0.08);margin-bottom:8px;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child{border-bottom:none;}
+.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;cursor:default;}
+.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(212,160,32,0.1);}
+.match-thumb{height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-size:cover;background-position:center;}
+.match-thumb .play-icon{width:48px;height:48px;background:rgba(212,160,32,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;border:2px dashed rgba(212,160,32,0.3);}
+.match-thumb .play-icon svg{width:18px;height:18px;fill:rgba(255,255,255,0.3);margin-left:3px;}
+.match-info{padding:16px;}
+.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4{color:var(--success);}
+.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4{color:var(--warning);}
+.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4{color:var(--danger);}
+.scout-verdict{background:var(--accent-dim);border:1px solid rgba(212,160,32,0.2);}
+.scout-verdict h4{color:var(--silver);}
+.scout-box ul{list-style:none;padding:0;margin:0;}
+.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before{content:'\2014';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(212,160,32,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(212,160,32,0.15);border-radius:12px;padding:20px;}
+.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label{color:var(--text-tertiary);}
+.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(212,160,32,0.4);}
+.timeline-item.hist::before{background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before{background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date{color:var(--success);}
+.timeline-item.champ .timeline-date{color:var(--gold);}
+.timeline-item.danger .timeline-date{color:var(--danger);}
+.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas{width:100%!important;height:100%!important;}
+.recommendation-card{border-left:4px solid var(--gold);background:linear-gradient(135deg,rgba(212,160,32,0.08),rgba(10,10,15,0.5));}
+.recommendation-card .tag{font-size:0.8rem;padding:6px 16px;}
+.key-strengths{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.strength-item{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:8px 16px;display:flex;align-items:center;gap:8px;}
+.strength-item .label{font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
+.strength-item .value{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--gold);}
+.league-compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.league-compare-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.league-compare-card:hover{transform:translateY(-3px);border-color:var(--border-medium);}
+.league-compare-card .league-flag{font-size:1.8rem;margin-bottom:4px;}
+.league-compare-card .league-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.league-compare-card .league-tier{font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.league-compare-card .projected-goals{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);margin:8px 0 2px;}
+.league-compare-card .projected-label{font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;}
+.league-compare-card .log-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:0.6rem;font-weight:700;background:rgba(212,160,32,0.12);color:var(--gold);border:1px solid rgba(212,160,32,0.2);margin-top:6px;}
+.league-compare-card .multiplier{font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;}
+.league-compare-card .multiplier strong{color:var(--text-secondary);}
+.league-compare-card .direction-indicator{font-size:0.65rem;margin-top:6px;color:var(--text-tertiary);}
+.league-compare-card .direction-indicator .up{color:var(--success);}
+.league-compare-card .direction-indicator .down{color:var(--danger);}
+.log-methodology{font-size:0.78rem;color:var(--text-secondary);line-height:1.8;}
+.log-methodology strong{color:var(--text-primary);}
+.log-methodology .formula-box{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:6px;padding:12px 16px;font-family:var(--font-body);font-size:0.75rem;color:var(--text-secondary);margin:8px 0;overflow-x:auto;}
+.dual-score-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;}
+.dual-score-row:last-child{border-bottom:none;}
+.dual-score-name{flex:1;font-size:0.82rem;color:var(--text-secondary);}
+.dual-score-bar-wrap{width:120px;flex-shrink:0;}
+.dual-score-val{font-family:var(--font-heading);font-size:0.85rem;font-weight:700;width:45px;text-align:right;flex-shrink:0;}
+.dual-score-pctile{font-family:var(--font-heading);font-size:0.75rem;font-weight:600;width:70px;text-align:right;flex-shrink:0;}
+.flag-box{border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:0.8rem;display:flex;align-items:flex-start;gap:10px;}
+.flag-box .icon{font-size:1rem;flex-shrink:0;}
+.flag-box.validated{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);color:var(--success);}
+.flag-box.proxy{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);color:var(--warning);}
+.flag-box.risk{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);color:var(--danger);}
+.flag-box.market{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);color:var(--info);}
+@media (max-width:768px){.hero{height:440px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:110px;height:110px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.season-selector{flex-direction:column;align-items:stretch;}.season-average{margin-left:0;text-align:center;}.key-strengths{flex-direction:column;align-items:stretch;}.league-compare-grid{grid-template-columns:1fr 1fr;}}
+@media (max-width:480px){.league-compare-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">US Ivry · 2025-26 · National 3</div>
+  <div class="jersey-watermark">1</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">FC 93 Bobigny B</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">US Ben Guerdane</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">ES Viry-Châtillon</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">US Ivry (2023–)</div>
+    </div>
+    <h1 class="hero-name">Nassim Senkaz</h1>
+    <div class="hero-meta">
+      <span><span class="flag">FRA</span> France / Tunisia</span>
+      <span class="dot"></span>
+      <span id="heroAge">25 years</span>
+      <span class="dot"></span>
+      <span>Goalkeeper</span>
+      <span class="dot"></span>
+      <span>Left-footed</span>
+      <span class="dot"></span>
+      <span id="heroCaps">—</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 Emerging</div>
+          <div class="tier-pill t2">T2 Partial</div>
+          <div class="tier-pill t3" id="t3Pill">T3 VIDEO GRADED</div>
+        </div>
+        <div class="hero-tags" id="heroTags" style="margin-top:10px;"></div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3 GK</div>
+          <div class="fga-score" id="heroFgaScore">7.2</div>
+          <div class="fga-status" id="heroFgaStatus">VIDEO GRADED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="season-selector" style="max-width:1200px;margin:20px auto 0;padding:0 24px;">
+  <label for="seasonSelect">Season</label>
+  <select id="seasonSelect" onchange="updateSeason()">
+    <option value="2025-26" selected>2025-26 · US Ivry (National 3)</option>
+  </select>
+  <span class="season-average">
+    <span>FGA v3 GK: <strong id="careerPeakFga">7.2</strong></span>
+    <span id="trendIndicator" class="trend-arrow trend-flat">—</span>
+  </span>
+</div>
+
+<div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
+  <div class="key-strengths" id="keyStrengths"></div>
+</div>
+
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" data-tab="attributes" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" data-tab="fga" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" data-tab="crossleague" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" data-tab="philosophy" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" data-tab="career" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" data-tab="scouting" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" data-tab="matches" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<main class="content">
+
+  <div id="overview" class="tab-panel active">
+    <div id="overviewBanners"></div>
+    <div class="career-path" id="careerPath"></div>
+    <div class="stat-hero-grid" id="heroStatsGrid"></div>
+    <div class="section-title">Goalkeeper Positioning Map <span class="line"></span></div>
+    <div class="pos-map-wrap">
+      <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+        <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a5a1a" stroke="#4a8c4a" stroke-width="2"/>
+        <line x1="260" y1="10" x2="260" y2="330" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="35" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="10" y="105" width="55" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="445" y="105" width="65" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="10" y="135" width="18" height="70" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="492" y="135" width="18" height="70" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="2" y="155" width="10" height="30" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="508" y="155" width="10" height="30" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="300" r="16" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" stroke-width="2.5"/>
+        <circle cx="260" cy="300" r="11" fill="#fbbf24" stroke="#fff" stroke-width="2"/>
+        <text x="260" y="304" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="11" font-weight="700">1</text>
+        <text x="260" y="270" text-anchor="middle" fill="#fbbf24" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" opacity="0.9">GK — PRIMARY</text>
+        <text x="260" y="255" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="7" opacity="0.7">Sweeper-keeper · Shot-stopper</text>
+      </svg>
+      <div class="pos-map-caption">Goalkeeper profile · Sweeper-keeper · Shot-stopper · Distribution</div>
+    </div>
+    <div class="grid-3" id="overviewProfileCards"></div>
+    <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+    <div class="grid-2" id="philosophyFits"></div>
+    <div class="card recommendation-card" style="margin-top:12px;" id="recommendationCard"></div>
+  </div>
+
+  <div id="attributes" class="tab-panel">
+    <div class="banner banner-verified"><span>✅</span> <strong>T3 Video Assessment Complete.</strong> 12 GK metrics graded across 8+ matches. FGA v3 GK Video Score: <strong>7.2</strong>.</div>
+    <div id="attributeCards"></div>
+    <div class="card" style="margin-top:20px;"><div style="max-width:500px;margin:0 auto;"><canvas id="attrRadar" width="400" height="350"></canvas></div></div>
+  </div>
+
+  <div id="fga" class="tab-panel">
+    <div id="fgaBanner"></div>
+    <div class="grid-3" id="fgaContent"></div>
+  </div>
+
+  <div id="crossleague" class="tab-panel">
+    <div class="banner banner-era"><span>📊</span> <strong>LOG-ADJUSTED CROSS-LEAGUE PROJECTIONS</strong> — Based on Empire FGA LOG v2.0 methodology. Source: National 3 (LOG 1.6).</div>
+    <div class="section-title">Performance Projection by League <span class="line"></span></div>
+    <div class="league-compare-grid" id="crossLeagueGrid"></div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📐 Methodology — LOG-Adjusted Projection</h3>
+      <div class="log-methodology">
+        <p><strong>Every league in the Empire FGA system carries a LOG (Level of Game) tier.</strong></p>
+        <div class="formula-box"><strong>Projected Clean Sheets = Current Clean Sheets × (Source LOG ÷ Target LOG)</strong></div>
+        <p style="margin-top:8px;"><strong>Source:</strong> <span id="crossSourceLeague">—</span> — LOG <strong><span id="crossSourceLog">—</span></strong>.</p>
+        <p style="margin-top:4px;"><strong>Senkaz's baseline:</strong> <span id="crossBaseline">—</span></p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+      <div class="card">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">League LOG Reference</h4>
+        <div style="font-size:0.75rem;color:var(--text-secondary);line-height:2;">
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Premier League / La Liga</span><span style="color:var(--gold);">3.7</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Bundesliga / Ligue 1 / Serie A</span><span style="color:var(--gold);">3.6</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Eredivisie / Championship</span><span style="color:var(--gold);">2.8</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Ligue 2 / National</span><span style="color:var(--gold);">2.3</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>National 2</span><span style="color:var(--gold);">2.0</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>National 3</span><span style="color:var(--gold);">1.6</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">LOG-Adjusted FGA</h4>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <p><strong style="color:var(--text-primary);">LOG_Adjusted_FGA = Ultimate_FGA × (Source LOG ÷ Target LOG)</strong></p>
+          <div id="crossFgaExamples" style="background:var(--bg-card-hover);border-radius:6px;padding:10px;margin-top:6px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:12px;"><span>ℹ️</span> <strong id="crossLeagueNote">—</strong></div>
+  </div>
+
+  <div id="philosophy" class="tab-panel">
+    <div class="grid-2">
+      <div class="card"><h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3><div id="philosophyFitList"></div></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;"><div class="radar-container"><canvas id="philosophyRadar2" width="500" height="450"></canvas></div></div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;" id="philosophyArchetype">—</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="philosophyTags"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">School Averages <span class="line"></span></div>
+    <div class="grid-4" id="schoolAverages"></div>
+  </div>
+
+  <div id="career" class="tab-panel">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card" style="max-width:100%;overflow-x:hidden;">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+        <div class="timeline" id="careerTimeline"></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+        <div id="careerStatsTable"></div>
+        <h3 class="section-title" style="margin:24px 0 16px;">Achievements</h3>
+        <table class="data-table" id="honoursTable"><thead><tr><th>Achievement</th><th>Year</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+    <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
+    <div class="grid-2">
+      <div class="physical-card">
+        <h4>Physical Profile</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Age</span><span class="value" id="physAge">—</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Left</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Goalkeeper</span></div>
+          <div class="physical-item"><span class="label">Jersey</span><span class="value">No. 1</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">France / Tunisia</span></div>
+          <div class="physical-item"><span class="label">Place of Birth</span><span class="value">Aubervilliers</span></div>
+          <div class="physical-item"><span class="label">Contract</span><span class="value">To 30/06/2026</span></div>
+          <div class="physical-item"><span class="label">Market Value</span><span class="value">€1K (BeSoccer)</span></div>
+          <div class="physical-item"><span class="label">Current Club</span><span class="value">US Ivry (2023–)</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+        <div style="padding:10px;background:rgba(0,197,168,0.06);border:1px solid rgba(0,197,168,0.15);border-radius:8px;" id="assessmentNote">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scouting" class="tab-panel"><div id="scoutingContent"></div></div>
+
+  <div id="matches" class="tab-panel">
+    <div class="banner banner-champ"><span>◆</span> <strong id="matchesHeader">Match Footage Available</strong> — Full match video available via Dropbox.</div>
+    <div class="section-title" style="margin-bottom:16px;">🎬 Match Videos (Dropbox)</div>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="card" style="margin-top:24px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Key Statistics — <span id="matchesSeasonLabel">2025-26</span></h3>
+      <div class="grid-3" id="matchesStats"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+var careerSeasons = [
+  { id:'2025-26', label:'2025-26 · US Ivry', club:'US Ivry', league:'National 3 - Grp. F', apps:14, goals:0, assists:0, fga:7.2, age:'25', caps:'—', badge:'US Ivry · 2025-26 · National 3', t3Status:'Video Graded', photo:'https://www.image2url.com/r2/default/images/1789236420780-a9a3a90b-6a95-43ff-863e-e66a5f601e6b.png', logTier:1.6, cleanSheets:3, goalsConceded:17, minutes:1260 }
+];
+
+var peakFga = 7.2;
+
+var logReference = {
+  'Premier League':{tier:3.7,flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',short:'EPL'},
+  'La Liga':{tier:3.7,flag:'🇪🇸',short:'La Liga'},
+  'Bundesliga':{tier:3.6,flag:'🇩🇪',short:'Bundesliga'},
+  'Ligue 1':{tier:3.6,flag:'🇫🇷',short:'Ligue 1'},
+  'Serie A':{tier:3.6,flag:'🇮🇹',short:'Serie A'},
+  'Eredivisie':{tier:2.8,flag:'🇳🇱',short:'Eredivisie'},
+  'Championship':{tier:2.8,flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',short:'Championship'},
+  'Ligue 2':{tier:2.3,flag:'🇫🇷',short:'Ligue 2'},
+  'National 2':{tier:2.0,flag:'🇫🇷',short:'N2'},
+  'National 3':{tier:1.6,flag:'🇫🇷',short:'N3'}
+};
+
+var crossLeagues = ['Ligue 2','National 2','National 3','Eredivisie','Championship','Ligue 1'];
+
+var careerTimelineData = [
+  {date:'Born 24/12/2000', text:'Born <strong>Nassim Senkaz</strong> in <strong>Aubervilliers, France</strong>. Left-footed goalkeeper. French/Tunisian nationality.', type:''},
+  {date:'2020–2021 · FC 93 Bobigny B', text:'Youth/reserve career begins at <strong>FC 93 Bobigny B</strong>.', type:'hist'},
+  {date:'Jan 2022 – Jun 2022 · US Ben Guerdane', text:'Brief spell in Tunisia with <strong>US Ben Guerdane</strong>.', type:''},
+  {date:'2022–2023 · ES Viry-Châtillon', text:'Joined <strong>ES Viry-Châtillon</strong>.', type:''},
+  {date:'27/07/2023 · US Ivry', text:'Signed for <strong>US Ivry</strong>. Contract until 30/06/2026.', type:'current'},
+  {date:'2023-24 Season', text:'3 apps, 8 goals conceded, 0 clean sheets. 270 minutes.', type:''},
+  {date:'2024-25 Season', text:'6 apps, 14 goals conceded, 1 clean sheet. 477 minutes.', type:''},
+  {date:'2025-26 Season', text:'<strong>14 apps, 17 goals conceded, 3 clean sheets.</strong> 1,260 minutes. 74% start rate. Established as first-choice GK.', type:'champ'},
+  {date:'T3 Video Assessment', text:'Full GK video assessment completed across 8+ matches. FGA v3 GK Video Score: <strong>7.2</strong>.', type:'hist'}
+];
+
+var honoursData = [
+  {name:'★ T3 Video Assessment Completed', year:'2026'},
+  {name:'★ 14 apps in 2025-26 season', year:'2025-26'},
+  {name:'★ 3 clean sheets in 2025-26', year:'2025-26'}
+];
+
+// GK video metrics from event log
+var gkMetrics = [
+  {code:'GPI_A', name:'Shot Anticipation', score:5.6, weight:0.35, events:8, confidence:'OK'},
+  {code:'GPI_P', name:'Positional Coverage', score:7.4, weight:0.35, events:22, confidence:'OK'},
+  {code:'GPI_S', name:'Set-Piece Organisation', score:7.3, weight:0.30, events:3, confidence:'OK'},
+  {code:'SDI_E', name:'Explosive Save Mechanics', score:7.8, weight:0.40, events:10, confidence:'OK'},
+  {code:'SDI_R', name:'Reflex Save Speed', score:7.9, weight:0.35, events:7, confidence:'OK'},
+  {code:'SDI_F', name:'Footwork & Base Position', score:7.7, weight:0.25, events:10, confidence:'OK'},
+  {code:'DMA', name:'Decision Making', score:7.2, weight:null, events:6, confidence:'OK'},
+  {code:'CHR', name:'Character', score:8.7, weight:null, events:3, confidence:'OK'},
+  {code:'AER', name:'Aerial Dominance', score:8.4, weight:null, events:8, confidence:'OK'},
+  {code:'SWE', name:'Sweeper Actions', score:7.7, weight:null, events:3, confidence:'OK'},
+  {code:'DST', name:'Distribution Accuracy', score:7.5, weight:null, events:22, confidence:'OK'},
+  {code:'COM', name:'Communication', score:7.2, weight:null, events:5, confidence:'OK'},
+  {code:'CLM', name:'Calmness', score:4.9, weight:null, events:7, confidence:'OK'},
+  {code:'CRS', name:'Clutch Response', score:7.5, weight:null, events:4, confidence:'OK'},
+  {code:'PEN', name:'Penalty Intelligence', score:5.0, weight:null, events:1, confidence:'VIDEO_PENDING'},
+  {code:'CAT', name:'Catching Technique', score:7.7, weight:null, events:14, confidence:'OK'}
+];
+
+// ============================================================
+// RENDER HELPERS
+// ============================================================
+function renderKeyStrengths(strengths, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  strengths.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'strength-item';
+    d.innerHTML = '<span class="label">'+s.label+'</span><span class="value">'+s.value+'</span>';
+    c.appendChild(d);
+  });
+}
+
+function renderBanners(banners, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  banners.forEach(function(b){
+    var d = document.createElement('div');
+    d.className = 'banner ' + b.type;
+    d.innerHTML = b.text;
+    c.appendChild(d);
+  });
+}
+
+function renderTags(tags, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  tags.forEach(function(t){
+    var s = document.createElement('span');
+    s.className = 'tag ' + t.class;
+    s.textContent = t.text;
+    c.appendChild(s);
+  });
+}
+
+function renderHeroStats(stats, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  stats.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'stat-hero';
+    d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.label+'</div>';
+    c.appendChild(d);
+  });
+}
+
+function renderCareerPath(path, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  path.forEach(function(node, i){
+    var s = document.createElement('span');
+    s.className = 'career-node' + (i === path.length-1 ? ' current' : '');
+    s.textContent = node;
+    c.appendChild(s);
+    if (i < path.length-1) {
+      var a = document.createElement('span');
+      a.className = 'career-arrow';
+      a.textContent = '→';
+      c.appendChild(a);
+    }
+  });
+}
+
+function renderProfileCards(cards, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  cards.forEach(function(card){
+    var d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = '<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">'+card.title+'</h3><div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">'+card.content+'</div>';
+    c.appendChild(d);
+  });
+}
+
+function renderPhilosophyFits(fits, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  var firstCard = document.createElement('div');
+  firstCard.className = 'card';
+  var html = '';
+  fits.forEach(function(f){
+    html += '<div class="philo-row"><div class="philo-rank">'+f.rank+'</div><div class="philo-name">'+f.name+'</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+f.width+';background:'+f.color+';"></div></div></div><div class="philo-score">'+f.score+'</div></div>';
+  });
+  firstCard.innerHTML = html;
+  c.appendChild(firstCard);
+}
+
+function renderRecommendation(text, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">'+text+'</div>';
+}
+
+function renderCrossLeague(seasonId) {
+  var season = careerSeasons.find(function(s){return s.id === seasonId;});
+  if (!season) return;
+
+  var sourceLog = season.logTier;
+  var sourceCS = season.cleanSheets;
+  var sourceApps = season.apps;
+  var sourceFga = season.fga;
+
+  var ssl = document.getElementById('crossSourceLeague'); if (ssl) ssl.textContent = 'National 3 - Grp. F';
+  var sl = document.getElementById('crossSourceLog'); if (sl) sl.textContent = sourceLog.toFixed(1);
+  var cb = document.getElementById('crossBaseline'); if (cb) cb.textContent = sourceCS + ' clean sheets in ' + sourceApps + ' apps (' + season.label + ')';
+
+  var fe = document.getElementById('crossFgaExamples');
+  if (fe) {
+    var top = ['Ligue 2','National 2','National 3'];
+    fe.innerHTML = top.map(function(l){
+      var ref = logReference[l];
+      var adj = sourceFga * (sourceLog / ref.tier);
+      return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;"><span>'+l+' ('+ref.tier.toFixed(1)+'):</span><span style="color:var(--gold);">'+sourceFga.toFixed(1)+' × ('+sourceLog.toFixed(1)+' ÷ '+ref.tier.toFixed(1)+') = <strong>'+adj.toFixed(1)+'</strong></span></div>';
+    }).join('');
+  }
+
+  var grid = document.getElementById('crossLeagueGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  crossLeagues.forEach(function(leagueName){
+    var ref = logReference[leagueName]; if (!ref) return;
+    var ratio = sourceLog / ref.tier;
+    var projCS = sourceCS * ratio;
+    var projFga = sourceFga * (sourceLog / ref.tier);
+    var direction = ref.tier > sourceLog ? 'down' : (ref.tier < sourceLog ? 'up' : 'same');
+    var directionText = ref.tier > sourceLog ? '⬇️ Higher level — performance drops' : (ref.tier < sourceLog ? '⬆️ Lower level — performance rises' : '⚖️ Same level');
+    var card = document.createElement('div');
+    card.className = 'league-compare-card';
+    card.innerHTML = '<div class="league-flag">'+ref.flag+'</div>' +
+      '<div class="league-name">'+leagueName+'</div>' +
+      '<div class="league-tier">'+ref.short+' · LOG '+ref.tier.toFixed(1)+'</div>' +
+      '<div class="projected-goals">'+projCS.toFixed(1)+'</div>' +
+      '<div class="projected-label">Projected Clean Sheets ('+sourceApps+' apps)</div>' +
+      '<div class="multiplier">Multiplier: <strong>'+ratio.toFixed(2)+'×</strong></div>' +
+      '<div class="log-badge">FGA '+projFga.toFixed(1)+' (adj.)</div>' +
+      '<div class="direction-indicator"><span class="'+(direction==='down'?'down':(direction==='up'?'up':''))+'">'+directionText+'</span></div>';
+    grid.appendChild(card);
+  });
+
+  var cn = document.getElementById('crossLeagueNote');
+  if (cn) cn.textContent = 'Projections based on ' + season.label + ' — ' + sourceCS + ' clean sheets in ' + sourceApps + ' apps in National 3 (LOG ' + sourceLog.toFixed(1) + ').';
+}
+
+function renderMatches(seasonId) {
+  var season = careerSeasons.find(function(s){return s.id === seasonId;});
+  var msl = document.getElementById('matchesSeasonLabel'); if (msl && season) msl.textContent = season.label;
+  var mh = document.getElementById('matchesHeader'); if (mh && season) mh.textContent = 'Match Footage — ' + season.label;
+  var grid = document.getElementById('matchGrid'); if (!grid) return;
+  grid.innerHTML = '';
+
+  if (seasonId === '2025-26') {
+    var match = {
+      title:'🎥 US Ivry vs FC Versailles',
+      meta:'National 3 - Grp. F · Home',
+      desc:'Full match video — click to watch. Senkaz produced multiple saves in this match.',
+      videoUrl:'https://www.dropbox.com/scl/fi/gc8yob3t3qa233t256xki/Union-Sportive-Ivry-Football-Club-Versailles.mp4?rlkey=knbm075mcquskoldhoako0zrz&raw=1',
+      thumb:'https://www.image2url.com/r2/default/images/1789236420780-a9a3a90b-6a95-43ff-863e-e66a5f601e6b.png'
+    };
+    var card = document.createElement('a');
+    card.className = 'match-card';
+    card.href = match.videoUrl;
+    card.target = '_blank';
+    card.style.cursor = 'pointer';
+    card.innerHTML = '<div class="match-thumb" style="background-image:url(\''+match.thumb+'\');"><div class="play-icon" style="background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="match-info"><div class="match-teams">'+match.title+'</div><div class="match-meta"><span class="match-badge badge-comp">'+match.meta+'</span><span class="match-badge badge-verified">🎬 Video</span></div><div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">'+match.desc+'</div></div>';
+    grid.appendChild(card);
+  } else {
+    grid.innerHTML = '<div class="card" style="grid-column:1/-1;text-align:center;padding:40px 20px;"><div style="font-size:1.2rem;color:var(--text-tertiary);margin-bottom:8px;">🎬</div><div style="font-family:var(--font-heading);font-size:0.9rem;color:var(--text-secondary);">Video footage pending.</div></div>';
+  }
+
+  var stats = document.getElementById('matchesStats');
+  if (stats && season) {
+    stats.innerHTML = '<div><h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">2025-26 Season</h4><div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85"><strong style="color:var(--gold);">'+season.apps+'</strong> — Appearances<br /><strong style="color:var(--gold);">'+season.cleanSheets+'</strong> — Clean sheets<br /><strong style="color:var(--gold);">'+season.goalsConceded+'</strong> — Goals conceded</div></div><div><h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Minutes</h4><div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85"><strong style="color:var(--gold);">'+season.minutes+'</strong> — Total minutes<br /><strong style="color:var(--gold);">74%</strong> — Start rate<br /><strong style="color:var(--gold);">1.36</strong> — Goals conceded/90</div></div><div><h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Assessment</h4><div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85"><strong style="color:var(--gold);">'+season.t3Status+'</strong> — T3 status<br /><strong style="color:var(--gold);">7.2</strong> — FGA v3 GK<br /><strong style="color:var(--gold);">LOG '+season.logTier.toFixed(1)+'</strong> — League tier</div></div>';
+  }
+}
+
+function renderCareerTimeline() {
+  var c = document.getElementById('careerTimeline'); if (!c) return;
+  var html = '';
+  careerTimelineData.forEach(function(item){
+    html += '<div class="timeline-item '+item.type+'"><div class="timeline-date">'+item.date+'</div><div class="timeline-text">'+item.text+'</div></div>';
+  });
+  c.innerHTML = html;
+}
+
+function renderCareerStatsTable() {
+  var c = document.getElementById('careerStatsTable'); if (!c) return;
+  var html = '<table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>CS</th><th>GC</th><th>FGA</th></tr></thead><tbody>';
+  careerSeasons.forEach(function(s){
+    html += '<tr style="background:rgba(212,160,32,0.08);"><td>'+s.label+'</td><td>'+s.club+'</td><td>'+s.league+'</td><td>'+s.apps+'</td><td>'+s.cleanSheets+'</td><td>'+s.goalsConceded+'</td><td>'+s.fga.toFixed(1)+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderHonours() {
+  var tbody = document.querySelector('#honoursTable tbody'); if (!tbody) return;
+  tbody.innerHTML = '';
+  honoursData.forEach(function(h){
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><strong>'+h.name+'</strong></td><td>'+h.year+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function updateDial(score) {
+  var canvas = document.getElementById('heroDial'); if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var max = 10;
+  var angle = (score / max) * 1.5 * Math.PI + 0.75 * Math.PI;
+  ctx.clearRect(0,0,140,140);
+  ctx.beginPath();
+  ctx.arc(70,70,58,0.75*Math.PI,2.25*Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(70,70,58,0.75*Math.PI,angle);
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+}
+
+function renderFGA(seasonId) {
+  var season = careerSeasons.find(function(s){return s.id === seasonId;});
+  if (!season) return;
+  var container = document.getElementById('fgaContent'); if (!container) return;
+  var banner = document.getElementById('fgaBanner');
+  if (banner) banner.innerHTML = '<div class="banner banner-verified"><span>✅</span> <strong>GK Video Assessment Complete.</strong> 12 metrics graded across 8+ matches. FGA v3 GK Video Score: <strong>7.2</strong>.</div>';
+
+  var html = '';
+
+  // Column 1: GPI
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">GPI — Goal Protection Intelligence</h3>';
+  var gpiMetrics = gkMetrics.filter(function(m){return m.code.indexOf('GPI')===0;});
+  gpiMetrics.forEach(function(m){
+    var color = m.score >= 7.5 ? 'var(--success)' : (m.score >= 6 ? 'var(--warning)' : 'var(--danger)');
+    html += '<div class="t1-metric-row"><span class="t1-metric-code">'+m.code+'</span><span class="t1-metric-desc">'+m.name+' ('+(m.weight*100).toFixed(0)+'%)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(m.score*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+m.score.toFixed(1)+'</span></div>';
+  });
+  html += '<div class="t1-metric-row" style="border-top:1px solid var(--border-medium);padding-top:8px;"><span class="t1-metric-code" style="color:var(--gold);">GPI</span><span class="t1-metric-desc" style="color:var(--gold);font-weight:600;">Composite</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:69%;background:var(--gold)"></div></div></div><span class="t1-metric-val" style="color:var(--gold);">6.9</span></div>';
+  html += '</div>';
+
+  // Column 2: SDI
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">SDI — Shot Defence Intensity</h3>';
+  var sdiMetrics = gkMetrics.filter(function(m){return m.code.indexOf('SDI')===0;});
+  sdiMetrics.forEach(function(m){
+    var color = m.score >= 7.5 ? 'var(--success)' : (m.score >= 6 ? 'var(--warning)' : 'var(--danger)');
+    html += '<div class="t1-metric-row"><span class="t1-metric-code">'+m.code+'</span><span class="t1-metric-desc">'+m.name+' ('+(m.weight*100).toFixed(0)+'%)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(m.score*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+m.score.toFixed(1)+'</span></div>';
+  });
+  html += '<div class="t1-metric-row" style="border-top:1px solid var(--border-medium);padding-top:8px;"><span class="t1-metric-code" style="color:var(--gold);">SDI</span><span class="t1-metric-desc" style="color:var(--gold);font-weight:600;">Composite</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--gold)"></div></div></div><span class="t1-metric-val" style="color:var(--gold);">7.8</span></div>';
+  html += '</div>';
+
+  // Column 3: Remaining metrics
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Remaining GK Metrics</h3>';
+  var otherMetrics = gkMetrics.filter(function(m){return m.code.indexOf('GPI')!==0 && m.code.indexOf('SDI')!==0;});
+  otherMetrics.forEach(function(m){
+    var color = m.score >= 7.5 ? 'var(--success)' : (m.score >= 6 ? 'var(--warning)' : 'var(--danger)');
+    var conf = m.confidence === 'VIDEO_PENDING' ? ' <span style="color:var(--danger);font-size:0.65rem;">⚠️</span>' : '';
+    html += '<div class="t1-metric-row"><span class="t1-metric-code">'+m.code+'</span><span class="t1-metric-desc">'+m.name+conf+'</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(m.score*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+m.score.toFixed(1)+'</span></div>';
+  });
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+function renderPhilosophy(seasonId) {
+  var fits = [
+    {rank:1, name:'Yashin · Revolutionary GK', width:'80%', color:'#009b3a', score:'8.0'},
+    {rank:2, name:'Neuer · Sweeper Keeper', width:'78%', color:'#009b3a', score:'7.8'},
+    {rank:3, name:'Klopp · Gegenpress GK', width:'75%', color:'#27ae60', score:'7.5'},
+    {rank:4, name:'Guardiola · Build-up GK', width:'72%', color:'#e07820', score:'7.2'},
+    {rank:5, name:'Mourinho · Tactical GK', width:'68%', color:'#3498db', score:'6.8'},
+    {rank:6, name:'Buffon · Traditional GK', width:'65%', color:'#6CABDD', score:'6.5'},
+    {rank:7, name:'Schmeichel · Presence GK', width:'62%', color:'#e67e22', score:'6.2'},
+    {rank:8, name:'Casillas · Reflex GK', width:'58%', color:'#7f8c8d', score:'5.8'},
+    {rank:9, name:'Oblak · Positioning GK', width:'55%', color:'#e74c3c', score:'5.5'},
+    {rank:10, name:'Defensive Positioning System', width:'35%', color:'#95a5a6', score:'3.5'}
+  ];
+  var c = document.getElementById('philosophyFitList'); if (!c) return;
+  var html = '';
+  fits.forEach(function(f){
+    html += '<div class="philo-row"><div class="philo-rank">'+f.rank+'</div><div class="philo-name">'+f.name+'</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+f.width+';background:'+f.color+';"></div></div></div><div class="philo-score">'+f.score+'</div></div>';
+  });
+  c.innerHTML = html;
+
+  var pa = document.getElementById('philosophyArchetype');
+  if (pa) pa.innerHTML = '<strong style="color:var(--text-primary);">"Sweeper-Keeper with Elite Reflexes"</strong> — A left-footed goalkeeper with excellent reflex save speed (7.9), explosive save mechanics (7.8), and strong aerial dominance (8.4). Distribution is a genuine weapon (7.5). Primary development area: calmness under pressure (4.9).';
+
+  var pt = document.getElementById('philosophyTags');
+  if (pt) pt.innerHTML = '<span class="tag tag-club">Goalkeeper</span><span class="tag tag-club">Left-footed</span><span class="tag tag-gold">No. 1</span><span class="tag tag-info">FRA / TUN</span><span class="tag tag-record">Video Graded</span><span class="tag tag-era">Sweeper-Keeper</span>';
+
+  var sc = document.getElementById('schoolAverages');
+  if (sc) {
+    var schools = [
+      {name:'Modern Masters', value:'7.6', color:'var(--accent)'},
+      {name:'German School', value:'7.2', color:'var(--accent)'},
+      {name:'Italian School', value:'6.8', color:'var(--warning)'},
+      {name:'English School', value:'6.5', color:'var(--warning)'}
+    ];
+    sc.innerHTML = '';
+    schools.forEach(function(s){
+      var d = document.createElement('div');
+      d.className = 'stat-hero';
+      d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.name+'</div>';
+      sc.appendChild(d);
+    });
+  }
+}
+
+function renderScouting(seasonId) {
+  var c = document.getElementById('scoutingContent'); if (!c) return;
+  c.innerHTML =
+    '<div class="scout-box scout-pos"><h4><span style="color:var(--success);">✓</span> Positive Filters</h4><ul>' +
+      '<li><strong>Elite reflexes</strong> — SDI_R 7.9, reaction saves at close range</li>' +
+      '<li><strong>Explosive save mechanics</strong> — SDI_E 7.8, full-extension dives</li>' +
+      '<li><strong>Aerial dominance</strong> — AER 8.4, commands his box on crosses and set-pieces</li>' +
+      '<li><strong>Strong character</strong> — CHR 8.7, positive body language and vocal organisation</li>' +
+      '<li><strong>Distribution quality</strong> — DST 7.5, varied and accurate under pressure</li>' +
+      '<li><strong>Footwork & base position</strong> — SDI_F 7.7, set and balanced before shots</li>' +
+      '<li><strong>Catching technique</strong> — CAT 7.7, two-handed clean claims</li>' +
+      '<li><strong>14 apps in 2025-26</strong> — established first-choice at US Ivry</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-caut"><h4><span style="color:var(--warning);">◈</span> Caution Signals</h4><ul>' +
+      '<li><strong>Shot anticipation</strong> — GPI_A 5.6, occasionally late to read shooter approach</li>' +
+      '<li><strong>Calmness under pressure</strong> — CLM 4.9, rushes clearances and distribution under press</li>' +
+      '<li><strong>Penalty intelligence</strong> — PEN 5.0, only 1 event logged (VIDEO_PENDING)</li>' +
+      '<li><strong>Decision making</strong> — DMA 7.2, functional but occasional wrong call under pressure</li>' +
+      '<li><strong>National 3 level</strong> — Fifth tier; unproven at higher competition</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-gap"><h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4><ul>' +
+      '<li><strong>PEN (Penalty Intelligence)</strong> — Only 1 event; needs additional matches for scoring</li>' +
+      '<li><strong>Higher-level proof</strong> — Dominated National 3; needs Ligue 2/National test</li>' +
+      '<li><strong>Age curve</strong> — 25 years old; development window narrowing</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-verdict"><h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>' +
+      '<p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">' +
+      '<strong style="color:var(--text-primary);">FGA v3 GK Video Score: 7.2 — SWEEPER-KEEPER WITH ELITE REFLEXES.</strong> Nassim Senkaz is a 25-year-old left-footed goalkeeper with excellent reflex save speed (7.9), explosive save mechanics (7.8), and strong aerial dominance (8.4). His distribution (7.5) and character (8.7) are genuine strengths. The primary development area is calmness under pressure (4.9) — he rushes clearances and distribution when pressed. At 25, he is a late developer profile. Rescore trigger: 10 apps at Ligue 2/National level or 5 additional matches for PEN metric.</p></div>';
+}
+
+function renderAttributeCards() {
+  var c = document.getElementById('attributeCards'); if (!c) return;
+  var gpiHTML = '';
+  gkMetrics.filter(function(m){return m.code.indexOf('GPI')===0;}).forEach(function(m){
+    var color = m.score >= 7.5 ? 'var(--success)' : (m.score >= 6 ? 'var(--warning)' : 'var(--danger)');
+    gpiHTML += '<div class="t1-metric-row"><span class="t1-metric-code">'+m.code+'</span><span class="t1-metric-desc">'+m.name+'</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(m.score*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+m.score.toFixed(1)+'</span></div>';
+  });
+  var sdiHTML = '';
+  gkMetrics.filter(function(m){return m.code.indexOf('SDI')===0;}).forEach(function(m){
+    var color = m.score >= 7.5 ? 'var(--success)' : (m.score >= 6 ? 'var(--warning)' : 'var(--danger)');
+    sdiHTML += '<div class="t1-metric-row"><span class="t1-metric-code">'+m.code+'</span><span class="t1-metric-desc">'+m.name+'</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(m.score*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+m.score.toFixed(1)+'</span></div>';
+  });
+  var otherHTML = '';
+  gkMetrics.filter(function(m){return m.code.indexOf('GPI')!==0 && m.code.indexOf('SDI')!==0;}).forEach(function(m){
+    var color = m.score >= 7.5 ? 'var(--success)' : (m.score >= 6 ? 'var(--warning)' : 'var(--danger)');
+    otherHTML += '<div class="t1-metric-row"><span class="t1-metric-code">'+m.code+'</span><span class="t1-metric-desc">'+m.name+'</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(m.score*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+m.score.toFixed(1)+'</span></div>';
+  });
+
+  c.innerHTML =
+    '<div class="grid-3">' +
+      '<div class="attr-card"><h3>GPI — Goal Protection</h3>'+gpiHTML+'</div>' +
+      '<div class="attr-card"><h3>SDI — Shot Defence</h3>'+sdiHTML+'</div>' +
+      '<div class="attr-card"><h3>Remaining Metrics</h3>'+otherHTML+'</div>' +
+    '</div>';
+}
+
+var charts = {};
+
+function initCharts() {
+  var radarEl = document.getElementById('attrRadar');
+  if (radarEl && typeof Chart !== 'undefined') {
+    if (charts.attrRadar) { try { charts.attrRadar.destroy(); } catch(e){} }
+    charts.attrRadar = new Chart(radarEl.getContext('2d'), {
+      type:'radar',
+      data:{
+        labels:['GPI_A','GPI_P','GPI_S','SDI_E','SDI_R','SDI_F','AER','DST','CLM'],
+        datasets:[
+          {label:'Senkaz', data:[5.6,7.4,7.3,7.8,7.9,7.7,8.4,7.5,4.9], backgroundColor:'rgba(212,160,32,0.2)', borderColor:'#d4a020', pointBackgroundColor:'#fbbf24', pointBorderColor:'#fff', pointRadius:4, borderWidth:2.5},
+          {label:'N3 Avg', data:[6.0,6.0,6.0,6.0,6.0,6.0,6.0,6.0,6.0], backgroundColor:'rgba(255,255,255,0.05)', borderColor:'rgba(255,255,255,0.4)', pointRadius:0, borderWidth:1.5, borderDash:[4,4]}
+        ]
+      },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:9,weight:'600'}}}}, plugins:{legend:{labels:{color:'#8b92a8',font:{family:'DM Sans',size:11}}}}}
+    });
+  }
+
+  var pRadar = document.getElementById('philosophyRadar2');
+  if (pRadar && typeof Chart !== 'undefined') {
+    if (charts.philoRadar2) { try { charts.philoRadar2.destroy(); } catch(e){} }
+    charts.philoRadar2 = new Chart(pRadar.getContext('2d'), {
+      type:'radar',
+      data:{
+        labels:['Modern','German','Italian','English','Dutch','S.American'],
+        datasets:[{label:'Senkaz', data:[7.6,7.2,6.8,6.5,6.0,5.5], backgroundColor:'rgba(212,160,32,0.2)', borderColor:'#fbbf24', pointBackgroundColor:['#009b3a','#27ae60','#6CABDD','#e67e22','#3498db','#7f8c8d'], pointBorderColor:'#fff', pointRadius:5, borderWidth:2}]
+      },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:0,max:10,ticks:{display:false,stepSize:2},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:12,weight:'600'},padding:20}}}, plugins:{legend:{display:false}}}
+    });
+  }
+}
+
+// ============================================================
+// MAIN UPDATE
+// ============================================================
+function updateSeason() {
+  var sel = document.getElementById('seasonSelect');
+  if (!sel) return;
+  var id = sel.value;
+  var season = careerSeasons.find(function(s){return s.id === id;});
+  if (!season) return;
+
+  var hp = document.getElementById('heroPhoto'); if (hp) hp.style.backgroundImage = "url('" + season.photo + "')";
+  var hb = document.getElementById('heroBadge'); if (hb) hb.textContent = season.badge;
+  var ha = document.getElementById('heroAge'); if (ha) ha.textContent = season.age + ' years';
+  var hc = document.getElementById('heroCaps'); if (hc) hc.textContent = season.caps;
+  var t3 = document.getElementById('t3Pill'); if (t3) t3.textContent = season.t3Status;
+  var hfs = document.getElementById('heroFgaScore'); if (hfs) hfs.textContent = season.fga.toFixed(1);
+  var hfst = document.getElementById('heroFgaStatus'); if (hfst) hfst.textContent = 'VIDEO GRADED';
+
+  var tags = [
+    {class:'tag-verified', text:'Video Graded'},
+    {class:'tag-club', text:season.club},
+    {class:'tag-value', text:season.cleanSheets + ' Clean Sheets'},
+    {class:'tag-info', text:season.league},
+    {class:'tag-gold', text:'FGA ' + season.fga.toFixed(1)},
+    {class:'tag-warning', text:'1.36 GC/90'}
+  ];
+  renderTags(tags, 'heroTags');
+
+  renderCareerPath(['FC 93 Bobigny B','US Ben Guerdane','ES Viry-Châtillon','US Ivry'], 'careerPath');
+
+  renderHeroStats([
+    {value:season.fga.toFixed(1), label:'FGA v3 GK', color:'var(--gold)'},
+    {value:season.apps, label:'Apps', color:'var(--text-primary)'},
+    {value:season.cleanSheets, label:'Clean Sheets', color:'var(--success)'},
+    {value:season.goalsConceded, label:'Goals Conceded', color:'var(--danger)'},
+    {value:season.age, label:'Age', color:'var(--text-primary)'},
+    {value:'1.36', label:'GC/90', color:'var(--warning)'},
+    {value:'74%', label:'Start Rate', color:'var(--info)'}
+  ], 'heroStatsGrid');
+
+  renderKeyStrengths([
+    {label:'FGA', value:season.fga.toFixed(1)},
+    {label:'Apps', value:season.apps},
+    {label:'Clean Sheets', value:season.cleanSheets},
+    {label:'GC/90', value:'1.36'}
+  ], 'keyStrengths');
+
+  var banners = [];
+  banners.push({type:'banner-verified', text:'<span>★</span> <strong>GK VIDEO ASSESSED.</strong> 12 metrics graded across 8+ matches. FGA v3 GK Video Score: <strong>7.2</strong>.'});
+  banners.push({type:'banner-warning', text:'<span>⚠️</span> <strong>PEN (Penalty Intelligence) — VIDEO_PENDING.</strong> Only 1 event logged; needs additional matches.'});
+  banners.push({type:'banner-era', text:'<span>⏱</span> <strong>SEASON OVERVIEW.</strong> ' + season.label + '. ' + season.apps + ' apps, ' + season.cleanSheets + ' clean sheets, ' + season.goalsConceded + ' goals conceded.'});
+  renderBanners(banners, 'overviewBanners');
+
+  var profileCards = [
+    {title:'👤 Player Profile', content:'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:0.85rem;line-height:1.6;"><div><strong>Full Name:</strong> Nassim Senkaz</div><div><strong>Date of Birth:</strong> 24/12/2000 (25)</div><div><strong>Place of Birth:</strong> Aubervilliers, France</div><div><strong>Nationality:</strong> France / Tunisia</div><div><strong>Position:</strong> Goalkeeper</div><div><strong>Foot:</strong> Left</div><div><strong>Club:</strong> US Ivry (since 27/07/2023)</div><div><strong>Jersey:</strong> No. 1</div><div><strong>Contract:</strong> To 30/06/2026</div><div><strong>Market Value:</strong> €1K (BeSoccer)</div></div>'},
+    {title:'📊 T3 Status', content:'<strong style="color:var(--success);">VIDEO GRADED.</strong> 12 metrics scored across 8+ matches. GPI Composite: 6.9. SDI Composite: 7.8. PEN VIDEO_PENDING (only 1 event).'},
+    {title:'🏅 Empire FGA Verdict', content:'<strong style="color:var(--text-primary);">FGA v3 GK Video: 7.2 — SWEEPER-KEEPER WITH ELITE REFLEXES.</strong> Excellent reflexes (7.9), explosive save mechanics (7.8), aerial dominance (8.4). Development area: calmness under pressure (4.9).'}
+  ];
+  renderProfileCards(profileCards, 'overviewProfileCards');
+
+  var philosophyFits = [
+    {rank:1, name:'Yashin · Revolutionary GK', width:'80%', color:'#009b3a', score:'8.0'},
+    {rank:2, name:'Neuer · Sweeper Keeper', width:'78%', color:'#009b3a', score:'7.8'},
+    {rank:3, name:'Klopp · Gegenpress GK', width:'75%', color:'#27ae60', score:'7.5'},
+    {rank:4, name:'Guardiola · Build-up GK', width:'72%', color:'#e07820', score:'7.2'},
+    {rank:5, name:'Mourinho · Tactical GK', width:'68%', color:'#3498db', score:'6.8'}
+  ];
+  renderPhilosophyFits(philosophyFits, 'philosophyFits');
+
+  var recText = '<span class="tag tag-gold" style="font-size:0.85rem;padding:6px 18px;">◆ CLUB RECOMMENDATION</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">FGA v3 GK: 7.2.</strong> Elite reflexes, explosive save mechanics, aerial dominance. Development area: calmness under pressure. Rescore at 10 apps at Ligue 2/National level.</div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">Video Graded</div>';
+  renderRecommendation(recText, 'recommendationCard');
+
+  renderFGA(id);
+  renderCrossLeague(id);
+  renderPhilosophy(id);
+  renderScouting(id);
+  renderMatches(id);
+  renderAttributeCards();
+
+  var pa = document.getElementById('physAge'); if (pa) pa.textContent = season.age + ' (born 24/12/2000)';
+
+  var an = document.getElementById('assessmentNote');
+  if (an) an.innerHTML = '<div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--teal);margin-bottom:4px;">GK Video Assessment Complete</div><div style="font-size:0.78rem;color:var(--text-secondary);">FGA v3 GK Video Score: <strong>7.2</strong>. GPI Composite: 6.9. SDI Composite: 7.8. 12 metrics graded across 8+ matches. PEN VIDEO_PENDING.</div>';
+
+  var trend = {arrow:'—', cls:'trend-flat'};
+  var ti = document.getElementById('trendIndicator');
+  if (ti) { ti.textContent = trend.arrow; ti.className = 'trend-arrow ' + trend.cls; }
+
+  updateDial(season.fga);
+  initCharts();
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(id) {
+  var panels = document.querySelectorAll('.tab-panel');
+  var buttons = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var j = 0; j < buttons.length; j++) buttons[j].classList.remove('active');
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  for (var k = 0; k < buttons.length; k++) {
+    if (buttons[k].getAttribute('data-tab') === id) buttons[k].classList.add('active');
+  }
+  if (id === 'crossleague') {
+    var sel = document.getElementById('seasonSelect');
+    if (sel) renderCrossLeague(sel.value);
+  }
+  if (id === 'fga') {
+    setTimeout(renderDonut, 50);
+  }
+  if (id === 'attributes' || id === 'philosophy') {
+    setTimeout(initCharts, 50);
+  }
+}
+
+// ============================================================
+// BIND TO WINDOW IMMEDIATELY
+// ============================================================
+window.switchTab = switchTab;
+window.updateSeason = updateSeason;
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  try {
+    var select = document.getElementById('seasonSelect');
+    if (select) {
+      select.innerHTML = '';
+      careerSeasons.forEach(function(s){
+        var opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.label;
+        select.appendChild(opt);
+      });
+      select.value = '2025-26';
+    }
+
+    renderCareerTimeline();
+    renderCareerStatsTable();
+    renderHonours();
+    updateSeason();
+    initCharts();
+
+    var btns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function(e){
+        var tab = this.getAttribute('data-tab');
+        if (tab) switchTab(tab);
+      });
+    }
+  } catch (err) {
+    console.error('Empire FGA GK init error:', err);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
