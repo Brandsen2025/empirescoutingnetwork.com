@@ -146,6 +146,15 @@
   var app = initializeApp(firebaseConfig);
   var auth = getAuth(app);
 
+  // Self-serve (Firebase) accounts that should land on a specific
+  // dashboard instead of the English default -- same idea as the
+  // hardcoded ACCOUNTS[].redirect field above, just for Firebase logins.
+  // Keys are lowercased emails.
+  var FIREBASE_REDIRECTS = {
+    'scouting@brandsensports.com': 'platform_es.html', // Daniel Dominguez
+    'jordicasteresports@gmail.com': 'platform_es.html' // Jordi Tarrago
+  };
+
   document.getElementById('loginForm').addEventListener('submit', async function(e){
     e.preventDefault();
     var u = document.getElementById('u').value.trim();
@@ -182,7 +191,7 @@
       await signInWithEmailAndPassword(auth, u, p);
       localStorage.setItem('esn_fga_auth', '1');
       localStorage.setItem('esn_fga_user', u);
-      window.location.replace(DEFAULT_REDIRECT);
+      window.location.replace(FIREBASE_REDIRECTS[u.toLowerCase()] || DEFAULT_REDIRECT);
     } catch (error) {
       err.classList.add('show');
       btn.disabled = false;
