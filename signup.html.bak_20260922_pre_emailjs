@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up — Empire FGA</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090D12;--bg1:#0D1520;--bg2:#111C2A;--bg3:#172234;--bg4:#1C2A3E;
+    --gold:#C9921A;--gold2:#EDB84E;--goldlo:rgba(201,146,26,.1);
+    --cyan:#2DD4BF;--cyanlo:rgba(45,212,191,.1);--cyandim:rgba(45,212,191,.3);
+    --red:#F04545;--grn:#22D46A;
+    --t1:#F0F6FF;--t2:#8BA5C0;--t3:#44627A;
+    --ln:rgba(255,255,255,.06);--ln2:rgba(255,255,255,.11);
+    --D:'Inter',sans-serif;--M:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:var(--D);background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(201,146,26,.08), transparent 60%),
+      radial-gradient(1000px 500px at 100% 110%, rgba(45,212,191,.06), transparent 55%),
+      var(--bg);
+    color:var(--t1);min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:24px;
+  }
+  .card{
+    width:100%;max-width:400px;background:linear-gradient(180deg,var(--bg2),var(--bg1));
+    border:1px solid var(--ln2);border-radius:16px;padding:40px 36px 34px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .logo-wrap{display:flex;justify-content:center;margin-bottom:22px;}
+  .logo-wrap img{height:64px;width:auto;}
+  h1{font-size:1.15rem;font-weight:800;text-align:center;letter-spacing:.02em;color:var(--t1);}
+  .sub{text-align:center;color:var(--t2);font-size:.78rem;margin-top:6px;margin-bottom:28px;letter-spacing:.03em;}
+  label{display:block;font-size:.68rem;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+  .field{margin-bottom:18px;}
+  .hint{font-size:.68rem;color:var(--t3);margin-top:6px;}
+  input{
+    width:100%;background:var(--bg3);border:1px solid var(--ln2);border-radius:9px;
+    padding:12px 14px;color:var(--t1);font-family:var(--D);font-size:.92rem;outline:none;
+    transition:border-color .15s;
+  }
+  input:focus{border-color:var(--gold);}
+  button{
+    width:100%;margin-top:8px;padding:13px;border:none;border-radius:9px;
+    background:linear-gradient(135deg,var(--gold2),var(--gold));
+    color:#1A1200;font-weight:800;font-size:.85rem;letter-spacing:.03em;cursor:pointer;
+    transition:filter .15s, transform .15s;
+  }
+  button:hover{filter:brightness(1.08);}
+  button:active{transform:scale(.98);}
+  button:disabled{opacity:.55;cursor:not-allowed;filter:none;transform:none;}
+  .err{
+    display:none;margin-top:14px;padding:10px 12px;border-radius:8px;
+    background:rgba(240,69,69,.1);border:1px solid rgba(240,69,69,.3);
+    color:#FF8080;font-size:.78rem;text-align:center;
+  }
+  .err.show{display:block;}
+  .foot{margin-top:26px;text-align:center;font-size:.66rem;color:var(--t3);font-family:var(--M);letter-spacing:.02em;}
+  .switch{margin-top:18px;text-align:center;font-size:.78rem;color:var(--t2);}
+  .switch a{color:var(--cyan);text-decoration:none;font-weight:600;}
+  .switch a:hover{text-decoration:underline;}
+  .trial-tag{
+    margin-top:20px;padding:10px 12px;border-radius:8px;
+    background:var(--cyanlo);border:1px solid var(--cyandim);
+    color:var(--cyan);font-size:.7rem;text-align:center;letter-spacing:.02em;
+  }
+</style>
+</head>
+<body>
+  <form class="card" id="signupForm" autocomplete="off">
+    <div class="logo-wrap"><img src="esn-logo.png" alt="Empire Scouting Network"></div>
+    <h1>EMPIRE FGA</h1>
+    <div class="sub">Create Your Trial Account</div>
+
+    <div class="field">
+      <label for="name">Full Name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required>
+    </div>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required>
+    </div>
+    <div class="field">
+      <label for="p">Password</label>
+      <input id="p" name="p" type="password" autocomplete="new-password" minlength="6" required>
+      <div class="hint">At least 6 characters.</div>
+    </div>
+
+    <button type="submit" id="submitBtn">Create Account</button>
+    <div class="err" id="err"></div>
+    <div class="trial-tag">Trial access &middot; full platform, no card required</div>
+    <div class="switch">Already have an account? <a href="login.html">Sign in</a></div>
+    <div class="foot">EMPIRE SCOUTING NETWORK &middot; 779 METRICS &middot; 60 PHILOSOPHIES</div>
+  </form>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, updateProfile
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, doc, setDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAMa_JH24lVvukrl2QtOxkDZHTbRt0OCUE",
+    authDomain: "empire-fga.firebaseapp.com",
+    projectId: "empire-fga",
+    storageBucket: "empire-fga.firebasestorage.app",
+    messagingSenderId: "632044749663",
+    appId: "1:632044749663:web:e7baa6256d867bf1a72cea"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  var DEFAULT_REDIRECT = 'platform.html';
+
+  function friendlyError(code){
+    switch(code){
+      case 'auth/email-already-in-use': return 'An account with that email already exists — try signing in instead.';
+      case 'auth/invalid-email': return 'That email address looks invalid.';
+      case 'auth/weak-password': return 'Password must be at least 6 characters.';
+      case 'auth/network-request-failed': return 'Network error — check your connection and try again.';
+      default: return 'Something went wrong creating your account. Please try again.';
+    }
+  }
+
+  document.getElementById('signupForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var name = document.getElementById('name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var p = document.getElementById('p').value;
+    var err = document.getElementById('err');
+    var btn = document.getElementById('submitBtn');
+    err.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = 'Creating account…';
+
+    try {
+      var cred = await createUserWithEmailAndPassword(auth, email, p);
+      if (name) {
+        try { await updateProfile(cred.user, { displayName: name }); } catch(e2) {}
+      }
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        name: name || null,
+        email: email,
+        tier: 'trial',
+        source: 'self-serve-signup',
+        createdAt: serverTimestamp()
+      });
+      localStorage.setItem('esn_fga_auth', '1');
+      localStorage.setItem('esn_fga_user', email);
+      window.location.replace(DEFAULT_REDIRECT);
+    } catch (error) {
+      err.textContent = friendlyError(error.code);
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+    }
+  });
+</script>
+</body>
+</html>

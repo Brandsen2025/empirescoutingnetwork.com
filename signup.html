@@ -8,6 +8,8 @@
 <link rel="icon" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init({ publicKey: "8pVN6a_2V0A0muukN" });</script>
 <style>
   :root{
     --bg:#090D12;--bg1:#0D1520;--bg2:#111C2A;--bg3:#172234;--bg4:#1C2A3E;
@@ -154,6 +156,12 @@
         source: 'self-serve-signup',
         createdAt: serverTimestamp()
       });
+      // Notify Jim of the new trial signup. Fire-and-forget: never let an
+      // EmailJS/Gmail hiccup block or delay the user's own signup flow.
+      try {
+        emailjs.send('service_r0u3jlg', 'template_vpyidyp', { name: name || email, email: email })
+          .catch(function(notifyErr){ console.error('Signup notify email failed (non-blocking):', notifyErr); });
+      } catch (notifySyncErr) { console.error('Signup notify email failed (non-blocking):', notifySyncErr); }
       localStorage.setItem('esn_fga_auth', '1');
       localStorage.setItem('esn_fga_user', email);
       window.location.replace(DEFAULT_REDIRECT);
