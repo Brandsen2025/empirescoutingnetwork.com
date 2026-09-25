@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Frank Daroma | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#d4a020;--accent-dim:rgba(212,160,32,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--teal:#00c5a8;--tier1:#00d084;--tier2:#ffb800;--tier3:#d4a020;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg-primary);}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo{position:absolute;inset:0;background:url('https://ewscripps.brightspotcdn.com/dims4/default/2f0a730/2147483647/strip/true/crop/3372x1770+0+450/resize/1200x630!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fdd%2Fa3%2Fb0218a294110b47420024a52569d%2Fdaroma-frank-1.JPG') center 25% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo{transform:scale(1.03);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(212,160,32,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#d4a020 33%,#fbbf24 33%,#fbbf24 66%,#d4a020 66%);z-index:10;}
+.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before{content:'SLE';font-size:0.7rem;font-weight:800;}
+.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}
+.badge-item.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag{font-size:1.1rem;font-weight:700;color:var(--gold);}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club{background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-verified{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-warning{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-record{background:rgba(212,160,32,0.15);color:var(--gold);border:1px solid rgba(212,160,32,0.3);}
+.tag-era{background:rgba(0,197,168,0.12);color:var(--teal);border:1px solid rgba(0,197,168,0.25);}
+.fga-dial-wrap{position:relative;width:150px;height:150px;flex-shrink:0;}
+.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:1.65rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3{background:rgba(212,160,32,0.12);color:var(--tier3);border:1px solid rgba(212,160,32,0.2);}
+.season-selector{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;background:var(--bg-card);padding:16px 20px;border-radius:12px;border:1px solid var(--border-subtle);}
+.season-selector label{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+.season-selector select{background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-medium);border-radius:8px;padding:8px 16px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;cursor:pointer;outline:none;min-width:340px;}
+.season-selector select:hover{border-color:var(--accent);}
+.season-selector select option{background:var(--bg-primary);color:var(--text-primary);}
+.season-average{font-family:var(--font-heading);font-size:0.85rem;color:var(--text-secondary);margin-left:auto;padding:4px 12px;background:var(--accent-dim);border-radius:100px;border:1px solid rgba(212,160,32,0.2);display:flex;align-items:center;gap:8px;}
+.season-average strong{color:var(--gold);font-size:1rem;}
+.trend-arrow{font-size:1.2rem;line-height:1;}
+.trend-up{color:var(--success);}
+.trend-down{color:var(--danger);}
+.trend-flat{color:var(--text-tertiary);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-verified{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-era{background:rgba(0,197,168,0.08);border:1px solid rgba(0,197,168,0.2);color:var(--teal);}
+.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-champ{background:linear-gradient(135deg,rgba(212,160,32,0.1),rgba(251,191,36,0.05));border:1px solid rgba(212,160,32,0.2);color:var(--silver);}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.career-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow{color:var(--text-tertiary);font-size:0.8rem;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.pos-map-wrap svg{max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;background:#1a5a1a;}
+.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;gap:4px;}
+.attr-row:last-child{border-bottom:none;}
+.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);flex:1;}
+.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.ac-green{color:var(--success);}
+.ac-yellow{color:var(--warning);}
+.ac-red{color:var(--danger);}
+.ac-pend{color:var(--pending);}
+.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green{background:var(--success);}
+.circle-yellow{background:var(--warning);}
+.circle-red{background:var(--danger);}
+.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.t1-metric-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;}
+.t1-metric-row:last-child{border-bottom:none;}
+.t1-metric-code{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:60px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc{font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap{width:100px;flex-shrink:0;}
+.t1-metric-val{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+.t1-group{margin-bottom:14px;}
+.t1-group-head{font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(212,160,32,0.08);margin-bottom:8px;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child{border-bottom:none;}
+.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;cursor:pointer;}
+.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(212,160,32,0.1);}
+.match-thumb{height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-size:cover;background-position:center;}
+.match-thumb .play-icon{width:48px;height:48px;background:rgba(212,160,32,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;border:2px dashed rgba(212,160,32,0.3);}
+.match-thumb .play-icon svg{width:18px;height:18px;fill:rgba(255,255,255,0.3);margin-left:3px;}
+.match-info{padding:16px;}
+.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending{background:rgba(90,96,112,0.12);color:var(--pending);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong{color:var(--text-primary);font-weight:600;}
+.data-table .season-highlight{background:rgba(212,160,32,0.08);}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4{color:var(--success);}
+.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4{color:var(--warning);}
+.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4{color:var(--danger);}
+.scout-verdict{background:var(--accent-dim);border:1px solid rgba(212,160,32,0.2);}
+.scout-verdict h4{color:var(--silver);}
+.scout-box ul{list-style:none;padding:0;margin:0;}
+.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before{content:'\2014';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(212,160,32,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(212,160,32,0.15);border-radius:12px;padding:20px;}
+.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label{color:var(--text-tertiary);}
+.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(212,160,32,0.4);}
+.timeline-item.hist::before{background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before{background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date{color:var(--success);}
+.timeline-item.champ .timeline-date{color:var(--gold);}
+.timeline-item.danger .timeline-date{color:var(--danger);}
+.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas{width:100%!important;height:100%!important;}
+.recommendation-card{border-left:4px solid var(--gold);background:linear-gradient(135deg,rgba(212,160,32,0.08),rgba(10,10,15,0.5));}
+.recommendation-card .tag{font-size:0.8rem;padding:6px 16px;}
+.key-strengths{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.strength-item{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:8px 16px;display:flex;align-items:center;gap:8px;}
+.strength-item .label{font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
+.strength-item .value{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--gold);}
+.league-compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.league-compare-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.league-compare-card:hover{transform:translateY(-3px);border-color:var(--border-medium);}
+.league-compare-card .league-flag{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--silver);letter-spacing:1px;margin-bottom:4px;}
+.league-compare-card .league-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.league-compare-card .league-tier{font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.league-compare-card .projected-goals{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);margin:8px 0 2px;}
+.league-compare-card .projected-label{font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;}
+.league-compare-card .log-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:0.6rem;font-weight:700;background:rgba(212,160,32,0.12);color:var(--gold);border:1px solid rgba(212,160,32,0.2);margin-top:6px;}
+.league-compare-card .multiplier{font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;}
+.league-compare-card .multiplier strong{color:var(--text-secondary);}
+.league-compare-card .direction-indicator{font-size:0.65rem;margin-top:6px;color:var(--text-tertiary);}
+.league-compare-card .direction-indicator .up{color:var(--success);}
+.league-compare-card .direction-indicator .down{color:var(--danger);}
+.log-methodology{font-size:0.78rem;color:var(--text-secondary);line-height:1.8;}
+.log-methodology strong{color:var(--text-primary);}
+.log-methodology .formula-box{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:6px;padding:12px 16px;font-family:var(--font-body);font-size:0.75rem;color:var(--text-secondary);margin:8px 0;overflow-x:auto;}
+.dual-score-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;}
+.dual-score-row:last-child{border-bottom:none;}
+.dual-score-name{flex:1;font-size:0.82rem;color:var(--text-secondary);min-width:180px;}
+.dual-score-bar-wrap{width:100px;flex-shrink:0;}
+.dual-score-val{font-family:var(--font-heading);font-size:0.85rem;font-weight:700;width:45px;text-align:right;flex-shrink:0;}
+.reliability-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-family:var(--font-heading);font-size:0.58rem;font-weight:700;letter-spacing:0.5px;margin-left:6px;white-space:nowrap;}
+.rel-reliable{background:rgba(0,208,132,0.15);color:var(--success);border:1px solid rgba(0,208,132,0.3);}
+.rel-consistent{background:rgba(255,184,0,0.15);color:var(--warning);border:1px solid rgba(255,184,0,0.3);}
+.rel-mixed{background:rgba(255,140,0,0.15);color:#ff8c00;border:1px solid rgba(255,140,0,0.3);}
+.rel-unreliable{background:rgba(255,59,59,0.15);color:var(--danger);border:1px solid rgba(255,59,59,0.3);}
+.rel-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.pairing-row{display:grid;grid-template-columns:50px 1fr 60px 60px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.pairing-row:last-child{border-bottom:none;}
+.pairing-pct{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--gold);text-align:center;}
+.pairing-name{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);}
+.pairing-meta{font-size:0.7rem;color:var(--text-tertiary);}
+.pairing-bar-wrap{width:80px;}
+.flag-box{border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:0.8rem;display:flex;align-items:flex-start;gap:10px;}
+.flag-box .icon{font-family:var(--font-heading);font-size:0.7rem;font-weight:700;flex-shrink:0;letter-spacing:0.5px;}
+.flag-box.validated{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);color:var(--success);}
+.flag-box.proxy{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);color:var(--warning);}
+.flag-box.risk{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);color:var(--danger);}
+.flag-box.market{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);color:var(--info);}
+.tier-composition{display:flex;flex-direction:column;gap:8px;}
+.tier-bar{display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid var(--border-subtle);}
+.tier-bar-segment{display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#0a0a0f;padding:0 8px;white-space:nowrap;}
+.tier-seg-t3{background:linear-gradient(135deg,#00d084,#00a86b);flex:5;}
+.tier-seg-t2{background:linear-gradient(135deg,#ffb800,#cc9200);flex:3;}
+.tier-seg-t1{background:linear-gradient(135deg,#ff3b3b,#cc0000);color:#fff;flex:2;}
+.tier-legend{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;}
+@media (max-width:768px){.hero{height:440px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:120px;height:120px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.season-selector{flex-direction:column;align-items:stretch;}.season-average{margin-left:0;text-align:center;}.key-strengths{flex-direction:column;align-items:stretch;}.league-compare-grid{grid-template-columns:1fr 1fr;}.pairing-row{grid-template-columns:40px 1fr;}}
+@media (max-width:480px){.league-compare-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Colorado Springs Switchbacks · 2026-27 · USL Championship</div>
+  <div class="jersey-watermark">8</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Barca Residency Academy</div>
+      <div class="badge-item"><span class="arrow">></span></div>
+      <div class="badge-item">Cal State San Bernardino</div>
+      <div class="badge-item"><span class="arrow">></span></div>
+      <div class="badge-item">Las Vegas Lights</div>
+      <div class="badge-item"><span class="arrow">></span></div>
+      <div class="badge-item">Tacoma Defiance</div>
+      <div class="badge-item"><span class="arrow">></span></div>
+      <div class="badge-item">El Paso Locomotive</div>
+      <div class="badge-item"><span class="arrow">></span></div>
+      <div class="badge-item current">Colorado Springs Switchbacks</div>
+    </div>
+    <h1 class="hero-name">Frank Daroma</h1>
+    <div class="hero-meta">
+      <span><span class="flag">SLE</span> Sierra Leone</span>
+      <span class="dot"></span>
+      <span>25 years</span>
+      <span class="dot"></span>
+      <span>163 cm · 60 kg</span>
+      <span class="dot"></span>
+      <span>Central / Defensive Midfield</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 UNVERIFIED</div>
+          <div class="tier-pill t2">T2 PARTIAL (2/9)</div>
+          <div class="tier-pill t3">T3 COMPLETE 7.79</div>
+        </div>
+        <div class="hero-tags" id="heroTags" style="margin-top:10px;"></div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="150" height="150"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA v3 PROVISIONAL</div>
+          <div class="fga-score" id="heroFgaScore">7.3–7.9</div>
+          <div class="fga-status" id="heroFgaStatus">VERY GOOD</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="season-selector" style="max-width:1200px;margin:20px auto 0;padding:0 24px;">
+  <label for="seasonSelect">Season</label>
+  <select id="seasonSelect" onchange="updateSeason()"></select>
+  <span class="season-average">
+    <span>Peak FGA: <strong id="careerPeakFga">7.3–7.9</strong></span>
+    <span id="trendIndicator" class="trend-arrow trend-flat">—</span>
+  </span>
+</div>
+
+<div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
+  <div class="key-strengths" id="keyStrengths"></div>
+</div>
+
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" data-tab="attributes" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" data-tab="fga" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" data-tab="crossleague" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" data-tab="philosophy" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" data-tab="career" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" data-tab="scouting" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" data-tab="matches" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<main class="content">
+
+  <div id="overview" class="tab-panel active">
+    <div id="overviewBanners"></div>
+    <div class="career-path" id="careerPath"></div>
+    <div class="stat-hero-grid" id="heroStatsGrid"></div>
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+    <div class="pos-map-wrap">
+      <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+        <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a5a1a" stroke="#4a8c4a" stroke-width="2"/>
+        <line x1="260" y1="10" x2="260" y2="330" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="35" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="2" fill="#4a8c4a" opacity="0.6"/>
+        <rect x="10" y="105" width="55" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="445" y="105" width="65" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="10" y="135" width="18" height="70" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="492" y="135" width="18" height="70" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="130" r="16" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" stroke-width="2.5"/>
+        <circle cx="260" cy="130" r="11" fill="#fbbf24" stroke="#fff" stroke-width="2"/>
+        <text x="260" y="134" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="11" font-weight="700">8</text>
+        <text x="260" y="165" text-anchor="middle" fill="#fbbf24" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" opacity="0.9">CM / DM — CENTRAL MIDFIELD</text>
+        <text x="260" y="180" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="7" opacity="0.7">Ball-retention midfielder · Verratti archetype</text>
+      </svg>
+      <div class="pos-map-caption">Tactical board · Primary: Central Midfield / Defensive Midfield · Ball-retention specialist</div>
+    </div>
+    <div class="grid-3" id="overviewProfileCards"></div>
+    <div class="section-title">Tactical DNA Pairing — Height-Filtered <span class="line"></span></div>
+    <div class="card">
+      <div class="pairing-row" style="grid-template-columns:60px 1fr 90px 90px;">
+        <div class="pairing-pct">79%</div>
+        <div><div class="pairing-name">Marco Verratti</div><div class="pairing-meta">Primary · Italy 2012–present · 165cm CM/DM</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Height match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--gold);">97%</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Style match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--gold);">91%</div></div>
+      </div>
+      <div class="pairing-row" style="grid-template-columns:60px 1fr 90px 90px;">
+        <div class="pairing-pct">76%</div>
+        <div><div class="pairing-name">Santi Cazorla</div><div class="pairing-meta">Secondary · Spain 2003–2022 · 168cm CM</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Height match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--silver);">80%</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Style match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--gold);">89%</div></div>
+      </div>
+      <div class="pairing-row" style="grid-template-columns:60px 1fr 90px 90px;">
+        <div class="pairing-pct">72%</div>
+        <div><div class="pairing-name">N'Golo Kanté</div><div class="pairing-meta">Modern benchmark · France 2012–present · 168–171cm DM</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Height match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--silver);">82%</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Weight gap</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--danger);">8–11kg</div></div>
+      </div>
+      <div class="pairing-row" style="grid-template-columns:60px 1fr 90px 90px;">
+        <div class="pairing-pct">71%</div>
+        <div><div class="pairing-name">Jody Morris</div><div class="pairing-meta">Exact height match · England 1996–2004 · 163cm CM</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Height match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--success);">100%</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Role</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--warning);">Rotation</div></div>
+      </div>
+      <div class="pairing-row" style="grid-template-columns:60px 1fr 90px 90px;">
+        <div class="pairing-pct">68%</div>
+        <div><div class="pairing-name">Claude Makelélé</div><div class="pairing-meta">Defensive ceiling · France 1997–2011 · 169–174cm DM</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Height match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--warning);">75%</div></div>
+        <div><div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;">Style match</div><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--silver);">84%</div></div>
+      </div>
+      <div style="margin-top:16px;padding:12px 16px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--danger);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Eliminated on height filter</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);">Xavi (170cm, +7cm) · Andrés Iniesta (171cm, +8cm) · Luka Modrić (172cm, +9cm) — all operate in a different physical register. The reflexive comparisons for a small technical midfielder. The protocol demands the height filter.</div>
+      </div>
+    </div>
+    <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+    <div class="grid-2" id="philosophyFits"></div>
+    <div class="card recommendation-card" style="margin-top:12px;" id="recommendationCard"></div>
+  </div>
+
+  <div id="attributes" class="tab-panel">
+    <div id="attributeBanner"></div>
+    <div id="attributeCards"></div>
+    <div class="card" style="margin-top:20px;"><div style="max-width:500px;margin:0 auto;"><canvas id="attrRadar" width="400" height="350"></canvas></div></div>
+  </div>
+
+  <div id="fga" class="tab-panel">
+    <div id="fgaBanner"></div>
+    <div class="grid-3" id="fgaContent"></div>
+  </div>
+
+  <div id="crossleague" class="tab-panel">
+    <div class="banner banner-era"><span>LOG</span> <strong>LOG-ADJUSTED CROSS-LEAGUE PROJECTIONS</strong> — Formula per Cross_League_LOG_Glossary footer: Adjusted Score = Base FGA × (Current League LOG ÷ Target League LOG).</div>
+    <div class="formula-corrected" style="background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.25);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:0.78rem;color:var(--success);font-family:var(--font-heading);font-weight:500;">
+      ✅ CORRECTED FORMULA — <strong>Adjusted FGA = Base FGA × (Current League LOG ÷ Target League LOG)</strong>
+    </div>
+    <div class="section-title">Performance Projection by League <span class="line"></span></div>
+    <div class="league-compare-grid" id="crossLeagueGrid"></div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology — Cross-League LOG Adjustment</h3>
+      <div class="log-methodology">
+        <p><strong>The formula comes straight from the Cross-League LOG Glossary footer:</strong></p>
+        <div class="formula-box"><strong>Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier)</strong></div>
+        <p style="margin-top:8px;"><strong>Current league:</strong> USL Championship — LOG <strong>2.0</strong> (estimate).</p>
+        <p style="margin-top:4px;"><strong>Base FGA:</strong> <strong>7.6</strong> — provisional midpoint from the 7.3–7.9 range.</p>
+        <p style="margin-top:4px;"><strong>How to read it:</strong> A lower multiplier means the target league is tougher than the current league — the score is discounted proportionally. A higher multiplier means an easier league — the score is inflated. A 1.00× multiplier means the same level.</p>
+        <p style="margin-top:4px;color:var(--text-tertiary);font-size:0.72rem;">USL Championship LOG 2.0 is a proposed value — not in the official LOG_Reference yet. Adjust once confirmed.</p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+      <div class="card">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">League LOG Reference (from Glossary)</h4>
+        <div style="font-size:0.75rem;color:var(--text-secondary);line-height:2;">
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Premier League / La Liga <em style="color:var(--success);font-size:0.6rem;font-style:normal;">CONFIRMED</em></span><span style="color:var(--gold);">3.7</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Bundesliga / Ligue 1 <em style="color:var(--success);font-size:0.6rem;font-style:normal;">CONFIRMED</em></span><span style="color:var(--gold);">3.6</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Eredivisie / Championship <em style="color:var(--success);font-size:0.6rem;font-style:normal;">CONFIRMED</em></span><span style="color:var(--gold);">2.8</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Liga MX / Primeira Liga</span><span style="color:var(--gold);">2.7</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>MLS <em style="color:var(--success);font-size:0.6rem;font-style:normal;">CONFIRMED</em></span><span style="color:var(--gold);">2.6</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>USL Championship <em style="color:var(--warning);font-size:0.6rem;font-style:normal;">ESTIMATE</em></span><span style="color:var(--gold);">2.0</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>MLS Next Pro <em style="color:var(--warning);font-size:0.6rem;font-style:normal;">ESTIMATE</em></span><span style="color:var(--gold);">1.8</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Worked Examples</h4>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <p><strong style="color:var(--text-primary);">Base FGA = 7.6 in USL Championship (LOG 2.0)</strong></p>
+          <div style="background:var(--bg-card-hover);border-radius:6px;padding:10px;margin-top:6px;font-family:var(--font-body);">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;"><span>Premier League (3.7):</span><span style="color:var(--gold);">7.6 × (2.0 ÷ 3.7) = <strong>4.1</strong></span></div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;"><span>La Liga (3.7):</span><span style="color:var(--gold);">7.6 × (2.0 ÷ 3.7) = <strong>4.1</strong></span></div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;"><span>Eredivisie (2.8):</span><span style="color:var(--gold);">7.6 × (2.0 ÷ 2.8) = <strong>5.4</strong></span></div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;"><span>MLS (2.6):</span><span style="color:var(--gold);">7.6 × (2.0 ÷ 2.6) = <strong>5.8</strong></span></div>
+            <div style="display:flex;justify-content:space-between;padding:3px 0;"><span>USL Championship (2.0):</span><span style="color:var(--gold);">7.6 × (2.0 ÷ 2.0) = <strong>7.6</strong></span></div>
+          </div>
+          <p style="margin-top:8px;font-size:0.72rem;color:var(--text-tertiary);">Direction confirmed against Cross_League_LOG_Glossary footer formula. Lower number = tougher test in target league, scaled proportionally.</p>
+        </div>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:12px;"><span>INFO</span> <strong>All projections use the provisional FGA midpoint of 7.6 from the 7.3–7.9 range. USL Championship LOG 2.0 is an estimate pending formal inclusion in the LOG_Reference table.</strong></div>
+  </div>
+
+  <div id="philosophy" class="tab-panel">
+    <div class="grid-2">
+      <div class="card"><h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3><div id="philosophyFitList"></div></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;"><div class="radar-container"><canvas id="philosophyRadar2" width="500" height="450"></canvas></div></div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;" id="philosophyArchetype"></p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="philosophyTags"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">School Averages <span class="line"></span></div>
+    <div class="grid-4" id="schoolAverages"></div>
+  </div>
+
+  <div id="career" class="tab-panel">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card" style="max-width:100%;overflow-x:hidden;">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+        <div class="timeline" id="careerTimeline"></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+        <div id="careerStatsTable"></div>
+        <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+        <table class="data-table" id="honoursTable"><thead><tr><th>Honour</th><th>Year</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+    <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
+    <div class="grid-2">
+      <div class="physical-card">
+        <h4>Physical Profile</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Age</span><span class="value">25 (born 12 April 2001)</span></div>
+          <div class="physical-item"><span class="label">Height</span><span class="value">163 cm (5 ft 4 in)</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">60 kg (132 lb)</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Central / Defensive Midfield</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">Sierra Leone</span></div>
+          <div class="physical-item"><span class="label">Place of Birth</span><span class="value">Freetown, Sierra Leone</span></div>
+          <div class="physical-item"><span class="label">Current Club</span><span class="value">Colorado Springs Switchbacks</span></div>
+          <div class="physical-item"><span class="label">Contract</span><span class="value">To 30 Nov 2027</span></div>
+          <div class="physical-item"><span class="label">Market Value</span><span class="value">€200k</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+        <div class="flag-box risk"><div class="icon">BLOCKER 1</div><div><strong>Tier 1 career data is unverified.</strong> Season-by-season statistics were compiled from secondary aggregator pages and have not been cross-checked against a primary source. FBref is bot-blocked in this workflow. Every career figure must be verified against Sofascore / Transfermarkt / official club sources before client use.</div></div>
+        <div class="flag-box risk" style="margin-top:10px;"><div class="icon">BLOCKER 2</div><div><strong>FGA Rating is provisional.</strong> Tier 3 is complete (7.79 across 11 metrics). Tier 2 is partially computable (2 of 9). Tier 1 is unverified. The realistic FGA range is <strong>7.3–7.9</strong> — "Very Good" classification. Do not quote a single FGA number until Tier 1 is verified.</div></div>
+        <div class="flag-box validated" style="margin-top:10px;"><div class="icon">VALIDATED</div><div><strong>Video evidence is the only verified data in this document.</strong> 134 logged events across 7 matches. Balance check passed: 2 vs top-third opposition, 2 away, 1 while losing.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scouting" class="tab-panel"><div id="scoutingContent"></div></div>
+
+  <div id="matches" class="tab-panel">
+    <div class="banner banner-champ"><span>VIDEO</span> <strong>Match Footage — USL Championship 2026-27</strong> — Two videos available via Dropbox.</div>
+    <div class="section-title" style="margin-bottom:16px;">Match Videos (Dropbox)</div>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="card" style="margin-top:24px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Last 5 Matches — 2026-27 Season</h3>
+      <div id="lastMatchesTable"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// CAREER DATA — FRANK DAROMA
+// ============================================================
+var careerSeasons = [
+  { id:'2020-21', label:'2020-21 · Cal State San Bernardino', club:'Cal State San Bernardino', league:'NCAA II', apps:null, goals:null, assists:null, fga:null, age:'19-20', badge:'CSUSB · 2020-21 · NCAA', t3Status:'Not Assessed', logTier:1.5, minutes:null },
+  { id:'2021', label:'2021 · Las Vegas Lights', club:'Las Vegas Lights', league:'USL Championship', apps:32, goals:0, assists:1, fga:null, age:'19-20', badge:'LV Lights · 2021 · USL Championship', t3Status:'Not Assessed', logTier:2.0, minutes:2593 },
+  { id:'2022', label:'2022 · Las Vegas Lights', club:'Las Vegas Lights', league:'USL Championship', apps:32, goals:0, assists:2, fga:null, age:'20-21', badge:'LV Lights · 2022 · USL Championship', t3Status:'Not Assessed', logTier:2.0, minutes:2388 },
+  { id:'2023-24', label:'2023-24 · Tacoma Defiance', club:'Tacoma Defiance', league:'MLS Next Pro', apps:39, goals:1, assists:0, fga:null, age:'22-23', badge:'Tacoma Defiance · 2023-24 · MLS Next Pro', t3Status:'Not Assessed', logTier:1.8, minutes:null },
+  { id:'2025', label:'2025 · El Paso Locomotive', club:'El Paso Locomotive', league:'USL Championship', apps:32, goals:1, assists:4, fga:null, age:'23-24', badge:'El Paso · 2025 · USL Championship', t3Status:'Not Assessed', logTier:2.0, minutes:2620 },
+  { id:'2026-27', label:'2026-27 · Colorado Springs Switchbacks', club:'Colorado Springs Switchbacks', league:'USL Championship', apps:20, goals:0, assists:2, fga:7.6, age:'24-25', badge:'Colorado Springs · 2026-27 · USL Championship', t3Status:'Video Graded — Provisional 7.3–7.9', logTier:2.0, minutes:999 }
+];
+
+var logReference = {
+  'Premier League':{tier:3.7,code:'ENG',short:'EPL'},
+  'La Liga':{tier:3.7,code:'ESP',short:'La Liga'},
+  'Bundesliga':{tier:3.6,code:'GER',short:'Bundesliga'},
+  'Ligue 1':{tier:3.6,code:'FRA',short:'Ligue 1'},
+  'Serie A':{tier:3.6,code:'ITA',short:'Serie A'},
+  'Eredivisie':{tier:2.8,code:'NED',short:'Eredivisie'},
+  'Championship':{tier:2.8,code:'ENG',short:'Championship'},
+  'MLS':{tier:2.6,code:'USA',short:'MLS'},
+  'USL Championship':{tier:2.0,code:'USA',short:'USL Champ'},
+  'MLS Next Pro':{tier:1.8,code:'USA',short:'MLS NP'},
+  'NCAA II':{tier:1.5,code:'USA',short:'NCAA'}
+};
+
+var crossLeagues = ['Premier League','La Liga','Bundesliga','Ligue 1','Serie A','Eredivisie','Championship','MLS','USL Championship'];
+
+var videoMetrics = [
+  {code:'OBI_T', name:'Run Timing', quality:6.83, hitRate:66.7, reliability:'MIXED', weight:0.35, events:9, group:'OBI'},
+  {code:'OBI_S', name:'Space Architecture', quality:8.40, hitRate:100, reliability:'RELIABLE', weight:0.35, events:5, group:'OBI'},
+  {code:'OBI_P', name:'Positional Anticipation', quality:7.70, hitRate:100, reliability:'RELIABLE', weight:0.30, events:5, group:'OBI'},
+  {code:'OBI', name:'OBI Composite', quality:7.64, hitRate:84.2, reliability:'CONSISTENT', weight:null, events:19, group:'COMP'},
+  {code:'SII_A', name:'Explosive Acceleration', quality:7.25, hitRate:85.7, reliability:'CONSISTENT', weight:0.40, events:7, group:'SII'},
+  {code:'SII_T', name:'Top-End Speed Relative', quality:8.33, hitRate:75.0, reliability:'CONSISTENT', weight:0.35, events:4, group:'SII'},
+  {code:'SII_R', name:'Recovery Sprint Frequency', quality:7.00, hitRate:100, reliability:'RELIABLE', weight:0.25, events:3, group:'SII'},
+  {code:'SII', name:'SII Composite', quality:7.57, hitRate:85.7, reliability:'CONSISTENT', weight:null, events:14, group:'COMP'},
+  {code:'CLM', name:'Calmness', quality:8.60, hitRate:100, reliability:'RELIABLE', events:5, group:'OTHER'},
+  {code:'DMA', name:'Decision Making', quality:8.17, hitRate:75.0, reliability:'CONSISTENT', events:8, group:'OTHER'},
+  {code:'OMS', name:'Transition (Omschakeling)', quality:8.20, hitRate:83.3, reliability:'CONSISTENT', events:6, group:'OTHER'},
+  {code:'CHR', name:'Character', quality:8.00, hitRate:100, reliability:'RELIABLE', events:4, group:'OTHER'},
+  {code:'SOA', name:'Speed on Action', quality:7.88, hitRate:80.0, reliability:'CONSISTENT', events:10, group:'OTHER'},
+  {code:'SPI', name:'Spatial Performance', quality:7.29, hitRate:87.5, reliability:'CONSISTENT', events:8, group:'OTHER'},
+  {code:'INT', name:'Interceptions', quality:7.08, hitRate:100, reliability:'RELIABLE', events:6, group:'OTHER'},
+  {code:'DRB', name:'Dribbling', quality:8.33, hitRate:66.7, reliability:'MIXED', events:9, group:'OTHER'},
+  {code:'DYN', name:'Dynamism', quality:6.00, hitRate:100, reliability:'RELIABLE', events:3, group:'OTHER'},
+  {code:'CRS', name:'Clutch Response', quality:8.50, hitRate:66.7, reliability:'MIXED', events:3, group:'OTHER'},
+  {code:'CRK', name:'Creative Risk', quality:8.50, hitRate:66.7, reliability:'MIXED', events:3, group:'OTHER'},
+  {code:'MCS', name:'Mental Competence', quality:7.00, hitRate:50.0, reliability:'PENDING', events:2, group:'OTHER'},
+  {code:'KEY', name:'Key Passes', quality:8.67, hitRate:75.0, reliability:'CONSISTENT', events:4, group:'PRIORITY'},
+  {code:'OTP', name:'One Touch Pass', quality:7.80, hitRate:100, reliability:'RELIABLE', events:5, group:'PRIORITY'},
+  {code:'HZP', name:'Horizontal Pass', quality:7.71, hitRate:100, reliability:'RELIABLE', events:7, group:'PRIORITY'},
+  {code:'CAR', name:'Ball Carries', quality:7.50, hitRate:100, reliability:'RELIABLE', events:3, group:'PRIORITY'},
+  {code:'TAC', name:'Tackling', quality:9.00, hitRate:66.7, reliability:'MIXED', events:3, group:'PRIORITY'},
+  {code:'VRP', name:'Vertical Pass', quality:7.50, hitRate:50.0, reliability:'UNRELIABLE', events:4, group:'PRIORITY'},
+  {code:'STK', name:'Shot Technique', quality:7.00, hitRate:50.0, reliability:'UNRELIABLE', events:2, group:'PRIORITY'}
+];
+
+var careerTimelineData = [
+  {date:'12 April 2001 · Born', text:'Born <strong>Frank Daroma</strong> in <strong>Freetown, Sierra Leone</strong>. Height: 163cm. Weight: 60kg. Right-footed.', type:''},
+  {date:'2018-19 · Barca Residency Academy', text:'Played with the <strong>USSDA Barca Residency Academy</strong> for one year prior to college. Elite youth development pathway.', type:'hist'},
+  {date:'2019-2020 · Cal State San Bernardino', text:'Attended <strong>Cal State San Bernardino</strong>. Named <strong>CCAA Freshman of the Year</strong>, <strong>First Team All-American</strong>, All-Region selection, and <strong>USC All-American</strong>.', type:'champ'},
+  {date:'5 April 2021 · Las Vegas Lights', text:'Signed professional contract with <strong>Las Vegas Lights</strong> (USL Championship). Made professional debut on 5 May 2021.', type:'hist'},
+  {date:'2021-2022 · Las Vegas Lights', text:'<strong>64 regular-season appearances</strong> across two seasons — most by any player in Las Vegas history. Led the club in passing accuracy (89.8%), duels won (322 of 569), and recoveries (394). 3 assists.', type:'champ'},
+  {date:'2023-2024 · Tacoma Defiance', text:'Joined <strong>Tacoma Defiance</strong> in MLS Next Pro. <strong>39 appearances, 1 goal.</strong> Averaged 92% passing accuracy and led the team in interceptions (38).', type:'hist'},
+  {date:'7 January 2025 · El Paso Locomotive', text:'Signed with <strong>El Paso Locomotive</strong> (USL Championship). Reported breakout season — 1 goal, 4 assists across 30 USL Championship appearances.', type:'champ'},
+  {date:'17 December 2025 · Colorado Springs Switchbacks', text:'Signed with <strong>Colorado Springs Switchbacks</strong> ahead of the 2026 season. Multi-year contract through 2027.', type:'current'},
+  {date:'2026-27 · Colorado Springs Switchbacks', text:'<strong>VIDEO GRADED SEASON.</strong> 20 apps, 0 goals, 2 assists, 999 minutes. FGA v3 Video Score: <strong>provisional 7.3–7.9</strong> ("Very Good"). Tier 3 verified at 7.79 across 11 of 12 metrics.', type:'current'},
+  {date:'25 Sept 2026 · T3 Video Assessment Complete', text:'Full video assessment across 134 logged events in 7 matches. Balance check passed: 2 vs top-third opposition, 2 away, 1 while losing. OBI Composite 7.64, SII Composite 7.33.', type:'hist'}
+];
+
+var honoursData = [
+  {name:'CCAA Freshman of the Year', year:'2019'},
+  {name:'First Team All-American', year:'2019'},
+  {name:'USC All-Region First Team', year:'2019'},
+  {name:'USC All-American', year:'2019'},
+  {name:'All-CCAA First Team', year:'2019'},
+  {name:'Most appearances in Las Vegas Lights history (64)', year:'2021-2022'},
+  {name:'T3 Video Assessment Complete (11/12 metrics)', year:'2026'}
+];
+
+var lastMatchesData = [
+  {date:'2026-09-19', home:'CS Switchbacks', away:'New Mexico Utd', result:'D 0–0', pos:'CM', min:62, gls:0, ast:0, sh:1, sot:0},
+  {date:'2026-09-11', home:'CS Switchbacks', away:'San Antonio FC', result:'W 2–1', pos:'FW', min:77, gls:0, ast:1, sh:0, sot:0},
+  {date:'2026-09-04', home:'Loudoun United', away:'CS Switchbacks', result:'W 5–4', pos:'Sub', min:26, gls:0, ast:0, sh:2, sot:0},
+  {date:'2026-08-29', home:'Lexington SC', away:'CS Switchbacks', result:'W 1–0', pos:'Sub', min:32, gls:0, ast:0, sh:0, sot:0},
+  {date:'2026-08-22', home:'CS Switchbacks', away:'El Paso', result:'L 0–1', pos:'DM', min:67, gls:0, ast:0, sh:0, sot:0}
+];
+
+// ============================================================
+// RENDER HELPERS
+// ============================================================
+function renderKeyStrengths(strengths, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  strengths.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'strength-item';
+    d.innerHTML = '<span class="label">'+s.label+'</span><span class="value">'+s.value+'</span>';
+    c.appendChild(d);
+  });
+}
+
+function renderBanners(banners, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  banners.forEach(function(b){
+    var d = document.createElement('div');
+    d.className = 'banner ' + b.type;
+    d.innerHTML = b.text;
+    c.appendChild(d);
+  });
+}
+
+function renderTags(tags, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  tags.forEach(function(t){
+    var s = document.createElement('span');
+    s.className = 'tag ' + t.class;
+    s.textContent = t.text;
+    c.appendChild(s);
+  });
+}
+
+function renderHeroStats(stats, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  stats.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'stat-hero';
+    d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.label+'</div>';
+    c.appendChild(d);
+  });
+}
+
+function renderCareerPath(path, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  path.forEach(function(node, i){
+    var s = document.createElement('span');
+    s.className = 'career-node' + (i === path.length-1 ? ' current' : '');
+    s.textContent = node;
+    c.appendChild(s);
+    if (i < path.length-1) {
+      var a = document.createElement('span');
+      a.className = 'career-arrow';
+      a.textContent = '>';
+      c.appendChild(a);
+    }
+  });
+}
+
+function renderProfileCards(cards, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  cards.forEach(function(card){
+    var d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = '<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">'+card.title+'</h3><div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">'+card.content+'</div>';
+    c.appendChild(d);
+  });
+}
+
+function renderPhilosophyFits(fits, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  var firstCard = document.createElement('div');
+  firstCard.className = 'card';
+  var html = '';
+  fits.forEach(function(f){
+    html += '<div class="philo-row"><div class="philo-rank">'+f.rank+'</div><div class="philo-name">'+f.name+'</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+f.width+';background:'+f.color+';"></div></div></div><div class="philo-score">'+f.score+'</div></div>';
+  });
+  firstCard.innerHTML = html;
+  c.appendChild(firstCard);
+}
+
+function renderRecommendation(text, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">'+text+'</div>';
+}
+
+function reliabilityBadge(rel) {
+  if (rel === 'RELIABLE') return '<span class="reliability-badge rel-reliable">RELIABLE</span>';
+  if (rel === 'CONSISTENT') return '<span class="reliability-badge rel-consistent">CONSISTENT</span>';
+  if (rel === 'MIXED') return '<span class="reliability-badge rel-mixed">MIXED</span>';
+  if (rel === 'UNRELIABLE') return '<span class="reliability-badge rel-unreliable">UNRELIABLE</span>';
+  return '<span class="reliability-badge rel-pending">PENDING</span>';
+}
+
+function metricColor(score) {
+  if (score >= 8.0) return 'var(--success)';
+  if (score >= 7.0) return 'var(--gold)';
+  if (score >= 6.0) return 'var(--warning)';
+  return 'var(--danger)';
+}
+
+function renderDualScoreRow(m) {
+  var qColor = metricColor(m.quality);
+  return '<div class="dual-score-row">' +
+    '<div class="dual-score-name">'+m.name+' '+reliabilityBadge(m.reliability)+'</div>' +
+    '<div class="dual-score-bar-wrap"><div style="font-family:var(--font-heading);font-size:0.58rem;color:var(--text-tertiary);text-transform:uppercase;">Quality</div><div class="progress-bar"><div class="progress-fill" style="width:'+(m.quality*10)+'%;background:'+qColor+'"></div></div></div>' +
+    '<div class="dual-score-val" style="color:'+qColor+'">'+m.quality.toFixed(2)+'</div>' +
+    '<div class="dual-score-bar-wrap"><div style="font-family:var(--font-heading);font-size:0.58rem;color:var(--text-tertiary);text-transform:uppercase;">Hit Rate</div><div class="progress-bar"><div class="progress-fill" style="width:'+m.hitRate+'%;background:var(--gold)"></div></div></div>' +
+    '<div class="dual-score-val" style="color:var(--gold)">'+m.hitRate.toFixed(1)+'%</div>' +
+  '</div>';
+}
+
+function renderAttributeCards() {
+  var c = document.getElementById('attributeCards'); if (!c) return;
+  var banner = document.getElementById('attributeBanner');
+  if (banner) banner.innerHTML = '<div class="banner banner-verified"><span>VALIDATED</span> <strong>Video Assessment Complete — 2026-27 Season.</strong> 134 events across 7 matches. Tier 3 average <strong>7.79</strong>. Provisional FGA range <strong>7.3–7.9</strong>.</div><div class="banner banner-warning"><span>METHODOLOGY</span> <strong>Quality / Reliability pairing.</strong> Quality = positive-event average (0–10). Hit Rate = % of events that are positive. A high Quality with a low Hit Rate = excellent when successful, fails often.</div>';
+
+  var obiMetrics = videoMetrics.filter(function(m){return m.group === 'OBI';});
+  var obiComp = videoMetrics.filter(function(m){return m.group === 'COMP' && m.code === 'OBI';})[0];
+  var siiMetrics = videoMetrics.filter(function(m){return m.group === 'SII';});
+  var siiComp = videoMetrics.filter(function(m){return m.group === 'COMP' && m.code === 'SII';})[0];
+  var otherMetrics = videoMetrics.filter(function(m){return m.group === 'OTHER';});
+  var priorityMetrics = videoMetrics.filter(function(m){return m.group === 'PRIORITY';});
+
+  var obiHTML = obiMetrics.map(renderDualScoreRow).join('') + (obiComp ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-medium);">'+renderDualScoreRow(obiComp)+'</div>' : '');
+  var siiHTML = siiMetrics.map(renderDualScoreRow).join('') + (siiComp ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-medium);">'+renderDualScoreRow(siiComp)+'</div>' : '');
+  var otherHTML = otherMetrics.map(renderDualScoreRow).join('');
+  var priorityHTML = priorityMetrics.map(renderDualScoreRow).join('');
+
+  c.innerHTML =
+    '<div class="grid-2">' +
+      '<div class="attr-card"><h3>OBI — Off-Ball Intelligence (35% of Tier 3)</h3>'+obiHTML+'</div>' +
+      '<div class="attr-card"><h3>SII — Sprint Intensity Index</h3>'+siiHTML+'</div>' +
+    '</div>' +
+    '<div class="attr-card" style="margin-top:20px;"><h3>Remaining Video Metrics</h3>'+otherHTML+'</div>' +
+    '<div class="attr-card" style="margin-top:20px;"><h3>Philosophy-Fit Priority Metrics</h3>'+priorityHTML+'</div>';
+}
+
+function renderFGA() {
+  var container = document.getElementById('fgaContent'); if (!container) return;
+  var banner = document.getElementById('fgaBanner');
+  if (banner) banner.innerHTML = '<div class="banner banner-warning"><span>PROVISIONAL</span> <strong>FGA Rating 7.3–7.9 — "Very Good".</strong> Do not quote a single FGA number until Tier 1 is verified.</div>';
+
+  var html = '';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier Composition</h3>';
+  html += '<div class="tier-bar">';
+  html += '<div class="tier-bar-segment tier-seg-t3">TIER 3 — 50% · 7.79</div>';
+  html += '<div class="tier-bar-segment tier-seg-t2">TIER 2 — 30% · 2/9</div>';
+  html += '<div class="tier-bar-segment tier-seg-t1">TIER 1 — 20% · UNVERIFIED</div>';
+  html += '</div>';
+  html += '<div class="tier-legend"><span>134 events · 7 matches</span><span>CPX 7.76 · MTI 6.94</span><span>FBref blocked</span></div>';
+  html += '<div style="margin-top:16px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">Tier 3 carries half the master weight and is complete. The provisional FGA range of 7.3–7.9 is driven almost entirely by what Tier 2 and Tier 1 turn out to be once the missing inputs are scored. Tier 3 alone contributes 3.90 to the rating. Tier 2 and Tier 1 together contribute an unknown amount in the range of 3.40 to 4.00.</div>';
+  html += '</div>';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 — Verified Metrics (11/12)</h3>';
+  var tier3Metrics = videoMetrics.filter(function(m){return m.group === 'OTHER' || m.group === 'COMP';});
+  tier3Metrics.forEach(function(m){
+    var color = metricColor(m.quality);
+    html += '<div class="t1-metric-row"><span class="t1-metric-code">'+m.code+'</span><span class="t1-metric-desc">'+m.name+' '+reliabilityBadge(m.reliability)+'</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(m.quality*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+m.quality.toFixed(2)+'</span></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Intelligence (2/9 Computable)</h3>';
+  html += '<div style="display:flex;flex-direction:column;gap:10px;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX · Composure (AVG of DMA, CHR, MCS, SOA)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.76 ✓</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MTI · Match Impact Index (AVG of DYN, SOA)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.94 ✓</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-tertiary);">POI · Position Intelligence (needs UNP, RDS)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-tertiary);">MOB · Mobility (needs DXT)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-tertiary);">AMS · Anticipatory Movement (needs POI)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-tertiary);">CPI · Creative Player Index (needs UNP)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-tertiary);">PVI · Pass Variety Index (FBref blocked)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-tertiary);">GRI · Ghost Run Index (FBref blocked)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-tertiary);">GKI · Goalkeeper Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--text-tertiary);">N/A</span></div>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Provisional FGA Scenarios</h3>';
+  html += '<table class="data-table" style="font-size:0.78rem;"><thead><tr><th>Scenario</th><th>T3</th><th>T2</th><th>T1</th><th>FGA</th></tr></thead><tbody>';
+  html += '<tr><td>Conservative</td><td>7.79</td><td>7.00</td><td>6.50</td><td style="color:var(--gold);font-weight:700;">7.30</td></tr>';
+  html += '<tr><td>Midpoint</td><td>7.79</td><td>7.50</td><td>7.00</td><td style="color:var(--gold);font-weight:700;">7.55</td></tr>';
+  html += '<tr><td>Parity</td><td>7.79</td><td>7.79</td><td>7.79</td><td style="color:var(--gold);font-weight:700;">7.79</td></tr>';
+  html += '<tr><td>Optimistic</td><td>7.79</td><td>8.00</td><td>8.00</td><td style="color:var(--gold);font-weight:700;">7.90</td></tr>';
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">Every realistic scenario lands in the <strong style="color:var(--gold);">"Very Good" band (6.5–7.9)</strong>. No scenario pushes him to "Excellent" (8.0+) without Tier 1 verification producing an unusually strong passing and possession score — which the reported 92.8% figure would likely do if confirmed.</div>';
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+// ============================================================
+// CROSS-LEAGUE — CORRECTED FORMULA
+// Adjusted FGA = Base FGA × (Source LOG ÷ Target LOG)
+// ============================================================
+function renderCrossLeague(seasonId) {
+  var season = careerSeasons.find(function(s){return s.id === seasonId;});
+  if (!season) return;
+
+  var sourceLog = season.logTier;
+  var sourceGoals = season.goals || 0;
+  var sourceAssists = season.assists || 0;
+  var sourceFga = 7.6; // provisional midpoint
+
+  var grid = document.getElementById('crossLeagueGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  crossLeagues.forEach(function(leagueName){
+    var ref = logReference[leagueName]; if (!ref) return;
+    // CORRECTED: Source LOG ÷ Target LOG
+    var ratio = sourceLog / ref.tier;
+    var projGA = (sourceGoals + sourceAssists) * ratio;
+    var projFga = sourceFga * ratio;
+    var direction = ref.tier > sourceLog ? 'down' : (ref.tier < sourceLog ? 'up' : 'same');
+    var directionText = ref.tier > sourceLog ? 'TOUGHER LEAGUE — score scales down' : (ref.tier < sourceLog ? 'EASIER LEAGUE — score scales up' : 'SAME LEVEL');
+    var card = document.createElement('div');
+    card.className = 'league-compare-card';
+    card.innerHTML = '<div class="league-flag">'+ref.code+'</div>' +
+      '<div class="league-name">'+leagueName+'</div>' +
+      '<div class="league-tier">'+ref.short+' | LOG '+ref.tier.toFixed(1)+'</div>' +
+      '<div class="projected-goals">'+projFga.toFixed(1)+'</div>' +
+      '<div class="projected-label">Adjusted FGA</div>' +
+      '<div class="multiplier">Multiplier: <strong>'+ratio.toFixed(2)+'x</strong></div>' +
+      '<div class="log-badge">G+A proj: '+projGA.toFixed(1)+'</div>' +
+      '<div class="direction-indicator"><span class="'+(direction==='down'?'down':(direction==='up'?'up':''))+'">'+directionText+'</span></div>';
+    grid.appendChild(card);
+  });
+}
+
+function renderLastMatches() {
+  var c = document.getElementById('lastMatchesTable'); if (!c) return;
+  var html = '<table class="data-table"><thead><tr><th>Date</th><th>Fixture</th><th>Result</th><th>Pos</th><th>Min</th><th>G</th><th>A</th><th>Sh</th><th>SoT</th></tr></thead><tbody>';
+  lastMatchesData.forEach(function(m){
+    html += '<tr><td>'+m.date+'</td><td><strong>'+m.home+'</strong> vs '+m.away+'</td><td>'+m.result+'</td><td>'+m.pos+'</td><td>'+m.min+'</td><td>'+m.gls+'</td><td>'+m.ast+'</td><td>'+m.sh+'</td><td>'+m.sot+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderCareerTimeline() {
+  var c = document.getElementById('careerTimeline'); if (!c) return;
+  var html = '';
+  careerTimelineData.forEach(function(item){
+    html += '<div class="timeline-item '+item.type+'"><div class="timeline-date">'+item.date+'</div><div class="timeline-text">'+item.text+'</div></div>';
+  });
+  c.innerHTML = html;
+}
+
+function renderCareerStatsTable() {
+  var c = document.getElementById('careerStatsTable'); if (!c) return;
+  var html = '<table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>G</th><th>A</th><th>FGA</th></tr></thead><tbody>';
+  careerSeasons.forEach(function(s){
+    var hl = (s.id === '2026-27') ? 'class="season-highlight"' : '';
+    var apps = s.apps !== null ? s.apps : '-';
+    var goals = s.goals !== null ? s.goals : '-';
+    var assists = s.assists !== null ? s.assists : '-';
+    var fga = s.fga !== null ? '7.3–7.9' : '-';
+    html += '<tr '+hl+'><td>'+s.label+'</td><td>'+s.club+'</td><td>'+s.league+'</td><td>'+apps+'</td><td>'+goals+'</td><td>'+assists+'</td><td style="color:var(--gold);">'+fga+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderHonours() {
+  var tbody = document.querySelector('#honoursTable tbody'); if (!tbody) return;
+  tbody.innerHTML = '';
+  honoursData.forEach(function(h){
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><strong>'+h.name+'</strong></td><td>'+h.year+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function updateDial(score) {
+  var canvas = document.getElementById('heroDial'); if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var max = 10;
+  var angle = (score / max) * 1.5 * Math.PI + 0.75 * Math.PI;
+  ctx.clearRect(0,0,150,150);
+  ctx.beginPath();
+  ctx.arc(75,75,62,0.75*Math.PI,2.25*Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(75,75,62,0.75*Math.PI,angle);
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+}
+
+function renderScouting() {
+  var c = document.getElementById('scoutingContent'); if (!c) return;
+  c.innerHTML =
+    '<div class="scout-box scout-pos"><h4>Positive Filters</h4><ul>' +
+      '<li><strong>Elite ball retention under pressure</strong> — CLM 8.60 at 100% reliability. Could be pressed by two and escape.</li>' +
+      '<li><strong>Space architecture</strong> — OBI_S 8.40 at 100% reliability. Creates measurable space for teammates.</li>' +
+      '<li><strong>One-touch and horizontal passing</strong> — OTP 7.80, HZP 7.71 both at 100% reliability. Zero failures across 22 events.</li>' +
+      '<li><strong>Key passes</strong> — KEY 8.67 at 75% consistency. Assists against San Antonio on 11 Sept 2026.</li>' +
+      '<li><strong>Transition play</strong> — OMS 8.20 at 83.3% consistency. First 3 steps within 1 second of possession change.</li>' +
+      '<li><strong>Character and resilience</strong> — CHR 8.00 at 100% reliability. Organises teammates.</li>' +
+      '<li><strong>Multi-season starter</strong> — 113 professional appearances across three clubs. 64 with LV Lights (club record).</li>' +
+      '<li><strong>College pedigree</strong> — First Team All-American, CCAA Freshman of the Year, USC All-American (2019).</li>' +
+      '<li><strong>Discipline</strong> — 0.16 cards per 90 compared to Verratti\'s 0.35. Meaningful advantage.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-caut"><h4>Caution Signals</h4><ul>' +
+      '<li><strong>Run timing</strong> — OBI_T 6.83 at 66.7% MIXED reliability. The only metric where both quality and reliability are below the file average.</li>' +
+      '<li><strong>Creative risk</strong> — CRK 8.50 quality but only 66.7% hit rate. Defaults to safe option when pressed.</li>' +
+      '<li><strong>Dynamism</strong> — DYN 6.00 at 100% reliability but lowest quality score. Rigid positioning is the biggest structural weakness.</li>' +
+      '<li><strong>Dribbling consistency</strong> — DRB 8.33 quality but 66.7% hit rate. One in three dribbles fail.</li>' +
+      '<li><strong>Mental competence</strong> — MCS 7.00 at 50% hit rate. Only 2 distinct matches logged, below threshold.</li>' +
+      '<li><strong>Vertical passing</strong> — VRP 7.50 at 50% reliability. Unreliable under pressure.</li>' +
+      '<li><strong>Shot technique</strong> — STK 7.00 at 50% reliability. Limited end product.</li>' +
+      '<li><strong>Physical constraints</strong> — At 163cm / 60kg, cannot recover mistimed actions with physical compensation.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-gap"><h4>Critical Gaps</h4><ul>' +
+      '<li><strong>Tier 1 unverified</strong> — 92.8% pass accuracy figure anchors the Verratti pairing and has not been cross-checked against a primary source.</li>' +
+      '<li><strong>COACH missing</strong> — 25% of Lars framework, requires live scout observation.</li>' +
+      '<li><strong>Tier 2 blocked</strong> — 7 of 9 metrics need UNP, RDS, DXT event data.</li>' +
+      '<li><strong>MCS below threshold</strong> — only 2 distinct matches logged; needs 1 more.</li>' +
+      '<li><strong>9 mis-tagged events</strong> — punch list open; re-tag before next revision.</li>' +
+      '<li><strong>No second scout</strong> — blind cross-validation not assigned.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-verdict"><h4>Empire FGA Verdict</h4>' +
+      '<p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">' +
+      '<strong style="color:var(--text-primary);">PROVISIONAL FGA 7.3–7.9 — "VERY GOOD" CLASSIFICATION.</strong> Frank Daroma is a 25-year-old Sierra Leonean central midfielder with an elite ball-retention profile. His primary tactical pairing is Marco Verratti at 79% — same height class (163cm vs 165cm), same ball-retention game, same physical constraint. The Quality/Reliability split reveals the profile: he reliably does the correct, simple thing (OTP 7.80/100%, HZP 7.71/100%, CLM 8.60/100%, OBI_S 8.40/100%), but technique is ahead of decision speed in contested moments (DMA 8.17/75%, DRB 8.33/66.7%, SOA 7.88/80%). The one clear technical development priority is run timing (OBI_T 6.83/66.7%). This is not a client-ready number until Tier 1 career data is verified and COACH is scored.</p></div>';
+}
+
+function renderPhilosophy() {
+  var fits = [
+    {rank:1, name:'Guardiola — Positional Midfielder', width:'82%', color:'#009b3a', score:'8.2'},
+    {rank:2, name:'Wenger — Creative Midfielder', width:'78%', color:'#009b3a', score:'7.8'},
+    {rank:3, name:'Klopp — Gegenpress Midfielder', width:'72%', color:'#27ae60', score:'7.2'},
+    {rank:4, name:'Ancelotti — Balanced Midfielder', width:'68%', color:'#e07820', score:'6.8'},
+    {rank:5, name:'Mourinho — Tactical Midfielder', width:'64%', color:'#3498db', score:'6.4'},
+    {rank:6, name:'Ferguson — Box-to-Box Midfielder', width:'60%', color:'#6CABDD', score:'6.0'},
+    {rank:7, name:'Cruyff — Total Football Midfielder', width:'56%', color:'#e67e22', score:'5.6'},
+    {rank:8, name:'Sacchi — Pressing Midfielder', width:'52%', color:'#7f8c8d', score:'5.2'},
+    {rank:9, name:'Simeone — Cholismo Midfielder', width:'46%', color:'#e74c3c', score:'4.6'},
+    {rank:10, name:'Defensive Positioning System', width:'32%', color:'#95a5a6', score:'3.2'}
+  ];
+  var c = document.getElementById('philosophyFitList'); if (!c) return;
+  var html = '';
+  fits.forEach(function(f){
+    html += '<div class="philo-row"><div class="philo-rank">'+f.rank+'</div><div class="philo-name">'+f.name+'</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+f.width+';background:'+f.color+';"></div></div></div><div class="philo-score">'+f.score+'</div></div>';
+  });
+  c.innerHTML = html;
+
+  var pa = document.getElementById('philosophyArchetype');
+  if (pa) pa.innerHTML = '<strong style="color:var(--text-primary);">"Ball-Retention Midfielder — Verratti Archetype"</strong> — A right-footed central midfielder with elite ball retention and space awareness (OBI_S 8.40 / 100%). Very calm under pressure (CLM 8.60 / 100%) and reliable one-touch and horizontal passing (OTP 7.80 / 100%, HZP 7.71 / 100%). Physical constraint at 163cm / 60kg means he cannot recover mistimed actions with physical compensation. Primary development areas: creative risk taking (5.00), dynamism (6.00), run timing (6.83 at 66.7% reliability). Tactical DNA maps to Marco Verratti at 79% — the closest available elite comparison.';
+
+  var pt = document.getElementById('philosophyTags');
+  if (pt) pt.innerHTML = '<span class="tag tag-club">Central Midfielder</span><span class="tag tag-club">Right-footed</span><span class="tag tag-gold">No. 8</span><span class="tag tag-info">SLE</span><span class="tag tag-warning">PROVISIONAL 7.3–7.9</span><span class="tag tag-era">Verratti 79%</span>';
+
+  var sc = document.getElementById('schoolAverages');
+  if (sc) {
+    var schools = [
+      {name:'Spanish School', value:'7.6', color:'var(--accent)'},
+      {name:'Modern Masters', value:'7.4', color:'var(--accent)'},
+      {name:'Italian School', value:'7.2', color:'var(--warning)'},
+      {name:'German School', value:'6.8', color:'var(--warning)'}
+    ];
+    sc.innerHTML = '';
+    schools.forEach(function(s){
+      var d = document.createElement('div');
+      d.className = 'stat-hero';
+      d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.name+'</div>';
+      sc.appendChild(d);
+    });
+  }
+}
+
+// ============================================================
+// MATCHES — VIDEO LINKS ADDED
+// ============================================================
+function renderMatches() {
+  var grid = document.getElementById('matchGrid'); if (!grid) return;
+  grid.innerHTML = '';
+
+  var matches = [
+    {
+      title:'Frank Daroma — 2026 Highlight Reel',
+      meta:'Colorado Springs Switchbacks · 2026 · Season highlights',
+      desc:'Full 2026 season highlight compilation. Dropbox video available.',
+      videoUrl:'https://www.dropbox.com/scl/fi/uuuj7gqcigszrl6fmamhb/Frank-Daroma-2026.mp4?rlkey=dnbxnew0mqceyd1vacvsm19ud&raw=1',
+      thumb:'https://ewscripps.brightspotcdn.com/dims4/default/2f0a730/2147483647/strip/true/crop/3372x1770+0+450/resize/1200x630!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fdd%2Fa3%2Fb0218a294110b47420024a52569d%2Fdaroma-frank-1.JPG',
+      badge:'🎬 Highlight Reel'
+    },
+    {
+      title:'Hartford Athletic vs Colorado Springs Switchbacks',
+      meta:'USL Cup · 2026-27',
+      desc:'Full USL Cup match video — Dropbox link available.',
+      videoUrl:'https://www.dropbox.com/scl/fi/u162bgmpvhvvv15z0zrv4/Hartford-Athletic-Colorado-Springs-Switchbacks-Football-Club.mp4?rlkey=iux9d3n1ursf7tvvr4ld7f0o2&raw=1',
+      thumb:'https://ewscripps.brightspotcdn.com/dims4/default/2f0a730/2147483647/strip/true/crop/3372x1770+0+450/resize/1200x630!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fdd%2Fa3%2Fb0218a294110b47420024a52569d%2Fdaroma-frank-1.JPG',
+      badge:'🎬 Full Match'
+    }
+  ];
+
+  matches.forEach(function(m){
+    var card = document.createElement('a');
+    card.className = 'match-card';
+    card.href = m.videoUrl;
+    card.target = '_blank';
+    card.innerHTML = '<div class="match-thumb" style="background-image:url(\''+m.thumb+'\');"><div class="play-icon" style="background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="match-info"><div class="match-teams">'+m.title+'</div><div class="match-meta"><span class="match-badge badge-comp">'+m.meta+'</span><span class="match-badge badge-verified">'+m.badge+'</span></div><div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">'+m.desc+'</div></div>';
+    grid.appendChild(card);
+  });
+}
+
+var charts = {};
+
+function initCharts() {
+  var radarEl = document.getElementById('attrRadar');
+  if (radarEl && typeof Chart !== 'undefined') {
+    if (charts.attrRadar) { try { charts.attrRadar.destroy(); } catch(e){} }
+    charts.attrRadar = new Chart(radarEl.getContext('2d'), {
+      type:'radar',
+      data:{
+        labels:['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CLM','CRS','CHR'],
+        datasets:[
+          {label:'Daroma', data:[6.83,8.40,7.70,7.25,8.33,7.00,8.17,8.60,8.50,8.00], backgroundColor:'rgba(212,160,32,0.2)', borderColor:'#d4a020', pointBackgroundColor:'#fbbf24', pointBorderColor:'#fff', pointRadius:4, borderWidth:2.5},
+          {label:'File Avg (7.5)', data:[7.5,7.5,7.5,7.5,7.5,7.5,7.5,7.5,7.5,7.5], backgroundColor:'rgba(255,255,255,0.05)', borderColor:'rgba(255,255,255,0.4)', pointRadius:0, borderWidth:1.5, borderDash:[4,4]}
+        ]
+      },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:4,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:9,weight:'600'}}}}, plugins:{legend:{labels:{color:'#8b92a8',font:{family:'DM Sans',size:11}}}}}
+    });
+  }
+
+  var pRadar = document.getElementById('philosophyRadar2');
+  if (pRadar && typeof Chart !== 'undefined') {
+    if (charts.philoRadar2) { try { charts.philoRadar2.destroy(); } catch(e){} }
+    charts.philoRadar2 = new Chart(pRadar.getContext('2d'), {
+      type:'radar',
+      data:{
+        labels:['Spanish','Modern','Italian','German','Dutch','Defensive'],
+        datasets:[{label:'Daroma', data:[7.6,7.4,7.2,6.8,6.4,3.2], backgroundColor:'rgba(212,160,32,0.2)', borderColor:'#fbbf24', pointBackgroundColor:['#27ae60','#009b3a','#6CABDD','#3498db','#e67e22','#7f8c8d'], pointBorderColor:'#fff', pointRadius:5, borderWidth:2}]
+      },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:0,max:10,ticks:{display:false,stepSize:2},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:12,weight:'600'},padding:20}}}, plugins:{legend:{display:false}}}
+    });
+  }
+}
+
+function updateSeason() {
+  var sel = document.getElementById('seasonSelect');
+  if (!sel) return;
+  var id = sel.value;
+  var season = careerSeasons.find(function(s){return s.id === id;});
+  if (!season) return;
+
+  var hb = document.getElementById('heroBadge'); if (hb) hb.textContent = season.badge;
+  var hc = document.getElementById('heroCaps'); if (hc) hc.textContent = season.caps || '—';
+
+  var g = season.goals !== null ? season.goals : '-';
+  var a = season.assists !== null ? season.assists : '-';
+  var ap = season.apps !== null ? season.apps : '-';
+
+  var tags = [
+    {class: season.fga !== null ? 'tag-warning' : 'tag-pending', text: season.t3Status},
+    {class:'tag-club', text:season.club},
+    {class:'tag-value', text:g + 'G + ' + a + 'A'},
+    {class:'tag-info', text:season.league}
+  ];
+  if (season.fga !== null) tags.push({class:'tag-warning', text:'FGA 7.3–7.9 PROVISIONAL'});
+  renderTags(tags, 'heroTags');
+
+  renderCareerPath(['Barca Residency','Cal State San Bernardino','Las Vegas Lights','Tacoma Defiance','El Paso','Colorado Springs'], 'careerPath');
+
+  renderHeroStats([
+    {value: season.fga !== null ? '7.3–7.9' : '-', label:'FGA Provisional', color:'var(--gold)'},
+    {value:ap, label:'Apps', color:'var(--text-primary)'},
+    {value:g, label:'Goals', color:'var(--success)'},
+    {value:a, label:'Assists', color:'var(--info)'},
+    {value:season.age, label:'Age', color:'var(--text-primary)'},
+    {value:season.minutes !== null ? season.minutes : '-', label:'Minutes', color:'var(--text-primary)'}
+  ], 'heroStatsGrid');
+
+  renderKeyStrengths([
+    {label:'T3 Average', value:'7.79'},
+    {label:'OBI Composite', value:'7.64'},
+    {label:'SII Composite', value:'7.57'},
+    {label:'Apps (season)', value:ap}
+  ], 'keyStrengths');
+
+  var banners = [];
+  if (season.fga !== null) {
+    banners.push({type:'banner-warning', text:'<span>PROVISIONAL</span> <strong>FGA Rating 7.3–7.9 — "Very Good".</strong> Do not quote a single number until Tier 1 is verified.'});
+    banners.push({type:'banner-danger', text:'<span>BLOCKER</span> <strong>Tier 1 career data is unverified.</strong> Secondary aggregator pages only. FBref is bot-blocked. Verify every figure before client use.'});
+    banners.push({type:'banner-verified', text:'<span>VALIDATED</span> <strong>134 video events across 7 matches.</strong> Balance check passed: 2 vs top-third, 2 away, 1 while losing. T3 complete at 11/12 metrics.'});
+  } else {
+    banners.push({type:'banner-info', text:'<span>INFO</span> <strong>TIER 1 DATA ONLY.</strong> ' + season.label + ' has not been video-graded. FGA v3 score pending Tier 3 assessment.'});
+  }
+  renderBanners(banners, 'overviewBanners');
+
+  var profileCards = [
+    {title:'Player Profile', content:'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:0.85rem;line-height:1.6;"><div><strong>Full Name:</strong> Frank Daroma</div><div><strong>Date of Birth:</strong> 12 April 2001</div><div><strong>Place of Birth:</strong> Freetown, Sierra Leone</div><div><strong>Nationality:</strong> Sierra Leone</div><div><strong>Height:</strong> 163 cm (5 ft 4 in)</div><div><strong>Weight:</strong> 60 kg (132 lb)</div><div><strong>Position:</strong> CM / DM</div><div><strong>Foot:</strong> Right</div><div><strong>Current Club:</strong> Colorado Springs Switchbacks</div><div><strong>Contract:</strong> To 30 Nov 2027</div></div>'},
+    {title:'T3 Status', content: season.fga !== null ? '<strong style="color:var(--success);">VIDEO GRADED — 11/12 metrics.</strong> Tier 3 average: <strong>7.79</strong>. OBI Composite 7.64, SII Composite 7.57. MCS below threshold (2 matches).' : '<strong style="color:var(--warning);">Not Assessed.</strong> Tier 1 statistical data only. Video assessment pending.'},
+    {title:'Empire FGA Verdict', content: season.fga !== null ? '<strong style="color:var(--text-primary);">PROVISIONAL 7.3–7.9 — Verratti Archetype 79%.</strong> Elite ball retention, press-resistant, calm under pressure. Development areas: creative risk, dynamism, run timing. Not client-ready until Tier 1 verified.' : '<strong style="color:var(--text-primary);">Tier 1 Statistical Profile.</strong> ' + g + ' goals in ' + ap + ' apps for ' + season.club + '. Video assessment pending.'}
+  ];
+  renderProfileCards(profileCards, 'overviewProfileCards');
+
+  var philosophyFits = [
+    {rank:1, name:'Guardiola — Positional Midfielder', width:'82%', color:'#009b3a', score:'8.2'},
+    {rank:2, name:'Wenger — Creative Midfielder', width:'78%', color:'#009b3a', score:'7.8'},
+    {rank:3, name:'Klopp — Gegenpress Midfielder', width:'72%', color:'#27ae60', score:'7.2'},
+    {rank:4, name:'Ancelotti — Balanced Midfielder', width:'68%', color:'#e07820', score:'6.8'},
+    {rank:5, name:'Mourinho — Tactical Midfielder', width:'64%', color:'#3498db', score:'6.4'}
+  ];
+  renderPhilosophyFits(philosophyFits, 'philosophyFits');
+
+  var recText = season.fga !== null
+    ? '<span class="tag tag-warning" style="font-size:0.85rem;padding:6px 18px;">PROVISIONAL 7.3–7.9</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Ball-Retention Midfielder — Verratti Archetype 79%.</strong> Elite ball retention (CLM 8.60/100%), space awareness (OBI_S 8.40/100%), one-touch and horizontal passing (OTP 7.80/100%, HZP 7.71/100%). Development: creative risk, dynamism, run timing. Not client-ready.</div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">T3 Complete</div>'
+    : '<span class="tag tag-info" style="font-size:0.85rem;padding:6px 18px;">TIER 1 PROFILE</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">' + season.label + '.</strong> ' + ap + ' apps, ' + g + ' goals, ' + a + ' assists. Video assessment pending for full FGA v3 grade.</div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">Tier 1</div>';
+  renderRecommendation(recText, 'recommendationCard');
+
+  renderFGA();
+  renderCrossLeague(id);
+  renderPhilosophy();
+  renderScouting();
+  renderMatches();
+  renderLastMatches();
+  renderAttributeCards();
+
+  if (season.fga !== null) updateDial(7.6); else updateDial(0);
+  initCharts();
+}
+
+function switchTab(id) {
+  var panels = document.querySelectorAll('.tab-panel');
+  var buttons = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var j = 0; j < buttons.length; j++) buttons[j].classList.remove('active');
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  for (var k = 0; k < buttons.length; k++) {
+    if (buttons[k].getAttribute('data-tab') === id) buttons[k].classList.add('active');
+  }
+  if (id === 'attributes' || id === 'philosophy') setTimeout(initCharts, 50);
+}
+
+window.switchTab = switchTab;
+window.updateSeason = updateSeason;
+
+function init() {
+  var select = document.getElementById('seasonSelect');
+  if (select) {
+    select.innerHTML = '';
+    careerSeasons.forEach(function(s){
+      var opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = s.label;
+      select.appendChild(opt);
+    });
+    select.value = '2026-27';
+  }
+  renderCareerTimeline();
+  renderCareerStatsTable();
+  renderHonours();
+  updateSeason();
+  initCharts();
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function(){
+      var tab = this.getAttribute('data-tab');
+      if (tab) switchTab(tab);
+    });
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>
