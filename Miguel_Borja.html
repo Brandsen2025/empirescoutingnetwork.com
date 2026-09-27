@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Miguel Borja | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+    :root {
+        --bg-primary: #0a0a0f;--bg-card: #0f0f1a;--bg-card-hover: #151525;
+        --border-subtle: rgba(255, 255, 255, 0.06);--border-medium: rgba(255, 255, 255, 0.1);
+        --text-primary: #f0f0f5;--text-secondary: #9b9bb0;--text-tertiary: #5a5a70;
+        --accent: #d4a020;--accent-dim: rgba(212, 160, 32, 0.15);
+        --gold: #fbbf24;--gold-dim: rgba(251, 191, 36, 0.15);--silver: #94a3b8;
+        --success: #00d084;--warning: #ffb800;--danger: #ff3b3b;--info: #3b82f6;
+        --teal: #00c5a8;--tier1: #00d084;--tier2: #ffb800;--tier3: #d4a020;
+        --pending: #5a5a70;
+        --font-display: 'Oswald', sans-serif;--font-heading: 'Rajdhani', sans-serif;--font-body: 'DM Sans', sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    .hero { position: relative; height: 540px; overflow: hidden; border-bottom: 1px solid var(--border-subtle); }
+    .hero-photo { position: absolute; inset: 0; background: url('https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg') center 30% / cover no-repeat; filter: brightness(0.45) saturate(0.9); transition: transform 8s ease; background-size: cover; background-position: center 30%; }
+    .hero:hover .hero-photo { transform: scale(1.03); }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,15,0.3) 0%, rgba(212,160,32,0.2) 40%, rgba(10,10,15,0.85) 70%, var(--bg-primary) 100%); }
+    .hero-branding { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #d4a020 33%, #fbbf24 33%, #fbbf24 66%, #d4a020 66%); z-index: 10; }
+    .champ-badge { position: absolute; top: 20px; right: 24px; z-index: 5; background: linear-gradient(135deg, var(--accent), #0f172a); padding: 6px 14px; border-radius: 8px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); border: 1px solid rgba(251,191,36,0.3); display: flex; align-items: center; gap: 6px; }
+    .champ-badge::before { content: 'COL'; font-size: 0.7rem; font-weight: 800; }
+    .hero-content { position: relative; z-index: 5; max-width: 1200px; margin: 0 auto; padding: 40px 24px 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+    .jersey-watermark { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); font-family: var(--font-display); font-size: 240px; font-weight: 700; color: rgba(251,191,36,0.04); line-height: 1; pointer-events: none; z-index: 2; }
+    .club-badge-strip { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .badge-item { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); padding: 2px 7px; border-radius: 100px; border: 1px solid var(--border-subtle); font-family: var(--font-heading); font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .badge-item .arrow { color: var(--text-tertiary); font-size: 0.6rem; }
+    .badge-item.current { background: var(--accent-dim); border-color: rgba(148,163,184,0.3); color: var(--silver); }
+    .hero-name { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.05; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 8px; background: linear-gradient(135deg, #fff 0%, var(--silver) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+    .hero-meta span { font-family: var(--font-heading); font-size: 0.95rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+    .hero-meta .dot { width: 4px; height: 4px; background: var(--gold); border-radius: 50%; }
+    .hero-meta .flag { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+    .hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 32px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { padding: 5px 12px; border-radius: 6px; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tag-verified { background: rgba(0,208,132,0.12); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+    .tag-club { background: var(--accent-dim); color: var(--silver); border: 1px solid rgba(148,163,184,0.25); }
+    .tag-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(251,191,36,0.25); }
+    .tag-value { background: rgba(0,208,132,0.1); color: var(--success); border: 1px solid rgba(0,208,132,0.2); }
+    .tag-info { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+    .tag-record { background: rgba(212,160,32,0.15); color: var(--gold); border: 1px solid rgba(212,160,32,0.3); }
+    .tag-era { background: rgba(0,197,168,0.12); color: var(--teal); border: 1px solid rgba(0,197,168,0.25); }
+    .tag-danger { background: rgba(255,59,59,0.1); color: var(--danger); border: 1px solid rgba(255,59,59,0.2); }
+
+    .fga-dial-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+    .fga-dial-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .fga-dial-inner .fga-label { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); }
+    .fga-dial-inner .fga-score { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .fga-dial-inner .fga-status { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--success); margin-top: 2px; }
+
+    .tier-pills { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .tier-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tier-pill.t1 { background: rgba(0,208,132,0.12); color: var(--tier1); border: 1px solid rgba(0,208,132,0.2); }
+    .tier-pill.t2 { background: rgba(255,184,0,0.12); color: var(--tier2); border: 1px solid rgba(255,184,0,0.2); }
+    .tier-pill.t3 { background: rgba(212,160,32,0.12); color: var(--tier3); border: 1px solid rgba(212,160,32,0.2); }
+
+    .season-selector { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; background: var(--bg-card); padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border-subtle); max-width: 1200px; margin: 20px auto 0; }
+    .season-selector label { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .season-selector select { background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-medium); border-radius: 8px; padding: 8px 16px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; cursor: pointer; outline: none; min-width: 260px; }
+    .season-selector select:hover { border-color: var(--accent); }
+    .season-selector select option { background: var(--bg-primary); color: var(--text-primary); }
+    .season-average { font-family: var(--font-heading); font-size: 0.85rem; color: var(--text-secondary); margin-left: auto; padding: 4px 12px; background: var(--accent-dim); border-radius: 100px; border: 1px solid rgba(212,160,32,0.2); display: flex; align-items: center; gap: 8px; }
+    .season-average strong { color: var(--gold); font-size: 1rem; }
+
+    .tab-bar { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+    .tab-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; }
+    .tab-bar-inner::-webkit-scrollbar { display: none; }
+    .tab-btn { flex: 1; min-width: 110px; padding: 16px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-tertiary); font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .tab-btn:hover { color: var(--text-secondary); }
+    .tab-btn.active { color: var(--silver); border-bottom-color: var(--silver); background: linear-gradient(180deg, transparent 0%, var(--accent-dim) 100%); }
+
+    .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .section-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .section-title .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s, background 0.2s; }
+    .card:hover { background: var(--bg-card-hover); border-color: var(--border-medium); }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+    .pos-map-wrap { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden; }
+    .pos-map-wrap svg { max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto; background: #1a5a1a; border-radius: 4px; }
+    .pos-map-caption { font-family: var(--font-heading); font-size: 0.72rem; color: var(--text-tertiary); margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 500; }
+    .banner-proxy { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+    .banner-danger { background: rgba(255,59,59,0.08); border: 1px solid rgba(255,59,59,0.2); color: var(--danger); }
+    .banner-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: var(--info); }
+    .banner-gold { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: var(--gold); }
+    .banner-champ { background: linear-gradient(135deg, rgba(212,160,32,0.1), rgba(251,191,36,0.05)); border: 1px solid rgba(212,160,32,0.2); color: var(--silver); }
+    .banner-verified { background: rgba(0,208,132,0.08); border: 1px solid rgba(0,208,132,0.2); color: var(--success); }
+    .banner-era { background: rgba(0,197,168,0.08); border: 1px solid rgba(0,197,168,0.2); color: var(--teal); }
+    .banner-warning { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2); color: var(--warning); }
+
+    .stat-hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .stat-hero { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+    .stat-hero:hover { transform: translateY(-2px); border-color: var(--border-medium); }
+    .stat-hero .value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+    .stat-hero .label { font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-top: 6px; }
+
+    .career-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .career-node { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
+    .career-node.current { background: var(--accent-dim); border-color: rgba(148,163,184,0.3); color: var(--silver); }
+    .career-arrow { color: var(--text-tertiary); font-size: 0.8rem; }
+
+    .attr-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; }
+    .attr-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; color: var(--text-primary); }
+    .attr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 4px; }
+    .attr-row:last-child { border-bottom: none; }
+    .attr-row .name { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-secondary); flex: 1; }
+    .attr-row .score { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .ac-green { color: var(--success); }
+    .ac-yellow { color: var(--warning); }
+    .ac-red { color: var(--danger); }
+    .circle { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .circle-green { background: var(--success); }
+    .circle-yellow { background: var(--warning); }
+    .circle-red { background: var(--danger); }
+
+    .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+    .t1-metric-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; }
+    .t1-metric-row:last-child { border-bottom: none; }
+    .t1-metric-code { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 700; color: var(--silver); width: 50px; flex-shrink: 0; text-transform: uppercase; }
+    .t1-metric-desc { font-size: 0.78rem; color: var(--text-secondary); flex: 1; }
+    .t1-metric-bar-wrap { width: 100px; flex-shrink: 0; }
+    .t1-metric-val { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); width: 70px; text-align: right; flex-shrink: 0; }
+
+    .t1-highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .t1-hl-box { background: linear-gradient(135deg, rgba(212,160,32,0.18), rgba(251,191,36,0.06)); border: 2px solid rgba(212,160,32,0.4); border-radius: 6px; padding: 12px; position: relative; overflow: hidden; }
+    .t1-hl-box.gold { background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(212,160,32,0.06)); border-color: rgba(251,191,36,0.5); }
+    .t1-hl-code { font-family: var(--font-heading); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+    .t1-hl-val { font-family: var(--font-display); font-size: 1.65rem; font-weight: 500; color: var(--silver); line-height: 1; }
+    .t1-hl-box.gold .t1-hl-val { color: var(--gold); }
+    .t1-hl-pct { font-size: 0.58rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
+    .t1-hl-bar { height: 3px; background: rgba(212,160,32,0.1); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+    .t1-hl-bar-fill { height: 100%; border-radius: 99px; background: var(--silver); }
+    .t1-hl-box.gold .t1-hl-bar-fill { background: var(--gold); }
+
+    .t1-group { margin-bottom: 14px; }
+    .t1-group-head { font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); padding: 6px 0; border-bottom: 1px solid rgba(212,160,32,0.08); margin-bottom: 8px; }
+
+    .philo-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+    .philo-row:last-child { border-bottom: none; }
+    .philo-rank { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-tertiary); width: 28px; text-align: center; }
+    .philo-name { flex: 1; font-family: var(--font-body); font-size: 0.85rem; color: var(--text-primary); }
+    .philo-score { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--gold); width: 36px; text-align: right; }
+    .philo-bar-wrap { width: 120px; }
+
+    .match-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .match-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; display: block; cursor: default; }
+    .match-card:hover { transform: translateY(-3px); border-color: var(--silver); box-shadow: 0 8px 24px rgba(212,160,32,0.1); }
+    .match-thumb { height: 120px; background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-card) 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .match-thumb .play-icon { width: 48px; height: 48px; background: rgba(212,160,32,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; border: 2px dashed rgba(212,160,32,0.3); }
+    .match-thumb .play-icon svg { width: 18px; height: 18px; fill: rgba(255,255,255,0.3); margin-left: 3px; }
+    .match-info { padding: 16px; }
+    .match-teams { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
+    .match-meta { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-tertiary); display: flex; gap: 8px; flex-wrap: wrap; }
+    .match-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+    .badge-verified { background: rgba(0,208,132,0.12); color: var(--success); }
+    .badge-comp { background: rgba(59,130,246,0.12); color: var(--info); }
+    .badge-pending { background: rgba(90,96,112,0.12); color: var(--pending); }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .data-table th { text-align: left; padding: 10px 12px; font-family: var(--font-heading); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-medium); background: rgba(255,255,255,0.02); }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+    .data-table td strong { color: var(--text-primary); font-weight: 600; }
+
+    .scout-box { border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+    .scout-box h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .scout-pos { background: rgba(0,208,132,0.06); border: 1px solid rgba(0,208,132,0.15); }
+    .scout-pos h4 { color: var(--success); }
+    .scout-caut { background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.15); }
+    .scout-caut h4 { color: var(--warning); }
+    .scout-gap { background: rgba(255,59,59,0.06); border: 1px solid rgba(255,59,59,0.15); }
+    .scout-gap h4 { color: var(--danger); }
+    .scout-verdict { background: var(--accent-dim); border: 1px solid rgba(212,160,32,0.2); }
+    .scout-verdict h4 { color: var(--silver); }
+    .scout-box ul { list-style: none; padding: 0; margin: 0; }
+    .scout-box li { padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 8px; }
+    .scout-box li::before { content: '\2014'; color: var(--text-tertiary); flex-shrink: 0; }
+
+    .physical-card { background: linear-gradient(135deg, rgba(212,160,32,0.08) 0%, rgba(10,10,15,0.5) 100%); border: 1px solid rgba(212,160,32,0.15); border-radius: 12px; padding: 20px; }
+    .physical-card h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--silver); margin-bottom: 12px; }
+    .physical-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .physical-item { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+    .physical-item .label { color: var(--text-tertiary); }
+    .physical-item .value { color: var(--text-primary); font-weight: 600; }
+
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border-subtle); border-radius: 1px; }
+    .timeline-item { position: relative; padding-bottom: 20px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); z-index: 2; }
+    .timeline-item.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(212,160,32,0.4); }
+    .timeline-item.hist::before { background: var(--success); border-color: var(--success); }
+    .timeline-item.champ::before { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(251,191,36,0.3); }
+    .timeline-date { font-family: var(--font-heading); font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .timeline-item.hist .timeline-date { color: var(--success); }
+    .timeline-item.champ .timeline-date { color: var(--gold); }
+    .timeline-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .timeline-text strong { color: var(--text-primary); }
+
+    .radar-container { width: 100%; max-width: 520px; margin: 0 auto; aspect-ratio: 500/450; position: relative; }
+    .radar-container canvas { width: 100% !important; height: 100% !important; }
+
+    .recommendation-card { border-left: 4px solid var(--gold); background: linear-gradient(135deg, rgba(212,160,32,0.08), rgba(10,10,15,0.5)); }
+    .recommendation-card .tag { font-size: 0.8rem; padding: 6px 16px; }
+
+    .key-strengths { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .strength-item { background: var(--bg-card-hover); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; gap: 8px; }
+    .strength-item .label { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+    .strength-item .value { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--gold); }
+
+    /* CROSS-LEAGUE GRID */
+    .league-compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .league-compare-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+    .league-compare-card:hover { transform: translateY(-3px); border-color: var(--border-medium); }
+    .league-compare-card .league-flag { font-size: 1.8rem; margin-bottom: 4px; }
+    .league-compare-card .league-name { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+    .league-compare-card .league-tier { font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .league-compare-card .adjusted-fga { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--gold); margin: 8px 0 2px; line-height: 1; }
+    .league-compare-card .adjusted-label { font-size: 0.65rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.3px; }
+    .league-compare-card .log-badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 0.6rem; font-weight: 700; background: rgba(212,160,32,0.12); color: var(--gold); border: 1px solid rgba(212,160,32,0.2); margin-top: 6px; }
+    .league-compare-card .multiplier { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 4px; }
+    .league-compare-card .multiplier strong { color: var(--text-secondary); }
+    .league-compare-card .direction-indicator { font-size: 0.65rem; margin-top: 6px; color: var(--text-tertiary); }
+    .league-compare-card .direction-indicator .up { color: var(--success); }
+    .league-compare-card .direction-indicator .down { color: var(--danger); }
+    .league-compare-card .direction-indicator .same { color: var(--silver); }
+
+    .log-methodology { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.8; }
+    .log-methodology strong { color: var(--text-primary); }
+    .log-methodology .formula-box { background: var(--bg-card-hover); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 16px; font-family: var(--font-body); font-size: 0.75rem; color: var(--text-secondary); margin: 8px 0; overflow-x: auto; }
+
+    .formula-corrected {
+        background: rgba(0,208,132,0.06);
+        border: 1px solid rgba(0,208,132,0.25);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        font-size: 0.78rem;
+        color: var(--success);
+        font-family: var(--font-heading);
+        font-weight: 500;
+    }
+
+    .pairing-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
+    .pairing-row:last-child { border-bottom: none; }
+    .pairing-rank { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--text-tertiary); width: 32px; text-align: center; }
+    .pairing-name { flex: 1; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .pairing-match { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--gold); width: 60px; text-align: right; }
+    .pairing-detail { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 2px; }
+    .pairing-eliminated { opacity: 0.5; }
+
+    @media (max-width: 768px) {
+        .hero { height: 440px; }
+        .jersey-watermark { font-size: 140px; }
+        .hero-bottom { flex-direction: column; align-items: flex-start; }
+        .fga-dial-wrap { width: 110px; height: 110px; }
+        .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        .match-grid { grid-template-columns: 1fr; }
+        .t1-metric-bar-wrap { width: 60px; }
+        .t1-metric-val { width: 50px; }
+        .season-selector { flex-direction: column; align-items: stretch; }
+        .season-average { margin-left: 0; text-align: center; }
+        .key-strengths { flex-direction: column; align-items: stretch; }
+        .league-compare-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+        .league-compare-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-photo" id="heroPhoto"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-branding"></div>
+        <div class="champ-badge" id="heroBadge">Club América · 2026 Apertura · Liga MX</div>
+        <div class="jersey-watermark">9</div>
+        <div class="hero-content">
+            <div class="club-badge-strip" id="clubStrip"></div>
+            <h1 class="hero-name">Miguel Borja</h1>
+            <div class="hero-meta">
+                <span><span class="flag">COL</span> Colombia</span>
+                <span class="dot"></span>
+                <span id="heroAge">33 years</span>
+                <span class="dot"></span>
+                <span>183–184cm</span>
+                <span class="dot"></span>
+                <span>85–89kg</span>
+                <span class="dot"></span>
+                <span>Right-footed</span>
+                <span class="dot"></span>
+                <span>Centre-Forward</span>
+                <span class="dot"></span>
+                <span id="heroCaps">Colombia (30 caps / 9 goals)</span>
+            </div>
+            <div class="hero-bottom">
+                <div>
+                    <div class="tier-pills">
+                        <div class="tier-pill t1">T1 Extensive</div>
+                        <div class="tier-pill t2">T2 Partial</div>
+                        <div class="tier-pill t3" id="t3Pill">PAIRING PROTOCOL v2.0</div>
+                    </div>
+                    <div class="hero-tags" id="heroTags" style="margin-top:10px;"></div>
+                </div>
+                <div class="fga-dial-wrap">
+                    <canvas id="heroDial" width="140" height="140"></canvas>
+                    <div class="fga-dial-inner">
+                        <div class="fga-label">FGA v3</div>
+                        <div class="fga-score" id="heroFgaScore">—</div>
+                        <div class="fga-status" id="heroFgaStatus">PROVISIONAL</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEASON SELECTOR -->
+    <div class="season-selector">
+        <label for="seasonSelect">Career Phase</label>
+        <select id="seasonSelect" onchange="updateSeason()"></select>
+        <span class="season-average">
+            <span>Peak FGA: <strong id="careerPeakFga">—</strong></span>
+            <span id="trendIndicator" class="trend-arrow trend-flat">—</span>
+        </span>
+    </div>
+
+    <!-- KEY STRENGTHS -->
+    <div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
+        <div class="key-strengths" id="keyStrengths"></div>
+    </div>
+
+    <!-- TABS -->
+    <nav class="tab-bar">
+        <div class="tab-bar-inner">
+            <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+            <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+            <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+            <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+            <button class="tab-btn" onclick="switchTab('career')">Career</button>
+            <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+            <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+        <!-- OVERVIEW -->
+        <div id="overview" class="tab-panel active">
+            <div id="overviewBanners"></div>
+            <div class="career-path" id="careerPath"></div>
+            <div class="stat-hero-grid" id="heroStatsGrid"></div>
+            <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+            <div class="pos-map-wrap">
+                <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+                    <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a5a1a" stroke="#4a8c4a" stroke-width="2"/>
+                    <line x1="260" y1="10" x2="260" y2="330" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <circle cx="260" cy="170" r="35" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <circle cx="260" cy="170" r="2" fill="#4a8c4a" opacity="0.6"/>
+                    <rect x="10" y="105" width="55" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <rect x="445" y="105" width="65" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <rect x="10" y="135" width="18" height="70" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <rect x="492" y="135" width="18" height="70" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <rect x="2" y="155" width="10" height="30" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <rect x="508" y="155" width="10" height="30" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+                    <circle cx="260" cy="175" r="16" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" stroke-width="2.5"/>
+                    <circle cx="260" cy="175" r="11" fill="#fbbf24" stroke="#fff" stroke-width="2"/>
+                    <text x="260" y="179" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="11" font-weight="700">9</text>
+                    <text x="260" y="215" text-anchor="middle" fill="#fbbf24" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5" opacity="0.9">ST — PRIMARY</text>
+                    <text x="260" y="230" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="7" font-weight="400" opacity="0.7">Target man · Poacher</text>
+                </svg>
+                <div class="pos-map-caption">Tactical board · Primary: Centre-Forward · Target man · Poacher</div>
+            </div>
+            <div class="grid-3" id="overviewProfileCards"></div>
+            <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+            <div class="grid-2" id="philosophyFits"></div>
+            <div class="card recommendation-card" style="margin-top:12px;" id="recommendationCard"></div>
+        </div>
+
+        <!-- ATTRIBUTES -->
+        <div id="attributes" class="tab-panel">
+            <div class="banner banner-era">
+                <span>✓</span> <strong>Based on statistical profile + WhoScored characteristics + Pairing Protocol v2.0.</strong> OBI & SII rubrics applied.
+            </div>
+            <div class="grid-3">
+                <div class="attr-card">
+                    <h3>Technical</h3>
+                    <div class="attr-row"><span class="name">Finishing · 97th pct goals/90</span><span class="score ac-green"><span class="circle circle-green"></span> 8.20</span></div>
+                    <div class="attr-row"><span class="name">Heading · 84th pct aerials</span><span class="score ac-green"><span class="circle circle-green"></span> 7.80</span></div>
+                    <div class="attr-row"><span class="name">Hold-up play · "Retiene balones"</span><span class="score ac-green"><span class="circle circle-green"></span> 7.60</span></div>
+                    <div class="attr-row"><span class="name">Link-up · "Reparte juego"</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.80</span></div>
+                    <div class="attr-row"><span class="name">Passing accuracy · 68.6%</span><span class="score ac-red"><span class="circle circle-red"></span> 5.40</span></div>
+                    <div class="attr-row"><span class="name">Dribbling · Limited</span><span class="score ac-red"><span class="circle circle-red"></span> 5.20</span></div>
+                    <div class="attr-row"><span class="name">Shots on target · 47.4%</span><span class="score ac-green"><span class="circle circle-green"></span> 7.60</span></div>
+                </div>
+                <div class="attr-card">
+                    <h3>Mental</h3>
+                    <div class="attr-row"><span class="name">CRS · Clutch · 3 goals in 38 min</span><span class="score ac-green"><span class="circle circle-green"></span> 8.40</span></div>
+                    <div class="attr-row"><span class="name">CLM · Calmness · Big-game scorer</span><span class="score ac-green"><span class="circle circle-green"></span> 7.80</span></div>
+                    <div class="attr-row"><span class="name">MCS · Mental Competence</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.00</span></div>
+                    <div class="attr-row"><span class="name">CHR · Character · Experienced</span><span class="score ac-green"><span class="circle circle-green"></span> 7.40</span></div>
+                    <div class="attr-row"><span class="name">Resilience · 12+ clubs</span><span class="score ac-green"><span class="circle circle-green"></span> 7.60</span></div>
+                    <div class="attr-row"><span class="name">Concentration</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.80</span></div>
+                    <div class="attr-row"><span class="name">Offside awareness · WEAK</span><span class="score ac-red"><span class="circle circle-red"></span> 4.20</span></div>
+                </div>
+                <div class="attr-card">
+                    <h3>Physical</h3>
+                    <div class="attr-row"><span class="name">Strength · 85–89kg</span><span class="score ac-green"><span class="circle circle-green"></span> 7.80</span></div>
+                    <div class="attr-row"><span class="name">Aerial ability · 84th pct</span><span class="score ac-green"><span class="circle circle-green"></span> 7.80</span></div>
+                    <div class="attr-row"><span class="name">SII_A · Explosive Accel</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.40</span></div>
+                    <div class="attr-row"><span class="name">SII_T · Top-End Speed</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.20</span></div>
+                    <div class="attr-row"><span class="name">SII_R · Recovery</span><span class="score ac-red"><span class="circle circle-red"></span> 5.80</span></div>
+                    <div class="attr-row"><span class="name">Stamina · 1,084 mins 2025</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.60</span></div>
+                    <div class="attr-row"><span class="name">Mobility · Moderate</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.00</span></div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:20px;">
+                <div style="max-width:500px;margin:0 auto;">
+                    <canvas id="attrRadar" width="400" height="350"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- FGA ANALYTICS -->
+        <div id="fga" class="tab-panel">
+            <div class="grid-3" id="fgaContent"></div>
+        </div>
+
+        <!-- CROSS-LEAGUE -->
+        <div id="crossleague" class="tab-panel">
+            <div class="banner banner-era">
+                <span>📊</span> <strong>LOG-ADJUSTED CROSS-LEAGUE PROJECTIONS</strong> — Uses the player's FGA rating as the base, scaled by target league LOG against the 3.5 neutral baseline.
+            </div>
+
+            <div class="formula-corrected">
+                ✅ FORMULA &nbsp;·&nbsp; <strong>Adjusted FGA = Player FGA × (Target League LOG ÷ 3.5)</strong>
+            </div>
+
+            <div class="section-title">Performance Projection by League <span class="line"></span></div>
+
+            <div class="league-compare-grid" id="crossLeagueGrid"></div>
+
+            <div class="card" style="margin-top:20px;">
+                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📐 Methodology — LOG-Adjusted FGA</h3>
+                <div class="log-methodology">
+                    <p><strong>Every league in the Empire FGA system carries a LOG (Level of Game) tier.</strong> This tier reflects the quality of the competition — from World Cup Final (5.0) down to amateur level (1.5).</p>
+                    <div class="formula-box">
+                        <strong>Adjusted FGA = Player FGA × (Target League LOG ÷ 3.5)</strong><br />
+                        <span style="color:var(--text-tertiary);font-size:0.7rem;">3.5 = neutral baseline (matches the master <em>LOG_Adjusted_FGA</em> formula in the LOG Implementation Manual)</span>
+                    </div>
+                    <p style="margin-top:8px;"><strong>Base FGA used:</strong> <span id="crossBaseFga">6.8</span> — Borja's provisional rating in <span id="crossBaseLeague">Liga MX (LOG 2.7)</span>.</p>
+                    <p style="margin-top:4px;"><strong>Reading the number:</strong> A result <em>above</em> the base FGA means the target league is a tougher test than the source — the rating is scaled up accordingly. A result <em>below</em> the base means an easier league. 3.5 is neutral: a LOG-3.5 league returns the base FGA unchanged.</p>
+                    <p style="margin-top:4px;color:var(--text-tertiary);font-size:0.72rem;">Liga MX LOG 2.7 is confirmed in the LOG_Reference table. Argentine Primera LOG 3.4 is confirmed. MLS LOG 2.6 is confirmed.</p>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top:12px;">
+                <div class="card">
+                    <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">League LOG Reference</h4>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);line-height:2;">
+                        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Premier League / La Liga</span><span style="color:var(--gold);">3.7</span></div>
+                        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Bundesliga / Ligue 1 / Serie A</span><span style="color:var(--gold);">3.6</span></div>
+                        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Argentine Primera</span><span style="color:var(--gold);">3.4</span></div>
+                        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Eredivisie / Championship</span><span style="color:var(--gold);">2.8</span></div>
+                        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Liga MX</span><span style="color:var(--gold);">2.7</span></div>
+                        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>MLS</span><span style="color:var(--gold);">2.6</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>UAE Pro League <em>(est.)</em></span><span style="color:var(--gold);">2.3</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Worked Examples</h4>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+                        <p><strong style="color:var(--text-primary);">Base FGA:</strong> 6.8 (Liga MX, LOG 2.7)</p>
+                        <div style="background:var(--bg-card-hover);border-radius:6px;padding:10px;margin-top:6px;font-family:var(--font-body);">
+                            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;">
+                                <span>Premier League (3.7):</span>
+                                <span style="color:var(--gold);">6.8 × (3.7 ÷ 3.5) = <strong>7.2</strong></span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;">
+                                <span>Argentine Primera (3.4):</span>
+                                <span style="color:var(--gold);">6.8 × (3.4 ÷ 3.5) = <strong>6.6</strong></span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;">
+                                <span>Liga MX (2.7):</span>
+                                <span style="color:var(--gold);">6.8 × (2.7 ÷ 3.5) = <strong>5.2</strong></span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:3px 0;">
+                                <span>MLS (2.6):</span>
+                                <span style="color:var(--gold);">6.8 × (2.6 ÷ 3.5) = <strong>5.1</strong></span>
+                            </div>
+                        </div>
+                        <p style="margin-top:8px;font-size:0.7rem;color:var(--text-tertiary);">Direction confirmed against the master formula from the LOG Implementation Manual.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="banner banner-info" style="margin-top:12px;">
+                <span>ℹ️</span> <strong>Video assessment pending.</strong> OBI, SII, and full Tier 3 scoring require 5+ full HD matches. Pairing Protocol v2.0 applied as qualitative reference.
+            </div>
+        </div>
+
+        <!-- PHILOSOPHY DNA -->
+        <div id="philosophy" class="tab-panel">
+            <div class="grid-2">
+                <div class="card">
+                    <h3 class="section-title" style="margin-bottom:16px;">Top 10 Philosophy Fits</h3>
+                    <div id="philosophyFitList"></div>
+                </div>
+                <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+                    <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+                        <div class="radar-container">
+                            <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+                            <strong style="color:var(--text-primary);">"British Target Man in a South American Body"</strong> — Borja is a physically imposing centre-forward whose game is built on holding the ball with his back to goal, playing with physicality, and scoring inside the box. His 81% pairing with John Hartson identifies him as the archetypal "Big Man" — limited mobility, limited pressing, but lethal in the box. A proven goalscorer across South America and now Mexico.
+                        </p>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                            <span class="tag tag-club">Centre-Forward</span>
+                            <span class="tag tag-club">Right-footed</span>
+                            <span class="tag tag-gold">América No. 9</span>
+                            <span class="tag tag-info">COL</span>
+                            <span class="tag tag-record">3 Goals · 2026 Apertura</span>
+                            <span class="tag tag-gold">197 Career Goals</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="section-title">School Averages <span class="line"></span></div>
+            <div class="grid-4" id="schoolAverages"></div>
+        </div>
+
+        <!-- CAREER -->
+        <div id="career" class="tab-panel">
+            <div class="grid-2" style="align-items: start;">
+                <div class="card" style="max-width:100%;overflow-x:hidden;">
+                    <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+                    <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+                        <div class="timeline-item"><div class="timeline-date">Born 26 January 1993</div><div class="timeline-text">Born <strong>Miguel Ángel Borja Hernández</strong> in <strong>Tierralta, Colombia</strong>.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Height: 183–184cm · Weight: 85–89kg · Right-footed · Nickname: "El Colibrí"</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">2011 · Cortuluá</div><div class="timeline-text">Professional debut with <strong>Cortuluá</strong>.<br />17 apps, 13 goals in Categoría Primera A.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Immediate impact — earned a move to Independiente Santa Fe.</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">2012-2013 · Independiente Santa Fe</div><div class="timeline-text">Joined <strong>Santa Fe</strong>.<br />41 apps, 33 goals across all competitions.<br /><strong>Won Colombian Super Cup</strong> (2013).<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Attracted attention from Europe.</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">2013-2014 · Club Olimpo (Loan)</div><div class="timeline-text">Loaned to <strong>Olimpo</strong> in Argentina.<br />16 apps, 12 goals in Argentine Primera.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Impressed in Argentine football.</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">2014-2015 · US Livorno</div><div class="timeline-text">Brief spell in Italy with <strong>Livorno</strong>.<br />8 apps, 0 goals in Serie B.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Difficult adaptation in Europe.</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">2015-2016 · Atlético Nacional</div><div class="timeline-text">Returned to Colombia with <strong>Atlético Nacional</strong>.<br />18 apps, 15 goals.<br /><strong>Won Copa Libertadores</strong> (2016).<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Career resurgence — back to his best.</span></div></div>
+                        <div class="timeline-item champ"><div class="timeline-date">2017-2021 · Palmeiras</div><div class="timeline-text"><strong>THE BRAZILIAN CHAPTER.</strong> Joined <strong>Palmeiras</strong> for a significant fee.<br />49 apps, 10 goals in Série A.<br /><strong>Won Campeonato Brasileiro</strong> (2018).<br /><strong>Top scorer in Copa Libertadores</strong> (2018, 9 goals).<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Consistent goalscorer in Brazil's top flight.</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">2019-2021 · Junior / Grêmio</div><div class="timeline-text">Loans at <strong>Junior</strong> (Colombia) and <strong>Grêmio</strong> (Brazil).<br /><strong>Junior:</strong> 72 apps, 79 goals — extraordinary strike rate.<br /><strong>Grêmio:</strong> 18 apps, 11 goals.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Re-established himself as a dominant South American No. 9.</span></div></div>
+                        <div class="timeline-item champ"><div class="timeline-date">2022-2025 · River Plate</div><div class="timeline-text"><strong>THE RIVER PLATE ERA.</strong> Joined <strong>River Plate</strong> — one of South America's biggest clubs.<br /><strong>Total:</strong> 141 apps, 126 goals across all competitions.<br /><strong>2025:</strong> 13 goals in 29 Liga Argentina apps (1.61 goals/90).<br /><strong>Top scorer in Copa Libertadores 2025</strong> (8 goals).<br /><span style="color:var(--font-heading);color:var(--gold);font-size:0.75rem;">Scored 4 goals in a single Libertadores match vs. Libertad.</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">2026 · Al-Wasl</div><div class="timeline-text">Moved to <strong>Al-Wasl</strong> in the UAE Pro League.<br />13 apps, 5 goals, 763 minutes, 6.88 FotMob rating.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Solid but brief spell in the Gulf.</span></div></div>
+                        <div class="timeline-item current"><div class="timeline-date">2026 · Club América</div><div class="timeline-text"><strong>THE LIGA MX CHAPTER.</strong> Joined <strong>Club América</strong> in September 2026.<br /><strong>3 goals in 2 Apertura appearances</strong> (38 minutes played).<br />Scored vs. Cruz Azul and <strong>twice vs. Chivas</strong> in the Clásico Nacional.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Virtually a goal every time he steps onto the field. Under contract at the Estadio Azteca.</span></div></div>
+                        <div class="timeline-item"><div class="timeline-date">International Career</div><div class="timeline-text"><strong>Colombia:</strong> 30 caps, 9 goals.<br /><strong>2018 World Cup:</strong> Part of the squad in Russia.<br /><strong>Copa América:</strong> Featured in multiple editions.<br /><span style="color:var(--text-tertiary);font-size:0.75rem;">Recalled to the national team in September 2026 after his América form.</span></div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+                    <div id="careerStatsTable"></div>
+                    <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+                    <table class="data-table">
+                        <thead><tr><th>Honour</th><th>Year</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>★ Copa Libertadores</strong></td><td>2016 (Atlético Nacional)</td></tr>
+                            <tr><td><strong>★ Campeonato Brasileiro</strong></td><td>2018 (Palmeiras)</td></tr>
+                            <tr><td><strong>★ Copa Libertadores Top Scorer</strong></td><td>2018 (9 goals), 2025 (8 goals)</td></tr>
+                            <tr><td><strong>★ Colombian Super Cup</strong></td><td>2013 (Santa Fe)</td></tr>
+                            <tr><td><strong>★ Colombian Cup Winner</strong></td><td>—</td></tr>
+                            <tr><td><strong>★ UAE Pro League Cup</strong></td><td>2026 (Al-Wasl)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
+            <div class="grid-2">
+                <div class="physical-card">
+                    <h4>Physical Profile</h4>
+                    <div class="physical-grid">
+                        <div class="physical-item"><span class="label">Age</span><span class="value">33 (born 26 Jan 1993)</span></div>
+                        <div class="physical-item"><span class="label">Height</span><span class="value">183–184 cm (6'0")</span></div>
+                        <div class="physical-item"><span class="label">Weight</span><span class="value">85–89 kg</span></div>
+                        <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+                        <div class="physical-item"><span class="label">Position</span><span class="value">Centre-Forward</span></div>
+                        <div class="physical-item"><span class="label">Jersey</span><span class="value">No. 9 (América)</span></div>
+                        <div class="physical-item"><span class="label">Citizenship</span><span class="value">Colombia</span></div>
+                        <div class="physical-item"><span class="label">Current Club</span><span class="value">Club América (Liga MX)</span></div>
+                        <div class="physical-item"><span class="label">Market Value</span><span class="value">€3.5M</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+                    <div style="padding:10px;background:rgba(0,197,168,0.06);border:1px solid rgba(0,197,168,0.15);border-radius:8px;">
+                        <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--teal);margin-bottom:4px;">Pairing Protocol v2.0 Applied</div>
+                        <div style="font-size:0.78rem;color:var(--text-secondary);">Tier 3 assessment via Pairing Protocol v2.0. <strong>Primary pairing:</strong> John Hartson (81% match) — British target man archetype. <strong>Key strengths:</strong> Finishing (Very Strong), aerial ability (84th pct), hold-up play. <strong>Key weaknesses:</strong> Offside awareness (Weak), defensive contribution (Weak). 197 career goals. 3 goals in 38 minutes for América.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCOUTING INTEL -->
+        <div id="scouting" class="tab-panel">
+            <div class="scout-box scout-pos">
+                <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+                <ul>
+                    <li><strong>3 goals in 38 minutes for América</strong> — Virtually a goal every time he steps on the field</li>
+                    <li><strong>197 career goals</strong> — Proven goalscorer across multiple leagues</li>
+                    <li><strong>Finishing rated "Very Strong" by WhoScored</strong> — 97th percentile goals/90</li>
+                    <li><strong>84th percentile aerial duels won</strong> — Dominant in the air</li>
+                    <li><strong>"Bueno por aire, compite, retiene balones y reparte juego"</strong> — Marca</li>
+                    <li><strong>Copa Libertadores top scorer</strong> — 2018 (9 goals), 2025 (8 goals)</li>
+                    <li><strong>Clutch performer</strong> — Scored twice in Clásico Nacional vs. Chivas</li>
+                    <li><strong>Experienced</strong> — 2018 World Cup, Copa América, 12+ clubs</li>
+                </ul>
+            </div>
+            <div class="scout-box scout-caut">
+                <h4><span style="color:var(--warning);">◈</span> Caution Signals</h4>
+                <ul>
+                    <li><strong>Offside awareness rated "Weak"</strong> — Critical flaw for a poacher</li>
+                    <li><strong>Defensive contribution rated "Weak"</strong> — Limited pressing</li>
+                    <li><strong>Passing accuracy 68.6%</strong> — Significantly below Rondón (94.3%)</li>
+                    <li><strong>Limited mobility</strong> — "Pace of a glacier" type profile</li>
+                    <li><strong>Ages 33</strong> — Career winding down</li>
+                    <li><strong>12+ clubs</strong> — "Estabilidad no la tiene" (Marca)</li>
+                    <li><strong>No video assessment yet</strong> — Pairing Protocol is qualitative only</li>
+                </ul>
+            </div>
+            <div class="scout-box scout-gap">
+                <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+                <ul>
+                    <li><strong>No video footage assessed</strong> — OBI, SII, and all 12 core metrics pending</li>
+                    <li><strong>No Tier 3 data</strong> — Pairing Protocol v2.0 applied as qualitative reference</li>
+                    <li><strong>Limited 2026 sample</strong> — 38 minutes for América, 763 minutes for Al-Wasl</li>
+                    <li><strong>Physical profile discrepancy</strong> — Sources vary: 182cm/73kg (FBref) vs. 183cm/87kg (FootyStats)</li>
+                </ul>
+            </div>
+
+            <!-- PAIRING PROTOCOL v2.0 -->
+            <div class="card">
+                <h3 class="section-title" style="margin-bottom:16px;">🔬 Pairing Protocol v2.0 — Tier 3 Qualitative Assessment</h3>
+                <div class="banner banner-gold" style="margin-bottom:16px;">
+                    <span>◆</span> <strong>Height-Weight Filter:</strong> Cavani (184cm/77kg) and Crespo (184cm/78kg) eliminated — 11–12kg lighter than Borja. Haaland (195cm) eliminated — 12cm taller. Your set is the correct physical bracket.
+                </div>
+
+                <div id="pairingList"></div>
+
+                <div class="banner banner-info" style="margin-top:16px;">
+                    <span>ℹ️</span> <strong>Methodology:</strong> Pairing Protocol v2.0 assesses stylistic and physical alignment across height, weight, position, playing style, finishing, aerial ability, hold-up play, link-up, mobility, and specific strengths/weaknesses. Match % is a composite of these factors. This is a qualitative Tier 3 assessment — not a substitute for video-graded OBI/SII scoring.
+                </div>
+            </div>
+
+            <div class="scout-box scout-verdict">
+                <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict</h4>
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+                    <strong style="color:var(--text-primary);">PAIRING PROTOCOL v2.0 APPLIED. PENDING VIDEO ASSESSMENT.</strong> Miguel Borja is a 33-year-old Colombian centre-forward who has scored 197 career goals across South America, Brazil, and now Mexico. His 81% pairing with <strong>John Hartson</strong> identifies him as a British-style target man in a South American body — physically imposing (183–184cm, 85–89kg), dominant in the air (84th percentile), and lethal in the box (97th percentile goals/90). His offside awareness and defensive contribution are documented weaknesses. His start at Club América — 3 goals in 38 minutes — demonstrates that the finishing instinct remains intact. Video assessment is required to fully grade his OBI and SII sub-metrics.
+                </p>
+            </div>
+        </div>
+
+        <!-- MATCHES -->
+        <div id="matches" class="tab-panel">
+            <div class="banner banner-champ">
+                <span>◆</span> <strong id="matchesHeader">Match Footage Pending</strong> — Video highlights to be added when available.
+            </div>
+            <div class="section-title" style="margin-bottom:16px;">🎬 Match Videos (Pending)</div>
+            <div class="match-grid" id="matchGrid"></div>
+            <div class="card" style="margin-top:24px;">
+                <h3 class="section-title" style="margin-bottom:16px;">Key Statistics — 2026 Apertura (Club América)</h3>
+                <div class="grid-3">
+                    <div>
+                        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Goals</h4>
+                        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+                            <strong style="color:var(--gold);">3</strong> — Goals<br />
+                            <strong style="color:var(--gold);">2</strong> — Apertura appearances<br />
+                            <strong style="color:var(--gold);">38</strong> — Minutes played
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Efficiency</h4>
+                        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+                            <strong style="color:var(--gold);">0.08</strong> — Goals per minute<br />
+                            <strong style="color:var(--gold);">1.58</strong> — Goals per 90 (projected)<br />
+                            <strong style="color:var(--gold);">~18</strong> — Avg minutes per game
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Career</h4>
+                        <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+                            <strong style="color:var(--gold);">197</strong> — Career goals<br />
+                            <strong style="color:var(--gold);">27</strong> — Career assists<br />
+                            <strong style="color:var(--gold);">30/9</strong> — Colombia caps/goals
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ============================================================
+        // CAREER PHASES
+        // ============================================================
+        const careerSeasons = [{
+            id: '2011',
+            label: '2011 · Cortuluá',
+            club: 'Cortuluá',
+            league: 'Categoría Primera A',
+            apps: 17,
+            goals: 13,
+            fga: 5.8,
+            age: '18',
+            caps: '—',
+            badge: 'Cortuluá · 2011 · Professional Debut',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 3.0
+        }, {
+            id: '2012-13',
+            label: '2012-13 · Independiente Santa Fe',
+            club: 'Independiente Santa Fe',
+            league: 'Categoría Primera A',
+            apps: 41,
+            goals: 33,
+            fga: 6.8,
+            age: '19-20',
+            caps: '—',
+            badge: 'Santa Fe · 2012-13 · Breakout',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 3.0
+        }, {
+            id: '2013-14',
+            label: '2013-14 · Club Olimpo (Loan)',
+            club: 'Club Olimpo',
+            league: 'Argentine Primera',
+            apps: 16,
+            goals: 12,
+            fga: 6.5,
+            age: '20-21',
+            caps: '—',
+            badge: 'Olimpo · 2013-14 · Loan',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 3.4
+        }, {
+            id: '2014-15',
+            label: '2014-15 · US Livorno',
+            club: 'US Livorno',
+            league: 'Serie B',
+            apps: 8,
+            goals: 0,
+            fga: 4.5,
+            age: '21-22',
+            caps: '—',
+            badge: 'Livorno · 2014-15 · Italy',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 2.7
+        }, {
+            id: '2015-16',
+            label: '2015-16 · Atlético Nacional',
+            club: 'Atlético Nacional',
+            league: 'Categoría Primera A',
+            apps: 18,
+            goals: 15,
+            fga: 7.2,
+            age: '22-23',
+            caps: '—',
+            badge: 'Atlético Nacional · 2015-16 · Libertadores',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 3.0
+        }, {
+            id: '2017-21',
+            label: '2017-21 · Palmeiras',
+            club: 'Palmeiras',
+            league: 'Brasileirão Série A',
+            apps: 49,
+            goals: 10,
+            fga: 6.2,
+            age: '24-28',
+            caps: 'Colombia',
+            badge: 'Palmeiras · 2017-21 · Brasileirão Champion',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 3.6
+        }, {
+            id: '2019-21',
+            label: '2019-21 · Junior / Grêmio',
+            club: 'Junior FC / Grêmio',
+            league: 'Primera A / Série A',
+            apps: 90,
+            goals: 90,
+            fga: 7.8,
+            age: '26-28',
+            caps: 'Colombia',
+            badge: 'Junior / Grêmio · 2019-21 · 79 Goals Junior',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 3.0
+        }, {
+            id: '2022-25',
+            label: '2022-25 · River Plate',
+            club: 'River Plate',
+            league: 'Argentine Primera',
+            apps: 141,
+            goals: 126,
+            fga: 8.0,
+            age: '29-32',
+            caps: 'Colombia',
+            badge: 'River Plate · 2022-25 · 126 Goals',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 3.4
+        }, {
+            id: '2026-alwasl',
+            label: '2026 · Al-Wasl',
+            club: 'Al-Wasl',
+            league: 'UAE Pro League',
+            apps: 13,
+            goals: 5,
+            fga: 6.4,
+            age: '32-33',
+            caps: 'Colombia',
+            badge: 'Al-Wasl · 2026 · UAE Pro League',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 2.3
+        }, {
+            id: '2026-america',
+            label: '2026 · Club América',
+            club: 'Club América',
+            league: 'Liga MX',
+            apps: 2,
+            goals: 3,
+            fga: 6.8,
+            age: '33',
+            caps: 'Colombia',
+            badge: 'América · 2026 Apertura · Liga MX',
+            t3Status: 'Pairing Protocol v2.0',
+            photo: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg',
+            logTier: 2.7
+        }];
+
+        const peakFga = Math.max(...careerSeasons.filter(s => s.fga !== null).map(s => s.fga));
+
+        // LOG reference
+        const logReference = {
+            'Premier League': { tier: 3.7, flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', short: 'EPL' },
+            'La Liga': { tier: 3.7, flag: '🇪🇸', short: 'La Liga' },
+            'Bundesliga': { tier: 3.6, flag: '🇩🇪', short: 'Bundesliga' },
+            'Ligue 1': { tier: 3.6, flag: '🇫🇷', short: 'Ligue 1' },
+            'Serie A': { tier: 3.6, flag: '🇮🇹', short: 'Serie A' },
+            'Argentine Primera': { tier: 3.4, flag: '🇦🇷', short: 'Argentine' },
+            'Brasileirão Série A': { tier: 3.6, flag: '🇧🇷', short: 'Brasileirão' },
+            'Categoría Primera A': { tier: 3.0, flag: '🇨🇴', short: 'Primera A' },
+            'Eredivisie': { tier: 2.8, flag: '🇳🇱', short: 'Eredivisie' },
+            'Championship': { tier: 2.8, flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', short: 'Championship' },
+            'Serie B': { tier: 2.7, flag: '🇮🇹', short: 'Serie B' },
+            'Liga MX': { tier: 2.7, flag: '🇲🇽', short: 'Liga MX' },
+            'MLS': { tier: 2.6, flag: '🇺🇸', short: 'MLS' },
+            'UAE Pro League': { tier: 2.3, flag: '🇦🇪', short: 'UAE' }
+        };
+
+        let currentBaseFga = 6.8;
+        let currentBaseLeague = 'Liga MX (LOG 2.7)';
+
+        const crossLeagues = [
+            'Premier League',
+            'La Liga',
+            'Bundesliga',
+            'Ligue 1',
+            'Serie A',
+            'Argentine Primera',
+            'Brasileirão Série A',
+            'Eredivisie',
+            'Primeira Liga',
+            'Liga MX',
+            'MLS',
+            'UAE Pro League'
+        ];
+
+        // ============================================================
+        // PAIRING PROTOCOL DATA
+        // ============================================================
+        const pairingData = [
+            { rank: 1, name: 'John Hartson', match: 81, detail: 'Height (185cm), weight (89kg), hold-up play, aerial ability' },
+            { rank: 2, name: 'Adriano', match: 78, detail: 'Height, weight, power, aerial ability' },
+            { rank: 3, name: 'Mark Viduka', match: 76, detail: 'Height, weight, hold-up play, aerial ability' },
+            { rank: 4, name: 'Salomón Rondón', match: 74, detail: 'Height, weight, direct positional comparison' },
+            { rank: 5, name: 'Lucas Barrios', match: 72, detail: 'Height, weight, positional role' },
+            { rank: '—', name: 'Edinson Cavani', match: 68, detail: 'Eliminated — 12kg weight gap', eliminated: true },
+            { rank: '—', name: 'Hernán Crespo', match: 66, detail: 'Eliminated — 11kg weight gap', eliminated: true },
+            { rank: '—', name: 'Erling Haaland', match: 61, detail: 'Eliminated — 12cm height gap', eliminated: true }
+        ];
+
+        const seasonData = {};
+        careerSeasons.forEach(s => {
+            const tags = [
+                { class: 'tag-verified', text: s.t3Status },
+                { class: 'tag-club', text: s.club },
+                { class: 'tag-value', text: s.goals + ' Goals' },
+                { class: 'tag-info', text: s.league },
+            ];
+            if (s.fga && s.fga >= 7.5) tags.push({ class: 'tag-record', text: 'Elite Goal Rate' });
+            if (s.id === '2026-america') tags.push({ class: 'tag-gold', text: 'Liga MX Start' });
+            if (s.id === '2022-25') tags.push({ class: 'tag-gold', text: '126 Goals River Plate' });
+            if (s.id === '2015-16') tags.push({ class: 'tag-gold', text: 'Copa Libertadores' });
+            if (s.id === '2017-21') tags.push({ class: 'tag-gold', text: 'Brasileirão Champion' });
+
+            const heroStats = [
+                { value: s.fga !== null ? s.fga.toFixed(1) : '—', label: 'FGA', color: 'var(--gold)' },
+                { value: s.apps || '-', label: 'Apps', color: 'var(--text-primary)' },
+                { value: s.goals || '-', label: 'Goals', color: 'var(--text-primary)' },
+                { value: s.t3Status, label: 'T3 Status', color: 'var(--warning)' },
+                { value: s.age || '-', label: 'Age', color: 'var(--text-primary)' },
+                { value: s.league || '-', label: 'League', color: 'var(--info)' }
+            ];
+
+            const overviewBanners = [
+                { type: 'banner-era',
+                    text: `<span>⏱</span> <strong>CAREER PHASE.</strong> ${s.label}. Borja at age ${s.age}, playing for ${s.club} in ${s.league}.` },
+                { type: 'banner-verified',
+                    text: `<span>★</span> <strong>${s.t3Status}.</strong> Scored ${s.goals || 0} goals in ${s.apps || 0} appearances. FGA rating: ${s.fga !== null ? s.fga.toFixed(1) : '—'}.` }
+            ];
+
+            const profileCardContent = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:0.85rem;line-height:1.6;">
+                    <div><strong>Full Name:</strong> Miguel Ángel Borja Hernández</div>
+                    <div><strong>Date of Birth:</strong> 26 January 1993 (age ${s.age})</div>
+                    <div><strong>Place of Birth:</strong> Tierralta, Colombia</div>
+                    <div><strong>Nationality:</strong> Colombia</div>
+                    <div><strong>Height:</strong> 183–184 cm (6'0")</div>
+                    <div><strong>Weight:</strong> 85–89 kg</div>
+                    <div><strong>Foot:</strong> Right</div>
+                    <div><strong>Position:</strong> Centre-Forward</div>
+                    <div><strong>Current Club:</strong> ${s.club}</div>
+                    <div><strong>Shirt Number:</strong> 9</div>
+                    <div><strong>Nickname:</strong> "El Colibrí"</div>
+                    <div><strong>Market Value:</strong> €3.5M</div>
+                </div>
+                <hr style="border-color:var(--border-subtle);margin:12px 0;">
+                <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+                    <strong style="color:var(--text-primary);">Playing Style:</strong> A physically imposing centre-forward whose game is built on holding the ball with his back to goal, playing with physicality, and scoring inside the box. Finishing rated "Very Strong" by WhoScored. Dominant in the air. Limited mobility and pressing.
+                </p>
+            `;
+
+            const profileCards = [
+                { title: '👤 Player Profile', content: profileCardContent },
+                { title: '📊 T3 Status',
+                    content: `<strong style="color:var(--warning);">Pairing Protocol v2.0 Applied.</strong> Qualitative assessment via Pairing Protocol v2.0. Primary pairing: John Hartson (81% match).` },
+                { title: '🏅 Empire FGA Verdict',
+                    content: `<strong style="color:var(--text-primary);">FGA ${s.fga !== null ? s.fga.toFixed(1) : '—'} (provisional).</strong> ${s.fga && s.fga >= 7.5 ? 'Elite goalscorer. Physical target man. Proven across multiple leagues.' : 'Consistent professional striker.'}` }
+            ];
+
+            const philosophyFits = [
+                { rank: 1, name: 'Ferguson · Target Man', width: Math.min(84, 68 + (s.fga || 0) * 2) + '%',
+                    color: '#009b3a', score: (7.2 + (s.fga || 0) / 10).toFixed(1) },
+                { rank: 2, name: 'Klopp · Pressing Striker', width: Math.min(76, 62 + (s.fga || 0) * 2) + '%',
+                    color: '#27ae60', score: (6.8 + (s.fga || 0) / 10).toFixed(1) },
+                { rank: 3, name: 'Simeone · Cholismo', width: Math.min(78, 64 + (s.fga || 0) * 2) + '%',
+                    color: '#e07820', score: (7.0 + (s.fga || 0) / 10).toFixed(1) },
+                { rank: 4, name: 'Heynckes · Efficiency', width: Math.min(72, 58 + (s.fga || 0) * 2) + '%',
+                    color: '#3498db', score: (6.6 + (s.fga || 0) / 10).toFixed(1) },
+                { rank: 5, name: 'Sacchi · Poacher', width: Math.min(74, 60 + (s.fga || 0) * 2) + '%',
+                    color: '#9b59b6', score: (6.8 + (s.fga || 0) / 10).toFixed(1) }
+            ];
+
+            const recommendation =
+                `<span class="tag tag-gold" style="font-size:0.85rem;padding:6px 18px;">◆ CLUB RECOMMENDATION</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">${s.label} — FGA ${s.fga !== null ? s.fga.toFixed(1) : 'Pending'} (provisional).</strong> ${s.fga && s.fga >= 7.5 ? 'Elite goalscorer. Physical target man. Proven across multiple leagues.' : 'Consistent professional striker.'}</div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">${s.t3Status}</div>`;
+
+            const keyStrengths = [
+                { label: 'FGA', value: s.fga !== null ? s.fga.toFixed(1) : '—' },
+                { label: 'Goals', value: s.goals || 0 },
+                { label: 'Apps', value: s.apps || 0 }
+            ];
+
+            const fgaTier1 = {
+                highlights: [
+                    { code: 'Gls', val: s.goals || 0, pct: `${s.league} · ${s.apps || 0} apps`,
+                        width: Math.min(95, 30 + (s.goals || 0) * 2) + '%', gold: (s.goals || 0) > 20 },
+                    { code: 'Apps', val: s.apps || 0, pct: 'Appearances', width: Math.min(95, 20 + (s.apps || 0) *
+                            0.5) + '%', gold: false },
+                    { code: 'FGA', val: s.fga !== null ? s.fga.toFixed(1) : '—', pct: 'FGA',
+                        width: (s.fga !== null ? s.fga * 10 : 0) + '%', gold: s.fga && s.fga >= 7.5 }
+                ],
+                physical: [
+                    { code: 'Age', desc: 'Age during season', width: (s.age ? s.age.split('-').map(Number)[1] * 3.5 :
+                            60) + '%', val: s.age || '-' },
+                    { code: 'Height', desc: 'Height in cm', width: '74%', val: '184' },
+                    { code: 'Weight', desc: 'Weight in kg', width: '72%', val: '87' },
+                    { code: 'Pos', desc: 'Primary position', width: '70%', val: 'ST' },
+                    { code: 'Nat', desc: 'Nationality', width: '55%', val: 'COL' }
+                ],
+                leagueStats: [
+                    { code: 'Apps', desc: 'Appearances', width: Math.min(90, 20 + (s.apps || 0) * 0.5) + '%', val: s
+                            .apps || 0 },
+                    { code: 'Goals', desc: 'Goals scored', width: Math.min(85, 10 + (s.goals || 0) * 2) + '%', val: s
+                            .goals || 0 },
+                    { code: 'T3', desc: 'T3 Verified', width: '5%', val: 'Pairing Protocol' }
+                ],
+                t3Status: [
+                    { code: 'T3', desc: 'Video assessment', width: '5%', val: 'Pending' },
+                    { code: 'Protocol', desc: 'Pairing Protocol v2.0', width: '50%', val: 'Applied' },
+                    { code: 'Events', desc: 'Total T3 events', width: '5%', val: '0' }
+                ]
+            };
+
+            let path = [];
+            if (s.club === 'Cortuluá') path = ['Cortuluá'];
+            else if (s.club === 'Independiente Santa Fe') path = ['Cortuluá', 'Santa Fe'];
+            else if (s.club === 'Club Olimpo') path = ['Santa Fe', 'Olimpo (Loan)'];
+            else if (s.club === 'US Livorno') path = ['Olimpo', 'Livorno'];
+            else if (s.club === 'Atlético Nacional') path = ['Livorno', 'Atlético Nacional'];
+            else if (s.club === 'Palmeiras') path = ['Atlético Nacional', 'Palmeiras'];
+            else if (s.club === 'Junior FC / Grêmio') path = ['Palmeiras', 'Junior / Grêmio'];
+            else if (s.club === 'River Plate') path = ['Junior / Grêmio', 'River Plate'];
+            else if (s.club === 'Al-Wasl') path = ['River Plate', 'Al-Wasl'];
+            else if (s.club === 'Club América') path = ['River Plate', 'Al-Wasl', 'Club América'];
+
+            let matchList = [{
+                title: `🎥 Club América — 2026 Apertura`,
+                meta: 'Liga MX · 2026',
+                desc: 'Video highlights pending. Dropbox link to be added when available.',
+                videoUrl: null,
+                thumb: 'https://a.espncdn.com/photo/2026/0913/r1715998_1296x518_5-2.jpg'
+            }];
+
+            seasonData[s.id] = {
+                label: s.label,
+                club: s.club,
+                league: s.league,
+                apps: s.apps,
+                goals: s.goals,
+                fga: s.fga,
+                age: s.age,
+                caps: s.caps,
+                badge: s.badge,
+                t3Status: s.t3Status,
+                photo: s.photo,
+                tags: tags,
+                clubPath: path,
+                heroStats: heroStats,
+                keyStrengths: keyStrengths,
+                overviewBanners: overviewBanners,
+                profileCards: profileCards,
+                philosophyFits: philosophyFits,
+                recommendation: recommendation,
+                fgaTier1: fgaTier1,
+                matchList: matchList,
+                matchesHeader: `Video highlights pending — ${s.league}.`,
+                logTier: s.logTier || 2.7
+            };
+        });
+
+        // ============================================================
+        // RENDER FUNCTIONS
+        // ============================================================
+        function renderKeyStrengths(strengths, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            strengths.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'strength-item';
+                div.innerHTML = `<span class="label">${s.label}</span><span class="value">${s.value}</span>`;
+                container.appendChild(div);
+            });
+        }
+
+        function renderBanners(banners, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            banners.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'banner ' + b.type;
+                div.innerHTML = b.text;
+                container.appendChild(div);
+            });
+        }
+
+        function renderTags(tags, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            tags.forEach(t => {
+                const span = document.createElement('span');
+                span.className = 'tag ' + t.class;
+                span.textContent = t.text;
+                container.appendChild(span);
+            });
+        }
+
+        function renderHeroStats(stats, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            stats.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'stat-hero';
+                div.innerHTML =
+                    `<div class="value" style="color:${s.color}">${s.value}</div><div class="label">${s.label}</div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function renderCareerPath(path, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            path.forEach((node, index) => {
+                const span = document.createElement('span');
+                span.className = 'career-node' + (index === path.length - 1 ? ' current' : '');
+                span.textContent = node;
+                container.appendChild(span);
+                if (index < path.length - 1) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'career-arrow';
+                    arrow.textContent = '→';
+                    container.appendChild(arrow);
+                }
+            });
+        }
+
+        function renderProfileCards(cards, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            cards.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML =
+                    `<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">${c.title}</h3><div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">${c.content}</div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function renderPhilosophyFits(fits, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const firstCard = document.createElement('div');
+            firstCard.className = 'card';
+            let html = '';
+            fits.forEach(f => {
+                html +=
+                    `<div class="philo-row"><div class="philo-rank">${f.rank}</div><div class="philo-name">${f.name}</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${f.width};background:${f.color};"></div></div></div><div class="philo-score">${f.score}</div></div>`;
+            });
+            firstCard.innerHTML = html;
+            container.appendChild(firstCard);
+        }
+
+        function renderRecommendation(text, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">${text}</div>`;
+        }
+
+        function renderFGA(tier1, containerId) {
+            const container = document.getElementById(containerId);
+            const col1 = document.createElement('div');
+            col1.className = 'card';
+            let html1 =
+                `<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 · FBref · Transfermarkt · ${document.getElementById('seasonSelect').selectedOptions[0].text}</h3>`;
+            html1 += `<div class="t1-highlight-grid">`;
+            tier1.highlights.forEach(h => {
+                html1 +=
+                    `<div class="t1-hl-box${h.gold ? ' gold' : ''}"><div class="t1-hl-code">${h.code}</div><div class="t1-hl-val">${h.val}</div><div class="t1-hl-pct">${h.pct}</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:${h.width};${h.gold ? 'background:var(--gold);' : ''}"></div></div></div>`;
+            });
+            html1 += `</div>`;
+            html1 += `<div class="t1-group"><div class="t1-group-head">Physical Profile</div>`;
+            tier1.physical.forEach(p => {
+                html1 +=
+                    `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
+            });
+            html1 += `</div>`;
+            html1 += `<div class="t1-group"><div class="t1-group-head">League Stats</div>`;
+            tier1.leagueStats.forEach(p => {
+                html1 +=
+                    `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
+            });
+            html1 += `</div>`;
+            html1 += `<div class="t1-group"><div class="t1-group-head">T3 Scout Status</div>`;
+            tier1.t3Status.forEach(p => {
+                html1 +=
+                    `<div class="t1-metric-row"><span class="t1-metric-code">${p.code}</span><span class="t1-metric-desc">${p.desc}</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${p.width};background:var(--accent)"></div></div></div><span class="t1-metric-val">${p.val}</span></div>`;
+            });
+            html1 += `</div>`;
+            col1.innerHTML = html1;
+
+            const col2 = document.createElement('div');
+            col2.className = 'card';
+            col2.innerHTML = `
+                <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 · Composite Intelligence</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI · Position Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.2 ✓</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX · Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.6 ✓</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MOB · Mobility</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.0 ✓</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">GRI · Ghost Run Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">6.2 ✓</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">AMS · Anticipatory Movement</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">6.8 ✓</span></div>
+                </div>
+                <div style="margin-top:20px;padding:12px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+                    <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--success);margin-bottom:4px;">Tier 2 Status — Provisional</div>
+                    <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 2 scores derived from statistical profile + Pairing Protocol v2.0. Video assessment pending.</div>
+                </div>
+            `;
+
+            const col3 = document.createElement('div');
+            col3.innerHTML = `
+                <div class="card" style="margin-bottom:14px;">
+                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+                    <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Context</h3>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+                        <strong style="color:var(--text-primary);">League:</strong> Liga MX<br />
+                        <strong style="color:var(--text-primary);">LOG Tier:</strong> 2.7<br />
+                        <strong style="color:var(--text-primary);">Status:</strong> Pairing Protocol v2.0 Applied<br />
+                        <strong style="color:var(--text-primary);">Goals:</strong> ${seasonData[document.getElementById('seasonSelect').value]?.goals || 0} in ${seasonData[document.getElementById('seasonSelect').value]?.apps || 0} apps<br />
+                        <strong style="color:var(--text-primary);">Position:</strong> Centre-Forward
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = '';
+            container.appendChild(col1);
+            container.appendChild(col2);
+            container.appendChild(col3);
+            renderDonut();
+        }
+
+        // ============================================================
+        // CROSS-LEAGUE — CORRECTED FORMULA
+        // Adjusted FGA = Player FGA × (Target League LOG ÷ 3.5)
+        // ============================================================
+        function renderCrossLeague() {
+            const grid = document.getElementById('crossLeagueGrid');
+            grid.innerHTML = '';
+            const baseFga = currentBaseFga;
+            const baseline = 3.5;
+
+            crossLeagues.forEach(leagueName => {
+                const ref = logReference[leagueName];
+                if (!ref) return;
+                const multiplier = ref.tier / baseline;
+                const adjustedFga = baseFga * multiplier;
+
+                const card = document.createElement('div');
+                card.className = 'league-compare-card';
+
+                let direction, directionText, dirClass;
+                if (ref.tier > baseline) {
+                    direction = 'up'; dirClass = 'up';
+                    directionText = '⬆️ Tougher than baseline — FGA scales up';
+                } else if (ref.tier < baseline) {
+                    direction = 'down'; dirClass = 'down';
+                    directionText = '⬇️ Easier than baseline — FGA scales down';
+                } else {
+                    direction = 'same'; dirClass = 'same';
+                    directionText = '⚖️ Neutral — FGA unchanged';
+                }
+
+                const isBase = leagueName === (currentBaseLeague || '').split(' ')[0] ||
+                    (currentBaseLeague || '').startsWith(leagueName);
+                const baseBadge = isBase ? '<div class="log-badge" style="background:rgba(0,208,132,0.12);color:var(--success);border-color:rgba(0,208,132,0.3);">⭐ BASE LEAGUE</div>' : '';
+
+                card.innerHTML = `
+                    <div class="league-flag">${ref.flag}</div>
+                    <div class="league-name">${leagueName}</div>
+                    <div class="league-tier">${ref.short} · LOG ${ref.tier.toFixed(1)}</div>
+                    <div class="adjusted-fga">${adjustedFga.toFixed(1)}</div>
+                    <div class="adjusted-label">Adjusted FGA</div>
+                    <div class="multiplier">Multiplier: <strong>${multiplier.toFixed(2)}×</strong></div>
+                    ${baseBadge}
+                    <div class="log-badge">FGA ${adjustedFga.toFixed(1)}</div>
+                    <div class="direction-indicator">
+                        <span class="${dirClass}">${directionText}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            const baseFgaEl = document.getElementById('crossBaseFga');
+            const baseLeagueEl = document.getElementById('crossBaseLeague');
+            if (baseFgaEl) baseFgaEl.textContent = currentBaseFga.toFixed(1);
+            if (baseLeagueEl) baseLeagueEl.textContent = currentBaseLeague;
+        }
+
+        function renderMatches(matches, header, containerId) {
+            document.getElementById('matchesHeader').textContent = header;
+            const grid = document.getElementById(containerId);
+            grid.innerHTML = '';
+            matches.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                const thumbStyle = m.thumb ? `background-image:url('${m.thumb}');background-size:cover;background-position:center;` : '';
+                card.innerHTML = `
+                    <div class="match-thumb" style="${thumbStyle}">
+                        <div class="play-icon" style="${m.thumb ? 'background:rgba(0,0,0,0.5);' : ''}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                    </div>
+                    <div class="match-info">
+                        <div class="match-teams">${m.title}</div>
+                        <div class="match-meta">
+                            <span class="match-badge badge-comp">${m.meta}</span>
+                            ${m.videoUrl ? '<span class="match-badge badge-verified">🎬 Video</span>' : '<span class="match-badge badge-pending">⏳ Video Pending</span>'}
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">${m.desc}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderPairingList() {
+            const container = document.getElementById('pairingList');
+            if (!container) return;
+            let html = '';
+            pairingData.forEach(p => {
+                const eliminatedClass = p.eliminated ? ' pairing-eliminated' : '';
+                html += `
+                    <div class="pairing-row${eliminatedClass}">
+                        <div class="pairing-rank">${p.rank}</div>
+                        <div class="pairing-name">${p.name}<div class="pairing-detail">${p.detail}</div></div>
+                        <div class="pairing-match">${p.match}%</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderDonut() {
+            const el = document.getElementById('fgaDonut');
+            if (!el) return;
+            if (window.fgaDonutChart) window.fgaDonutChart.destroy();
+            const ctx = el.getContext('2d');
+            window.fgaDonutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['T1 Extensive 20%', 'T2 Composite 30%', 'T3 Pairing Protocol 50%'],
+                    datasets: [{ data: [20, 30, 50], backgroundColor: ['#00d084', '#ffb800', '#d4a020'], borderWidth: 0,
+                        hoverOffset: 4 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: { legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans',
+                                size: 11 }, padding: 16 } } }
+                }
+            });
+        }
+
+        function updateDial(score) {
+            const canvas = document.getElementById('heroDial');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const max = 10;
+            const angle = (score / max) * 1.5 * Math.PI + 0.75 * Math.PI;
+            ctx.clearRect(0, 0, 140, 140);
+            ctx.beginPath();
+            ctx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(70, 70, 58, 0.75 * Math.PI, angle);
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+
+        function getTrend(seasonId) {
+            const ids = careerSeasons.map(s => s.id);
+            const idx = ids.indexOf(seasonId);
+            if (idx === -1 || idx === 0) return { arrow: '—', cls: 'trend-flat' };
+            const current = seasonData[seasonId].fga;
+            const prev = seasonData[ids[idx - 1]].fga;
+            if (current !== null && prev !== null) {
+                if (current > prev) return { arrow: '↑', cls: 'trend-up' };
+                if (current < prev) return { arrow: '↓', cls: 'trend-down' };
+            }
+            return { arrow: '—', cls: 'trend-flat' };
+        }
+
+        function updateSeason() {
+            const sel = document.getElementById('seasonSelect');
+            const id = sel.value;
+            const data = seasonData[id];
+            if (!data) return;
+
+            const heroPhoto = document.getElementById('heroPhoto');
+            if (data.photo) {
+                heroPhoto.style.backgroundImage = `url('${data.photo}')`;
+            }
+
+            document.getElementById('heroBadge').textContent = data.badge;
+            document.getElementById('heroAge').textContent = data.age;
+            document.getElementById('t3Pill').textContent = data.t3Status;
+            document.getElementById('heroFgaScore').textContent = data.fga !== null ? data.fga.toFixed(1) : '—';
+            document.getElementById('heroFgaStatus').textContent = 'PROVISIONAL';
+
+            renderCareerPath(data.clubPath, 'careerPath');
+            renderHeroStats(data.heroStats, 'heroStatsGrid');
+            renderKeyStrengths(data.keyStrengths, 'keyStrengths');
+            renderBanners(data.overviewBanners, 'overviewBanners');
+            renderProfileCards(data.profileCards, 'overviewProfileCards');
+            renderPhilosophyFits(data.philosophyFits, 'philosophyFits');
+            renderRecommendation(data.recommendation, 'recommendationCard');
+            renderTags(data.tags, 'heroTags');
+            renderFGA(data.fgaTier1, 'fgaContent');
+            renderMatches(data.matchList, data.matchesHeader, 'matchGrid');
+            updateDial(data.fga !== null ? data.fga : 0);
+
+            currentBaseFga = data.fga !== null ? data.fga : 6.8;
+            currentBaseLeague = data.league + ' (LOG ' + (data.logTier ? data.logTier.toFixed(1) : '2.7') + ')';
+
+            const trend = getTrend(id);
+            document.getElementById('trendIndicator').textContent = trend.arrow;
+            document.getElementById('trendIndicator').className = 'trend-arrow ' + trend.cls;
+
+            document.getElementById('careerPeakFga').textContent = peakFga !== null ? peakFga.toFixed(1) : '—';
+
+            renderCareerStatsTable();
+            renderCrossLeague();
+            renderPhilosophyFitList(data.philosophyFits);
+            renderSchoolAverages();
+        }
+
+        function renderPhilosophyFitList(fits) {
+            const container = document.getElementById('philosophyFitList');
+            if (!container) return;
+            let html = '';
+            fits.forEach(f => {
+                html +=
+                    `<div class="philo-row"><div class="philo-rank">${f.rank}</div><div class="philo-name">${f.name}</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${f.width};background:${f.color};"></div></div></div><div class="philo-score">${f.score}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderSchoolAverages() {
+            const container = document.getElementById('schoolAverages');
+            if (!container) return;
+            const schools = [
+                { name: 'English School', value: '7.2', color: 'var(--accent)' },
+                { name: 'South American', value: '7.0', color: 'var(--accent)' },
+                { name: 'Modern Masters', value: '6.8', color: 'var(--warning)' },
+                { name: 'Italian School', value: '6.4', color: 'var(--warning)' }
+            ];
+            container.innerHTML = '';
+            schools.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'stat-hero';
+                div.innerHTML =
+                    `<div class="value" style="color:${s.color}">${s.value}</div><div class="label">${s.name}</div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function renderCareerStatsTable() {
+            const container = document.getElementById('careerStatsTable');
+            let html =
+                `<table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>Apps</th><th>Goals</th><th>FGA</th><th>LOG</th></tr></thead><tbody>`;
+            careerSeasons.forEach(s => {
+                const highlight = s.id === '2026-america' ? 'style="background:rgba(212,160,32,0.08);"' : (s.id === '2022-25' ? 'style="background:rgba(212,160,32,0.06);"' : '');
+                html +=
+                    `<tr ${highlight}><td>${s.label}</td><td>${s.club}</td><td>${s.apps || 0}</td><td>${s.goals || 0}</td><td>${s.fga !== null ? s.fga.toFixed(1) : '—'}</td><td>${s.logTier ? s.logTier.toFixed(1) : '—'}</td></tr>`;
+            });
+            html +=
+                `<tr style="border-top:2px solid var(--border-medium);"><td colspan="5"><strong>Career Peak</strong></td><td><strong>${peakFga !== null ? peakFga.toFixed(1) : '—'}</strong></td></tr>`;
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function init() {
+            const select = document.getElementById('seasonSelect');
+            select.innerHTML = '';
+            careerSeasons.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.label;
+                select.appendChild(opt);
+            });
+            select.value = '2026-america';
+            updateSeason();
+
+            const radarEl = document.getElementById('attrRadar');
+            if (radarEl) {
+                new Chart(radarEl.getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Finishing', 'Heading', 'Hold-up', 'Link-up', 'Work Rate', 'CHR', 'SII_A', 'Mobility', 'Clutch', 'Aerial'],
+                        datasets: [{
+                            label: 'Borja',
+                            data: [8.2, 7.8, 7.6, 6.8, 5.2, 7.4, 6.4, 6.0, 8.4, 7.8],
+                            backgroundColor: 'rgba(212,160,32,0.2)',
+                            borderColor: '#d4a020',
+                            pointBackgroundColor: '#fbbf24',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            borderWidth: 2.5
+                        }, {
+                            label: 'Liga MX Avg',
+                            data: [6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5],
+                            backgroundColor: 'rgba(255,255,255,0.05)',
+                            borderColor: 'rgba(255,255,255,0.4)',
+                            pointRadius: 0,
+                            borderWidth: 1.5,
+                            borderDash: [4, 4]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                min: 3,
+                                max: 10,
+                                ticks: { display: false },
+                                grid: { color: 'rgba(255,255,255,0.06)' },
+                                angleLines: { color: 'rgba(255,255,255,0.06)' },
+                                pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10,
+                                        weight: '600' } }
+                            }
+                        },
+                        plugins: { legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 } } } }
+                    }
+                });
+            }
+
+            const philoRadar = document.getElementById('philosophyRadar2');
+            if (philoRadar) {
+                new Chart(philoRadar.getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['English', 'South American', 'Modern', 'Italian', 'German', 'Defensive'],
+                        datasets: [{
+                            label: 'Borja',
+                            data: [7.2, 7.0, 6.8, 6.4, 6.2, 4.0],
+                            backgroundColor: 'rgba(212,160,32,0.2)',
+                            borderColor: '#fbbf24',
+                            pointBackgroundColor: ['#009b3a', '#27ae60', '#3498db', '#e67e22', '#6CABDD',
+                                '#7f8c8d'
+                            ],
+                            pointBorderColor: '#fff',
+                            pointRadius: 5,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                min: 3,
+                                max: 10,
+                                ticks: { display: false, stepSize: 1 },
+                                grid: { color: 'rgba(255,255,255,0.06)' },
+                                angleLines: { color: 'rgba(255,255,255,0.06)' },
+                                pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 12,
+                                        weight: '600' }, padding: 20 }
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            renderDonut();
+            renderPairingList();
+            renderCareerStatsTable();
+            renderCrossLeague();
+            renderSchoolAverages();
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const panel = document.getElementById(id);
+            if (panel) panel.classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+                    b.classList.add('active');
+                }
+            });
+            if (id === 'crossleague') {
+                renderCrossLeague();
+            }
+            if (id === 'scouting') {
+                renderPairingList();
+            }
+        }
+
+        window.switchTab = switchTab;
+        window.updateSeason = updateSeason;
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
