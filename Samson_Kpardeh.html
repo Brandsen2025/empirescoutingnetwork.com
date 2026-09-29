@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Samson Kpardeh | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#d4a020;--accent-dim:rgba(212,160,32,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--teal:#00c5a8;--tier1:#00d084;--tier2:#ffb800;--tier3:#d4a020;--pending:#5a5a70;--proxy:#a855f7;--proxy-dim:rgba(168,85,247,0.15);--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg-primary);}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo{position:absolute;inset:0;background:url('https://images.sidearmdev.com/crop?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Flibertyuni.sidearmsports.com%2Fimages%2F2026%2F8%2F13%2FSamson_Kpardeh__2026__JvCwK.jpg&width=180&height=270&type=webp') center 22% / cover no-repeat;filter:brightness(0.45) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo{transform:scale(1.03);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(212,160,32,0.2) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#d4a020 33%,#fbbf24 33%,#fbbf24 66%,#d4a020 66%);z-index:10;}
+.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before{content:'USA';font-size:0.7rem;font-weight:800;}
+.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}
+.badge-item.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag{font-size:1.1rem;font-weight:700;color:var(--gold);}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club{background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-verified{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-warning{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-record{background:rgba(212,160,32,0.15);color:var(--gold);border:1px solid rgba(212,160,32,0.3);}
+.tag-era{background:rgba(0,197,168,0.12);color:var(--teal);border:1px solid rgba(0,197,168,0.25);}
+.tag-proxy{background:var(--proxy-dim);color:var(--proxy);border:1px solid rgba(168,85,247,0.35);}
+.fga-dial-wrap{position:relative;width:160px;height:160px;flex-shrink:0;}
+.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--warning);}
+.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3{background:rgba(212,160,32,0.12);color:var(--tier3);border:1px solid rgba(212,160,32,0.2);}
+.tier-pill.proxy-pill{background:var(--proxy-dim);color:var(--proxy);border:1px solid rgba(168,85,247,0.35);}
+.season-selector{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;background:var(--bg-card);padding:16px 20px;border-radius:12px;border:1px solid var(--border-subtle);max-width:1200px;margin:20px auto 0;}
+.season-selector label{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+.season-selector select{background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-medium);border-radius:8px;padding:8px 16px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;cursor:pointer;outline:none;min-width:280px;}
+.season-selector select:hover{border-color:var(--accent);}
+.season-selector select option{background:var(--bg-primary);color:var(--text-primary);}
+.season-average{font-family:var(--font-heading);font-size:0.85rem;color:var(--text-secondary);margin-left:auto;padding:4px 12px;background:var(--accent-dim);border-radius:100px;border:1px solid rgba(212,160,32,0.2);display:flex;align-items:center;gap:8px;}
+.season-average strong{color:var(--gold);font-size:1rem;}
+.trend-arrow{font-size:1.2rem;line-height:1;}
+.trend-up{color:var(--success);}
+.trend-down{color:var(--danger);}
+.trend-flat{color:var(--text-tertiary);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-verified{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-era{background:rgba(0,197,168,0.08);border:1px solid rgba(0,197,168,0.2);color:var(--teal);}
+.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-champ{background:linear-gradient(135deg,rgba(212,160,32,0.1),rgba(251,191,36,0.05));border:1px solid rgba(212,160,32,0.2);color:var(--silver);}
+.banner-proxy{background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(168,85,247,0.04));border:1px solid rgba(168,85,247,0.3);color:var(--proxy);}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero.proxy-hero{border-color:rgba(168,85,247,0.35);background:linear-gradient(135deg,rgba(168,85,247,0.08),var(--bg-card));}
+.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.career-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow{color:var(--text-tertiary);font-size:0.8rem;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.pos-map-wrap svg{max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;background:#1a5a1a;}
+.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.t1-metric-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap;}
+.t1-metric-row:last-child{border-bottom:none;}
+.t1-metric-code{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:60px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc{font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap{width:100px;flex-shrink:0;}
+.t1-metric-val{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child{border-bottom:none;}
+.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;}
+.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;cursor:pointer;}
+.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(212,160,32,0.1);}
+.match-thumb{height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-size:cover;background-position:center;}
+.match-thumb .play-icon{width:48px;height:48px;background:rgba(212,160,32,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;border:2px dashed rgba(212,160,32,0.3);}
+.match-thumb .play-icon svg{width:18px;height:18px;fill:rgba(255,255,255,0.3);margin-left:3px;}
+.match-info{padding:16px;}
+.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-partial{background:rgba(255,184,0,0.12);color:var(--warning);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4{color:var(--success);}
+.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4{color:var(--warning);}
+.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4{color:var(--danger);}
+.scout-verdict{background:var(--accent-dim);border:1px solid rgba(212,160,32,0.2);}
+.scout-verdict h4{color:var(--silver);}
+.scout-box ul{list-style:none;padding:0;margin:0;}
+.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before{content:'\2014';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(212,160,32,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(212,160,32,0.15);border-radius:12px;padding:20px;}
+.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label{color:var(--text-tertiary);}
+.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(212,160,32,0.4);}
+.timeline-item.hist::before{background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before{background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date{color:var(--success);}
+.timeline-item.champ .timeline-date{color:var(--gold);}
+.timeline-item.danger .timeline-date{color:var(--danger);}
+.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas{width:100%!important;height:100%!important;}
+.recommendation-card{border-left:4px solid var(--gold);background:linear-gradient(135deg,rgba(212,160,32,0.08),rgba(10,10,15,0.5));}
+.recommendation-card .tag{font-size:0.8rem;padding:6px 16px;}
+.key-strengths{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.strength-item{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:8px 16px;display:flex;align-items:center;gap:8px;}
+.strength-item.proxy-strength{border-color:rgba(168,85,247,0.3);background:linear-gradient(135deg,rgba(168,85,247,0.08),var(--bg-card-hover));}
+.strength-item .label{font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
+.strength-item .value{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--gold);}
+.league-compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.league-compare-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.league-compare-card:hover{transform:translateY(-3px);border-color:var(--border-medium);}
+.league-compare-card .league-flag{font-size:1.8rem;margin-bottom:4px;}
+.league-compare-card .league-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.league-compare-card .league-tier{font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.league-compare-card .projected-goals{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);margin:8px 0 2px;}
+.league-compare-card .projected-label{font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;}
+.league-compare-card .log-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:0.6rem;font-weight:700;background:rgba(212,160,32,0.12);color:var(--gold);border:1px solid rgba(212,160,32,0.2);margin-top:6px;}
+.league-compare-card .multiplier{font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;}
+.league-compare-card .multiplier strong{color:var(--text-secondary);}
+.league-compare-card .direction-indicator{font-size:0.65rem;margin-top:6px;color:var(--text-tertiary);}
+.league-compare-card .direction-indicator .up{color:var(--success);}
+.league-compare-card .direction-indicator .down{color:var(--danger);}
+.log-methodology{font-size:0.78rem;color:var(--text-secondary);line-height:1.8;}
+.log-methodology strong{color:var(--text-primary);}
+.log-methodology .formula-box{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:6px;padding:12px 16px;font-family:var(--font-body);font-size:0.75rem;color:var(--text-secondary);margin:8px 0;overflow-x:auto;}
+.pairing-row{display:grid;grid-template-columns:60px 1fr 90px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-subtle);}
+.pairing-row:last-child{border-bottom:none;}
+.pairing-pct{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);text-align:center;}
+.pairing-name{font-family:var(--font-heading);font-size:0.95rem;font-weight:600;color:var(--text-primary);}
+.pairing-meta{font-size:0.72rem;color:var(--text-tertiary);}
+.pairing-stat-label{font-family:var(--font-heading);font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.pairing-stat-value{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold);}
+.flag-box{border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:0.8rem;display:flex;align-items:flex-start;gap:10px;}
+.flag-box .icon{font-family:var(--font-heading);font-size:0.7rem;font-weight:700;flex-shrink:0;letter-spacing:0.5px;}
+.flag-box.validated{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);color:var(--success);}
+.flag-box.proxy-box{background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(168,85,247,0.03));border:1px solid rgba(168,85,247,0.3);color:var(--proxy);}
+.flag-box.risk{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);color:var(--danger);}
+.flag-box.market{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);color:var(--info);}
+.proxy-hero-block{display:flex;align-items:center;gap:24px;flex-wrap:wrap;background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(168,85,247,0.03));border:2px solid rgba(168,85,247,0.35);border-radius:14px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden;}
+.proxy-hero-block::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 100% 0%,rgba(168,85,247,0.15),transparent 60%);pointer-events:none;}
+.proxy-value{position:relative;z-index:2;}
+.proxy-value .big{font-family:var(--font-display);font-size:3.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.proxy-value .range{font-family:var(--font-heading);font-size:0.9rem;color:var(--proxy);font-weight:600;letter-spacing:0.5px;margin-top:4px;}
+.proxy-value .class{font-family:var(--font-heading);font-size:0.75rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;margin-top:8px;}
+.proxy-info{flex:1;min-width:280px;position:relative;z-index:2;}
+.proxy-info h4{font-family:var(--font-display);font-size:1.1rem;font-weight:600;text-transform:uppercase;color:var(--proxy);margin-bottom:8px;letter-spacing:0.5px;}
+.proxy-info p{font-size:0.82rem;color:var(--text-secondary);line-height:1.7;margin-bottom:8px;}
+.proxy-tier-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.proxy-tier-row:last-child{border-bottom:none;}
+.proxy-tier-label{font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;width:100px;flex-shrink:0;}
+.proxy-tier-bar{flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.proxy-tier-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--proxy),var(--gold));}
+.proxy-tier-value{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--gold);width:60px;text-align:right;flex-shrink:0;}
+.gps-bench-wrap{max-width:640px;margin:0 auto;}
+.gps-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;font-size:0.68rem;color:var(--text-tertiary);justify-content:center;}
+.gps-legend span{display:flex;align-items:center;gap:5px;}
+.gps-legend i{width:9px;height:9px;border-radius:2px;display:inline-block;}
+@media (max-width:768px){.hero{height:460px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:130px;height:130px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.season-selector{flex-direction:column;align-items:stretch;}.season-average{margin-left:0;text-align:center;}.key-strengths{flex-direction:column;align-items:stretch;}.league-compare-grid{grid-template-columns:1fr 1fr;}.pairing-row{grid-template-columns:50px 1fr;}.proxy-hero-block{flex-direction:column;align-items:flex-start;}}
+@media (max-width:480px){.league-compare-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Liberty Flames · 2026 · NCAA Division I</div>
+  <div class="jersey-watermark">10</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item current">Liberty Flames</div>
+    </div>
+    <h1 class="hero-name">Samson Kpardeh</h1>
+    <div class="hero-meta">
+      <span><span class="flag">USA</span> United States</span>
+      <span class="dot"></span>
+      <span>Sophomore · NCAA Division I</span>
+      <span class="dot"></span>
+      <span>173cm · 68kg</span>
+      <span class="dot"></span>
+      <span>Left Winger / Forward</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t3">T3 PARTIAL (2/5) 9.07</div>
+          <div class="tier-pill t2">T2 NOT COMPUTABLE</div>
+          <div class="tier-pill t1">T1 VERIFIED 8.20</div>
+        </div>
+        <div class="hero-tags" id="heroTags" style="margin-top:10px;"></div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="160" height="160"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA PROVISIONAL</div>
+          <div class="fga-score" id="heroFgaScore">7.8–8.4</div>
+          <div class="fga-status" id="heroFgaStatus">EXCELLENT · DRAFT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="season-selector">
+  <label for="seasonSelect">Season</label>
+  <select id="seasonSelect" onchange="updateSeason()"></select>
+  <span class="season-average">
+    <span>FGA Provisional: <strong id="careerPeakFga">7.8–8.4</strong></span>
+    <span id="trendIndicator" class="trend-arrow trend-flat">—</span>
+  </span>
+</div>
+
+<div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
+  <div class="key-strengths" id="keyStrengths"></div>
+</div>
+
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" data-tab="attributes" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" data-tab="fga" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" data-tab="crossleague" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" data-tab="philosophy" onclick="switchTab('philosophy')">Tactical DNA Pairing</button>
+    <button class="tab-btn" data-tab="career" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" data-tab="scouting" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" data-tab="matches" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<main class="content">
+
+  <div id="overview" class="tab-panel active">
+    <div id="overviewBanners"></div>
+    <div class="career-path" id="careerPath"></div>
+
+    <div class="proxy-hero-block">
+      <div class="proxy-value">
+        <div class="big">7.8–8.4</div>
+        <div class="range">FGA Provisional Range</div>
+        <div class="class">EXCELLENT · PEAK, NOT BASELINE · DRAFT V4</div>
+      </div>
+      <div class="proxy-info">
+        <h4>◆ The Gap Between Ceiling and Floor</h4>
+        <p><strong>Tier 3 (9.07) is a ceiling built on 2 of 5 matches.</strong> 14 video events across the San Diego Toreros and San Diego State games — both goal-scoring performances — average 9.07. <strong>Tier 1 (8.20) is the verified floor</strong> — the full 5-match box score, 41.4% shots on target, 41.7% goals-per-shot-on-target, a goal in every match. Tier 2 (composite) is not computable at all. The FGA range sits between the two tiers and will not finalize until the three missing matches (FGCU, Georgia Southern, American) are logged.</p>
+        <div style="margin-top:12px;">
+          <div class="proxy-tier-row">
+            <span class="proxy-tier-label">TIER 3 (50%)</span>
+            <div class="proxy-tier-bar"><div class="proxy-tier-fill" style="width:91%;background:linear-gradient(90deg,var(--success),var(--gold));"></div></div>
+            <span class="proxy-tier-value" style="color:var(--success);">9.07*</span>
+          </div>
+          <div class="proxy-tier-row">
+            <span class="proxy-tier-label">TIER 2 (30%)</span>
+            <div class="proxy-tier-bar"><div class="proxy-tier-fill" style="width:5%;background:var(--danger);"></div></div>
+            <span class="proxy-tier-value" style="color:var(--danger);">N/A</span>
+          </div>
+          <div class="proxy-tier-row">
+            <span class="proxy-tier-label">TIER 1 (20%)</span>
+            <div class="proxy-tier-bar"><div class="proxy-tier-fill" style="width:82%;"></div></div>
+            <span class="proxy-tier-value" style="color:var(--gold);">8.20</span>
+          </div>
+        </div>
+        <p style="margin-top:10px;font-size:0.72rem;color:var(--text-tertiary);">* Tier 3 = 14 events, 2 of 5 matches. Peak, not baseline. FGA_v3_Final BLOCKED — 3 matches missing from Tier 3, SII composite unreconciled (9.01 reported vs 9.07 computed), COACH not scored, no second scout. LOG context: NCAA Division I ≈ LOG 1.6 — the lowest tier in the FGA framework.</p>
+      </div>
+    </div>
+
+    <div class="stat-hero-grid" id="heroStatsGrid"></div>
+
+    <div class="section-title">GPS Top-Speed Analysis — First GPS-Integrated File in the ESN Series <span class="line"></span></div>
+    <div class="card">
+      <div class="grid-2" style="align-items:start;">
+        <div class="gps-bench-wrap">
+          <canvas id="gpsBenchChart" height="260"></canvas>
+          <div class="gps-legend">
+            <span><i style="background:var(--warning);"></i>Collegiate band</span>
+            <span><i style="background:var(--gold);"></i>Kpardeh</span>
+            <span><i style="background:var(--info);"></i>High-tier pro band</span>
+            <span><i style="background:var(--danger);"></i>Elite international</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.75;margin-bottom:10px;"><strong style="color:var(--text-primary);">Peak 19.60 mph (FGCU, 8.76 m/s) · Average 19.15 mph across 5 matches.</strong> That places him in the top half of the collegiate band (19–20 mph), below high-tier pro (20–22 mph — where Mané and most Premier League/top-Championship wingers sit), and well below elite international (22+ mph, prime Mbappé/Bale/Henry territory).</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.75;margin-bottom:10px;"><strong style="color:var(--warning);">The Mané pairing at 84% is a mechanism match, not a top-speed match</strong> — stated explicitly here because it is the single most important nuance in this file. Mané's documented Liverpool top speed was 21–22 mph, 1.5–2.5 mph faster than Kpardeh's peak.</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.75;">19.60 mph is not the number that wins the 1v1 — acceleration is. A flat-footed defender loses 2–3 metres in the first 10 metres regardless of top speed, and Kpardeh's SII_A (explosive acceleration) at 9.0–9.5 is the real physical weapon behind the carry. He beats collegiate defenders because he is faster than them (19.60 vs ~18.5 mph typical) and accelerates quickly — not because he is Mbappé-fast.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+    <div class="pos-map-wrap">
+      <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+        <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a5a1a" stroke="#4a8c4a" stroke-width="2"/>
+        <line x1="260" y1="10" x2="260" y2="330" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="35" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="10" y="105" width="55" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="445" y="105" width="65" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="180" cy="150" r="16" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" stroke-width="2.5"/>
+        <circle cx="180" cy="150" r="11" fill="#fbbf24" stroke="#fff" stroke-width="2"/>
+        <text x="180" y="154" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="11" font-weight="700">10</text>
+        <text x="180" y="180" text-anchor="middle" fill="#fbbf24" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" opacity="0.9">LW/CF — PRIMARY</text>
+        <text x="180" y="195" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="7" opacity="0.7">Carry-based left-wing transition forward</text>
+        <path d="M180,150 Q320,120 420,170" fill="none" stroke="rgba(251,191,36,0.5)" stroke-width="2" stroke-dasharray="4,4"/>
+        <circle cx="420" cy="170" r="8" fill="rgba(255,255,255,0.15)" stroke="#9b9bb0" stroke-width="1"/>
+        <text x="420" y="195" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="6.5" opacity="0.6">1v1 finish vs GK</text>
+      </svg>
+      <div class="pos-map-caption">Tactical board · Receives wide left, drives inside with the carry, beats the defender by speed — finishes 1v1</div>
+    </div>
+    <div class="grid-3" id="overviewProfileCards"></div>
+
+    <div class="section-title">Tactical DNA Pairing — Carry-Based Left-Wing Transition Forward Lineage <span class="line"></span></div>
+    <div class="card">
+      <div class="pairing-row">
+        <div class="pairing-pct">84%</div>
+        <div><div class="pairing-name">Sadio Mané</div><div class="pairing-meta">Primary · Senegal · 175cm/69kg · Southampton → Liverpool → Bayern · mechanism match, not a top-speed match</div></div>
+        <div><div class="pairing-stat-label">Mechanism</div><div class="pairing-stat-value">95%</div></div>
+        <div><div class="pairing-stat-label">Top speed</div><div class="pairing-stat-value" style="color:var(--warning);">71%</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">78%</div>
+        <div><div class="pairing-name">Kamaldeen Sulemana</div><div class="pairing-meta">Secondary · Ghana · 175cm/70kg · Rennes → Atalanta · same gap at smaller scale</div></div>
+        <div><div class="pairing-stat-label">Foot</div><div class="pairing-stat-value">100%</div></div>
+        <div><div class="pairing-stat-label">Top speed</div><div class="pairing-stat-value" style="color:var(--warning);">gap</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">76%</div>
+        <div><div class="pairing-name">Bruma</div><div class="pairing-meta">Tertiary · Portugal · 173cm/70kg · PSV → Galatasaray · exact physical match, feint-based not carry-based</div></div>
+        <div><div class="pairing-stat-label">Physical</div><div class="pairing-stat-value">exact</div></div>
+        <div><div class="pairing-stat-label">Mechanism</div><div class="pairing-stat-value" style="color:var(--warning);">differs</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">74%</div>
+        <div><div class="pairing-name">Cobi Jones</div><div class="pairing-meta">Reference · USA · 170cm/66kg · LA Galaxy / Coventry · closest top-speed match, 19–20mph</div></div>
+        <div><div class="pairing-stat-label">Top speed</div><div class="pairing-stat-value">closest</div></div>
+        <div><div class="pairing-stat-label">Era</div><div class="pairing-stat-value">1994–2007</div></div>
+      </div>
+      <div style="margin-top:16px;padding:12px 16px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">⚠ Mechanism match, not a top-speed match — read this before the Mané comparison</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);">Every mechanism-level component in the Mané comparison — receive zone, beat method, finish type — matches at 90%+. But Mané's documented Liverpool top speed was 21–22 mph against Kpardeh's peak of 19.60 mph, a 1.5–2.5 mph gap. <strong>The 84% is a genealogical anchor on how he scores, not a claim that he is Mané's physical equal.</strong> At the next level (Championship, Eredivisie), defender recovery speed increases and this margin compresses — whether acceleration and carry control compensate for it is the open question. Full comparison table and genealogical tree in the Tactical DNA Pairing tab.</div>
+      </div>
+    </div>
+
+    <div class="card recommendation-card" id="recommendationCard"></div>
+  </div>
+
+  <div id="attributes" class="tab-panel">
+    <div class="banner banner-verified"><span>★</span> <strong>Tier 3 video assessment — 14 events, mean quality 9.07.</strong> Both logged matches (Toreros, SDSU) were goal-scoring performances.</div>
+    <div class="banner banner-warning"><span>⚠️</span> <strong>Partial sample.</strong> Only 2 of 5 matches logged. The FGCU brace, Georgia Southern 9-shot game, and the American game-winner are not yet in the video event log.</div>
+    <div class="banner banner-danger"><span>⚠️</span> <strong>SII composite unreconciled.</strong> The stated SII composite of 9.01 does not reconcile with the 14-event table mean of 9.07 — flagged, not resolved, in v4.</div>
+    <div id="attributeCards"></div>
+    <div class="card" style="margin-top:20px;"><h3 class="section-title" style="margin-bottom:12px;font-size:0.9rem;">11-Metric Radar — Averaged from 14 Events</h3><div style="max-width:500px;margin:0 auto;"><canvas id="attrRadar" width="400" height="350"></canvas></div><div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);text-align:center;">Saturated polygon — every axis between 8.5 and 9.5. Peak: DRB, OBI_P (9.5). Base: CAR (8.5), SII_T (8.75) — still above the "very good" threshold.</div></div>
+  </div>
+
+  <div id="fga" class="tab-panel">
+    <div id="fgaBanner"></div>
+    <div class="grid-3" id="fgaContent"></div>
+  </div>
+
+  <div id="crossleague" class="tab-panel">
+    <div class="banner banner-era"><span>📊</span> <strong>LOG-ADJUSTED CROSS-LEAGUE PROJECTIONS</strong> — Source: NCAA Division I (LOG ≈ 1.6). Base: 8.20 (Tier 1 verified, 5-match box score).</div>
+    <div class="banner banner-warning"><span>⚠️</span> NCAA Division I is the lowest LOG tier in the Empire FGA framework. Every projection below is a large downward adjustment by construction — read as a display multiplier, not a guarantee of transfer.</div>
+    <div class="section-title">Performance Projection by League <span class="line"></span></div>
+    <div class="league-compare-grid" id="crossLeagueGrid"></div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📐 Methodology — LOG-Adjusted Projection</h3>
+      <div class="log-methodology">
+        <p><strong>Every league in the Empire FGA system carries a LOG (Level of Game) tier.</strong></p>
+        <div class="formula-box"><strong>Adjusted Score = Base FGA × (Source LOG ÷ Target LOG)</strong></div>
+        <p style="margin-top:8px;"><strong>Source:</strong> NCAA Division I — LOG <strong>≈1.6</strong>, the lowest tier in the framework.</p>
+        <p style="margin-top:4px;"><strong>Base FGA:</strong> <strong>8.20</strong> — Tier 1 verified, 5-match 2026 box score.</p>
+        <p style="margin-top:4px;color:var(--text-tertiary);font-size:0.72rem;">Note: with a source LOG this low, the multiplier compresses sharply against every senior professional league. This is a mechanical consequence of the formula, not a statement about whether Kpardeh's mechanism would hold — the report's own view is that whether acceleration and carry control compensate for the top-speed gap at higher levels is unanswered.</p>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+      <div class="card">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">League LOG Reference</h4>
+        <div style="font-size:0.75rem;color:var(--text-secondary);line-height:2;">
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Premier League / La Liga</span><span style="color:var(--gold);">3.7</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Bundesliga / Süper Lig</span><span style="color:var(--gold);">3.5–3.6</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Liga MX</span><span style="color:var(--gold);">3.0</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>MLS</span><span style="color:var(--gold);">2.9</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:2px 0;"><span>Eredivisie / Championship</span><span style="color:var(--gold);">2.8</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Belgian Pro League</span><span style="color:var(--gold);">2.6</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Worked Examples</h4>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+          <p><strong style="color:var(--text-primary);">Base FGA = 8.20 in NCAA Division I (LOG 1.6)</strong></p>
+          <div style="background:var(--bg-card-hover);border-radius:6px;padding:10px;margin-top:6px;font-family:var(--font-body);">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;"><span>Belgian Pro League (2.6):</span><span style="color:var(--gold);">8.20 × (1.6 ÷ 2.6) = <strong>5.0</strong></span></div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding:3px 0;"><span>MLS (2.9):</span><span style="color:var(--gold);">8.20 × (1.6 ÷ 2.9) = <strong>4.5</strong></span></div>
+            <div style="display:flex;justify-content:space-between;padding:3px 0;"><span>Premier League (3.7):</span><span style="color:var(--gold);">8.20 × (1.6 ÷ 3.7) = <strong>3.5</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="banner banner-info" style="margin-top:12px;"><span>ℹ️</span> <strong>5 goals in 5 matches at NCAA D1, LOG ≈1.6 — the widest development gap to senior professional football in this file series. Read the projection table as a starting point for a development timeline, not a readiness signal.</strong></div>
+  </div>
+
+  <div id="philosophy" class="tab-panel">
+    <div class="banner banner-warning"><span>⚠️</span> <strong>Mechanism match, not a top-speed match.</strong> This is the single most important nuance in the file — read it before the pairing percentages below.</div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:1.1rem;">The Mechanism, Confirmed by Video</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">In the San Diego Toreros goal, Kpardeh received the ball on the left wing, drove inside with the ball under control, beat his defender by speed and ball carry — not by feinting — and finished 1v1 against the goalkeeper. That is a <strong style="color:var(--text-primary);">carry-based left-wing transition forward</strong>, and the entire pairing set below is built around this exact action.</p>
+    </div>
+
+    <div class="section-title">Full Pairing Set <span class="line"></span></div>
+    <div class="card">
+      <div class="pairing-row"><div class="pairing-pct">84%</div><div><div class="pairing-name">Sadio Mané — PRIMARY</div><div class="pairing-meta">Senegal · Southampton → Liverpool → Bayern · 175cm/69kg · right-footed · top speed 21–22mph</div></div><div><div class="pairing-stat-label">Mechanism avg</div><div class="pairing-stat-value">95%</div></div><div><div class="pairing-stat-label">Top speed</div><div class="pairing-stat-value" style="color:var(--warning);">71%</div></div></div>
+      <div class="pairing-row"><div class="pairing-pct">78%</div><div><div class="pairing-name">Kamaldeen Sulemana — SECONDARY</div><div class="pairing-meta">Ghana · Rennes → Atalanta · 175cm/70kg · right-footed LW · faster documented top speed than Kpardeh — same gap at smaller scale</div></div><div><div class="pairing-stat-label">Contemporary</div><div class="pairing-stat-value">version</div></div><div><div class="pairing-stat-label">Foot</div><div class="pairing-stat-value">100%</div></div></div>
+      <div class="pairing-row"><div class="pairing-pct">76%</div><div><div class="pairing-name">Bruma — TERTIARY</div><div class="pairing-meta">Portugal · PSV → Galatasaray · 173cm/70kg — exact physical match, but beats defenders with feints and jinking, not the ball carry</div></div><div><div class="pairing-stat-label">Physical</div><div class="pairing-stat-value">exact</div></div><div><div class="pairing-stat-label">Mechanism</div><div class="pairing-stat-value" style="color:var(--warning);">differs</div></div></div>
+      <div class="pairing-row"><div class="pairing-pct">74%</div><div><div class="pairing-name">Cobi Jones — REFERENCE</div><div class="pairing-meta">USA · LA Galaxy / Coventry · 170cm/66kg · carry-based speed forward — top speed 19–20mph, the closest top-speed match in the pairing set</div></div><div><div class="pairing-stat-label">Top speed</div><div class="pairing-stat-value">closest</div></div><div><div class="pairing-stat-label">Era</div><div class="pairing-stat-value">1994–2007</div></div></div>
+      <div class="pairing-row" style="opacity:0.6;"><div class="pairing-pct">71%</div><div><div class="pairing-name">Shaun Wright-Phillips — DEMOTED</div><div class="pairing-meta">Feint-based wide forward — different mechanism inside the same outer archetype</div></div><div><div class="pairing-stat-label">Status</div><div class="pairing-stat-value" style="color:var(--danger);">demoted</div></div><div></div></div>
+      <div class="pairing-row" style="opacity:0.6;"><div class="pairing-pct">68%</div><div><div class="pairing-name">Nico Williams — DEMOTED</div><div class="pairing-meta">Feint-based wide forward — different mechanism inside the same outer archetype</div></div><div><div class="pairing-stat-label">Status</div><div class="pairing-stat-value" style="color:var(--danger);">demoted</div></div><div></div></div>
+      <div class="pairing-row" style="opacity:0.6;"><div class="pairing-pct">62%</div><div><div class="pairing-name">El Hadji Diouf</div><div class="pairing-meta">Extended reference</div></div><div></div><div></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.95rem;">Primary Comparison — Sadio Mané (84%)</h3>
+        <table class="data-table" style="font-size:0.76rem;"><thead><tr><th>Attribute</th><th>Kpardeh</th><th>Mané</th><th>Match</th></tr></thead><tbody>
+          <tr><td>Height</td><td>173cm</td><td>175cm</td><td style="color:var(--success);">97%</td></tr>
+          <tr><td>Weight</td><td>68kg</td><td>69kg</td><td style="color:var(--success);">99%</td></tr>
+          <tr><td>Foot</td><td>Right</td><td>Right</td><td style="color:var(--success);">100%</td></tr>
+          <tr><td>Receive zone</td><td>Left wing</td><td>Left wing</td><td style="color:var(--success);">100%</td></tr>
+          <tr><td>Mechanism</td><td>Carry inside at speed</td><td>Definitional</td><td style="color:var(--success);">95%</td></tr>
+          <tr><td>Beat method</td><td>Speed + ball carries</td><td>Speed + ball carries</td><td style="color:var(--success);">94%</td></tr>
+          <tr><td>Finish type</td><td>1v1 vs keeper</td><td>1v1 vs keeper</td><td style="color:var(--success);">93%</td></tr>
+          <tr><td>Top speed</td><td>19.60mph</td><td>21–22mph</td><td style="color:var(--warning);font-weight:700;">71%</td></tr>
+          <tr><td>Acceleration</td><td>SII_A 9.0–9.5</td><td>Elite</td><td style="color:var(--success);">91%</td></tr>
+          <tr><td>Career level</td><td>NCAA D1</td><td>Liverpool / Bayern</td><td style="color:var(--text-tertiary);">not comparable</td></tr>
+        </tbody></table>
+        <p style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;"><strong style="color:var(--text-primary);">Why 84%:</strong> every mechanism-level component matches at 90%+; the alignment on receive zone, carry method and finish type is the strongest pairing in the file. <strong style="color:var(--warning);">Why not higher:</strong> the top-speed gap (71%) is measured and material — Mané was genuinely faster.</p>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.95rem;">Genealogical Tree — Carry-Based Left-Wing Lineage</h3>
+        <p style="font-size:0.78rem;color:var(--text-tertiary);font-style:italic;margin-bottom:10px;">"Receives wide · drives inside with ball · beats defender by speed (not feints) · finishes 1v1"</p>
+        <div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.9;">
+          <div><strong style="color:var(--text-primary);">Originators —</strong> Cobi Jones (1994–2007, USA, LA Galaxy/Coventry, 170cm/66kg, ~19.5mph — closest top-speed match) · Ryan Giggs (1990–2014, Wales, Man United, 179cm/68kg — the Premier League template)</div>
+          <div style="margin-top:8px;"><strong style="color:var(--gold);">Template/Apex —</strong> Sadio Mané, Senegal, Southampton→Liverpool→Bayern, 175cm/69kg, right-footed, top speed 21–22mph <span style="color:var(--warning);">(Kpardeh 1.5–2.5mph slower)</span> — <strong>84% mechanism match</strong></div>
+          <div style="margin-top:8px;"><strong style="color:var(--text-primary);">Contemporary successors —</strong> Kamaldeen Sulemana (Ghana, Rennes→Atalanta, 175cm/70kg, 78%) · Bruma (Portugal, PSV→Galatasaray, 173cm/70kg, 76%)</div>
+          <div style="margin-top:8px;padding:8px 10px;background:var(--accent-dim);border-radius:6px;"><strong style="color:var(--gold);">Samson Kpardeh —</strong> Liberty Flames, Sophomore, LW/CF, 173cm/68kg, right-footed, NCAA D1 (LOG ≈1.6). Tier 3: 9.07. FGA: 7.8–8.4. Peak: 19.60mph.</div>
+          <div style="margin-top:8px;font-size:0.72rem;color:var(--text-tertiary);">Removed: Vardy, Owen, Mbappé, Defoe — central strikers, wrong archetype. Demoted: Shaun Wright-Phillips, Nico Williams — feint-based wide forwards, different mechanism. The pairing set anchors on the carry-based mechanism alone.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="career" class="tab-panel">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card" style="max-width:100%;overflow-x:hidden;">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+        <div class="timeline" id="careerTimeline"></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;">2026 Season Statistics</h3>
+        <div id="careerStatsTable"></div>
+        <h3 class="section-title" style="margin:24px 0 16px;">Honours</h3>
+        <table class="data-table" id="honoursTable"><thead><tr><th>Honour</th><th>Year</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+    <div class="section-title">Physical Profile &amp; Assessment Status <span class="line"></span></div>
+    <div class="grid-2">
+      <div class="physical-card">
+        <h4>Physical Profile</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Age / DOB</span><span class="value" style="color:var(--warning);">Not on file</span></div>
+          <div class="physical-item"><span class="label">Class year</span><span class="value">Sophomore</span></div>
+          <div class="physical-item"><span class="label">Height</span><span class="value">173 cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">68 kg</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Left Winger / Forward</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Hometown</span><span class="value">Worcester, MA</span></div>
+          <div class="physical-item"><span class="label">Current Club</span><span class="value">Liberty Flames</span></div>
+          <div class="physical-item"><span class="label">Squad Number</span><span class="value">10</span></div>
+          <div class="physical-item"><span class="label">Distinction</span><span class="value">All-Region Selection</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+        <div class="flag-box risk"><div class="icon">⚠️ PARTIAL TIER 3</div><div><strong>Only 2 of 5 matches logged (14 events).</strong> Three goal-scoring matches — FGCU, Georgia Southern, American — are not in the video event log despite footage existing.</div></div>
+        <div class="flag-box risk" style="margin-top:10px;"><div class="icon">⚠️ TIER 2 EMPTY</div><div><strong>Tier 2 — Composite Intelligence: not computable.</strong> Requires multi-match input.</div></div>
+        <div class="flag-box risk" style="margin-top:10px;"><div class="icon">⚠️ SII UNRECONCILED</div><div><strong>SII composite 9.01 vs event table mean 9.07</strong> — flagged by the analyst, not resolved, in v4.</div></div>
+        <div class="flag-box validated" style="margin-top:10px;"><div class="icon">✅ TIER 1 VERIFIED</div><div><strong>Full 2026 box score, 5 matches.</strong> 5 goals, 0 assists, 29 shots, 12 SoT, 433 minutes. 41.4% SoT, 41.7% G/SoT.</div></div>
+        <div class="flag-box validated" style="margin-top:10px;"><div class="icon">✅ GPS DATA</div><div><strong>5 matches, full GPS + mph conversion.</strong> First GPS-integrated file in the ESN series.</div></div>
+        <div class="flag-box market" style="margin-top:10px;"><div class="icon">ℹ️ AGE / DOB</div><div><strong>No date of birth is given in the source report.</strong> Only class year (Sophomore) is known — displayed as such throughout this file rather than an inferred age.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scouting" class="tab-panel"><div id="scoutingContent"></div></div>
+
+  <div id="matches" class="tab-panel">
+    <div class="banner banner-champ"><span>◆</span> <strong>2026 Season — Liberty Flames</strong> · 5 apps, 5 goals, 433 minutes · 2 of 5 matches logged to Tier 3.</div>
+    <div class="section-title" style="margin-bottom:16px;">🎬 Video Evidence — 2 of 5 Matches</div>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="card" style="margin-top:24px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Event Log — 14 Tier 3 Events</h3>
+      <div id="eventLogTable"></div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;">2026 Season Box Score — Full 5-Match Sample</h3>
+      <div id="boxScoreTable"></div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;">5-Match GPS Summary — Distance, Intensity &amp; Top Speed</h3>
+      <div id="gpsTable"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// CAREER / SEASON DATA — 2026 is the only season present in the source report
+// ============================================================
+var careerSeasons = [
+  { id:'2026', label:'2026 · Liberty Flames', club:'Liberty Flames', league:'NCAA Division I', apps:5, goals:5, assists:0, fga:8.20, age:'Sophomore', badge:'Liberty Flames · 2026 · NCAA Division I', t3Status:'Video Graded — 2 of 5 Matches, 14 Events', photo:'https://images.sidearmdev.com/crop?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Flibertyuni.sidearmsports.com%2Fimages%2F2026%2F8%2F13%2FSamson_Kpardeh__2026__JvCwK.jpg&width=180&height=270&type=webp', logTier:1.6, minutes:433 }
+];
+
+var peakFga = 8.20;
+
+var logReference = {
+  'Premier League':{tier:3.7,flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',short:'EPL'},
+  'La Liga':{tier:3.7,flag:'🇪🇸',short:'La Liga'},
+  'Bundesliga':{tier:3.6,flag:'🇩🇪',short:'Bundesliga'},
+  'Süper Lig':{tier:3.5,flag:'🇹🇷',short:'Süper Lig'},
+  'Liga MX':{tier:3.0,flag:'🇲🇽',short:'Liga MX'},
+  'MLS':{tier:2.9,flag:'🇺🇸',short:'MLS'},
+  'Eredivisie':{tier:2.8,flag:'🇳🇱',short:'Eredivisie'},
+  'Championship':{tier:2.8,flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',short:'Championship'},
+  'Belgian Pro League':{tier:2.6,flag:'🇧🇪',short:'Belgian'}
+};
+var crossLeagues = ['Premier League','La Liga','Bundesliga','Süper Lig','Liga MX','MLS','Eredivisie','Championship','Belgian Pro League'];
+
+var careerTimelineData = [
+  {date:'Worcester, Massachusetts', text:'Born in <strong>Worcester, Massachusetts.</strong> No date of birth is given in the source report — only class year (Sophomore) is on file. Height 173cm, weight 68kg, right-footed. Position: Left Winger / Forward.', type:''},
+  {date:'2026 · Liberty Flames — Sophomore Season', text:'<strong>THE BREAKOUT SEASON.</strong> 5 apps, <strong>5 goals</strong>, 0 assists, 433 minutes. Scored in every match played. One brace (FGCU, including a converted penalty). One game-winner, away at American.', type:'current'},
+  {date:'20 Aug 2026 · at San Diego State (W 2–1)', text:'Opening goal of the season. <strong>Tier 3 logged</strong> — 6 events, sparked the counter-attack and finished on the break.', type:'hist'},
+  {date:'23 Aug 2026 · at San Diego (L 1–3)', text:'Goal scored despite the result. <strong>Tier 3 logged</strong> — 8 events, off-the-shoulder run beating the offside trap and a composed 1v1 finish.', type:'hist'},
+  {date:'28 Aug 2026 · vs FGCU (L 2–3)', text:'Brace, including a converted penalty (1/1). <strong>Not yet in the Tier 3 video log</strong> despite footage existing.', type:'danger'},
+  {date:'2 Sep 2026 · at Georgia Southern (D 1–1)', text:'9 shots in a single match — the season high. <strong>Not yet in the Tier 3 video log</strong> despite footage existing.', type:'danger'},
+  {date:'6 Sep 2026 · at American (W 2–1)', text:'Game-winning goal, away from home, 73 minutes played. <strong>Not yet in the Tier 3 video log</strong> despite footage existing.', type:'danger'},
+  {date:'2026 · All-Region Selection', text:'Named <strong>All-Region</strong> off a 5-goal, 5-match sample with a 41.4% shots-on-target rate.', type:'champ'},
+  {date:'T3 Video Assessment Status', text:'<strong>2 of 5 matches logged, 14 events, mean quality 9.07.</strong> FGA_v3_Final BLOCKED. SII composite unreconciled (9.01 vs 9.07). COACH not scored. No second scout assigned.', type:'danger'}
+];
+
+var honoursData = [
+  {name:'★ All-Region Selection', year:'2026'},
+  {name:'★ Scored in every match played — 5 goals in 5 apps', year:'2026'},
+  {name:'★ Game-winning goal, away at American', year:'2026'}
+];
+
+// ============================================================
+// SEASON BOX SCORE — FULL 5-MATCH SAMPLE
+// ============================================================
+var boxScore = [
+  {date:'08/20', opp:'at San Diego St.', result:'W 2–1', g:1, a:0, sh:5, sog:2, pk:'—', min:90, t3:true},
+  {date:'08/23', opp:'at San Diego', result:'L 1–3', g:1, a:0, sh:5, sog:1, pk:'—', min:90, t3:true},
+  {date:'08/28', opp:'FGCU', result:'L 2–3', g:2, a:0, sh:6, sog:4, pk:'1/1', min:90, t3:false},
+  {date:'09/02', opp:'at Georgia Southern', result:'D 1–1', g:1, a:0, sh:9, sog:3, pk:'—', min:90, t3:false},
+  {date:'09/06', opp:'at American', result:'W 2–1', g:1, a:0, sh:4, sog:2, pk:'—', min:73, t3:false}
+];
+
+// ============================================================
+// GPS DATA — 5-MATCH SUMMARY WITH MPH CONVERSION
+// ============================================================
+var gpsData = [
+  {opp:'vs. SDSU', dist:10875, mpmin:72, hsdist:706, hseff:44, maxvel:8.37, mph:18.72},
+  {opp:'vs. San Diego', dist:10059, mpmin:73, hsdist:727, hseff:37, maxvel:8.44, mph:18.88},
+  {opp:'vs. FGCU', dist:10483, mpmin:66, hsdist:597, hseff:33, maxvel:8.76, mph:19.60},
+  {opp:'vs. Georgia Southern', dist:7022, mpmin:66, hsdist:456, hseff:28, maxvel:8.70, mph:19.46},
+  {opp:'vs. American', dist:8491, mpmin:60, hsdist:558, hseff:34, maxvel:8.57, mph:19.17}
+];
+var gpsAvg = {dist:9386, mpmin:67, hsdist:608, hseff:35, maxvel:8.56, mph:19.15};
+
+// ============================================================
+// EVENT LOG — 14 TIER 3 EVENTS ACROSS 2 MATCHES
+// ============================================================
+var eventLog = [
+  {n:1, match:'Toreros', code:'OMS', name:'Omschakeling (Transition)', desc:'Sparked rapid counter-attack on the break for Liberty.', score:9.0},
+  {n:2, match:'Toreros', code:'SII_A', name:'Sprint Intensity — Acceleration', desc:'Explosive acceleration burst onto the transition pass.', score:9.0},
+  {n:3, match:'Toreros', code:'SII_T', name:'Sprint Intensity — Top Speed', desc:'Maintained high velocity driving into the box.', score:8.5},
+  {n:4, match:'Toreros', code:'CAR', name:'Ball Carries', desc:'Carried the ball aggressively into the box under pressure.', score:8.5},
+  {n:5, match:'Toreros', code:'STK', name:'Shot Technique', desc:'Clean ball-striking on the run inside the box.', score:9.0},
+  {n:6, match:'Toreros', code:'FIN', name:'Finishing Ability', desc:'GOAL — opening goal on the break.', score:9.0},
+  {n:7, match:'SDSU', code:'OBI_P', name:'Positional Anticipation', desc:'Off-the-shoulder positioning to break the offside trap.', score:9.5},
+  {n:8, match:'SDSU', code:'SII_A', name:'Sprint Intensity — Acceleration', desc:'High-intensity initial burst to beat the backline.', score:9.5},
+  {n:9, match:'SDSU', code:'SII_T', name:'Sprint Intensity — Top Speed', desc:'Sustained top-end sprint over 30+ yards.', score:9.0},
+  {n:10, match:'SDSU', code:'SOA', name:'Speed on Action', desc:'Processed keeper movement at full sprint.', score:9.0},
+  {n:11, match:'SDSU', code:'DRB', name:'Dribbling Success', desc:'Rounded the rushing keeper 1v1 with composure.', score:9.5},
+  {n:12, match:'SDSU', code:'FIN', name:'Finishing Ability', desc:'GOAL — calmly slotted home to complete the breakaway.', score:9.5},
+  {n:13, match:'Both', code:'SII_R', name:'Sprint Intensity — Repeatability', desc:'Repeated high-intensity breakaway capacity.', score:9.0},
+  {n:14, match:'Both', code:'MCS', name:'Mental Competence Score', desc:'Validated All-Region status with high-leverage goals.', score:9.0}
+];
+
+// Per-metric averages (11 distinct metrics) as stated in the source report — used for the radar chart
+var metricAverages = [
+  {code:'DRB', val:9.5}, {code:'OBI_P', val:9.5}, {code:'FIN', val:9.25}, {code:'SII_A', val:9.2},
+  {code:'STK', val:9.0}, {code:'SOA', val:9.0}, {code:'OMS', val:9.0}, {code:'SII_R', val:9.0},
+  {code:'MCS', val:9.0}, {code:'SII_T', val:8.75}, {code:'CAR', val:8.5}
+];
+
+// ============================================================
+// RENDER HELPERS (generic, reused across the ESN file series)
+// ============================================================
+function renderKeyStrengths(strengths, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  strengths.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'strength-item' + (s.proxy ? ' proxy-strength' : '');
+    d.innerHTML = '<span class="label">'+s.label+'</span><span class="value">'+s.value+'</span>';
+    c.appendChild(d);
+  });
+}
+
+function renderBanners(banners, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  banners.forEach(function(b){
+    var d = document.createElement('div');
+    d.className = 'banner ' + b.type;
+    d.innerHTML = b.text;
+    c.appendChild(d);
+  });
+}
+
+function renderTags(tags, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  tags.forEach(function(t){
+    var s = document.createElement('span');
+    s.className = 'tag ' + t.class;
+    s.textContent = t.text;
+    c.appendChild(s);
+  });
+}
+
+function renderHeroStats(stats, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  stats.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'stat-hero' + (s.proxy ? ' proxy-hero' : '');
+    d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.label+'</div>';
+    c.appendChild(d);
+  });
+}
+
+function renderCareerPath(path, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  path.forEach(function(node, i){
+    var s = document.createElement('span');
+    s.className = 'career-node' + (i === path.length-1 ? ' current' : '');
+    s.textContent = node;
+    c.appendChild(s);
+    if (i < path.length-1) {
+      var a = document.createElement('span');
+      a.className = 'career-arrow';
+      a.textContent = '>';
+      c.appendChild(a);
+    }
+  });
+}
+
+function renderProfileCards(cards, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  cards.forEach(function(card){
+    var d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = '<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">'+card.title+'</h3><div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">'+card.content+'</div>';
+    c.appendChild(d);
+  });
+}
+
+function renderPhilosophyFits(fits, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '';
+  var firstCard = document.createElement('div');
+  firstCard.className = 'card';
+  var html = '';
+  fits.forEach(function(f){
+    html += '<div class="philo-row"><div class="philo-rank">'+f.rank+'</div><div class="philo-name">'+f.name+'</div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+f.width+';background:'+f.color+';"></div></div></div><div class="philo-score">'+f.score+'</div></div>';
+  });
+  firstCard.innerHTML = html;
+  c.appendChild(firstCard);
+}
+
+function renderRecommendation(text, containerId) {
+  var c = document.getElementById(containerId); if (!c) return;
+  c.innerHTML = '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">'+text+'</div>';
+}
+
+function metricColor(score) {
+  if (score >= 8.0) return 'var(--success)';
+  if (score >= 7.0) return 'var(--gold)';
+  if (score >= 6.0) return 'var(--warning)';
+  return 'var(--danger)';
+}
+
+// ============================================================
+// PAGE-SPECIFIC RENDERERS
+// ============================================================
+function renderAttributeCards() {
+  var c = document.getElementById('attributeCards'); if (!c) return;
+  var metricGroups = {
+    'Peak Cluster (9.5)': eventLog.filter(function(e){return e.score === 9.5;}),
+    'High Block (9.0)': eventLog.filter(function(e){return e.score === 9.0;}),
+    'Base Cluster (8.5)': eventLog.filter(function(e){return e.score === 8.5;})
+  };
+  var html = '';
+  html += '<div class="grid-2">';
+  Object.keys(metricGroups).forEach(function(groupName){
+    html += '<div class="attr-card"><h3>'+groupName+'</h3>';
+    metricGroups[groupName].forEach(function(e){
+      var color = metricColor(e.score);
+      html += '<div class="t1-metric-row"><span class="t1-metric-code">'+e.code+'</span><span class="t1-metric-desc">'+e.name+' <span style="color:var(--text-tertiary);">('+e.match+')</span></span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+(e.score*10)+'%;background:'+color+'"></div></div></div><span class="t1-metric-val" style="color:'+color+'">'+e.score.toFixed(1)+'</span></div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+
+  html += '<div class="attr-card" style="margin-top:20px;"><h3>Complete Event Log — 14 Events, 2 Matches</h3>';
+  html += '<table class="data-table" style="font-size:0.8rem;"><thead><tr><th>#</th><th>Match</th><th>Code</th><th>Metric</th><th>Action</th><th>Score</th></tr></thead><tbody>';
+  eventLog.forEach(function(e){
+    var color = metricColor(e.score);
+    html += '<tr><td>'+e.n+'</td><td>'+e.match+'</td><td><strong style="color:var(--gold);">'+e.code+'</strong></td><td>'+e.name+'</td><td style="color:var(--text-tertiary);font-size:0.75rem;">'+e.desc+'</td><td><strong style="color:'+color+';">'+e.score.toFixed(1)+'</strong></td></tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;padding:10px 14px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;font-size:0.82rem;color:var(--success);"><strong>Mean Quality Score: 9.07 / 10</strong> across 14 events, 2 of 5 matches.</div>';
+  html += '</div>';
+
+  c.innerHTML = html;
+}
+
+function renderFGA(seasonId) {
+  var container = document.getElementById('fgaContent'); if (!container) return;
+  var banner = document.getElementById('fgaBanner');
+  if (banner) banner.innerHTML = '<div class="banner banner-warning"><span>⚠️</span> <strong>FGA Provisional Range: 7.8–8.4 — "Excellent", top of band (peak, not baseline).</strong> Tier 3 (2/5 matches, 9.07) is a ceiling. Tier 1 (5-match box score, 8.20) is a floor. FGA_v3_Final BLOCKED.</div>';
+
+  var html = '';
+
+  html += '<div class="card" style="grid-column:1/-1;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier Composition</h3>';
+  html += '<div class="tier-bar" style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid var(--border-subtle);">';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#0a0a0f;padding:0 8px;background:linear-gradient(135deg,#00d084,#00a86b);flex:5;">TIER 3 — 50% · 9.07 (peak)</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#fff;padding:0 8px;background:linear-gradient(135deg,#ff3b3b,#cc0000);flex:3;">TIER 2 — 30% · N/A ❌</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#0a0a0f;padding:0 8px;background:linear-gradient(135deg,#ffb800,#cc9200);flex:2;">TIER 1 — 20% · 8.20 ✅</div>';
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;"><span>14 events, 2 of 5 matches</span><span>Not computable</span><span>5-match box score verified</span></div>';
+  html += '<div style="margin-top:16px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;"><strong style="color:var(--success);">Tier 3 (9.07) is a ceiling built on 2 matches.</strong> <strong style="color:var(--gold);">Tier 1 (8.20) is a verified floor</strong> from the full 5-match sample. The FGA range sits between them until multi-match logging is complete. LOG context: NCAA Division I sits at approximately <strong>LOG 1.6</strong> — the lowest tier in the FGA framework.</div>';
+  html += '</div>';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Aggregate Metrics</h3>';
+  html += '<table class="data-table" style="font-size:0.8rem;"><thead><tr><th>Metric</th><th>Value</th><th>Read</th></tr></thead><tbody>';
+  html += '<tr><td>Goals</td><td><strong>5</strong></td><td style="color:var(--success);">1.04/90 — Elite at level</td></tr>';
+  html += '<tr><td>Assists</td><td><strong>0</strong></td><td>0.00/90 — Finisher, not creator</td></tr>';
+  html += '<tr><td>Shots</td><td><strong>29</strong></td><td>6.03/90 — High volume</td></tr>';
+  html += '<tr><td>Shots on Target</td><td><strong>12</strong></td><td>2.49/90</td></tr>';
+  html += '<tr><td>SoT%</td><td colspan="2"><strong style="color:var(--success);">41.4%</strong> — Strong</td></tr>';
+  html += '<tr><td>G/SoT</td><td colspan="2"><strong style="color:var(--success);">41.7%</strong> — Clinical</td></tr>';
+  html += '<tr><td>G/Shot</td><td colspan="2"><strong>17.2%</strong> — Moderate (blocked shots)</td></tr>';
+  html += '<tr><td>Penalties</td><td colspan="2"><strong>1/1</strong></td></tr>';
+  html += '<tr><td>Non-penalty goals</td><td colspan="2"><strong>4</strong></td></tr>';
+  html += '<tr><td>Yellow cards</td><td colspan="2"><strong>2</strong> — 0.42/90, controlled</td></tr>';
+  html += '<tr><td>Game-winners</td><td colspan="2"><strong>1</strong> — at American (away)</td></tr>';
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">5 goals in 5 matches. Scored in every game. One brace (FGCU, incl. 1 pen). One game-winner (at American).</div>';
+  html += '</div>';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">GPS — Physical Evidence Summary</h3>';
+  html += '<table class="data-table" style="font-size:0.78rem;"><thead><tr><th>Metric</th><th>Peak</th><th>Average</th></tr></thead><tbody>';
+  html += '<tr><td>Top speed (mph)</td><td><strong style="color:var(--gold);">19.60</strong> (vs FGCU)</td><td><strong>19.15</strong></td></tr>';
+  html += '<tr><td>Max velocity (m/s)</td><td><strong>8.76</strong></td><td><strong>8.56</strong></td></tr>';
+  html += '<tr><td>Distance / match</td><td colspan="2"><strong>9,386m</strong> average, 67 m/min</td></tr>';
+  html += '<tr><td>High-speed distance</td><td colspan="2"><strong>608m</strong> average per match</td></tr>';
+  html += '<tr><td>High-speed efforts</td><td colspan="2"><strong>35</strong> average per match</td></tr>';
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">Solid but not elite — top half of the collegiate band (19–20mph), below high-tier pro (20–22mph), well below elite international (22+mph). 19.60mph is not the number that wins the 1v1 — acceleration is. Full 5-match table in the Matches tab.</div>';
+  html += '</div>';
+
+  html += '<div class="card" style="grid-column:1/-1;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📋 Punch List — Required Before Client Delivery (v4)</h3>';
+  html += '<table class="data-table" style="font-size:0.8rem;"><thead><tr><th>#</th><th>Item</th><th>Priority</th></tr></thead><tbody>';
+  html += '<tr><td>1</td><td>Log FGCU / Georgia Southern / American to Tier 3</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>2</td><td>Confirm video footage exists for the missing matches</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>3</td><td>Reconcile SII composite (9.01 reported vs 9.07 computed)</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>4</td><td>Score COACH metric</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>5</td><td>Second scout for blind cross-validation</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>6</td><td>Confirm GPS source / threshold definitions</td><td style="color:var(--warning);">MEDIUM</td></tr>';
+  html += '</tbody></table>';
+  html += '</div>';
+
+  html += '<div class="card" style="grid-column:1/-1;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Validation Status</h3>';
+  html += '<table class="data-table" style="font-size:0.78rem;"><thead><tr><th>Check</th><th>Status</th></tr></thead><tbody>';
+  html += '<tr><td>Minimum 5 matches logged</td><td style="color:var(--danger);">❌ 2 of 5</td></tr>';
+  html += '<tr><td>≥2 vs top-third opposition</td><td style="color:var(--success);">✅ 2 (SDSU, Toreros)</td></tr>';
+  html += '<tr><td>≥1 away match</td><td style="color:var(--success);">✅ 4 of 5</td></tr>';
+  html += '<tr><td>≥1 match while losing</td><td style="color:var(--success);">✅ 2 (San Diego, FGCU)</td></tr>';
+  html += '<tr><td>Tier 3 video assessment</td><td style="color:var(--warning);">⚠ 14 events, 2 matches</td></tr>';
+  html += '<tr><td>GPS data</td><td style="color:var(--success);">✅ 5 matches + mph conversion</td></tr>';
+  html += '<tr><td>Physical profile confirmed</td><td style="color:var(--success);">✅ 173cm / 68kg / Right</td></tr>';
+  html += '<tr><td>Archetype confirmed by video</td><td style="color:var(--success);">✅ Carry-based left-wing forward</td></tr>';
+  html += '<tr><td>Top speed benchmarked</td><td style="color:var(--success);">✅ 19.60mph peak</td></tr>';
+  html += '<tr><td>SII composite reconciliation</td><td style="color:var(--warning);">⚠ 9.01 vs 9.07 (unresolved)</td></tr>';
+  html += '<tr><td>Tier 3 for FGCU / Ga. Southern / American</td><td style="color:var(--danger);">❌ Not logged</td></tr>';
+  html += '<tr><td>COACH metric</td><td style="color:var(--danger);">❌ Not scored</td></tr>';
+  html += '<tr><td>Second scout</td><td style="color:var(--danger);">❌ Not assigned</td></tr>';
+  html += '<tr><td>FGA_v3_Final</td><td style="color:var(--danger);">❌ BLOCKED</td></tr>';
+  html += '</tbody></table>';
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+function renderCrossLeague(seasonId) {
+  var sourceLog = 1.6, sourceFga = 8.20;
+  var grid = document.getElementById('crossLeagueGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  crossLeagues.forEach(function(leagueName){
+    var ref = logReference[leagueName]; if (!ref) return;
+    var ratio = sourceLog / ref.tier;
+    var projFga = sourceFga * ratio;
+    var direction = ref.tier > sourceLog ? 'down' : (ref.tier < sourceLog ? 'up' : 'same');
+    var directionText = ref.tier > sourceLog ? 'TOUGHER LEAGUE' : (ref.tier < sourceLog ? 'EASIER LEAGUE' : 'SAME LEVEL');
+    var card = document.createElement('div');
+    card.className = 'league-compare-card';
+    card.innerHTML = '<div class="league-flag">'+ref.flag+'</div>' +
+      '<div class="league-name">'+leagueName+'</div>' +
+      '<div class="league-tier">'+ref.short+' · LOG '+ref.tier.toFixed(1)+'</div>' +
+      '<div class="projected-goals">'+projFga.toFixed(1)+'</div>' +
+      '<div class="projected-label">Adjusted FGA</div>' +
+      '<div class="multiplier">Multiplier: <strong>'+ratio.toFixed(2)+'×</strong></div>' +
+      '<div class="log-badge">Base FGA: 8.20</div>' +
+      '<div class="direction-indicator"><span class="'+(direction==='down'?'down':(direction==='up'?'up':''))+'">'+directionText+'</span></div>';
+    grid.appendChild(card);
+  });
+}
+
+function renderEventLog() {
+  var c = document.getElementById('eventLogTable'); if (!c) return;
+  var html = '<table class="data-table" style="font-size:0.78rem;"><thead><tr><th>#</th><th>Match</th><th>Code</th><th>Metric</th><th>Action</th><th>Score</th></tr></thead><tbody>';
+  eventLog.forEach(function(e){
+    var color = metricColor(e.score);
+    html += '<tr><td>'+e.n+'</td><td style="font-family:var(--font-heading);font-weight:700;color:var(--gold);">'+e.match+'</td><td><strong style="color:var(--gold);">'+e.code+'</strong></td><td>'+e.name+'</td><td style="color:var(--text-tertiary);">'+e.desc+'</td><td><strong style="color:'+color+';">'+e.score.toFixed(1)+'</strong></td></tr>';
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderBoxScore() {
+  var c = document.getElementById('boxScoreTable'); if (!c) return;
+  var html = '<table class="data-table" style="font-size:0.8rem;"><thead><tr><th>Date</th><th>Opponent</th><th>Result</th><th>G</th><th>A</th><th>SH</th><th>SOG</th><th>PK</th><th>Min</th><th>Tier 3</th></tr></thead><tbody>';
+  boxScore.forEach(function(m){
+    html += '<tr><td>'+m.date+'</td><td>'+m.opp+'</td><td>'+m.result+'</td><td><strong style="color:var(--success);">'+m.g+'</strong></td><td>'+m.a+'</td><td>'+m.sh+'</td><td>'+m.sog+'</td><td>'+m.pk+'</td><td>'+m.min+'</td><td>'+(m.t3 ? '<span style="color:var(--success);">✅ Logged</span>' : '<span style="color:var(--danger);">❌ Missing</span>')+'</td></tr>';
+  });
+  html += '<tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Total</strong></td><td><strong>5</strong></td><td><strong>0</strong></td><td><strong>29</strong></td><td><strong>12</strong></td><td><strong>1/1</strong></td><td><strong>433</strong></td><td><strong style="color:var(--warning);">2/5</strong></td></tr>';
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function renderGpsTable() {
+  var c = document.getElementById('gpsTable'); if (!c) return;
+  var html = '<table class="data-table" style="font-size:0.8rem;"><thead><tr><th>Match</th><th>Distance (m)</th><th>m/min</th><th>HS-Distance (m)</th><th>HS-Efforts</th><th>Max-Vel (m/s)</th><th>Top Speed (mph)</th></tr></thead><tbody>';
+  gpsData.forEach(function(g){
+    var hl = g.mph >= 19.6 ? 'style="background:rgba(0,208,132,0.06);"' : '';
+    html += '<tr '+hl+'><td>'+g.opp+'</td><td>'+g.dist.toLocaleString()+'</td><td>'+g.mpmin+'</td><td>'+g.hsdist+'</td><td>'+g.hseff+'</td><td>'+g.maxvel.toFixed(2)+'</td><td><strong style="color:'+(g.mph>=19.6?'var(--gold)':'var(--text-primary)')+';">'+g.mph.toFixed(2)+'</strong></td></tr>';
+  });
+  html += '<tr style="border-top:2px solid var(--border-medium);"><td><strong>Average</strong></td><td><strong>'+gpsAvg.dist.toLocaleString()+'</strong></td><td><strong>'+gpsAvg.mpmin+'</strong></td><td><strong>'+gpsAvg.hsdist+'</strong></td><td><strong>'+gpsAvg.hseff+'</strong></td><td><strong>'+gpsAvg.maxvel.toFixed(2)+'</strong></td><td><strong style="color:var(--gold);">'+gpsAvg.mph.toFixed(2)+'</strong></td></tr>';
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">Peak 19.60mph (FGCU) · Average 19.15mph. Top half of the collegiate band (19–20mph), below high-tier pro (20–22mph), well below elite international (22+mph).</div>';
+  c.innerHTML = html;
+}
+
+function renderMatches() {
+  var grid = document.getElementById('matchGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  var matches = [
+    {title:'🎥 at San Diego State — W 2–1', meta:'20 Aug 2026 · NCAA Division I', desc:'Opening goal of the season. Sparked the counter-attack, carried under pressure, clean finish on the break. 6 Tier 3 events, mean 8.83.', badge:'badge-verified', badgeText:'📹 Tier 3 Logged', thumb:'https://images.sidearmdev.com/crop?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Flibertyuni.sidearmsports.com%2Fimages%2F2026%2F8%2F13%2FSamson_Kpardeh__2026__JvCwK.jpg&width=180&height=270&type=webp'},
+    {title:'🎥 at San Diego — L 1–3', meta:'23 Aug 2026 · NCAA Division I', desc:'The archetype goal: received wide left, drove inside with the carry, beat the defender by speed, rounded the keeper and finished 1v1. 8 Tier 3 events, mean 9.25.', badge:'badge-verified', badgeText:'📹 Tier 3 Logged', thumb:'https://images.sidearmdev.com/crop?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Flibertyuni.sidearmsports.com%2Fimages%2F2026%2F8%2F13%2FSamson_Kpardeh__2026__JvCwK.jpg&width=180&height=270&type=webp'},
+    {title:'🎥 vs FGCU — L 2–3', meta:'28 Aug 2026 · NCAA Division I', desc:'Brace including a converted penalty. Footage is in the archive but not yet scored to Tier 3.', badge:'badge-partial', badgeText:'⚠ Not Logged', thumb:'https://images.sidearmdev.com/crop?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Flibertyuni.sidearmsports.com%2Fimages%2F2026%2F8%2F13%2FSamson_Kpardeh__2026__JvCwK.jpg&width=180&height=270&type=webp'},
+    {title:'🎥 at Georgia Southern — D 1–1', meta:'2 Sep 2026 · NCAA Division I', desc:'9-shot game, the season high. Footage is in the archive but not yet scored to Tier 3.', badge:'badge-partial', badgeText:'⚠ Not Logged', thumb:'https://images.sidearmdev.com/crop?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Flibertyuni.sidearmsports.com%2Fimages%2F2026%2F8%2F13%2FSamson_Kpardeh__2026__JvCwK.jpg&width=180&height=270&type=webp'},
+    {title:'🎥 at American — W 2–1', meta:'6 Sep 2026 · NCAA Division I', desc:'Game-winning goal, away from home. Footage is in the archive but not yet scored to Tier 3.', badge:'badge-partial', badgeText:'⚠ Not Logged', thumb:'https://images.sidearmdev.com/crop?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Flibertyuni.sidearmsports.com%2Fimages%2F2026%2F8%2F13%2FSamson_Kpardeh__2026__JvCwK.jpg&width=180&height=270&type=webp'}
+  ];
+  matches.forEach(function(match){
+    var card = document.createElement('div');
+    card.className = 'match-card';
+    card.style.cursor = 'default';
+    card.innerHTML = '<div class="match-thumb" style="background-image:url(\''+match.thumb+'\');background-size:cover;background-position:center 20%;"><div class="play-icon" style="background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="match-info"><div class="match-teams">'+match.title+'</div><div class="match-meta"><span class="match-badge badge-comp">'+match.meta+'</span><span class="match-badge '+match.badge+'">'+match.badgeText+'</span></div><div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">'+match.desc+'</div></div>';
+    grid.appendChild(card);
+  });
+}
+
+function renderCareerTimeline() {
+  var c = document.getElementById('careerTimeline'); if (!c) return;
+  var html = '';
+  careerTimelineData.forEach(function(item){
+    html += '<div class="timeline-item '+item.type+'"><div class="timeline-date">'+item.date+'</div><div class="timeline-text">'+item.text+'</div></div>';
+  });
+  c.innerHTML = html;
+}
+
+function renderCareerStatsTable() {
+  var c = document.getElementById('careerStatsTable'); if (!c) return;
+  var html = '<table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>League</th><th>Apps</th><th>G</th><th>A</th><th>Min</th></tr></thead><tbody>';
+  careerSeasons.forEach(function(s){
+    html += '<tr style="background:rgba(212,160,32,0.08);"><td>'+s.label+'</td><td>'+s.club+'</td><td>'+s.league+'</td><td>'+s.apps+'</td><td>'+s.goals+'</td><td>'+s.assists+'</td><td>'+s.minutes+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div style="margin-top:10px;font-size:0.72rem;color:var(--text-tertiary);">2026 is the only season present in the source report — no prior-season data is on file.</div>';
+  c.innerHTML = html;
+}
+
+function renderHonours() {
+  var tbody = document.querySelector('#honoursTable tbody'); if (!tbody) return;
+  tbody.innerHTML = '';
+  honoursData.forEach(function(h){
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><strong>'+h.name+'</strong></td><td>'+h.year+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function updateDial() {
+  var canvas = document.getElementById('heroDial'); if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var midpoint = 8.1;
+  var max = 10;
+  var angle = (midpoint / max) * 1.5 * Math.PI + 0.75 * Math.PI;
+  ctx.clearRect(0,0,160,160);
+  ctx.beginPath();
+  ctx.arc(80,80,66,0.75*Math.PI,2.25*Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(80,80,72,0.75*Math.PI,2.25*Math.PI);
+  ctx.strokeStyle = 'rgba(255,184,0,0.25)';
+  ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(80,80,66,0.75*Math.PI,angle);
+  var grad = ctx.createLinearGradient(0,0,160,160);
+  grad.addColorStop(0,'#00d084');
+  grad.addColorStop(1,'#fbbf24');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+}
+
+function renderScouting() {
+  var c = document.getElementById('scoutingContent'); if (!c) return;
+  c.innerHTML =
+    '<div class="scout-box scout-pos"><h4>✓ Positive Filters</h4><ul>' +
+      '<li><strong>5 goals in 5 matches</strong> — scored in every game played, 1.04 G/90, elite at NCAA D1 level.</li>' +
+      '<li><strong>41.4% shots on target, 41.7% G/SoT</strong> — a materially stronger shooting profile than raw conversion (17.2% G/shot) suggests.</li>' +
+      '<li><strong>Tier 3 mean quality 9.07 across both logged matches</strong> — a saturated radar, every one of 11 metrics between 8.5 and 9.5.</li>' +
+      '<li><strong>Peak cluster (9.5):</strong> DRB, OBI_P — the two metrics that define the San Diego breakaway goal.</li>' +
+      '<li><strong>Archetype confirmed by video</strong> — the San Diego Toreros goal is a clean, unambiguous carry-based left-wing 1v1 finish.</li>' +
+      '<li><strong>GPS-verified physical profile</strong> — 19.60mph peak, 19.15mph average, 35 high-speed efforts per match. Top half of the collegiate speed band.</li>' +
+      '<li><strong>All-Region Selection</strong> off the 5-match sample.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-caut"><h4>◈ Caution Signals</h4><ul>' +
+      '<li><strong>Top-speed gap to the Mané anchor is real and measured</strong> — 19.60mph peak vs Mané\'s documented 21–22mph at Liverpool, a 1.5–2.5mph deficit that widens the case for the pairing being a mechanism match, not a physical-ceiling match.</li>' +
+      '<li><strong>Sample is 2 matches</strong> — the 9.07 Tier 3 mean is a peak from two goal-scoring performances, not a representative baseline.</li>' +
+      '<li><strong>No assists in 5 matches</strong> — a pure finisher profile at this stage, unproven as a creator.</li>' +
+      '<li><strong>NCAA Division I is the lowest LOG tier</strong> (≈1.6) in the Empire FGA framework — the development gap to senior professional football is the widest in this file series.</li>' +
+      '<li><strong>No date of birth on file</strong> — only class year (Sophomore) is known.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-gap"><h4>✗ Critical Gaps</h4><ul>' +
+      '<li><strong>Three of five matches missing from Tier 3.</strong> The FGCU brace, the Georgia Southern 9-shot game, and the American game-winner are not in the video event log, despite footage existing.</li>' +
+      '<li><strong>SII composite reconciliation unresolved.</strong> The stated SII composite of 9.01 does not reconcile with the 14-event table mean of 9.07 — flagged, not fixed, in v4.</li>' +
+      '<li><strong>COACH metric not scored.</strong></li>' +
+      '<li><strong>No second scout assigned</strong> for blind cross-validation.</li>' +
+      '<li><strong>Tier 2 (Composite Intelligence) not computable</strong> — requires multi-match input.</li>' +
+      '<li><strong>FGA_v3_Final is BLOCKED</strong> pending the above. This file is not client-ready.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-verdict"><h4>◆ Empire FGA Verdict</h4>' +
+      '<p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">' +
+      '<strong style="color:var(--text-primary);">FGA Provisional Range: 7.8–8.4 — "Excellent", top of band. DRAFT V4 — not client-ready.</strong> Kpardeh is a Sophomore left-wing forward at Liberty Flames whose game is built on one confirmed mechanism — receive wide on the left, drive inside with the carry, beat the defender by speed and ball control (not feints), finish 1v1 against the goalkeeper. The Sadio Mané pairing at 84% is the correct genealogical anchor because that mechanism matches at 90%+ on every component that defines it. <strong>But the pairing is a mechanism match, not a top-speed match</strong> — Mané\'s documented 21–22mph at Liverpool is 1.5–2.5mph faster than Kpardeh\'s measured 19.60mph peak, and that gap is real, not a rounding error. Five goals in five matches, scoring in every game, is the hard consistency signal in this file. The honest read: the ceiling shown in two matches (9.07) is genuinely excellent, the verified floor (8.20) is still strong, but this is a DRAFT — 3 of 5 matches are missing from Tier 3, the SII composite is unreconciled, COACH has not been scored, no second scout has cross-validated the grade, and FGA_v3_Final is BLOCKED. None of that should be resolved silently before a client sees it.</p></div>';
+}
+
+var charts = {};
+function initCharts() {
+  var radarEl = document.getElementById('attrRadar');
+  if (radarEl && typeof Chart !== 'undefined') {
+    if (charts.attrRadar) { try { charts.attrRadar.destroy(); } catch(e){} }
+    charts.attrRadar = new Chart(radarEl.getContext('2d'), {
+      type:'radar',
+      data:{ labels: metricAverages.map(function(m){return m.code;}),
+        datasets:[
+          {label:'14-Event Average by Metric (2 matches)', data: metricAverages.map(function(m){return m.val;}), backgroundColor:'rgba(212,160,32,0.2)', borderColor:'#d4a020', pointBackgroundColor:'#fbbf24', pointBorderColor:'#fff', pointRadius:5, borderWidth:2.5},
+          {label:'Elite Threshold (8.0)', data: metricAverages.map(function(){return 8;}), backgroundColor:'rgba(255,255,255,0.05)', borderColor:'rgba(255,255,255,0.4)', pointRadius:0, borderWidth:1.5, borderDash:[4,4]}
+        ] },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:4,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:10,weight:'600'}}}}, plugins:{legend:{labels:{color:'#8b92a8',font:{family:'DM Sans',size:11}}}}}
+    });
+  }
+
+  var gpsEl = document.getElementById('gpsBenchChart');
+  if (gpsEl && typeof Chart !== 'undefined') {
+    if (charts.gpsBench) { try { charts.gpsBench.destroy(); } catch(e){} }
+    var labels = ['Collegiate defender (typical)','Kpardeh — average','Kpardeh — peak (FGCU)','Cobi Jones (reference)','High-tier pro band (low)','Mané — Liverpool','Elite international'];
+    var values = [18.5, 19.15, 19.60, 19.5, 20.0, 21.5, 22.0];
+    var colors = ['rgba(255,184,0,0.55)','#fbbf24','#d4a020','rgba(255,184,0,0.55)','rgba(59,130,246,0.55)','#3b82f6','rgba(255,59,59,0.6)'];
+    charts.gpsBench = new Chart(gpsEl.getContext('2d'), {
+      type:'bar',
+      data:{ labels:labels, datasets:[{label:'Top speed (mph)', data:values, backgroundColor:colors, borderRadius:4, barThickness:22}] },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        scales:{
+          x:{ min:17, max:23, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#8b92a8', font:{family:'Rajdhani',size:10}}, title:{display:true,text:'mph',color:'#8b92a8',font:{family:'Rajdhani',size:10}} },
+          y:{ grid:{display:false}, ticks:{color:'#8b92a8', font:{family:'Rajdhani',size:10,weight:'600'}} }
+        },
+        plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return ctx.parsed.x.toFixed(2)+' mph';}}} }
+      }
+    });
+  }
+}
+
+function updateSeason() {
+  var sel = document.getElementById('seasonSelect'); if (!sel) return;
+  var id = sel.value;
+  var season = careerSeasons.find(function(s){return s.id === id;});
+  if (!season) return;
+
+  var tags = [
+    {class:'tag-warning', text:season.t3Status},
+    {class:'tag-club', text:season.club},
+    {class:'tag-value', text:season.goals + 'G + ' + season.assists + 'A'},
+    {class:'tag-info', text:season.league},
+    {class:'tag-warning', text:'FGA 7.8–8.4'},
+    {class:'tag-danger', text:'DRAFT V4'},
+    {class:'tag-gold', text:'All-Region'}
+  ];
+  renderTags(tags, 'heroTags');
+  renderCareerPath(['Liberty Flames'], 'careerPath');
+  renderHeroStats([
+    {value:'7.8–8.4', label:'FGA Provisional', color:'var(--gold)', proxy:true},
+    {value:'9.07', label:'Tier 3 (2/5 matches)', color:'var(--success)'},
+    {value:'8.20', label:'Tier 1 (verified)', color:'var(--gold)'},
+    {value:season.goals, label:'Goals', color:'var(--success)'},
+    {value:'19.60', label:'Top Speed (mph)', color:'var(--info)'},
+    {value:'19.15', label:'Avg Top Speed (mph)', color:'var(--info)'},
+    {value:'14', label:'Events Logged', color:'var(--text-primary)'},
+    {value:'2/5', label:'Matches Logged', color:'var(--warning)'}
+  ], 'heroStatsGrid');
+  renderKeyStrengths([
+    {label:'Tier 3 Peak', value:'9.07', proxy:true},
+    {label:'Tier 1 Verified', value:'8.20'},
+    {label:'Mané Match', value:'84%'},
+    {label:'Top Speed', value:'19.60mph'}
+  ], 'keyStrengths');
+
+  var banners = [];
+  banners.push({type:'banner-verified', text:'<span>★</span> <strong>Tier 3 video assessment.</strong> 14 events scored, mean quality <strong>9.07</strong>, across 2 of 5 matches (San Diego Toreros, San Diego State).'});
+  banners.push({type:'banner-warning', text:'<span>⚠️</span> <strong>Peak, not baseline.</strong> 2 of 5 matches logged. Three goal-scoring matches (FGCU, Georgia Southern, American) are missing from Tier 3. Tier 2 not computable. FGA_v3_Final BLOCKED.'});
+  banners.push({type:'banner-danger', text:'<span>⚠️</span> <strong>DRAFT V4 — not client-ready.</strong> SII composite unreconciled (9.01 reported vs 9.07 computed). COACH not scored. No second scout assigned.'});
+  renderBanners(banners, 'overviewBanners');
+
+  var profileCards = [
+    {title:'👤 Player Profile', content:'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:0.85rem;line-height:1.6;"><div><strong>Full Name:</strong> Samson Kpardeh</div><div><strong>Class:</strong> Sophomore</div><div><strong>Position:</strong> Left Winger / Forward</div><div><strong>Foot:</strong> Right</div><div><strong>Club:</strong> Liberty Flames</div><div><strong>League:</strong> NCAA Division I</div><div><strong>Hometown:</strong> Worcester, MA</div><div><strong>Squad Number:</strong> 10</div></div>'},
+    {title:'📊 T3 Status', content:'<strong style="color:var(--warning);">2 of 5 matches, 14 events.</strong> Mean Quality 9.07. Tier 2 not computable. Three more matches required — footage exists, not yet scored.'},
+    {title:'🏅 Empire FGA Verdict', content:'<strong style="color:var(--text-primary);">FGA Provisional 7.8–8.4 — "Excellent", top of band.</strong> Sadio Mané pairing 84% — a mechanism match, not a top-speed match. Career floor (8.20) built on 5 goals in 5 matches.'}
+  ];
+  renderProfileCards(profileCards, 'overviewProfileCards');
+
+  var recText = '<span class="tag tag-danger" style="font-size:0.85rem;padding:6px 18px;">DRAFT V4 — FGA 7.8–8.4</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Mané pairing 84% — mechanism match, not top-speed match.</strong> Tier 3 peak 9.07 (2 matches). Tier 1 floor 8.20 (5 matches, 5 goals). <strong>3 matches missing from Tier 3, SII composite unreconciled, COACH not scored, no second scout — not client-ready.</strong></div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">2/5 matches</div>';
+  renderRecommendation(recText, 'recommendationCard');
+
+  renderFGA(id); renderCrossLeague(id); renderScouting(); renderMatches(); renderEventLog(); renderAttributeCards(); renderBoxScore(); renderGpsTable();
+  updateDial(); initCharts();
+}
+
+function switchTab(id) {
+  var panels = document.querySelectorAll('.tab-panel');
+  var buttons = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var j = 0; j < buttons.length; j++) buttons[j].classList.remove('active');
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  for (var k = 0; k < buttons.length; k++) { if (buttons[k].getAttribute('data-tab') === id) buttons[k].classList.add('active'); }
+  if (id === 'crossleague') { var sel = document.getElementById('seasonSelect'); if (sel) renderCrossLeague(sel.value); }
+  if (id === 'attributes' || id === 'overview') setTimeout(initCharts, 50);
+}
+window.switchTab = switchTab;
+window.updateSeason = updateSeason;
+
+function init() {
+  var select = document.getElementById('seasonSelect');
+  if (select) {
+    select.innerHTML = '';
+    careerSeasons.forEach(function(s){ var opt = document.createElement('option'); opt.value = s.id; opt.textContent = s.label; select.appendChild(opt); });
+    select.value = '2026';
+  }
+  renderCareerTimeline(); renderCareerStatsTable(); renderHonours(); updateSeason(); initCharts();
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) { btns[i].addEventListener('click', function(){ var tab = this.getAttribute('data-tab'); if (tab) switchTab(tab); }); }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>
