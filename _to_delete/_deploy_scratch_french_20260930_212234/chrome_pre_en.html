@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  try{
+    if(localStorage.getItem('esn_fga_auth') !== '1'){
+      window.location.replace('login.html');
+    }
+  }catch(e){
+    window.location.replace('login.html');
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire FGA | Scouting Intelligence — 13 Leagues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:#090D12;--bg1:#0D1520;--bg2:#111C2A;--bg3:#172234;--bg4:#1C2A3E;
+  --gold:#C9921A;--gold2:#EDB84E;--goldlo:rgba(201,146,26,.1);
+  --cyan:#2DD4BF;--cyanlo:rgba(45,212,191,.1);--cyandim:rgba(45,212,191,.3);
+  --red:#F04545;--grn:#22D46A;
+  --t1:#F0F6FF;--t2:#8BA5C0;--t3:#44627A;
+  --ln:rgba(255,255,255,.06);--ln2:rgba(255,255,255,.11);
+  --D:'Inter',sans-serif;--B:'Inter',sans-serif;--M:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;height:100dvh;overflow:hidden}
+body{font-family:var(--B);background:var(--bg);color:var(--t1);font-size:14px;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+select,input{font-family:inherit}
+a{color:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--cyandim)}
+
+#app{display:grid;grid-template-rows:54px 42px 1fr;height:100vh;height:100dvh;overflow:hidden}
+
+/* NAV */
+#nav{background:var(--bg1);border-bottom:2px solid var(--gold);display:flex;align-items:center;padding:12px 20px;z-index:60;box-shadow:0 2px 12px rgba(0,0,0,.25);min-width:0}
+.logo{display:flex;align-items:center;gap:12px;margin-right:20px;flex-shrink:1;min-width:0}
+.logo img{height:44px;width:44px;object-fit:contain;border-radius:6px;background:#fff;padding:3px;flex-shrink:0}
+.logo-fallback{height:44px;width:44px;border-radius:6px;background:linear-gradient(135deg,var(--gold),var(--cyan));color:#0A0D12;display:flex;align-items:center;justify-content:center;font-family:var(--D);font-weight:700;font-size:.75rem;letter-spacing:.5px;flex-shrink:0}
+.logo-name{font-family:var(--D);font-size:1.25rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:linear-gradient(90deg,var(--gold) 0%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1}
+.logo-text{min-width:0;overflow:hidden;max-width:180px}
+.logo-sub{font-family:var(--M);font-size:.56rem;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;height:54px;align-items:stretch;gap:1px}
+.tb{display:flex;align-items:center;gap:6px;padding:0 13px;font-family:var(--D);font-size:.78rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);border-bottom:3px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.tb:hover{color:var(--t2)}
+.tb.on{color:var(--gold);border-bottom-color:var(--gold)}
+.tb i{font-size:.75rem;opacity:.8}
+.tb-badge{font-family:var(--M);font-size:.56rem;background:var(--bg3);color:var(--cyan);border:1px solid var(--cyandim);padding:1px 5px;border-radius:2px;letter-spacing:0}
+.nav-user{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:14px;border-left:1px solid var(--ln)}
+.nu-name{font-family:var(--D);font-size:.8rem;font-weight:600;color:var(--t1);letter-spacing:1px;text-transform:uppercase}
+.nu-role{font-family:var(--M);font-size:.55rem;color:var(--t3)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--goldlo);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--D);font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0}
+
+/* FILTER BAR */
+#fbar{background:var(--bg2);border-bottom:1px solid var(--ln);display:flex;align-items:center;padding:0 20px;gap:7px;overflow-x:auto;overflow-y:hidden;min-width:0}
+#fbar::-webkit-scrollbar{height:3px}
+.fl{font-family:var(--D);font-size:.65rem;font-weight:600;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;flex-shrink:0}
+.fsep{width:1px;height:18px;background:var(--ln2);flex-shrink:0}
+.fsel{background:var(--bg3);border:1px solid var(--ln2);color:var(--t1);padding:5px 20px 5px 8px;font-family:var(--B);font-size:.78rem;border-radius:3px;flex-shrink:0;appearance:none;min-width:108px;max-width:148px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M0 0l5 6 5-6' fill='none' stroke='%2344627A' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .15s}
+.fsel:focus{outline:none;border-color:var(--cyandim)}
+.fsearch{background:var(--bg3);border:1px solid var(--ln2);color:var(--t1);padding:5px 8px 5px 26px;font-family:var(--B);font-size:.78rem;border-radius:3px;width:170px;flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' fill='none' stroke='%2344627A' stroke-width='2'%3E%3Ccircle cx='6' cy='6' r='5'/%3E%3Cpath d='m10.5 10.5 3 3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:7px center;transition:border-color .15s}
+.fsearch::placeholder{color:var(--t3)}
+.fsearch:focus{outline:none;border-color:var(--cyandim)}
+.frange{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.frl{font-family:var(--M);font-size:.58rem;color:var(--t3);letter-spacing:1px;white-space:nowrap}
+.fnum{width:44px;background:var(--bg3);border:1px solid var(--ln2);color:var(--t1);padding:5px 5px;border-radius:3px;font-family:var(--M);font-size:.7rem;text-align:center}
+.fnum-year{width:62px;font-size:.78rem;font-weight:600}
+.fnum:focus{outline:none;border-color:var(--cyandim)}
+.fdash{font-family:var(--M);font-size:.65rem;color:var(--t3)}
+.freset{background:rgba(240,69,69,.08);border:1px solid rgba(240,69,69,.2);color:var(--red);padding:5px 10px;border-radius:3px;font-family:var(--D);font-size:.65rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;transition:background .15s}
+.freset:hover{background:rgba(240,69,69,.16)}
+.fresults{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--ln);padding:4px 10px;border-radius:3px}
+.fr-n{font-family:var(--M);font-size:.88rem;font-weight:600;color:var(--cyan)}
+.fr-l{font-family:var(--D);font-size:.6rem;color:var(--t3);letter-spacing:1px;text-transform:uppercase}
+
+/* CONTENT */
+#content{overflow-y:auto;overflow-x:auto;padding:18px 20px 32px;-webkit-overflow-scrolling:touch;min-width:0}
+.section{display:none}
+.section.on{display:block}
+
+/* KPI */
+
+.hd-wrap{margin-bottom:18px}
+.hd-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:14px}
+.hd-stat{background:#152544;border:1px solid rgba(78,130,200,.28);border-radius:6px;padding:14px 16px;position:relative;overflow:hidden}
+.hd-stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--cyan));opacity:.4}
+.hd-stat-val{font-family:var(--D);font-size:1.7rem;font-weight:700;color:var(--gold2);line-height:1}
+.hd-stat-lbl{font-family:var(--D);font-size:.6rem;font-weight:500;letter-spacing:1.6px;text-transform:uppercase;color:var(--t3);margin-top:5px}
+.hd-pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.hd-pill{background:#152544;border:1px solid rgba(78,130,200,.28);color:var(--t2);font-family:var(--D);font-size:.66rem;font-weight:600;letter-spacing:.4px;padding:6px 13px;border-radius:100px;cursor:pointer;transition:border-color .15s,color .15s}
+.hd-pill:hover{border-color:var(--cyan);color:var(--cyan)}
+.hd-continent{background:#111C2A;border:1px solid rgba(78,130,200,.2);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.hd-cont-head{display:flex;align-items:center;gap:12px;padding:13px 17px;cursor:pointer;user-select:none;transition:background .15s}
+.hd-cont-head:hover{background:rgba(78,130,200,.07)}
+.hd-cont-name{font-family:var(--D);font-size:.92rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--t1)}
+.hd-cont-meta{margin-left:auto;font-family:var(--M);font-size:.68rem;color:var(--t3)}
+.hd-cont-meta strong{color:var(--gold2);font-weight:700}
+.hd-chevron{font-size:.65rem;color:var(--t3);transition:transform .2s;flex-shrink:0}
+.hd-continent.open .hd-chevron{transform:rotate(180deg)}
+.hd-cont-body{display:none;padding:0 15px 15px}
+.hd-continent.open .hd-cont-body{display:block}
+.hd-country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:9px}
+.hd-country{background:#152544;border:1px solid rgba(78,130,200,.22);border-radius:6px;padding:12px 14px;cursor:pointer;transition:border-color .15s,transform .15s}
+.hd-country:hover{border-color:rgba(78,130,200,.5);transform:translateY(-1px)}
+.hd-country-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.hd-flag{font-size:1.05rem;line-height:1}
+.hd-country-name{font-family:var(--D);font-size:.78rem;font-weight:600;color:var(--t1)}
+.hd-country-stats{font-family:var(--M);font-size:.63rem;color:var(--t3)}
+.hd-country-stats strong{color:var(--gold2)}
+.hd-league-panel{display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(78,130,200,.18);flex-direction:column;gap:7px}
+.hd-country.open .hd-league-panel{display:flex}
+.hd-league-card{background:#0D1520;border:1px solid rgba(78,130,200,.18);border-radius:5px;padding:9px 11px;cursor:pointer;transition:border-color .15s,background .15s}
+.hd-league-card:hover{border-color:var(--cyan);background:rgba(45,212,191,.06)}
+.hd-league-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hd-league-name{font-family:var(--D);font-size:.71rem;font-weight:600;color:var(--t1)}
+.hd-league-total{font-family:var(--D);font-size:.84rem;font-weight:700;color:var(--gold2)}
+.hd-season-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.hd-season-pill{font-family:var(--M);font-size:.57rem;color:var(--t2);background:rgba(255,255,255,.04);border:1px solid rgba(78,130,200,.15);border-radius:4px;padding:2px 6px;white-space:nowrap}
+@media (max-width:900px){.hd-stats{grid-template-columns:repeat(2,1fr)}}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:18px}
+.kpi{background:#152544;border:1px solid rgba(78,130,200,.28);border-radius:6px;padding:15px 16px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s;display:flex;flex-direction:column;min-height:94px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--cyan));opacity:.4}
+.kpi:hover{border-color:rgba(78,130,200,.55);transform:translateY(-1px)}
+.kpi-lbl{font-family:var(--D);font-size:.63rem;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.kpi-val{font-family:var(--D);font-size:1.85rem;font-weight:700;line-height:1;color:var(--gold2)}
+.kpi-sub{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-top:auto;padding-top:6px;line-height:1.35}
+
+/* METRIC LEGEND CARDS */
+.mleg-section-title{font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.mleg-section-title::after{content:'';flex:1;height:1px;background:var(--ln2)}
+.mleg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.mleg-card{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:13px 15px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s}
+.mleg-card:hover{border-color:var(--ln2)}
+.mleg-card.primary{border-color:rgba(201,146,26,.35);background:rgba(201,146,26,.04)}
+.mleg-card.primary .mleg-code{color:var(--gold2)}
+.mleg-code{font-family:var(--D);font-size:1.1rem;font-weight:700;color:var(--cyan);min-width:40px;line-height:1.1;flex-shrink:0;letter-spacing:1px}
+.mleg-body{flex:1;min-width:0}
+.mleg-name{font-family:var(--D);font-size:.82rem;font-weight:600;color:var(--t1);letter-spacing:.3px;display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.core-tag{font-family:var(--M);font-size:.54rem;color:var(--gold);background:var(--goldlo);border:1px solid rgba(201,146,26,.2);padding:1px 5px;border-radius:2px}
+.mleg-def{font-family:var(--B);font-size:.72rem;color:var(--t2);margin-top:4px;line-height:1.5}
+.mleg-formula{font-family:var(--M);font-size:.58rem;color:var(--t2);margin-top:5px;padding:4px 8px;background:var(--bg3);border-radius:2px;line-height:1.6;word-break:break-all}
+.mleg-weight{font-family:var(--M);font-size:.58rem;margin-top:4px}
+
+/* CHARTS */
+.charts3{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:11px;margin-bottom:18px}
+.charts2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}
+.panel{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:14px 16px}
+.ptitle{font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.ptitle i{opacity:.6;margin-right:5px}
+.hbar{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.hbar-lbl{font-family:var(--D);font-size:.68rem;color:var(--t2);width:48px;text-align:right;flex-shrink:0}
+.hbar-lbl.wide{width:112px;font-size:.64rem}
+.hbar-track{flex:1;height:14px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:2px;position:relative;transition:width .7s ease}
+.hbar-fill::after{content:attr(data-v);position:absolute;right:5px;top:50%;transform:translateY(-50%);font-family:var(--M);font-size:.56rem;color:rgba(255,255,255,.5)}
+.hbar-n{font-family:var(--M);font-size:.62rem;color:var(--t3);width:28px;text-align:right}
+.toprow{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:3px;border-bottom:1px solid rgba(255,255,255,.022);transition:background .1s}
+.toprow:hover{background:var(--bg3)}
+.tr-rank{font-family:var(--M);font-size:.62rem;color:var(--t3);width:14px;text-align:right}
+.tr-rank.g{color:var(--gold2)}
+.tr-name{font-family:var(--D);font-size:.85rem;font-weight:500;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-meta{font-family:var(--M);font-size:.55rem;color:var(--t3)}
+.tr-fga{font-family:var(--M);font-size:.8rem;color:var(--gold);width:38px;text-align:right;flex-shrink:0}
+
+/* TABLE */
+.tblwrap{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;overflow:hidden}
+.tblhead{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ln);background:var(--bg1)}
+.tbl-title{font-family:var(--D);font-size:.92rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--t1)}
+.tbl-acts{display:flex;align-items:center;gap:6px}
+.srtb{background:var(--bg3);border:1px solid var(--ln);color:var(--t3);padding:4px 8px;border-radius:3px;font-family:var(--D);font-size:.62rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.srtb.on{border-color:var(--cyandim);color:var(--cyan)}
+.srtb:hover{border-color:var(--ln2);color:var(--t2)}
+.pg-inf{font-family:var(--M);font-size:.58rem;color:var(--t3)}
+.tblscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg1);border-bottom:2px solid rgba(45,212,191,.13)}
+th{padding:8px 8px;font-family:var(--D);font-size:.62rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);text-align:left;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--gold2)}
+th.c{text-align:center}
+th.fga-col{color:var(--gold2) !important}
+td{padding:7px 8px;font-family:var(--B);font-size:.79rem;color:var(--t2);border-bottom:1px solid rgba(255,255,255,.02);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr.dr:hover td{background:var(--bg3);color:var(--t1)}
+td.pname{font-family:var(--D);font-size:.84rem;font-weight:500;color:var(--cyan);letter-spacing:.2px;cursor:pointer}
+td.pname:hover{color:var(--gold2);text-decoration:underline}
+td.c{text-align:center}
+td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
+.pos-chip{font-family:var(--D);font-size:.6rem;font-weight:500;padding:2px 5px;border-radius:2px;display:inline-block}
+.GK{background:rgba(234,184,78,.1);color:#EAB84E;border:1px solid rgba(234,184,78,.2)}
+.DF{background:rgba(45,212,191,.08);color:#2DD4BF;border:1px solid rgba(45,212,191,.16)}
+.MF{background:rgba(34,212,106,.08);color:#22D46A;border:1px solid rgba(34,212,106,.16)}
+.FW{background:rgba(240,69,69,.08);color:#F04545;border:1px solid rgba(240,69,69,.16)}
+.lgchip{font-family:var(--D);font-size:.56rem;font-weight:500;padding:2px 5px;border-radius:2px;display:inline-block;white-space:nowrap}
+.fga-cell{display:flex;align-items:center;gap:5px}
+.fga-num{font-family:var(--M);font-size:.78rem;font-weight:600;min-width:36px;flex-shrink:0}
+.fga-bar{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;min-width:40px}
+.fga-fill{height:100%;border-radius:2px}
+.t3-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--D);font-size:.58rem;font-weight:600;letter-spacing:.5px;padding:4px 8px;border-radius:3px;text-transform:uppercase;white-space:nowrap}
+.t3-badge i{font-size:.62rem}
+.t3-locked{background:rgba(201,146,26,.07);color:#C9A961;border:1px solid rgba(201,146,26,.22)}
+.t3-graded{background:rgba(95,168,122,.12);color:#5FA87A;border:1px solid rgba(95,168,122,.3)}
+.t3-legend{background:rgba(45,212,191,.12);color:#2DD4BF;border:1px solid rgba(45,212,191,.3)}
+.t3-mini{font-family:var(--M);opacity:.85;margin-left:2px}
+.t3-pitch{background:linear-gradient(135deg,rgba(201,146,26,.05),rgba(201,146,26,.02));border:1px solid rgba(201,146,26,.22);border-radius:5px;padding:14px 16px}
+.t3-pitch-head{font-family:var(--D);font-size:.72rem;font-weight:700;letter-spacing:.5px;color:#C9A961;text-transform:uppercase;margin-bottom:8px}
+.t3-pitch-head i{margin-right:6px}
+.t3-pitch-body{font-family:var(--B);font-size:.75rem;color:var(--t2);line-height:1.5;margin-bottom:8px}
+.t3-pitch-list{margin:0 0 10px 0;padding-left:18px;font-family:var(--B);font-size:.72rem;color:var(--t2);line-height:1.7}
+.t3-pitch-list li{margin-bottom:2px}
+.t3-pitch-note{font-family:var(--B);font-size:.68rem;color:#C9A961;font-style:italic;border-top:1px solid rgba(201,146,26,.18);padding-top:8px}
+.t3-real{background:rgba(95,168,122,.05);border:1px solid rgba(95,168,122,.22);border-radius:5px;padding:14px 16px}
+.t3-real-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.t3-real-box{background:var(--bg3);border-radius:3px;padding:9px;text-align:center}
+.t3-real-n{font-family:var(--M);font-size:1.05rem;color:#5FA87A;font-weight:600}
+.t3-real-l{font-family:var(--D);font-size:.55rem;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.t3-real-note{font-family:var(--B);font-size:.68rem;color:var(--t2);line-height:1.4}
+.t3-watch{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:8px 16px;background:rgba(95,168,122,.14);border:1px solid rgba(95,168,122,.4);border-radius:4px;color:#5FA87A;font-family:var(--D);font-size:.68rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;transition:background .15s}
+.t3-watch:hover{background:rgba(95,168,122,.26)}
+.t3-watch i{font-size:.78rem}
+.t3-partial{background:rgba(201,146,26,.05);border:1px solid rgba(201,146,26,.25);border-radius:5px;padding:14px 16px}
+.t3-partial-head{font-family:var(--D);font-size:.68rem;font-weight:700;letter-spacing:.4px;color:#C9A961;text-transform:uppercase;margin-bottom:8px}
+.t3-partial-head i{margin-right:6px}
+.t3-partial-bar-wrap{margin-bottom:12px}
+.t3-partial-bar{width:100%;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.t3-partial-fill{height:100%;background:#C9A961;border-radius:3px}
+.actbtn{padding:3px 7px;border-radius:2px;font-family:var(--D);font-size:.58rem;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:background .15s}
+.add{background:rgba(34,212,106,.08);color:var(--grn);border:1px solid rgba(34,212,106,.2)}
+.add:hover{background:rgba(34,212,106,.18)}
+.rem{background:rgba(240,69,69,.08);color:var(--red);border:1px solid rgba(240,69,69,.2)}
+.rem:hover{background:rgba(240,69,69,.18)}
+.pgn{display:flex;align-items:center;justify-content:center;gap:4px;padding:9px 14px;border-top:1px solid var(--ln);background:var(--bg1)}
+.pgb{background:var(--bg3);border:1px solid var(--ln);color:var(--t3);padding:3px 8px;border-radius:3px;font-family:var(--M);font-size:.66rem;transition:all .1s;min-width:28px;text-align:center}
+.pgb:hover:not(:disabled){border-color:var(--cyandim);color:var(--cyan)}
+.pgb.on{background:var(--cyanlo);border-color:var(--cyandim);color:var(--cyan)}
+.pgb:disabled{opacity:.3;cursor:not-allowed}
+.pgdots{font-family:var(--M);font-size:.66rem;color:var(--t3);padding:0 3px}
+
+/* MODAL */
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:flex-start;justify-content:center;padding-top:40px;backdrop-filter:blur(4px)}
+#ov.show{display:flex}
+#modal{background:var(--bg1);border:1px solid var(--ln2);border-radius:6px;width:min(840px,96vw);max-height:88vh;overflow-y:auto;position:relative;box-shadow:0 28px 90px rgba(0,0,0,.7)}
+.m-top{display:flex;align-items:flex-start;gap:16px;padding:20px 22px 16px;border-bottom:1px solid var(--ln)}
+.m-pos{font-family:var(--D);font-size:1.7rem;font-weight:700;padding:10px 13px;border-radius:4px;flex-shrink:0;line-height:1}
+.m-photo{width:56px;height:56px;border-radius:6px;display:block;object-fit:cover}
+.m-name{font-family:var(--D);font-size:1.45rem;font-weight:700;color:var(--t1);letter-spacing:.5px;line-height:1.1}
+.m-meta{font-family:var(--M);font-size:.64rem;color:var(--t3);margin-top:5px}
+.m-league{font-family:var(--D);font-size:.7rem;font-weight:500;margin-top:5px}
+.m-close{position:absolute;top:13px;right:15px;color:var(--t3);font-size:.95rem;padding:4px 7px;transition:color .15s}
+.m-close:hover{color:var(--red)}
+.tm-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 14px;background:linear-gradient(135deg,rgba(45,212,191,.1),rgba(201,146,26,.08));border:1px solid rgba(45,212,191,.3);border-radius:3px;font-family:var(--D);font-size:.68rem;font-weight:600;letter-spacing:1px;color:var(--cyan);text-decoration:none;text-transform:uppercase;transition:all .15s;position:relative;overflow:hidden}
+.tm-link::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(45,212,191,.15),rgba(201,146,26,.1));opacity:0;transition:opacity .15s}
+.tm-link:hover{border-color:var(--cyandim);color:var(--gold2)}
+.tm-link:hover::before{opacity:1}
+.tm-link .tm-icon{font-size:.8rem;transition:transform .15s}
+.tm-link:hover .tm-icon{transform:translateX(2px)}
+.m-body{padding:16px 22px 22px}
+.m-sec{font-family:var(--D);font-size:.65rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--ln);margin-top:16px}
+.m-sec:first-child{margin-top:0}
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:4px}
+.sbox{background:var(--bg3);border-radius:3px;padding:9px;text-align:center}
+.sbox-n{font-family:var(--M);font-size:1.05rem;color:var(--t1);font-weight:500}
+.sbox-l{font-family:var(--D);font-size:.56rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+/* FGA hierarchy in modal */
+.fga-hier{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:4px}
+.hier-card{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:12px 13px;position:relative;overflow:hidden}
+.hier-card.main{border-color:rgba(201,146,26,.4);background:rgba(201,146,26,.04)}
+.hier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.hier-card.main::before{background:var(--gold)}
+.hier-card.sec::before{background:var(--cyan)}
+.hier-card.ter::before{background:var(--t3)}
+.hier-code{font-family:var(--D);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;color:var(--t3)}
+.hier-val{font-family:var(--M);font-size:1.35rem;font-weight:600;line-height:1}
+.hier-lbl{font-family:var(--D);font-size:.62rem;color:var(--t3);margin-top:3px}
+.hier-bar{height:3px;background:var(--bg3);border-radius:2px;margin-top:7px;overflow:hidden}
+.hier-bar-fill{height:100%;border-radius:2px}
+/* sub metrics grid in modal */
+.sub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.status-grid{display:flex;flex-direction:column;gap:8px}
+.status-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg2);border:1px solid var(--ln);border-radius:4px}
+.status-lbl{font-family:var(--B);font-size:.82rem;color:var(--t2)}
+.status-val{font-family:var(--M);font-size:.8rem;font-weight:600}
+.sub-c{background:var(--bg3);border-radius:3px;padding:10px 11px}
+.sub-code{font-family:var(--M);font-size:.58rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+.sub-val{font-family:var(--M);font-size:.95rem;margin-top:2px}
+.sub-name{font-family:var(--D);font-size:.64rem;color:var(--t2);margin-top:1px}
+.sub-desc{font-family:var(--B);font-size:.62rem;color:var(--t3);margin-top:2px;line-height:1.4}
+.sub-minbar{height:2px;background:var(--bg4);border-radius:2px;margin-top:6px;overflow:hidden}
+.sub-minbar-fill{height:100%;border-radius:2px}
+/* philosophy row */
+.phil-row{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--bg2);border-radius:4px;border:1px solid var(--ln)}
+.phil-badge{font-family:var(--D);font-size:.68rem;font-weight:600;padding:4px 10px;border-radius:3px}
+.phil-mgr{font-family:var(--D);font-size:.9rem;font-weight:600;color:var(--t1)}
+.phil-tag{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-top:2px}
+
+/* TARGETS */
+.tgt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:12px}
+.tgt-card{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:14px;position:relative;transition:border-color .15s}
+.tgt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--cyan));opacity:.3;border-radius:4px 4px 0 0}
+.tgt-card:hover{border-color:var(--ln2)}
+.tgt-name{font-family:var(--D);font-size:.96rem;font-weight:600;color:var(--t1);margin-bottom:2px}
+.tgt-meta{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-bottom:10px}
+.tgt-ms{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tgt-m{background:var(--bg3);border-radius:3px;padding:7px;text-align:center}
+.tgt-mv{font-family:var(--M);font-size:.92rem;line-height:1}
+.tgt-ml{font-family:var(--D);font-size:.56rem;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.tgt-rem{position:absolute;top:9px;right:9px;color:var(--t3);font-size:.7rem;padding:3px 5px;transition:color .15s}
+.tgt-rem:hover{color:var(--red)}
+.tgt-phil{font-family:var(--M);font-size:.56rem;color:var(--t2);margin-top:8px;padding-top:7px;border-top:1px solid var(--ln);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmp-wrap{margin-top:16px;background:var(--bg2);border:1px solid var(--ln);border-radius:4px;overflow:hidden}
+.cmp-hdr{padding:8px 13px;border-bottom:1px solid var(--ln);background:var(--bg1);font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2px;color:var(--cyan);text-transform:uppercase}
+.cmp-scroll{overflow-x:auto}
+.cmptbl{border-collapse:collapse}
+.cmptbl th{padding:7px 11px;font-family:var(--D);font-size:.65rem;color:var(--gold);text-align:center;border-bottom:1px solid var(--ln);white-space:nowrap}
+.cmptbl th.rh{text-align:left;color:var(--t3);font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase}
+.cmptbl td{padding:6px 11px;font-family:var(--M);font-size:.7rem;color:var(--t2);border-bottom:1px solid rgba(255,255,255,.02);text-align:center}
+.cmptbl td.rh{text-align:left;font-family:var(--D);font-size:.6rem;letter-spacing:1px;color:var(--t3);text-transform:uppercase}
+.cmptbl td.best{color:var(--gold2);font-weight:600}
+
+/* METRICS PAGE */
+.mwrap{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.mpanel{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:15px}
+.mptitle{font-family:var(--D);font-size:.66rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:4px;padding-bottom:8px;border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between}
+.mpcnt{font-family:var(--M);font-size:.58rem;color:var(--t3);background:var(--bg3);padding:2px 6px;border-radius:2px}
+.mpsub{font-family:var(--M);font-size:.56rem;color:var(--t3);margin-bottom:9px;margin-top:3px}
+.mrow{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.02)}
+.mrow:last-child{border-bottom:none}
+.mcode{font-family:var(--M);font-size:.66rem;color:var(--gold);width:28px;flex-shrink:0;padding-top:1px}
+.mtext{flex:1}
+.mname{font-family:var(--D);font-size:.78rem;font-weight:500;color:var(--t1)}
+.mdesc{font-family:var(--B);font-size:.68rem;color:var(--t3);margin-top:1px;line-height:1.4}
+.mtier{font-family:var(--D);font-size:.54rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:1px 4px;border-radius:2px;flex-shrink:0}
+.t1c{color:#22D46A;background:rgba(34,212,106,.08);border:1px solid rgba(34,212,106,.16)}
+.t2c{color:#2DD4BF;background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.16)}
+.t3c{color:var(--gold);background:var(--goldlo);border:1px solid rgba(201,146,26,.18)}
+
+/* PHILOSOPHIES */
+.spills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+.spill{background:var(--bg3);border:1px solid var(--ln);color:var(--t3);padding:4px 10px;border-radius:3px;font-family:var(--D);font-size:.63rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.spill:hover{color:var(--t2);border-color:var(--ln2)}
+.spill.on{background:var(--cyanlo);border-color:var(--cyandim);color:var(--cyan)}
+.philgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.pcard{background:var(--bg2);border:1px solid var(--ln);border-radius:4px;padding:12px;transition:border-color .15s}
+.pcard:hover{border-color:var(--ln2)}
+.psch{font-family:var(--M);font-size:.54rem;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.pmgr{font-family:var(--D);font-size:.9rem;font-weight:600;color:var(--t1)}
+.pdna{font-family:var(--B);font-size:.67rem;color:var(--t3);margin-top:3px;line-height:1.4}
+.pfoot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-family:var(--M);font-size:.56rem;color:var(--t3)}
+.pw{color:var(--gold)}
+
+/* UTILS */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.st{font-family:var(--D);font-size:1.1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--t1)}
+.ss{font-family:var(--M);font-size:.58rem;color:var(--t3);margin-top:2px}
+.clrbtn{background:rgba(240,69,69,.07);border:1px solid rgba(240,69,69,.18);color:var(--red);padding:5px 11px;border-radius:3px;font-family:var(--D);font-size:.63rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:background .15s}
+.clrbtn:hover{background:rgba(240,69,69,.15)}
+.empty{text-align:center;padding:54px 20px}
+.empty-i{font-size:2rem;opacity:.1;margin-bottom:10px}
+.empty-m{font-family:var(--D);font-size:.95rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.empty-s{font-family:var(--B);font-size:.76rem;color:var(--t3);margin-top:5px}
+
+/* SCOUTING TOOL */
+.scout-wrap{padding:16px 20px;overflow-y:auto;height:100%}
+.scout-note{font-size:.72rem;color:var(--t3);margin:10px 0 16px;line-height:1.6;max-width:920px}
+.scout-note em{color:var(--t2);font-style:normal}
+.scout-filters{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.scout-filters .fgrp{display:flex;flex-direction:column;gap:4px}
+.scout-filters .fgrp label{font-family:var(--D);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:var(--t3)}
+.scout-filters select,.scout-filters input[type=number]{background:var(--bg3);border:1px solid var(--ln2);color:var(--t1);padding:6px 8px;border-radius:4px;font-size:.75rem}
+.scout-filters input[type=number]{width:64px}
+.scout-actbar{display:flex;align-items:center;gap:10px;margin-left:auto}
+.scout-btn{background:var(--gold);color:#1a1206;font-weight:700;font-size:.72rem;padding:9px 16px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px}
+.scout-btn.reset{background:var(--bg4);color:var(--t2)}
+.scout-count{font-family:var(--M);font-size:.75rem;color:var(--t2);white-space:nowrap}
+.scout-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.scout-card{background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px;cursor:pointer;transition:border-color .15s}
+.scout-card:hover{border-color:var(--cyandim)}
+.scout-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scout-card-age{font-family:var(--M);font-size:.72rem;color:var(--t2)}
+.scout-card-name{font-weight:700;font-size:.9rem;margin-bottom:3px;color:var(--t1)}
+.scout-card-meta{font-size:.72rem;color:var(--t2);margin-bottom:6px}
+.scout-card-league{font-size:.68rem;margin-bottom:10px}
+.scout-card-stats{display:flex;justify-content:space-between;border-top:1px solid var(--ln);padding-top:8px}
+.scout-card-stats div{text-align:center;flex:1}
+.scout-card-stats .scn{display:block;font-family:var(--M);font-weight:700;font-size:.85rem}
+.scout-card-stats .scl{display:block;font-size:.58rem;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.scout-card-photo{width:28px;height:28px;border-radius:6px;object-fit:cover;object-position:top center;flex-shrink:0;border:1px solid var(--ln2)}
+.scout-empty{text-align:center;color:var(--t3);padding:60px 0;font-size:.85rem;grid-column:1/-1}
+.scout-more{display:block;margin:20px auto 0;background:var(--bg3);color:var(--t2);padding:10px 24px;border-radius:6px;font-size:.75rem;border:1px solid var(--ln2)}
+#app.esn-hidden{display:none!important}
+#loginGate a:hover{color:var(--t1)!important}
+
+</style>
+</head>
+<body>
+<div id="app">
+<script>
+(function(){
+  window.esnLogout = function(){
+    try{
+      localStorage.removeItem('esn_fga_auth');
+      localStorage.removeItem('esn_fga_user');
+    }catch(e){}
+    location.replace('login.html');
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    try{
+      var u = localStorage.getItem('esn_fga_user') || '';
+      if(u){
+        var label = u.indexOf('@') > -1 ? u.split('@')[0] : u;
+        var nameEl = document.getElementById('nu-name-slot');
+        var avEl = document.getElementById('nu-avatar-slot');
+        if(nameEl) nameEl.textContent = label;
+        if(avEl) avEl.textContent = label.slice(0,2).toUpperCase();
+      }
+    }catch(e){}
+  });
+})();
+</script>
+
+<nav id="nav">
+  <div class="logo">
+    <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="ESN" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-fallback',textContent:'ESN'}))">
+    <div class="logo-text"><div class="logo-name">EMPIRE FGA</div><div class="logo-sub">Scouting Intelligence · 5,278 Players · 13 Leagues</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tb on" onclick="show('dash')"><i class="fas fa-tachometer-alt"></i>Dashboard</button>
+    <button class="tb" onclick="show('players')"><i class="fas fa-users"></i>Players<span class="tb-badge" id="cnt-p">5881</span></button>
+    <button class="tb" onclick="show('scout')"><i class="fas fa-binoculars"></i>Scouting Tool</button>
+    <button class="tb" onclick="show('targets')"><i class="fas fa-crosshairs"></i>Targets<span class="tb-badge" id="cnt-t">0</span></button>
+    <button class="tb" onclick="show('metrics')"><i class="fas fa-atom"></i>Metrics<span class="tb-badge">779</span></button>
+    <button class="tb" onclick="show('phil')"><i class="fas fa-chess"></i>Philosophies<span class="tb-badge">60</span></button>
+  </div>
+  <div class="nav-user">
+    <a href="players.html" style="color:var(--t2);font-family:var(--D);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;margin-right:10px" title="Browse all player profile pages">Directory</a>
+    <a href="index.html" style="color:var(--t2);font-family:var(--D);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;margin-right:16px" title="Back to homepage">Home</a>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTneUE9copP0ZzmHlySPowzptlhFn9L172WB6t55WGbt0H_AAnXVu2QZj4v&s=10" alt="Brandsen Sports" style="height:30px;width:30px;object-fit:contain;border-radius:5px;background:#fff;padding:2px;margin-right:10px" onerror="this.style.display='none'">
+    <div><div class="nu-name" id="nu-name-slot">Jim Totime</div><div class="nu-role" id="nu-role-slot">Brandsen Sports CEO</div></div>
+    <div class="avatar" id="nu-avatar-slot">JT</div>
+    <a href="#" onclick="esnLogout();return false;" style="color:var(--t3);font-family:var(--M);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;text-decoration:none;margin-left:10px" title="Log out">Log out</a>
+  </div>
+</nav>
+
+<div id="fbar">
+  <span class="fl"><i class="fas fa-sliders-h"></i></span>
+  <div class="fsep"></div>
+  <input class="fsearch" type="text" id="fs" placeholder="Search player name…">
+  <select class="fsel" id="f-lg">
+    <option value="">All Leagues</option>
+    <option value="A-League">🇦🇺 A-League (368)</option>
+    <option value="Andorra Primera Divisió">🇦🇩 Andorra Primera Divisió (136)</option>
+    <option value="Austrian Bundesliga">🇦🇹 Austrian Bundesliga (344)</option>
+    <option value="BGL Ligue">🇱🇺 BGL Ligue (25)</option>
+    <option value="Brasileirão Série A">🇧🇷 Brasileirão Série A (855)</option>
+    <option value="Bundesliga">🇩🇪 Bundesliga (501)</option>
+    <option value="Championship">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship (525)</option>
+    <option value="Danish Superliga">🇩🇰 Danish Superliga (276)</option>
+    <option value="División Profesional">🇧🇴 División Profesional (462)</option>
+    <option value="Eliteserien">🇳🇴 Eliteserien (420)</option>
+    <option value="Eredivisie">🇳🇱 Eredivisie (517)</option>
+    <option value="Jupiler Pro League">🇧🇪 Jupiler Pro League (322)</option>
+    <option value="Keuken Kampioen Divisie">🇳🇱 Keuken Kampioen Divisie (499)</option>
+    <option value="La Liga">🇪🇸 La Liga (1085)</option>
+    <option value="La Liga 2">🇪🇸 La Liga 2 (510)</option>
+    <option value="Liga 1 Perú">🇵🇪 Liga 1 Perú (466)</option>
+    <option value="Liga MX">🇲🇽 Liga MX (506)</option>
+    <option value="Liga Portugal 2">🇵🇹 Liga Portugal 2 (66)</option>
+    <option value="Ligue 1">🇫🇷 Ligue 1 (905)</option>
+    <option value="MLS">🇺🇸 MLS (850)</option>
+    <option value="NB I">🇭🇺 NB I (412)</option>
+    <option value="Premier League">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (504)</option>
+    <option value="Primeira Liga">🇵🇹 Primeira Liga (907)</option>
+    <option value="Primera A">🇨🇴 Primera A (458)</option>
+    <option value="Primera B">🇨🇴 Primera B (40)</option>
+    <option value="Primera División">🇦🇷 Primera División (3484)</option>
+    <option value="Saudi Pro League">🇸🇦 Saudi Pro League (465)</option>
+    <option value="Scottish Premiership">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scottish Premiership (389)</option>
+    <option value="Serie A">🇮🇹 Serie A (610)</option>
+    <option value="Süper Lig">🇹🇷 Süper Lig (456)</option>
+    <option value="Swiss Super League">🇨🇭 Swiss Super League (387)</option>
+    <option value="USL Championship">🇺🇸 USL Championship (603)</option>
+    <option value="USL League One">🇺🇸 USL League One (424)</option>
+    <option value="Prva HNL">🇭🇷 Prva HNL (347)</option>
+    <option value="LigaPro">🇪🇨 LigaPro (487)</option><option value="Liga I">🇷🇴 Liga I (638)</option><option value="Persian Gulf Pro League">🇮🇷 Persian Gulf Pro League (539)</option><option value="Serie A Ecuador">🇪🇨 Serie A Ecuador (21)</option>
+    <option value="División de Honor">🇵🇾 División de Honor (475)</option>
+    <option value="Serie B">🇮🇹 Serie B (499)</option>
+    <option value="Ligue 2">🇫🇷 Ligue 2 (544)</option>
+    <option value="Liga AUF">🇺🇾 Liga AUF (775)</option>
+    <option value="J1 League">🇯🇵 J1 League (499)</option>
+    <option value="Betway Premiership">🇿🇦 Betway Premiership (328)</option>
+    <option value="Ekstraklasa">🇵🇱 Ekstraklasa (374)</option>
+    <option value="efbet Liga">🇧🇬 efbet Liga (548)</option>
+    <option value="Liga FUTVE">🇻🇪 Liga FUTVE (488)</option>
+    <option value="Canadian Premier League">🇨🇦 Canadian Premier League (200)</option>
+    <option value="Liga de Primera">🇨🇱 Liga de Primera (469)</option>
+    <option value="K League 1">🇰🇷 K League 1 (346)</option>
+    <option value="Chance Liga">🇨🇿 Chance Liga (561)</option>
+    <option value="Super League Greece">🇬🇷 Super League Greece (1771)</option>
+  
+    <option value="Bundesliga 2">🇩🇪 Bundesliga 2 (551)</option>
+    <option value="Primera B Nacional">🇦🇷 Primera B Nacional (119)</option>
+    <option value="Kazakhstan Premier League">🇰🇿 Kazakhstan Premier League (1)</option>
+  </select>
+  <select class="fsel" id="f-cl"><option value="">All Clubs</option></select>
+  <select class="fsel" id="f-pos">
+    <option value="">All Positions</option>
+    <option value="GK">GK</option><option value="DF">DF</option>
+    <option value="MF">MF</option><option value="FW">FW</option>
+  </select>
+  <div class="frange">
+    <span class="frl">AGE</span>
+    <input class="fnum" type="number" id="f-amin" min="15" max="45" placeholder="16">
+    <span class="fdash">–</span>
+    <input class="fnum" type="number" id="f-amax" min="15" max="45" placeholder="40">
+  </div>
+  <div class="frange">
+    <span class="frl">FGA</span>
+    <input class="fnum" type="number" id="f-fmin" min="0" max="100" placeholder="0">
+    <span class="fdash">–</span>
+    <input class="fnum" type="number" id="f-fmax" min="0" max="10" placeholder="100">
+  </div>
+  <select class="fsel" id="f-sch"><option value="">All Schools</option></select>
+  <select class="fsel" id="f-mgr"><option value="">All Managers</option></select>
+  <div class="frange">
+    <span class="frl">SEASON</span>
+    <input class="fnum fnum-year" type="number" id="f-ymin" min="1979" max="2026" placeholder="1979">
+    <span class="fdash">–</span>
+    <input class="fnum fnum-year" type="number" id="f-ymax" min="1979" max="2026" placeholder="2026">
+  </div>
+  <button class="freset" onclick="resetF()">✕ Reset</button>
+  <div class="fresults"><span class="fr-n" id="fcnt">5881</span><span class="fr-l">players</span></div>
+</div>
+
+<div id="content">
+
+  <!-- DASHBOARD -->
+  <div id="s-dash" class="section on">
+    <div id="hierDash" class="hd-wrap"></div>
+    <div style="background:rgba(201,146,26,.06);border:1px solid rgba(201,146,26,.2);border-radius:4px;padding:9px 14px;margin-bottom:16px;font-family:var(--M);font-size:.62rem;color:var(--t3);display:flex;align-items:center;gap:8px">
+      <span style="color:var(--gold);font-size:.8rem">⚠</span>
+      <span><strong style="color:var(--gold2)">Cross-league FGA comparison note:</strong> MLS avg (64.3) vs Süper Lig avg (26.2) reflects different normalization baselines per league file — not absolute quality differences. Use FGA for within-league ranking; LOG-adjusted comparison across leagues is not yet available (LOG requires ULT, which is currently pending for every player).</span>
+    </div>
+
+    <div class="mleg-section-title"><i class="fas fa-sitemap" style="opacity:.7"></i>FGA RATING SYSTEM — METRIC HIERARCHY EXPLAINED</div>
+    <div class="mleg-grid">
+      <div class="mleg-card primary">
+        <div class="mleg-code">FGA</div>
+        <div class="mleg-body">
+          <div class="mleg-name">FGA Rating Base <span class="core-tag">★ CORE METRIC</span></div>
+          <div class="mleg-def">The primary Empire FGA score. Weighted average of all 38 Tier 1+2+3 metrics — your foundation of raw performance stripped of philosophy context. Sort by this to compare players purely on what they deliver on the pitch. Every other metric either feeds into or extends from FGA.</div>
+          <div class="mleg-formula">FGA = AVG(21 Tier-1 automated + 6 Tier-2 composite + 11 Tier-3 scout metrics)</div>
+          <div class="mleg-weight" style="color:var(--gold)">Scale: 0–100 &nbsp;·&nbsp; 25% weight in Ultimate</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">ULT</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Ultimate FGA Rating</div>
+          <div class="mleg-def">FGA elevated by tactical DNA, creative control, clutch factor and harmonic style. The original spec self-referenced (ULT required its own MZ column) — fixed by folding MZ's 0.20 weight into HAR. Known unresolved issue: FGA/THI run on a 0–100 scale, CCI/CLU/HAR run on 0–10 — averaging them directly without rescaling is mathematically broken. Not corrected yet, flagged here rather than silently patched. Blocked platform-wide: THI has no formula, CTX is undefined. CCI/CLU/HAR require Tier-3 grading — as of 2026-08-31, 7 current players are fully graded (Beukema, Etou, Masereka, Luna, Gabriel Mec, Gemelson, Federico Dimarco) but the scale mismatch above means their ULT still can't be computed correctly; the 0.20/0.15/0.10/0.30 weights would mix 0–100 and 0–10 inputs. Two additional records — Ronaldo (1996–97) and Ronaldinho Gaucho (1998) — also carry full Tier-3 grading but are historical benchmark entries, not current prospects, and are excluded from this count. Not "nobody graded" anymore — just still blocked by the unfixed formula.</div>
+          <div class="mleg-formula">ULT = (FGA×0.25) + (THI×0.15) + (CCI×0.15) + (CLU×0.10) + (HAR×0.30) + (CTX×0.05)</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale mismatch unresolved (0–100 vs 0–10 inputs) &nbsp;·&nbsp; Not yet computable for any player</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">THI</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Tactical Harmony Index</div>
+          <div class="mleg-def">How fluidly a player integrates across tactical systems — positional intelligence (POI), off-ball coordination (OBI), system adaptability (COACH). Still qualitative only: the source describes three pillars but defines no weights or arithmetic between them. Nobody has ever received a THI score.</div>
+          <div class="mleg-formula">No closed-form formula exists yet — three qualitative pillars, unweighted</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–100 (per source) &nbsp;·&nbsp; 15% weight in ULT &nbsp;·&nbsp; Not implemented</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">CCI</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Creative Control Index</div>
+          <div class="mleg-def">Ability to impose will through inventive decisions and unpredictability under pressure — separates technically correct players from game-changers. Liga 1 Perú has no FBref shot-creation table, so SCA90 there falls back to a Sofascore bigChancesCreated-per-90 proxy.</div>
+          <div class="mleg-formula">CCI = (CRK×0.4) + (DMA×0.3) + (SOA×0.2) + (SCA90_Normalized×0.1)</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–10 &nbsp;·&nbsp; 15% weight in ULT &nbsp;·&nbsp; 0 players graded — needs Tier-3 CRK/DMA/SOA</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">CLU</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Clutch Factor</div>
+          <div class="mleg-def">Performance gap between a player's average output and their output in decisive moments — injury time, must-win knockouts. Unresolved scale issue in the source formula: LOG_Pressure_Factor runs 0–6 (per the Level-of-Game framework) while CRS/CLM/MCS run 0–10, and it's blended in at 10% weight with no rescaling. Flagged, not fixed.</div>
+          <div class="mleg-formula">CLU = (CRS×0.5) + (CLM×0.2) + (MCS×0.2) + (LOG_Pressure_Factor×0.1)</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–10 nominal (LOG term unrescaled) &nbsp;·&nbsp; 10% weight in ULT &nbsp;·&nbsp; 0 players graded</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">HAR</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Harmonic Style</div>
+          <div class="mleg-def">The artistic dimension — spatial poetry, flow, individual flair that box scores miss but video scouts prioritize. The original spec self-referenced (HAR required its own LZ column) and double-counted CRK; fixed by merging both CRK terms into one CRK×0.5 term.</div>
+          <div class="mleg-formula">HAR = (CRK×0.5) + (SPI×0.3) + (Dribble_Success_Normalized×0.2)</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–10 &nbsp;·&nbsp; 30% weight in ULT &nbsp;·&nbsp; 0 players graded — needs Tier-3 CRK/SPI</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">OBI</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Off-Ball Intelligence</div>
+          <div class="mleg-def">Movement quality when not in possession — tactical positioning, spatial awareness, run timing. Scored from three sub-components graded independently on match footage, then combined.</div>
+          <div class="mleg-formula">OBI = (OBI_T×0.35) + (OBI_S×0.35) + (OBI_P×0.30)</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–10 &nbsp;·&nbsp; Tier 3 core metric — requires 3+ events across 3+ matches per sub-component</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">SII</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Sprint Intensity Index</div>
+          <div class="mleg-def">High-intensity movement quality — acceleration, top-speed actions, recovery sprints. Same evidence standard as OBI: three sub-components, each independently validated.</div>
+          <div class="mleg-formula">SII = (SII_A×0.40) + (SII_T×0.35) + (SII_R×0.25)</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–10 &nbsp;·&nbsp; Tier 3 core metric — requires 3+ events across 3+ matches per sub-component</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">T3</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Remaining Video Metrics</div>
+          <div class="mleg-def">The other ten Tier 3 metrics, each graded independently from match footage: Decision Making, Character, Mental Competence, Speed on Action, Spatial Performance, Calmness, Clutch Response, Composure Under Pressure, Dynamism, Creative Risk. Together with OBI and SII, these twelve are what "X of 12 Tier 3 validated" refers to on every player card.</div>
+          <div class="mleg-formula">DMA · CHR · MCS · SOA · SPI · CLM · CRS · OMS · DYN · CRK</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–10 each &nbsp;·&nbsp; Same validation standard — no shortcuts</div>
+        </div>
+      </div>
+      <div class="mleg-card">
+        <div class="mleg-code">PHI</div>
+        <div class="mleg-body">
+          <div class="mleg-name">Philosophy-Fit Priority Metrics</div>
+          <div class="mleg-def">Nine metrics required by the 60-manager philosophy formulas (Guardiola, Cruyff, Sacchi, and the rest) — key passes, long/vertical/horizontal passing, dribbling, carrying, tackling, interceptions, shot technique. First graded for Sam Beukema (2026-08-18, full 9-metric video pass, ≥3-event confidence). Still not wired into a live Trophy Magnet Factor or Philosophy Fit computation anywhere in this platform — the data exists, the formula that consumes it doesn't yet.</div>
+          <div class="mleg-formula">KEY · STK · LGP · VRP · HZP · DRB · CAR · INT · TAC</div>
+          <div class="mleg-weight" style="color:var(--t2)">Scale: 0–10 each &nbsp;·&nbsp; 1 of 8,495 players graded — Beukema</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts3">
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-chart-bar"></i>League Distribution</span></div><div id="ch-lg"></div></div>
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-signal"></i>FGA Rating Bands</span></div><div id="ch-fga"></div></div>
+      <div class="panel">
+        <div class="ptitle">
+          <span><i class="fas fa-chart-area"></i>Composite Intelligence Profile</span>
+          <select class="fsel" style="font-size:.6rem;padding:3px 16px 3px 6px;min-width:auto;width:90px" id="radar-lg" onchange="drawRadar()">
+            <option value="">All Leagues</option>
+            <option value="A-League">🇦🇺 A-League</option>
+            <option value="Andorra Primera Divisió">🇦🇩 Andorra</option>
+            <option value="Austrian Bundesliga">🇦🇹 Austrian BL</option>
+            <option value="BGL Ligue">🇱🇺 BGL</option>
+            <option value="Brasileirão Série A">🇧🇷 Brasileirão</option>
+            <option value="Bundesliga">🇩🇪 Bundesliga</option>
+            <option value="Championship">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship</option>
+            <option value="Danish Superliga">🇩🇰 Danish SL</option>
+            <option value="División Profesional">🇧🇴 División Prof.</option>
+            <option value="Eliteserien">🇳🇴 Eliteserien</option>
+            <option value="Eredivisie">🇳🇱 Eredivisie</option>
+            <option value="Jupiler Pro League">🇧🇪 Jupiler Pro</option>
+            <option value="Keuken Kampioen Divisie">🇳🇱 KKD</option>
+            <option value="La Liga">🇪🇸 La Liga</option>
+            <option value="La Liga 2">🇪🇸 La Liga 2</option>
+            <option value="Liga 1 Perú">🇵🇪 Liga 1 Perú</option>
+            <option value="Liga MX">🇲🇽 Liga MX</option>
+            <option value="Liga Portugal 2">🇵🇹 Portugal 2</option>
+            <option value="Ligue 1">🇫🇷 Ligue 1</option>
+            <option value="MLS">🇺🇸 MLS</option>
+            <option value="NB I">🇭🇺 NB I</option>
+            <option value="Premier League">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</option>
+            <option value="Primeira Liga">🇵🇹 Primeira Liga</option>
+            <option value="Primera A">🇨🇴 Primera A</option>
+            <option value="Primera B">🇨🇴 Primera B</option>
+            <option value="Primera División">🇦🇷 Primera Div</option>
+            <option value="Saudi Pro League">🇸🇦 Saudi Pro</option>
+            <option value="Scottish Premiership">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scot Prem</option>
+            <option value="Serie A">🇮🇹 Serie A</option>
+            <option value="Süper Lig">🇹🇷 Süper Lig</option>
+            <option value="Swiss Super League">🇨🇭 Swiss SL</option>
+            <option value="USL Championship">🇺🇸 USL Champ</option>
+            <option value="USL League One">🇺🇸 USL League 1</option>
+            <option value="Prva HNL">🇭🇷 Prva HNL</option>
+            <option value="LigaPro">🇪🇨 LigaPro</option><option value="Liga I">🇷🇴 Liga I</option><option value="Persian Gulf Pro League">🇮🇷 Persian Gulf Pro League</option><option value="Serie A Ecuador">🇪🇨 Serie A Ecuador</option>
+            <option value="División de Honor">🇵🇾 Div. Honor</option>
+            <option value="Serie B">🇮🇹 Serie B</option>
+            <option value="Ligue 2">🇫🇷 Ligue 2</option>
+            <option value="Liga AUF">🇺🇾 Liga AUF</option>
+            <option value="J1 League">🇯🇵 J1 League</option>
+            <option value="Betway Premiership">🇿🇦 Betway Premiership</option>
+            <option value="Ekstraklasa">🇵🇱 Ekstraklasa</option>
+            <option value="efbet Liga">🇧🇬 efbet Liga</option>
+            <option value="Liga FUTVE">🇻🇪 Liga FUTVE</option>
+            <option value="Canadian Premier League">🇨🇦 Canadian Premier League</option>
+            <option value="Liga de Primera">🇨🇱 Liga de Primera</option>
+            <option value="K League 1">🇰🇷 K League 1</option>
+            <option value="Chance Liga">🇨🇿 Chance Liga</option>
+            <option value="Super League Greece">🇬🇷 Super League Greece</option>
+          </select>
+        </div>
+        <div id="ch-radar"></div>
+        <div id="ch-radar-note" style="font-size:.58rem;color:var(--t3);margin-top:4px;text-align:center">—</div>
+      </div>
+    </div>
+    <div class="charts3">
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-user-friends"></i>Position Breakdown</span></div><div id="ch-posdonut"></div></div>
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-layer-group"></i>Age Distribution</span></div><div id="ch-age"></div></div>
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-chess"></i>Philosophy Distribution</span></div><div id="ch-sch"></div></div>
+    </div>
+    <div class="charts2">
+      <div class="panel" style="grid-column:1/-1">
+        <div class="ptitle">
+          <span><i class="fas fa-crown"></i>Top Players by FGA Rating</span>
+          <select class="fsel" style="font-size:.62rem;padding:3px 18px 3px 7px;min-width:auto;width:115px" id="top-lg" onchange="drawTop()">
+            <option value="">All Leagues</option>
+            <option value="A-League">🇦🇺 A-League</option>
+            <option value="Andorra Primera Divisió">🇦🇩 Andorra</option>
+            <option value="Austrian Bundesliga">🇦🇹 Austrian BL</option>
+            <option value="BGL Ligue">🇱🇺 BGL</option>
+            <option value="Brasileirão Série A">🇧🇷 Brasileirão</option>
+            <option value="Bundesliga">🇩🇪 Bundesliga</option>
+            <option value="Championship">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship</option>
+            <option value="Danish Superliga">🇩🇰 Danish SL</option>
+            <option value="División Profesional">🇧🇴 División Prof.</option>
+            <option value="Eliteserien">🇳🇴 Eliteserien</option>
+            <option value="Eredivisie">🇳🇱 Eredivisie</option>
+            <option value="Jupiler Pro League">🇧🇪 Jupiler Pro</option>
+            <option value="Keuken Kampioen Divisie">🇳🇱 KKD</option>
+            <option value="La Liga">🇪🇸 La Liga</option>
+            <option value="La Liga 2">🇪🇸 La Liga 2</option>
+            <option value="Liga 1 Perú">🇵🇪 Liga 1 Perú</option>
+            <option value="Liga MX">🇲🇽 Liga MX</option>
+            <option value="Liga Portugal 2">🇵🇹 Portugal 2</option>
+            <option value="Ligue 1">🇫🇷 Ligue 1</option>
+            <option value="MLS">🇺🇸 MLS</option>
+            <option value="NB I">🇭🇺 NB I</option>
+            <option value="Premier League">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</option>
+            <option value="Primeira Liga">🇵🇹 Primeira Liga</option>
+            <option value="Primera A">🇨🇴 Primera A</option>
+            <option value="Primera B">🇨🇴 Primera B</option>
+            <option value="Primera División">🇦🇷 Primera Div</option>
+            <option value="Saudi Pro League">🇸🇦 Saudi Pro</option>
+            <option value="Scottish Premiership">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scot Prem</option>
+            <option value="Serie A">🇮🇹 Serie A</option>
+            <option value="Süper Lig">🇹🇷 Süper Lig</option>
+            <option value="Swiss Super League">🇨🇭 Swiss SL</option>
+            <option value="USL Championship">🇺🇸 USL Champ</option>
+            <option value="USL League One">🇺🇸 USL League 1</option>
+            <option value="Prva HNL">🇭🇷 Prva HNL</option>
+            <option value="LigaPro">🇪🇨 LigaPro</option><option value="Liga I">🇷🇴 Liga I</option><option value="Persian Gulf Pro League">🇮🇷 Persian Gulf Pro League</option><option value="Serie A Ecuador">🇪🇨 Serie A Ecuador</option>
+            <option value="División de Honor">🇵🇾 Div. Honor</option>
+            <option value="Serie B">🇮🇹 Serie B</option>
+            <option value="Ligue 2">🇫🇷 Ligue 2</option>
+            <option value="Liga AUF">🇺🇾 Liga AUF</option>
+            <option value="J1 League">🇯🇵 J1 League</option>
+            <option value="Betway Premiership">🇿🇦 Betway Premiership</option>
+            <option value="Ekstraklasa">🇵🇱 Ekstraklasa</option>
+            <option value="efbet Liga">🇧🇬 efbet Liga</option>
+            <option value="Liga FUTVE">🇻🇪 Liga FUTVE</option>
+            <option value="Canadian Premier League">🇨🇦 Canadian Premier League</option>
+            <option value="Liga de Primera">🇨🇱 Liga de Primera</option>
+            <option value="K League 1">🇰🇷 K League 1</option>
+            <option value="Chance Liga">🇨🇿 Chance Liga</option>
+            <option value="Super League Greece">🇬🇷 Super League Greece</option>
+          </select>
+        </div>
+        <div id="ch-top"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYERS -->
+  <div id="s-players" class="section">
+    <div class="tblwrap">
+      <div class="tblhead">
+        <span class="tbl-title">Player Database</span>
+        <div class="tbl-acts">
+          <span class="pg-inf" id="pg-lbl">—</span>
+          <button class="srtb on" id="sb-fga" onclick="setSort('fga')"><i class="fas fa-sort-amount-down"></i> FGA /100</button>
+          <button class="srtb" id="sb-ult" onclick="setSort('ult')">ULT</button>
+          <button class="srtb" id="sb-age" onclick="setSort('age')">Age</button>
+          <button class="srtb" id="sb-g" onclick="setSort('g')">Goals</button>
+          <button class="srtb" id="sb-mp" onclick="setSort('mp')">MP</button>
+        </div>
+      </div>
+      <div class="tblscroll">
+        <table>
+          <thead><tr>
+            <th style="width:20px;padding-left:12px">#</th>
+            <th style="width:175px" onclick="setSort('n')">Player</th>
+            <th class="c" style="width:34px" onclick="setSort('pos')">Pos</th>
+            <th class="c" style="width:34px" onclick="setSort('age')">Age</th>
+            <th style="width:140px" onclick="setSort('sq')">Club</th>
+            <th class="c" style="width:72px" onclick="setSort('l')">League</th>
+            <th class="c" style="width:28px" onclick="setSort('mp')">MP</th>
+            <th class="c" style="width:26px" onclick="setSort('g')" title="Goals (outfield) / Save% (GK)">G</th>
+            <th class="c" style="width:26px" onclick="setSort('a')" title="Assists (outfield) / Clean Sheet % (GK)">A</th>
+            <th class="fga-col" style="width:148px" onclick="setSort('fga')">★ FGA / 100</th>
+            <th class="c" style="width:158px" onclick="setSort('obi')" title="Empire's video-scouting layer: character, decision-making, coachability, off-ball intelligence — the layer no stats platform can replicate. Click any player to see full breakdown.">TIER 3 &middot; SCOUT INTEL</th>
+            <th style="width:105px">Manager</th>
+            <th class="c" style="width:50px">+</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="pgn" id="pgn"></div>
+    </div>
+  </div>
+
+  <!-- SCOUTING TOOL -->
+  <div id="s-scout" class="section">
+    <div class="scout-wrap">
+      <div class="sh"><div><div class="st">Scouting Tool</div><div class="ss">Build a shortlist across all 25,573 players &mdash; filter by position, age, nationality, league, club, goals and FGA rating</div></div></div>
+      <p class="scout-note">
+        Height is <em>not tracked</em> in this database, so it can't be filtered on yet &mdash; that's a data-collection
+        gap, not a UI limitation. Position matching checks whether a player's position tag <em>contains</em> the
+        selected code, so a compound tag like "FWMF" still matches a search for "FW". Only 2,796 of 25,573 players
+        have a computed FGA rating &mdash; check "Graded only" to restrict results to those.
+      </p>
+      <div class="scout-filters">
+        <div class="fgrp"><label>Position</label>
+          <select id="sc-pos"><option value="">Any</option><option value="GK">GK</option><option value="DF">DF</option><option value="MF">MF</option><option value="FW">FW</option></select>
+        </div>
+        <div class="fgrp"><label>Age</label>
+          <div style="display:flex;gap:4px;align-items:center">
+            <input type="number" id="sc-amin" min="15" max="45" placeholder="min">
+            <span style="color:var(--t3)">&ndash;</span>
+            <input type="number" id="sc-amax" min="15" max="45" placeholder="max">
+          </div>
+        </div>
+        <div class="fgrp"><label>Nationality</label>
+          <select id="sc-nat"><option value="">Any</option></select>
+        </div>
+        <div class="fgrp"><label>League</label>
+          <select id="sc-lg"><option value="">Any</option></select>
+        </div>
+        <div class="fgrp"><label>Club</label>
+          <select id="sc-cl"><option value="">Any</option></select>
+        </div>
+        <div class="fgrp"><label>Min Goals</label>
+          <input type="number" id="sc-gmin" min="0" placeholder="0">
+        </div>
+        <div class="fgrp"><label>FGA Rating</label>
+          <div style="display:flex;gap:4px;align-items:center">
+            <input type="number" id="sc-fmin" min="0" max="100" placeholder="min">
+            <span style="color:var(--t3)">&ndash;</span>
+            <input type="number" id="sc-fmax" min="0" max="100" placeholder="max">
+          </div>
+        </div>
+        <div class="fgrp"><label>&nbsp;</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--t2);cursor:pointer;white-space:nowrap">
+            <input type="checkbox" id="sc-graded" style="width:auto"> Graded only
+          </label>
+        </div>
+        <div class="scout-actbar">
+          <span class="scout-count" id="scout-count">&mdash;</span>
+          <button class="scout-btn" onclick="scoutApplyF()"><i class="fas fa-search"></i> Search</button>
+          <button class="scout-btn reset" onclick="scoutResetF()">Reset</button>
+        </div>
+      </div>
+      <div class="scout-grid" id="scout-grid"></div>
+      <button class="scout-more" id="scout-more" style="display:none" onclick="scoutLoadMore()">Load more</button>
+    </div>
+  </div>
+
+  <!-- TARGETS -->
+  <div id="s-targets" class="section">
+    <div class="sh">
+      <div><div class="st">Scouting Targets</div><div class="ss">Personal watchlist · Session-based storage · max 20</div></div>
+      <button class="clrbtn" id="clr-btn" style="display:none" onclick="clearAll()"><i class="fas fa-trash"></i> Clear All</button>
+    </div>
+    <div class="tgt-grid" id="tgt-grid"></div>
+    <div class="cmp-wrap" id="cmp-w" style="display:none">
+      <div class="cmp-hdr"><i class="fas fa-code-compare" style="margin-right:5px"></i>Head-to-Head Comparison</div>
+      <div class="cmp-scroll"><table class="cmptbl" id="cmptbl"></table></div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div id="s-metrics" class="section">
+    <div class="sh"><div><div class="st">779 Proprietary Metrics</div><div class="ss">Tier 1: 20% automated · Tier 2: 30% composite · Tier 3: 50% expert scout</div></div></div>
+    <div class="mwrap" id="mwrap"></div>
+  </div>
+
+  <!-- PHILOSOPHIES -->
+  <div id="s-phil" class="section">
+    <div class="sh"><div><div class="st">60-Philosophy Tactical Framework</div><div class="ss">Trophy Magnet Factor = weighted average across all 60 tactical philosophies from 15 schools</div></div></div>
+    <div class="spills" id="spills"></div>
+    <div class="philgrid" id="philgrid"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="ov" onclick="closeModal(event)">
+  <div id="modal">
+    <button class="m-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div id="mc"></div>
+  </div>
+</div>
+
+<script>
