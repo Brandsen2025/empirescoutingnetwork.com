@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rodrigo Monserrat | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#c41e3a;--accent-dim:rgba(196,30,58,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--teal:#00c5a8;--tier1:#ff3b3b;--tier2:#ffb800;--tier3:#d4a020;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo{position:absolute;inset:0;background:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuOnZQ9eL8bptJyzfc_ldzE-fZ_IBtfVqR2Vsz-5MG6LFYK2KBONPoOqw&s=10') center 20% / cover no-repeat;filter:brightness(0.42) saturate(0.9);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(196,30,58,0.22) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#c41e3a 33%,#fbbf24 33%,#fbbf24 66%,#c41e3a 66%);z-index:10;}
+.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#dbeafe;border:1px solid rgba(196,30,58,0.45);}
+.champ-badge::before{content:'ARG · ';font-weight:800;color:var(--gold);}
+.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(196,30,58,0.07);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item.current{background:var(--accent-dim);border-color:rgba(196,30,58,0.45);color:#fca5a5;}
+.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag{font-size:1.1rem;font-weight:700;color:var(--gold);}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club{background:var(--accent-dim);color:#fca5a5;border:1px solid rgba(196,30,58,0.35);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.28);}
+.tag-warning{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-record{background:rgba(196,30,58,0.15);color:#fca5a5;border:1px solid rgba(196,30,58,0.4);}
+.tag-puskas{background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(196,30,58,0.2));color:var(--gold);border:1px solid rgba(251,191,36,0.5);}
+.fga-dial-wrap{position:relative;width:160px;height:160px;flex-shrink:0;}
+.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--warning);}
+.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:1.55rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.28);}
+.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3{background:rgba(212,160,32,0.12);color:#f4b84a;border:1px solid rgba(212,160,32,0.28);}
+.season-selector{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;background:var(--bg-card);padding:16px 20px;border-radius:12px;border:1px solid var(--border-subtle);max-width:1200px;margin:20px auto 0;}
+.season-selector label{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+.season-selector select{background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-medium);border-radius:8px;padding:8px 16px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;cursor:pointer;outline:none;min-width:280px;}
+.season-selector select:hover{border-color:var(--accent);}
+.season-selector select option{background:var(--bg-primary);color:var(--text-primary);}
+.season-average{font-family:var(--font-heading);font-size:0.85rem;color:var(--text-secondary);margin-left:auto;padding:4px 12px;background:var(--accent-dim);border-radius:100px;border:1px solid rgba(196,30,58,0.35);display:flex;align-items:center;gap:8px;}
+.season-average strong{color:var(--gold);font-size:1rem;}
+.trend-arrow{font-size:1.2rem;line-height:1;}
+.trend-up{color:var(--success);}.trend-down{color:var(--danger);}.trend-flat{color:var(--text-tertiary);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:#fca5a5;border-bottom-color:#fca5a5;background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-verified{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.22);color:var(--danger);}
+.banner-gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;}
+.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;line-height:1;}
+.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}
+.pos-map-wrap svg{max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;}
+.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;}
+.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}
+.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}
+.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}
+.scout-verdict{background:var(--accent-dim);border:1px solid rgba(196,30,58,0.25);}.scout-verdict h4{color:#fca5a5;}
+.scout-box ul{list-style:none;padding:0;margin:0;}
+.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before{content:'\2014';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(196,30,58,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(196,30,58,0.2);border-radius:12px;padding:20px;}
+.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:#fca5a5;margin-bottom:12px;}
+.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label{color:var(--text-tertiary);}
+.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(196,30,58,0.5);}
+.timeline-item.hist::before{background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);}
+.timeline-item.danger::before{background:var(--danger);border-color:var(--danger);}
+.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;color:#fca5a5;}
+.timeline-item.hist .timeline-date{color:var(--success);}
+.timeline-item.champ .timeline-date{color:var(--gold);}
+.timeline-item.danger .timeline-date{color:var(--danger);}
+.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas{width:100%!important;height:100%!important;}
+.recommendation-card{border-left:4px solid var(--accent);background:linear-gradient(135deg,rgba(196,30,58,0.1),rgba(10,10,15,0.5));}
+.key-strengths{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.strength-item{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:8px 16px;display:flex;align-items:center;gap:8px;}
+.strength-item .label{font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
+.strength-item .value{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--gold);}
+.league-compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.league-compare-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;}
+.league-compare-card .league-flag{font-size:1.8rem;margin-bottom:4px;}
+.league-compare-card .league-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.league-compare-card .league-tier{font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.league-compare-card .projected-goals{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);margin:8px 0 2px;}
+.league-compare-card .projected-label{font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;}
+.league-compare-card .log-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:0.6rem;font-weight:700;background:rgba(196,30,58,0.12);color:#fca5a5;border:1px solid rgba(196,30,58,0.3);margin-top:6px;}
+.league-compare-card .multiplier{font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;}
+.league-compare-card .multiplier strong{color:var(--text-secondary);}
+.pairing-row{display:grid;grid-template-columns:80px 1fr 120px 120px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-subtle);}
+.pairing-row:last-child{border-bottom:none;}
+.pairing-pct{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);text-align:center;}
+.pairing-name{font-family:var(--font-heading);font-size:0.95rem;font-weight:600;color:var(--text-primary);}
+.pairing-meta{font-size:0.72rem;color:var(--text-tertiary);}
+.pairing-stat-label{font-family:var(--font-heading);font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.pairing-stat-value{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold);}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:block;cursor:pointer;transition:transform 0.2s,border-color 0.2s;}
+.match-card:hover{transform:translateY(-3px);border-color:#fca5a5;box-shadow:0 8px 24px rgba(196,30,58,0.15);}
+.match-thumb{height:120px;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center top;}
+.match-thumb .play-icon{width:48px;height:48px;background:rgba(196,30,58,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(196,30,58,0.5);}
+.match-thumb .play-icon svg{width:18px;height:18px;fill:rgba(255,255,255,0.7);margin-left:3px;}
+.match-info{padding:16px;}
+.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}
+.puskas-banner{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(196,30,58,0.08));border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.puskas-banner .puskas-icon{font-size:3rem;flex-shrink:0;}
+.puskas-banner .puskas-text{flex:1;min-width:260px;}
+.puskas-banner .puskas-text h3{font-family:var(--font-display);font-size:1.2rem;font-weight:600;text-transform:uppercase;color:var(--gold);margin-bottom:8px;letter-spacing:0.5px;}
+.puskas-banner .puskas-text p{font-size:0.82rem;color:var(--text-secondary);line-height:1.7;}
+.flag-box{border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:0.8rem;display:flex;align-items:flex-start;gap:10px;}
+.flag-box .icon{font-family:var(--font-heading);font-size:0.7rem;font-weight:700;flex-shrink:0;letter-spacing:0.5px;}
+.flag-box.validated{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);color:var(--success);}
+.flag-box.risk{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);color:var(--danger);}
+.flag-box.market{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);color:var(--info);}
+.flag-box.warn{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);color:var(--warning);}
+@media (max-width:768px){.hero{height:440px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:130px;height:130px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.season-selector{flex-direction:column;align-items:stretch;}.season-average{margin-left:0;text-align:center;}.pairing-row{grid-template-columns:70px 1fr;}.puskas-banner{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Colegiales · 2026 · Primera Nacional (Zona B)</div>
+  <div class="jersey-watermark">7</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Camioneros</div>
+      <div class="badge-item"><span style="color:var(--text-tertiary);">&gt;</span></div>
+      <div class="badge-item">Cerrito</div>
+      <div class="badge-item"><span style="color:var(--text-tertiary);">&gt;</span></div>
+      <div class="badge-item">Ferro</div>
+      <div class="badge-item"><span style="color:var(--text-tertiary);">&gt;</span></div>
+      <div class="badge-item">General Lamadrid</div>
+      <div class="badge-item"><span style="color:var(--text-tertiary);">&gt;</span></div>
+      <div class="badge-item current">Colegiales (loan)</div>
+    </div>
+    <h1 class="hero-name">Rodrigo Monserrat</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇦🇷</span> Argentina</span>
+      <span class="dot"></span>
+      <span>25 years (2 Dec 2000)</span>
+      <span class="dot"></span>
+      <span>186 cm · 78 kg</span>
+      <span class="dot"></span>
+      <span>Striker / Centre-Forward</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t3">T3 SINGLE EVENT 9.80</div>
+          <div class="tier-pill t2">T2 NOT COMPUTABLE</div>
+          <div class="tier-pill t1">T1 PARTIAL ~3.5</div>
+        </div>
+        <div class="hero-tags" id="heroTags" style="margin-top:10px;"></div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="160" height="160"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA PROVISIONAL</div>
+          <div class="fga-score">6.0–7.5</div>
+          <div class="fga-status">AVERAGE · VERY LIMITED DATA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="season-selector">
+  <label for="seasonSelect">Season</label>
+  <select id="seasonSelect" onchange="updateSeason()"></select>
+  <span class="season-average">
+    <span>FGA Provisional: <strong>6.0–7.5</strong></span>
+    <span class="trend-arrow trend-down">▼</span>
+  </span>
+</div>
+
+<div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
+  <div class="key-strengths" id="keyStrengths"></div>
+</div>
+
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" data-tab="attributes" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" data-tab="fga" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" data-tab="crossleague" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" data-tab="philosophy" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" data-tab="career" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" data-tab="scouting" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" data-tab="matches" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<main class="content">
+
+  <div id="overview" class="tab-panel active">
+    <div id="overviewBanners"></div>
+
+    <div class="puskas-banner">
+      <div class="puskas-icon">⚽</div>
+      <div class="puskas-text">
+        <h3>🏆 Puskas Award Candidate — 57-Second Golazo from Midfield</h3>
+        <p>12 September 2026 · Colegiales 1–0 Nueva Chicago · Fecha 29, Primera Nacional (Zona B). Monserrat received a loose ball just past the halfway line, took one look at goalkeeper Facundo Masuero off his line, and struck a first-time right-footed half-volley (<em>de sobrepique</em>) from over 40 metres. The ball flew cleanly over the back-pedaling keeper into the top corner. The goal went viral immediately, with Argentine media and fans calling it a Puskas Award candidate. Report grade: <strong>9.80/10 (Elite / Ghost)</strong>.</p>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,rgba(255,184,0,0.12),rgba(255,184,0,0.03));border:2px solid rgba(255,184,0,0.35);border-radius:14px;padding:24px;margin-bottom:20px;">
+      <div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;letter-spacing:1.5px;color:var(--warning);text-transform:uppercase;margin-bottom:8px;">⚠️ SAMPLE SIZE WARNING — READ FIRST</div>
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+        <div>
+          <div style="font-family:var(--font-display);font-size:3.4rem;font-weight:700;color:var(--gold);line-height:1;">9.80</div>
+          <div style="font-family:var(--font-heading);font-size:0.9rem;color:#fca5a5;font-weight:600;letter-spacing:0.5px;margin-top:6px;">Tier 3 · Single Event</div>
+          <div style="font-family:var(--font-heading);font-size:0.75rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">5 metrics · 1 goal · 1 match</div>
+        </div>
+        <div style="flex:1;min-width:280px;">
+          <h4 style="font-family:var(--font-display);font-size:1.1rem;font-weight:600;text-transform:uppercase;color:#fca5a5;margin-bottom:8px;">◆ The Most Limited File in the Series</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">This is <strong>not a multi-match Tier 3 assessment</strong>. The Empire FGA framework requires a minimum of <strong>5 matches</strong> with <strong>3 qualifying events per sub-metric</strong> before Tier 3 scores are considered validated. This file carries <strong>5 events — all from a single goal, in a single match</strong>. The 9.80 Tier 3 mean is therefore a <strong>single-moment grade</strong>, not a representative sample. The Tier 1 statistical foundation is partial (goals and assists only — xG, passing, possession not available). <strong>FGA_v3_Final is BLOCKED.</strong> The provisional range reflects the midpoint between an elite single-moment grade and modest season output.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-hero-grid" id="heroStatsGrid"></div>
+
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+    <div class="pos-map-wrap">
+      <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+        <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a5a1a" stroke="#4a8c4a" stroke-width="2"/>
+        <line x1="260" y1="10" x2="260" y2="330" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="35" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="10" y="105" width="55" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="445" y="105" width="65" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="455" cy="170" r="17" fill="rgba(196,30,58,0.4)" stroke="#fca5a5" stroke-width="2.5"/>
+        <circle cx="455" cy="170" r="12" fill="#c41e3a" stroke="#fff" stroke-width="2"/>
+        <text x="455" y="175" text-anchor="middle" fill="#fff" font-family="Oswald,sans-serif" font-size="11" font-weight="700">7</text>
+        <text x="455" y="203" text-anchor="middle" fill="#fca5a5" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600">ST — STRIKER</text>
+        <text x="455" y="217" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="7" opacity="0.75">Physical · Long-range · Clutch</text>
+      </svg>
+      <div class="pos-map-caption">Tactical board · Primary: Striker · Physical profile · Long-range shooting specialist</div>
+    </div>
+
+    <div class="grid-3" id="overviewProfileCards"></div>
+
+    <div class="section-title">Tactical DNA Pairing — Argentine Physical Striker Archetype <span class="line"></span></div>
+    <div class="card">
+      <div class="banner banner-warning" style="margin-bottom:16px;"><span>⚠️</span> <strong>METHODOLOGY DISCLOSED.</strong> No pairing set was supplied in the source material. The set below is <strong>derived by this analysis</strong> using a stated 5-dimension weighted rubric. Every percentage is auditable. Challenge the rubric if you disagree.</div>
+
+      <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:16px;font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+        <strong style="color:var(--text-primary);">Composite = </strong>(Position/Role × 0.25) + (Physical Profile × 0.20) + (Foot × 0.10) + (Style/Mechanism × 0.25) + (Level/Context of Production × 0.20)
+      </div>
+
+      <div class="pairing-row">
+        <div class="pairing-pct">72%</div>
+        <div><div class="pairing-name">Gustavo Bou</div><div class="pairing-meta">Primary · Argentina · 177cm · Racing → New England · Long-range specialist</div></div>
+        <div><div class="pairing-stat-label">Style mechanism</div><div class="pairing-stat-value">84%</div></div>
+        <div><div class="pairing-stat-label">Long-range</div><div class="pairing-stat-value">88%</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">70%</div>
+        <div><div class="pairing-name">Lucas Pratto</div><div class="pairing-meta">Secondary · Argentina · 186cm · Vélez → Atlético Mineiro → River Plate</div></div>
+        <div><div class="pairing-stat-label">Height match</div><div class="pairing-stat-value">100%</div></div>
+        <div><div class="pairing-stat-label">Physical</div><div class="pairing-stat-value">86%</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">68%</div>
+        <div><div class="pairing-name">José Sand</div><div class="pairing-meta">Tertiary · Argentina · 178cm · Tigre → Lanús → Deportivo Cali</div></div>
+        <div><div class="pairing-stat-label">Clutch record</div><div class="pairing-stat-value">82%</div></div>
+        <div><div class="pairing-stat-label">Box profile</div><div class="pairing-stat-value">85%</div></div>
+      </div>
+      <div class="pairing-row" style="opacity:0.8;">
+        <div class="pairing-pct" style="color:var(--silver);">65%</div>
+        <div><div class="pairing-name">Mauro Boselli</div><div class="pairing-meta">Extended · Argentina · 181cm · Boca → Wigan → León → Corinthians</div></div>
+        <div><div class="pairing-stat-label">Style mechanism</div><div class="pairing-stat-value">80%</div></div>
+        <div><div class="pairing-stat-label">Level/Context</div><div class="pairing-stat-value" style="color:var(--danger);">Divergence</div></div>
+      </div>
+
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.2);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--danger);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">⚠️ Archetype Match ≠ Output Match</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">Every reference in this set is a <strong>proven goalscorer at Primera División or equivalent level</strong>. Monserrat's <strong>0.28 G/90 in Primera Nacional (LOG ≈ 2.4)</strong> places him below every reference on output. The match is strongest on <strong>style mechanism</strong> (84–88% — long-range shooting, physical profile) and weakest on <strong>level of production</strong>. The archetype is correct; the output is not yet proven.</div>
+      </div>
+    </div>
+
+    <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+    <div class="grid-2" id="philosophyFits"></div>
+    <div class="card recommendation-card" style="margin-top:12px;" id="recommendationCard"></div>
+  </div>
+
+  <div id="attributes" class="tab-panel">
+    <div class="banner banner-verified"><span>★</span> <strong>Single-Event Video Assessment.</strong> 5 metrics scored, all from the 57-second goal vs Nueva Chicago. Mean quality: <strong>9.80</strong>.</div>
+    <div class="banner banner-danger"><span>⚠️</span> <strong>This is NOT a multi-match Tier 3 assessment.</strong> 5 events, 1 match. The framework requires 5+ matches and 3+ events per sub-metric. Treat as a highlight-reel grade, not a representative sample.</div>
+    <div id="attributeCards"></div>
+    <div class="card" style="margin-top:20px;"><div style="max-width:520px;margin:0 auto;"><canvas id="attrRadar" width="400" height="350"></canvas></div></div>
+  </div>
+
+  <div id="fga" class="tab-panel">
+    <div id="fgaBanner"></div>
+    <div id="fgaContent"></div>
+  </div>
+
+  <div id="crossleague" class="tab-panel">
+    <div class="banner banner-warning"><span>📊</span> <strong>LOG-ADJUSTED CROSS-LEAGUE PROJECTIONS</strong> — Source: Primera Nacional (LOG ≈ 2.4). Base: 6.75 (provisional midpoint). <strong>Every projection assumes the Tier 3 single-event grade is indicative of the player's true level — which is not proven.</strong></div>
+    <div class="section-title">Performance Projection by League <span class="line"></span></div>
+    <div class="league-compare-grid" id="crossLeagueGrid"></div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📐 Methodology — LOG-Adjusted Projection</h3>
+      <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+        <p><strong>Adjusted Score = Base FGA × (Source LOG ÷ Target LOG)</strong></p>
+        <p style="margin-top:8px;"><strong>Source:</strong> Primera Nacional (Argentina 2nd tier) — LOG ≈ <strong>2.4</strong> (structural estimate; below Argentine Primera 3.4).</p>
+        <p style="margin-top:4px;"><strong>Base FGA:</strong> <strong>6.75</strong> — provisional midpoint.</p>
+        <p style="margin-top:4px;color:var(--text-tertiary);font-size:0.72rem;">Note: This is a hypothetical projection, not a rating. Any upward move requires new Tier 3 video validation. The single-event grade (9.80) is not a valid basis for a league projection on its own.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="philosophy" class="tab-panel">
+    <div class="banner banner-warning"><span>⚠️</span> <strong>Philosophy fit estimates are derived by this analysis</strong> from the single-event Tier 3 pattern (long-range shooting, physical profile, clutch). They are <strong>not computed by the 60-philosophy formula</strong>. Treat as directional only.</div>
+    <div class="grid-2">
+      <div class="card"><h3 class="section-title" style="margin-bottom:16px;">Estimated Philosophy Fits</h3><div id="philosophyFitList"></div></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;"><div class="radar-container"><canvas id="philosophyRadar2" width="500" height="450"></canvas></div></div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:#fca5a5;">Tactical Archetype</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;" id="philosophyArchetype"></p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="philosophyTags"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">School Averages <span class="line"></span></div>
+    <div class="grid-4" id="schoolAverages"></div>
+  </div>
+
+  <div id="career" class="tab-panel">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card" style="max-width:100%;overflow-x:hidden;">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+        <div class="timeline" id="careerTimeline"></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+        <div id="careerStatsTable"></div>
+        <h3 class="section-title" style="margin:24px 0 16px;">Honours & Notable</h3>
+        <table class="data-table" id="honoursTable"><thead><tr><th>Item</th><th>Detail</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+    <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
+    <div class="grid-2">
+      <div class="physical-card">
+        <h4>Physical Profile</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Age</span><span class="value">25 (2 Dec 2000)</span></div>
+          <div class="physical-item"><span class="label">Height</span><span class="value">186 cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">78 kg</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Striker / Centre-Forward</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Citizenship</span><span class="value">Argentina</span></div>
+          <div class="physical-item"><span class="label">Current Club</span><span class="value">Colegiales (loan)</span></div>
+          <div class="physical-item"><span class="label">Parent Club</span><span class="value">General Lamadrid</span></div>
+          <div class="physical-item"><span class="label">League</span><span class="value">Primera Nacional (LOG ≈ 2.4)</span></div>
+          <div class="physical-item"><span class="label">Contract</span><span class="value">Expires 31 Dec 2026</span></div>
+          <div class="physical-item"><span class="label">Market value</span><span class="value">€50k</span></div>
+          <div class="physical-item"><span class="label">Squad number</span><span class="value">#7 (report) / #20 (Transfermarkt)</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+        <div class="flag-box risk"><div class="icon">⚠️ SINGLE MATCH ONLY</div><div><strong>5 events from 1 match.</strong> The 9.80 Tier 3 mean is a single-moment grade, not a representative sample. Does not meet the 5-match minimum.</div></div>
+        <div class="flag-box risk" style="margin-top:10px;"><div class="icon">⚠️ TIER 1 PARTIAL</div><div><strong>Goals and assists only.</strong> xG, passing, possession not available. Tier 2 not computable.</div></div>
+        <div class="flag-box warn" style="margin-top:10px;"><div class="icon">⚠️ RED CARD</div><div><strong>1 red card (second yellow) vs Almagro (5 Apr 2026).</strong> Discipline flag — 1 red in 952 minutes.</div></div>
+        <div class="flag-box validated" style="margin-top:10px;"><div class="icon">✅ VIRAL MOMENT</div><div><strong>Puskas Award candidate.</strong> 57-second goal from midfield vs Nueva Chicago. National media coverage. The highest-profile moment of the 2026 season.</div></div>
+        <div class="flag-box market" style="margin-top:10px;"><div class="icon">ℹ️ NO COACH · NO 2ND SCOUT</div><div>COACH not scored. No blind cross-validation. FGA_v3_Final BLOCKED.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scouting" class="tab-panel"><div id="scoutingContent"></div></div>
+
+  <div id="matches" class="tab-panel">
+    <div class="banner banner-gold"><span>◆</span> <strong>Match Footage — Colegiales 1–0 Nueva Chicago · 12 September 2026 · Fecha 29, Primera Nacional (Zona B)</strong> — The 57-second golazo. Estadio Libertarios Unidos, Munro.</div>
+    <div class="section-title" style="margin-bottom:16px;">🎬 The Goal — 57 Seconds</div>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="card" style="margin-top:24px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Event Log — 5 Scored Events (Single Goal)</h3>
+      <div id="eventLogTable"></div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;">2026 Colegiales — Season Snapshot</h3>
+      <div class="grid-3">
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:#fca5a5;margin-bottom:10px;">Primera Nacional (Zona B)</h4>
+          <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+            <strong style="color:var(--gold);">18</strong> — Matches<br />
+            <strong style="color:var(--gold);">12</strong> — Starts<br />
+            <strong style="color:var(--gold);">3</strong> — Goals<br />
+            <strong style="color:var(--danger);">0</strong> — Assists<br />
+            <strong style="color:var(--gold);">0.28</strong> — G/90
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:#fca5a5;margin-bottom:10px;">Discipline 2026</h4>
+          <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+            <strong style="color:var(--danger);">1</strong> — Red card (2nd yellow)<br />
+            <strong style="color:var(--text-tertiary);">0</strong> — Yellow cards<br />
+            <strong style="color:var(--text-tertiary);">—</strong> — Fouls/90 (n/a)<br />
+            Discipline flag active
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:#fca5a5;margin-bottom:10px;">Recognition</h4>
+          <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+            <strong style="color:var(--gold);">Puskas Award</strong> — candidate discussion<br />
+            <strong style="color:var(--gold);">Viral goal</strong> — national media<br />
+            <strong style="color:var(--gold);">83rd percentile</strong> — G/90 in Prim B Nacional
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;">The Goal — Full Description</h3>
+      <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+        <p><strong style="color:var(--text-primary);">57 seconds.</strong> Franco Zicarelli flicked a header into the centre circle. A Nueva Chicago player miscontrolled. The ball fell to Monserrat, roughly 42 metres from goal. He took one look up, spotted goalkeeper Facundo Masuero off his line, and — without taking a controlling touch — struck a first-time right-footed half-volley. The ball travelled in a flat, dipping arc over the back-pedaling keeper and into the top corner. 1–0. The goal was the only score of the match, and it ended up being the winner.</p>
+        <p style="margin-top:12px;"><strong style="color:var(--gold);">The moment was widely shared on Argentine social media</strong>, with users immediately calling it a Puskas Award candidate. The clip was carried by TyC Sports, Infobae, Olé, La Nación, and OneFootball. Monserrat's post-match quote: <em>"Muy contento. Siempre que me queda lejos trato de probar y por suerte volvió a entrar."</em> ("Very happy. Whenever the ball falls to me from distance I try my luck, and luckily it went in again.")</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+var careerSeasons = [
+  { id:'2026', label:'2026 · Colegiales (loan) · Primera Nacional', club:'Colegiales', league:'Primera Nacional', apps:18, starts:12, goals:3, assists:0, minutes:952, g90:0.28, fga:6.75, age:'25', badge:'Colegiales · 2026 · Primera Nacional', t3Status:'Video Graded — 1 match, 5 events', photo:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuOnZQ9eL8bptJyzfc_ldzE-fZ_IBtfVqR2Vsz-5MG6LFYK2KBONPoOqw&s=10' },
+  { id:'2025', label:'2025 · General Lamadrid · Primera C', club:'General Lamadrid', league:'Primera C', apps:16, starts:16, goals:13, assists:0, minutes:1440, g90:0.81, fga:null, age:'24-25', badge:'General Lamadrid · 2025 · Top Scorer (13 goals)', t3Status:'Not Assessed', photo:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuOnZQ9eL8bptJyzfc_ldzE-fZ_IBtfVqR2Vsz-5MG6LFYK2KBONPoOqw&s=10' },
+  { id:'2024', label:'2024 · General Lamadrid · Primera C', club:'General Lamadrid', league:'Primera C', apps:0, starts:0, goals:0, assists:0, minutes:0, g90:0, fga:null, age:'23-24', badge:'General Lamadrid · 2024 · Torneo Apertura Winner', t3Status:'Not Assessed', photo:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuOnZQ9eL8bptJyzfc_ldzE-fZ_IBtfVqR2Vsz-5MG6LFYK2KBONPoOqw&s=10' },
+  { id:'2023', label:'2023 · Cerrito (loan) · Uruguay', club:'Cerrito', league:'Uruguay', apps:0, starts:0, goals:0, assists:0, minutes:0, g90:0, fga:null, age:'22-23', badge:'Cerrito · 2023 · Loan (Uruguay)', t3Status:'Not Assessed', photo:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuOnZQ9eL8bptJyzfc_ldzE-fZ_IBtfVqR2Vsz-5MG6LFYK2KBONPoOqw&s=10' },
+  { id:'2021-22', label:'2021–22 · Camioneros · Torneo Federal A', club:'Camioneros', league:'Torneo Federal A', apps:20, starts:0, goals:4, assists:0, minutes:0, g90:0.20, fga:null, age:'20-22', badge:'Camioneros · 2021-22 · Torneo Federal A', t3Status:'Not Assessed', photo:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuOnZQ9eL8bptJyzfc_ldzE-fZ_IBtfVqR2Vsz-5MG6LFYK2KBONPoOqw&s=10' }
+];
+
+var logReference = {
+  'Primera Nacional':{tier:2.4,flag:'🇦🇷',short:'Prim Nac'},
+  'Primera División Argentina':{tier:3.4,flag:'🇦🇷',short:'Primera'},
+  'Eredivisie':{tier:2.8,flag:'🇳🇱',short:'Eredivisie'},
+  'Liga MX':{tier:2.7,flag:'🇲🇽',short:'Liga MX'},
+  'MLS':{tier:2.6,flag:'🇺🇸',short:'MLS'},
+  'Primera C':{tier:1.8,flag:'🇦🇷',short:'Primera C'},
+  'Torneo Federal A':{tier:1.9,flag:'🇦🇷',short:'Federal A'}
+};
+var crossLeagues = ['Primera División Argentina','Eredivisie','Liga MX','MLS','Primera Nacional'];
+
+var careerTimelineData = [
+  {date:'2 December 2000 · Born', text:'Born in <strong>Claypole, Argentina</strong>. Height 186cm, weight 78kg, right-footed. Position: Striker / Centre-Forward. Youth career at CASyD Camioneros.', type:''},
+  {date:'2021–2022 · Camioneros', text:'<strong>20 appearances, 4 goals, 0.20 G/90</strong> in Torneo Federal A. First senior football.', type:'hist'},
+  {date:'2023 · Cerrito (loan, Uruguay)', text:'Loan spell in Uruguay. Limited first-team action.', type:'hist'},
+  {date:'2024 · General Lamadrid', text:'Joined <strong>General Lamadrid</strong>. Won the <strong>Torneo Apertura</strong> with the club.', type:'hist'},
+  {date:'2025 · General Lamadrid', text:'<strong>Top scorer with 13 goals.</strong> Won the Torneo Apertura 2024 and was the maximum scorer of the 2025 season. <strong>This is the most productive season of his career.</strong>', type:'champ'},
+  {date:'2026 · Colegiales (loan)', text:'Joined <strong>Colegiales</strong> on loan. <strong>18 Primera Nacional matches, 12 starts, 3 goals, 0 assists, 0.28 G/90.</strong> 1 red card (second yellow vs Almagro, 5 Apr 2026).', type:'current'},
+  {date:'12 September 2026 · The 57-Second Golazo', text:'<strong>THE DEFINING MOMENT.</strong> Colegiales 1–0 Nueva Chicago. From over 40 metres, Monserrat spotted the goalkeeper off his line and struck a first-time right-footed half-volley into the top corner — <strong>57 seconds into the match</strong>. The goal went viral and was discussed as a Puskas Award candidate. 5 events logged, mean quality 9.80.', type:'champ'},
+  {date:'Tier 3 Assessment Status', text:'<strong>5 events, 1 match.</strong> This is a single-moment grade, not a multi-match assessment. The framework requires 5+ matches with 3+ events per sub-metric. <strong>FGA_v3_Final BLOCKED.</strong>', type:'danger'},
+  {date:'Tier 1 Status', text:'<strong>Partial only.</strong> Goals and assists available from FBref/Sofascore. xG, passing, possession not available. Tier 2 not computable. The 0.28 G/90 rate places him 83rd percentile in Prim B Nacional for goals per 90.', type:'danger'}
+];
+
+var honoursData = [
+  {name:'★ Puskas Award candidate — 57-second goal from midfield vs Nueva Chicago', year:'2026'},
+  {name:'★ Top scorer, General Lamadrid — 13 goals', year:'2025'},
+  {name:'★ Torneo Apertura winner with General Lamadrid', year:'2024'},
+  {name:'★ 83rd percentile in Prim B Nacional for goals per 90 (0.28)', year:'2026'},
+  {name:'★ Career: 7 goals across Primera Nacional and Primera C', year:'2021–2026'}
+];
+
+var eventLog = [
+  {n:1, match:1, time:"< 02:00", code:'SOA', name:'Speed on Action', desc:'Spots goalkeeper off his line and strikes a first-time half-volley (de sobrepique) in under 0.5 seconds without taking a controlling touch.', score:10.0, type:'Elite'},
+  {n:2, match:1, time:"< 02:00", code:'DMA', name:'Decision Making', desc:'Evaluates match state instantly, choosing a high-value long-range lob over a conservative pass.', score:10.0, type:'Elite'},
+  {n:3, match:1, time:"< 02:00", code:'CRK', name:'Creative Risk Taking', desc:'Unloads an ambitious right-foot lob (latigazo de boquillada) from long distance.', score:10.0, type:'Elite'},
+  {n:4, match:1, time:"< 02:00", code:'STK', name:'Strike Technique', desc:'Executes lofted right-foot strike with precise trajectory and arc over the back-pedaling goalkeeper.', score:9.5, type:'Elite'},
+  {n:5, match:1, time:"< 02:00", code:'CRS', name:'Clutch Response Score', desc:'Scores game-opening goal under 2 minutes, shifting immediate match momentum for Colegiales.', score:9.5, type:'Elite'}
+];
+
+function renderKeyStrengths(strengths, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; strengths.forEach(function(s){ var d = document.createElement('div'); d.className = 'strength-item'; d.innerHTML = '<span class="label">'+s.label+'</span><span class="value">'+s.value+'</span>'; c.appendChild(d); }); }
+function renderBanners(banners, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; banners.forEach(function(b){ var d = document.createElement('div'); d.className = 'banner ' + b.type; d.innerHTML = b.text; c.appendChild(d); }); }
+function renderTags(tags, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; tags.forEach(function(t){ var s = document.createElement('span'); s.className = 'tag ' + t.class; s.textContent = t.text; c.appendChild(s); }); }
+function renderHeroStats(stats, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; stats.forEach(function(s){ var d = document.createElement('div'); d.className = 'stat-hero'; d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.label+'</div>'; c.appendChild(d); }); }
+function renderProfileCards(cards, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; cards.forEach(function(card){ var d = document.createElement('div'); d.className = 'card'; d.innerHTML = '<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">'+card.title+'</h3><div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">'+card.content+'</div>'; c.appendChild(d); }); }
+function renderPhilosophyFits(fits, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; var firstCard = document.createElement('div'); firstCard.className = 'card'; var html = ''; fits.forEach(function(f){ html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);"><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;">'+f.rank+'</div><div style="flex:1;font-size:0.85rem;color:var(--text-primary);">'+f.name+'</div><div style="width:120px;"><div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;border-radius:3px;width:'+f.width+';background:'+f.color+';"></div></div></div><div style="font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;">'+f.score+'</div></div>'; }); firstCard.innerHTML = html; c.appendChild(firstCard); }
+function renderRecommendation(text, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">'+text+'</div>'; }
+function metricColor(score) { if (score >= 8.5) return 'var(--success)'; if (score >= 7.0) return 'var(--gold)'; if (score >= 5.0) return 'var(--warning)'; return 'var(--danger)'; }
+
+function renderAttributeCards() {
+  var c = document.getElementById('attributeCards'); if (!c) return;
+  var html = '';
+  html += '<div class="card" style="margin-bottom:20px;"><h3 class="section-title" style="font-size:0.95rem;margin-bottom:16px;">Single-Event Metrics</h3>';
+  html += '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th>Code</th><th>Metric</th><th>Time</th><th>Observed Action</th><th>Score</th></tr></thead><tbody>';
+  eventLog.forEach(function(e){
+    var col = metricColor(e.score);
+    html += '<tr><td><strong style="color:var(--gold);">'+e.code+'</strong></td><td>'+e.name+'</td><td style="font-family:var(--font-heading);font-weight:700;color:#fca5a5;">'+e.time+'</td><td style="color:var(--text-tertiary);font-size:0.78rem;">'+e.desc+'</td><td><strong style="color:'+col+';">'+e.score.toFixed(1)+'</strong></td></tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div style="margin-top:14px;padding:12px 16px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.18);border-radius:8px;font-size:0.82rem;color:var(--warning);"><strong>Mean quality: 9.80 / 10.</strong> 5 events, 1 match. This does not meet the 5-match minimum for a validated Tier 3 assessment. Treat as indicative only.</div>';
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function renderFGA() {
+  var c = document.getElementById('fgaContent'); if (!c) return;
+  var banner = document.getElementById('fgaBanner');
+  if (banner) banner.innerHTML = '<div class="banner banner-danger"><span>⚠️</span> <strong>FGA Provisional: 6.0–7.5 — "Average / Very Good boundary".</strong> Extremely limited data. Single-event Tier 3 (9.80) vs partial Tier 1 (~3.5). FGA_v3_Final BLOCKED.</div>';
+
+  var html = '';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier Composition</h3>';
+  html += '<div style="display:flex;height:44px;border-radius:8px;overflow:hidden;border:1px solid var(--border-subtle);">';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#0a0a0f;padding:0 8px;background:linear-gradient(135deg,#d4a020,#a67a10);flex:5;">TIER 3 — 50% · 9.80 (single event)</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#fff;padding:0 8px;background:linear-gradient(135deg,#ff3b3b,#cc0000);flex:3;">TIER 2 — 30% · N/A ❌</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#fff;padding:0 8px;background:linear-gradient(135deg,#ff3b3b,#cc0000);flex:2;">TIER 1 — 20% · ~3.5 (partial)</div>';
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;"><span>1 match, 5 events</span><span>Not computable</span><span>Goals/assists only</span></div>';
+  html += '<div style="margin-top:16px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">Tier 3 (9.80) is a <strong style="color:var(--warning);">single-event grade</strong>, not a multi-match assessment. Tier 1 (~3.5) is <strong style="color:var(--danger);">partial</strong> — only goals and assists available. The two layers are not comparable: Tier 3 measures one moment; Tier 1 measures season output. <strong>The provisional range is a wide estimate.</strong></div>';
+  html += '</div>';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">How the Provisional Range Was Derived</h3>';
+  html += '<div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.9;">';
+  html += '<p>With Tier 2 not computable, the range is bounded by two scenarios:</p>';
+  html += '<div style="background:var(--bg-card-hover);border-radius:6px;padding:12px 16px;margin:8px 0;font-family:monospace;font-size:0.75rem;">Lower bound (6.0): T2 mirrors T1 (3.5)<br>0.50×9.80 + 0.30×3.5 + 0.20×3.5 = <strong style="color:var(--danger);">6.65</strong></div>';
+  html += '<div style="background:var(--bg-card-hover);border-radius:6px;padding:12px 16px;margin:8px 0;font-family:monospace;font-size:0.75rem;">Upper bound (7.5): T2 mirrors T3 (8.0)<br>0.50×9.80 + 0.30×8.0 + 0.20×3.5 = <strong style="color:var(--gold);">8.0</strong></div>';
+  html += '<p style="margin-top:10px;">The honest read is <strong style="color:var(--gold);">mid-range 6.0–7.5</strong>. This is a wide band because the underlying data is thin. FGA_v3_Final remains BLOCKED until more matches are logged.</p>';
+  html += '</div></div>';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Partial Statistical Detail</h3>';
+  html += '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th>Category</th><th>Value</th><th>Normalized</th><th>Band</th></tr></thead><tbody>';
+  html += '<tr><td><strong>Goals</strong></td><td>0.28 G/90 (2026) · 13 goals in 2025</td><td style="color:var(--warning);font-weight:700;">5.5</td><td>COMPETENT</td></tr>';
+  html += '<tr><td><strong>Assists</strong></td><td>0.00 A/90 — zero in 952 min</td><td style="color:var(--danger);font-weight:700;">1.0</td><td>BALL WATCHER</td></tr>';
+  html += '<tr><td>xG</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr><td>Passing</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr><td>Defending</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr><td>Possession</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Tier 1 Average — 2 of 6 categories</strong></td><td><strong style="color:var(--danger);">~3.5</strong></td><td><strong>PARTIAL</strong></td></tr>';
+  html += '</tbody></table></div>';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Career Arc — Season by Season</h3>';
+  html += '<div style="overflow-x:auto;"><table class="data-table" style="font-size:0.8rem;"><thead><tr><th>Season</th><th>Club</th><th>League</th><th>MP</th><th>Starts</th><th>Min</th><th>G</th><th>A</th><th>G/90</th></tr></thead><tbody>';
+  html += '<tr><td>2021–22</td><td>Camioneros</td><td>Federal A</td><td>20</td><td>—</td><td>—</td><td>4</td><td>0</td><td style="color:var(--warning);font-weight:700;">0.20</td></tr>';
+  html += '<tr><td>2023</td><td>Cerrito</td><td>Uruguay</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td style="color:var(--text-tertiary);">—</td></tr>';
+  html += '<tr><td>2024</td><td>General Lamadrid</td><td>Primera C</td><td>—</td><td>—</td><td>—</td><td>13</td><td>—</td><td style="color:var(--success);font-weight:700;">—</td></tr>';
+  html += '<tr><td>2025</td><td>General Lamadrid</td><td>Primera C</td><td>16</td><td>16</td><td>—</td><td>13</td><td>0</td><td style="color:var(--success);font-weight:700;">0.81</td></tr>';
+  html += '<tr style="background:rgba(196,30,58,0.08);"><td>2026</td><td>Colegiales</td><td>Prim Nac</td><td>18</td><td>12</td><td>952</td><td>3</td><td>0</td><td style="color:var(--gold);font-weight:700;">0.28</td></tr>';
+  html += '</tbody></table></div>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">The 2025 season at General Lamadrid (13 goals in Primera C) is the most productive of his career. The step up to Primera Nacional (2026) has produced 3 goals in 18 matches — a significant drop in output against stronger opposition.</div>';
+  html += '</div>';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Discipline & Risk</h3>';
+  html += '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th>Metric</th><th>2026</th><th>Context</th></tr></thead><tbody>';
+  html += '<tr><td>Red cards</td><td style="color:var(--danger);font-weight:700;">1</td><td>Second yellow vs Almagro (5 Apr 2026)</td></tr>';
+  html += '<tr><td>Yellow cards</td><td>0</td><td>—</td></tr>';
+  html += '<tr><td>Minutes per red card</td><td style="color:var(--danger);">952</td><td>Discipline flag active</td></tr>';
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">The red card (second yellow) in the Almagro match is the only discipline event in the file. With 0 yellow cards otherwise, this appears to be an isolated incident rather than a pattern.</div>';
+  html += '</div>';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📋 Punch List</h3>';
+  html += '<table class="data-table" style="font-size:0.8rem;"><thead><tr><th>#</th><th>Item</th><th>Priority</th></tr></thead><tbody>';
+  html += '<tr><td>1</td><td>Log 4+ more matches with 3+ events per sub-metric</td><td style="color:var(--danger);font-weight:700;">CRITICAL</td></tr>';
+  html += '<tr><td>2</td><td>Score COACH metric</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>3</td><td>Second scout for blind cross-validation</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>4</td><td>Source xG, passing, possession data</td><td style="color:var(--warning);">MEDIUM</td></tr>';
+  html += '<tr><td>5</td><td>Re-assess discipline (red card context)</td><td style="color:var(--warning);">MEDIUM</td></tr>';
+  html += '</tbody></table></div>';
+
+  c.innerHTML = html;
+}
+
+function renderCrossLeague() {
+  var sourceLog = 2.4;
+  var sourceFga = 6.75;
+  var grid = document.getElementById('crossLeagueGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  crossLeagues.forEach(function(name){
+    var ref = logReference[name]; if (!ref) return;
+    var ratio = sourceLog / ref.tier;
+    var proj = sourceFga * ratio;
+    var dir = ref.tier > sourceLog ? 'down' : (ref.tier < sourceLog ? 'up' : 'same');
+    var txt = ref.tier > sourceLog ? 'TOUGHER LEAGUE' : (ref.tier < sourceLog ? 'EASIER LEAGUE' : 'SAME LEVEL');
+    var card = document.createElement('div');
+    card.className = 'league-compare-card';
+    card.innerHTML = '<div class="league-flag">'+ref.flag+'</div><div class="league-name">'+name+'</div><div class="league-tier">'+ref.short+' · LOG '+ref.tier.toFixed(1)+'</div><div class="projected-goals">'+proj.toFixed(1)+'</div><div class="projected-label">Adjusted FGA</div><div class="multiplier">Multiplier: <strong>'+ratio.toFixed(2)+'×</strong></div><div class="log-badge">Base FGA: 6.75</div><div style="font-size:0.65rem;margin-top:6px;color:var(--text-tertiary);"><span style="'+(dir==='down'?'color:var(--danger);':(dir==='up'?'color:var(--success);':''))+'">'+txt+'</span></div>';
+    grid.appendChild(card);
+  });
+}
+
+function renderEventLog() {
+  var c = document.getElementById('eventLogTable'); if (!c) return;
+  var html = '<div style="overflow-x:auto;"><table class="data-table" style="font-size:0.78rem;"><thead><tr><th>#</th><th>Time</th><th>Code</th><th>Metric</th><th>Action</th><th>Score</th></tr></thead><tbody>';
+  eventLog.forEach(function(e){
+    var col = metricColor(e.score);
+    html += '<tr><td>'+e.n+'</td><td style="font-family:var(--font-heading);font-weight:700;color:#fca5a5;">'+e.time+'</td><td><strong style="color:var(--gold);">'+e.code+'</strong></td><td>'+e.name+'</td><td style="color:var(--text-tertiary);">'+e.desc+'</td><td><strong style="color:'+col+';">'+e.score.toFixed(1)+'</strong></td></tr>';
+  });
+  html += '</tbody></table></div>';
+  c.innerHTML = html;
+}
+
+function renderMatches() {
+  var grid = document.getElementById('matchGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  var match = {
+    title:'🎥 Colegiales 1–0 Nueva Chicago',
+    meta:'Primera Nacional · Fecha 29 · 12 Sept 2026',
+    desc:'The 57-second goal from over 40 metres. Right-footed half-volley over the goalkeeper. Puskas Award candidate. The only graded match in the file.',
+    videoUrl:'https://www.youtube.com/results?search_query=Colegiales+Nueva+Chicago+Monserrat+gol',
+    thumb:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuOnZQ9eL8bptJyzfc_ldzE-fZ_IBtfVqR2Vsz-5MG6LFYK2KBONPoOqw&s=10'
+  };
+  var card = document.createElement('a');
+  card.className = 'match-card';
+  card.href = match.videoUrl;
+  card.target = '_blank';
+  card.innerHTML = '<div class="match-thumb" style="background-image:url(\''+match.thumb+'\');background-size:cover;background-position:center top;"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="match-info"><div class="match-teams">'+match.title+'</div><div class="match-meta"><span class="match-badge badge-comp">'+match.meta+'</span><span class="match-badge badge-verified">🎬 Video</span></div><div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">'+match.desc+'</div></div>';
+  grid.appendChild(card);
+}
+
+function renderCareerTimeline() { var c = document.getElementById('careerTimeline'); if (!c) return; var html = ''; careerTimelineData.forEach(function(item){ html += '<div class="timeline-item '+item.type+'"><div class="timeline-date">'+item.date+'</div><div class="timeline-text">'+item.text+'</div></div>'; }); c.innerHTML = html; }
+
+function renderCareerStatsTable() {
+  var c = document.getElementById('careerStatsTable'); if (!c) return;
+  var html = '<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>League</th><th>MP</th><th>Starts</th><th>Min</th><th>G</th><th>A</th><th>G/90</th></tr></thead><tbody>';
+  careerSeasons.forEach(function(s){
+    var hl = (s.id === '2026') ? 'style="background:rgba(196,30,58,0.1);"' : (s.id === '2025' ? 'style="background:rgba(0,208,132,0.06);"' : '');
+    var gd = s.g90 >= 0.5 ? 'var(--success)' : (s.g90 > 0 ? 'var(--warning)' : 'var(--danger)');
+    html += '<tr '+hl+'><td>'+s.id+'</td><td>'+s.club+'</td><td style="font-size:0.72rem;">'+s.league+'</td><td>'+s.apps+'</td><td>'+s.starts+'</td><td>'+s.minutes+'</td><td>'+s.goals+'</td><td>'+s.assists+'</td><td style="color:'+gd+';font-weight:700;">'+(s.g90 ? s.g90.toFixed(2) : '—')+'</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  c.innerHTML = html;
+}
+
+function renderHonours() { var tbody = document.querySelector('#honoursTable tbody'); if (!tbody) return; tbody.innerHTML = ''; honoursData.forEach(function(h){ var tr = document.createElement('tr'); tr.innerHTML = '<td><strong>'+h.name+'</strong></td><td>'+h.year+'</td>'; tbody.appendChild(tr); }); }
+
+function updateDial() {
+  var canvas = document.getElementById('heroDial'); if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var midpoint = 6.75, max = 10;
+  var angle = (midpoint / max) * 1.5 * Math.PI + 0.75 * Math.PI;
+  ctx.clearRect(0,0,160,160);
+  ctx.beginPath(); ctx.arc(80,80,66,0.75*Math.PI,2.25*Math.PI); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(80,80,72,0.75*Math.PI,2.25*Math.PI); ctx.strokeStyle = 'rgba(196,30,58,0.35)'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(80,80,66,0.75*Math.PI,angle);
+  var grad = ctx.createLinearGradient(0,0,160,160); grad.addColorStop(0,'#c41e3a'); grad.addColorStop(1,'#fbbf24');
+  ctx.strokeStyle = grad; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+}
+
+function renderScouting() {
+  var c = document.getElementById('scoutingContent'); if (!c) return;
+  c.innerHTML =
+    '<div class="scout-box scout-pos"><h4>✓ Positive Filters</h4><ul>' +
+      '<li><strong>Puskas Award candidate</strong> — 57-second goal from over 40 metres vs Nueva Chicago.</li>' +
+      '<li><strong>SOA 10.0</strong> — elite cognitive processing speed. Strikes without a controlling touch.</li>' +
+      '<li><strong>DMA 10.0</strong> — correctly chooses the high-value option (long lob over conservative pass).</li>' +
+      '<li><strong>CRK 10.0</strong> — elite creative risk-taking. Attempts the improbable.</li>' +
+      '<li><strong>13 goals in Primera C (2025)</strong> — the most productive season of his career.</li>' +
+      '<li><strong>Torneo Apertura winner (2024)</strong> — proven in a title-winning environment.</li>' +
+      '<li><strong>186cm / 78kg</strong> — physical profile suited to the Argentine game.</li>' +
+      '<li><strong>83rd percentile</strong> — goals per 90 in Prim B Nacional (0.28).</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-caut"><h4>◈ Caution Signals</h4><ul>' +
+      '<li><strong>5 events, 1 match.</strong> Single-event grade — not a multi-match assessment.</li>' +
+      '<li><strong>0.28 G/90 in 2026</strong> — a significant drop from 0.81 in Primera C (2025).</li>' +
+      '<li><strong>1 red card (second yellow)</strong> vs Almagro — discipline flag.</li>' +
+      '<li><strong>0 assists in 952 minutes</strong> — no creative output.</li>' +
+      '<li><strong>Tier 2 not computable</strong> — xG, passing, possession missing.</li>' +
+      '<li><strong>No COACH, no second scout.</strong></li>' +
+      '<li><strong>Age 25</strong> — no development-time argument.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-gap"><h4>✗ Critical Gaps</h4><ul>' +
+      '<li><strong>Log 4+ more matches</strong> with 3+ events per sub-metric — CRITICAL. The current file is a highlight-reel grade.</li>' +
+      '<li><strong>Source xG, passing, possession data.</strong> These are essential for a proper Tier 1 assessment.</li>' +
+      '<li><strong>Re-assess the red card.</strong> Was it tactical, retaliatory, or accidental?</li>' +
+      '<li><strong>Score COACH metric.</strong> No data on coachability.</li>' +
+      '<li><strong>Second scout for blind cross-validation.</strong> Not assigned.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-verdict"><h4>◆ Empire FGA Verdict</h4>' +
+      '<p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">' +
+      '<strong style="color:var(--text-primary);">FGA Provisional: 6.0–7.5 — "Average / Very Good boundary". The most limited file in the series. FGA_v3_Final BLOCKED.</strong> ' +
+      'Rodrigo Monserrat is a 25-year-old Argentine striker on loan at Colegiales in the Primera Nacional. The file is built around <strong>one extraordinary moment</strong>: a 57-second goal from over 40 metres against Nueva Chicago, graded 9.80/10. That moment is genuinely elite — the cognitive speed (SOA 10.0), decision-making (DMA 10.0), and technical execution (STK 9.5) are all at the top of the scale. ' +
+      '<strong>The question is whether that moment is representative or a one-off.</strong> The season stats suggest the latter: 3 goals in 18 matches (0.28 G/90) in the Primera Nacional, down from 13 goals (0.81 G/90) in the Primera C the season before. The step up in competition has suppressed his output. ' +
+      '<strong>Recommendation: monitor.</strong> This is not a sell file, and it is not a buy file. It is a "come back with 5 matches of data" file. The 9.80 Tier 3 grade is a ceiling; the 0.28 G/90 is a floor. The truth is somewhere between, and only more data will find it.' +
+      '</p></div>';
+}
+
+function renderPhilosophy() {
+  var fits = [
+    {rank:1, name:'Bielsa — Intensity Striker', width:'76%', color:'#6CABDD', score:'7.6'},
+    {rank:2, name:'Bilardo — Pragmatism Striker', width:'74%', color:'#e67e22', score:'7.4'},
+    {rank:3, name:'Simeone — Cholismo Striker', width:'72%', color:'#e07820', score:'7.2'},
+    {rank:4, name:'Menotti — Artistry Forward', width:'70%', color:'#009b3a', score:'7.0'},
+    {rank:5, name:'Ferguson — Direct Striker', width:'68%', color:'#e07820', score:'6.8'},
+    {rank:6, name:'Mourinho — Tactical Target Man', width:'66%', color:'#7f8c8d', score:'6.6'},
+    {rank:7, name:'Santana — Jogo Bonito Forward', width:'62%', color:'#9b59b6', score:'6.2'},
+    {rank:8, name:'Klopp — Gegenpress Striker', width:'58%', color:'#3498db', score:'5.8'},
+    {rank:9, name:'Cruyff — Total Football Forward', width:'54%', color:'#009b3a', score:'5.4'},
+    {rank:10, name:'Guardiola — Positional Forward', width:'48%', color:'#95a5a6', score:'4.8'}
+  ];
+  var c = document.getElementById('philosophyFitList'); if (!c) return;
+  var html = '';
+  fits.forEach(function(f){ html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);"><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;">'+f.rank+'</div><div style="flex:1;font-size:0.85rem;color:var(--text-primary);">'+f.name+'</div><div style="width:120px;"><div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;border-radius:3px;width:'+f.width+';background:'+f.color+';"></div></div></div><div style="font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;">'+f.score+'</div></div>'; });
+  c.innerHTML = html;
+  var pa = document.getElementById('philosophyArchetype');
+  if (pa) pa.innerHTML = '<strong style="color:var(--text-primary);">"Argentine Physical Striker — Long-Range / Clutch Profile"</strong> — A 186cm, 78kg, right-footed striker whose defining moment is a 57-second goal from over 40 metres. The profile fits the Argentine school: physical, direct, clutch. <strong style="color:var(--danger);">FGA Provisional 6.0–7.5.</strong> FGA_v3_Final BLOCKED. Estimated fits only — not computed by the 60-philosophy formula.';
+  var pt = document.getElementById('philosophyTags');
+  if (pt) pt.innerHTML = '<span class="tag tag-club">Striker</span><span class="tag tag-club">Right-footed</span><span class="tag tag-info">ARG</span><span class="tag tag-warning">FGA 6.0–7.5</span><span class="tag tag-danger">SINGLE MATCH</span><span class="tag tag-puskas">PUSKAS CANDIDATE</span>';
+  var sc = document.getElementById('schoolAverages');
+  if (sc) {
+    var schools = [
+      {name:'Argentine School', value:'7.6', color:'var(--accent)'},
+      {name:'English School', value:'6.8', color:'var(--warning)'},
+      {name:'Italian School', value:'6.6', color:'var(--warning)'},
+      {name:'Modern Masters', value:'6.4', color:'var(--warning)'}
+    ];
+    sc.innerHTML = '';
+    schools.forEach(function(s){ var d = document.createElement('div'); d.className = 'stat-hero'; d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.name+'</div>'; sc.appendChild(d); });
+  }
+}
+
+var charts = {};
+function initCharts() {
+  var radarEl = document.getElementById('attrRadar');
+  if (radarEl && typeof Chart !== 'undefined') {
+    if (charts.attrRadar) { try { charts.attrRadar.destroy(); } catch(e){} }
+    charts.attrRadar = new Chart(radarEl.getContext('2d'), {
+      type:'radar',
+      data:{ labels:['SOA','DMA','CRK','STK','CRS'],
+        datasets:[
+          {label:'Single Event (Nueva Chicago)', data:[10.0,10.0,10.0,9.5,9.5], backgroundColor:'rgba(196,30,58,0.2)', borderColor:'#c41e3a', pointBackgroundColor:'#fbbf24', pointBorderColor:'#fff', pointRadius:6, borderWidth:2.5},
+          {label:'Elite Threshold (8.0)', data:[8,8,8,8,8], backgroundColor:'rgba(255,255,255,0.05)', borderColor:'rgba(255,255,255,0.4)', pointRadius:0, borderWidth:1.5, borderDash:[4,4]}
+        ] },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:4,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:11,weight:'600'}}}}, plugins:{legend:{labels:{color:'#8b92a8',font:{family:'DM Sans',size:11}}}}}
+    });
+  }
+  var pRadar = document.getElementById('philosophyRadar2');
+  if (pRadar && typeof Chart !== 'undefined') {
+    if (charts.philoRadar2) { try { charts.philoRadar2.destroy(); } catch(e){} }
+    charts.philoRadar2 = new Chart(pRadar.getContext('2d'), {
+      type:'radar',
+      data:{ labels:['Bielsa','Bilardo','Simeone','Menotti','Ferguson','Mourinho'],
+        datasets:[{label:'Monserrat (est.)', data:[7.6,7.4,7.2,7.0,6.8,6.6], backgroundColor:'rgba(196,30,58,0.22)', borderColor:'#c41e3a', pointBackgroundColor:['#6CABDD','#e67e22','#e07820','#009b3a','#e07820','#7f8c8d'], pointBorderColor:'#fff', pointRadius:5, borderWidth:2}] },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:0,max:10,ticks:{display:false,stepSize:2},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:12,weight:'600'},padding:20}}}, plugins:{legend:{display:false}}}
+    });
+  }
+}
+
+function updateSeason() {
+  var sel = document.getElementById('seasonSelect'); if (!sel) return;
+  var id = sel.value;
+  var season = careerSeasons.find(function(s){return s.id === id;});
+  if (!season) return;
+  var isCurrent = season.id === '2026';
+
+  var tags = [
+    {class: isCurrent ? 'tag-warning' : 'tag-pending', text: season.t3Status},
+    {class:'tag-club', text:season.club},
+    {class:'tag-value', text:season.goals + 'G · ' + season.assists + 'A'},
+    {class:'tag-info', text:season.league},
+    {class: isCurrent ? 'tag-puskas' : 'tag-pending', text: isCurrent ? 'Puskas Candidate' : '—'}
+  ];
+  renderTags(tags, 'heroTags');
+
+  renderHeroStats([
+    {value: isCurrent ? '6.0–7.5' : '—', label:'FGA Provisional', color:'var(--gold)'},
+    {value: isCurrent ? '9.80' : '—', label:'Tier 3 (single event)', color:'var(--warning)'},
+    {value: isCurrent ? '~3.5' : '—', label:'Tier 1 (partial)', color:'var(--danger)'},
+    {value: season.goals, label:'Goals', color:'var(--success)'},
+    {value: season.assists, label:'Assists', color:'var(--danger)'},
+    {value: season.apps, label:'Appearances', color:'var(--text-primary)'},
+    {value: isCurrent ? '1/5' : '—', label:'Matches Logged', color:'var(--warning)'}
+  ], 'heroStatsGrid');
+
+  renderKeyStrengths([
+    {label:'Tier 3', value:'9.80'},
+    {label:'Tier 1', value:'~3.5'},
+    {label:'Goals 2026', value:'3'},
+    {label:'Puskas', value:'⭐'}
+  ], 'keyStrengths');
+
+  var banners = [];
+  banners.push({type:'banner-danger', text:'<span>⚠️</span> <strong>SINGLE MATCH ONLY.</strong> 5 events from 1 match. The 9.80 Tier 3 grade is a single-moment assessment, not a representative sample. <strong>FGA_v3_Final BLOCKED.</strong>'});
+  banners.push({type:'banner-warning', text:'<span>⚠️</span> <strong>Tier 1 partial.</strong> Goals and assists only. xG, passing, possession not available. Tier 2 not computable.'});
+  banners.push({type:'banner-gold', text:'<span>🏆</span> <strong>Puskas Award candidate.</strong> 57-second goal from over 40 metres vs Nueva Chicago. National media coverage. The defining moment of the 2026 season.'});
+  renderBanners(banners, 'overviewBanners');
+
+  var profileCards = [
+    {title:'👤 Player Profile', content:'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:0.85rem;line-height:1.6;"><div><strong>Full Name:</strong> Rodrigo Eduardo Monserrat</div><div><strong>DOB:</strong> 2 Dec 2000 (25)</div><div><strong>Position:</strong> Striker / Centre-Forward</div><div><strong>Foot:</strong> Right</div><div><strong>Height:</strong> 186 cm</div><div><strong>Weight:</strong> 78 kg</div><div><strong>Club:</strong> Colegiales (loan)</div><div><strong>Parent Club:</strong> General Lamadrid</div><div><strong>League:</strong> Primera Nacional (Zona B)</div><div><strong>Market value:</strong> €50k</div></div>'},
+    {title:'📊 T3 Status', content:'<strong style="color:var(--warning);">5 events, 1 match.</strong> Single-event grade of 9.80. Does not meet the 5-match minimum for a validated Tier 3 assessment. Treat as indicative only.'},
+    {title:'🏅 Empire FGA Verdict', content:'<strong style="color:var(--danger);">FGA Provisional 6.0–7.5.</strong> The most limited file in the series. One extraordinary moment (57-second goal from 40m). Season output (0.28 G/90) is modest. Recommendation: monitor. Come back with 5 matches of data.'}
+  ];
+  renderProfileCards(profileCards, 'overviewProfileCards');
+
+  var philosophyFits = [
+    {rank:1, name:'Bielsa — Intensity Striker', width:'76%', color:'#6CABDD', score:'7.6'},
+    {rank:2, name:'Bilardo — Pragmatism Striker', width:'74%', color:'#e67e22', score:'7.4'},
+    {rank:3, name:'Simeone — Cholismo Striker', width:'72%', color:'#e07820', score:'7.2'},
+    {rank:4, name:'Menotti — Artistry Forward', width:'70%', color:'#009b3a', score:'7.0'},
+    {rank:5, name:'Ferguson — Direct Striker', width:'68%', color:'#e07820', score:'6.8'}
+  ];
+  renderPhilosophyFits(philosophyFits, 'philosophyFits');
+
+  var recText = isCurrent
+    ? '<span class="tag tag-danger" style="font-size:0.85rem;padding:6px 18px;">FGA 6.0–7.5 BLOCKED</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Single match only.</strong> 5 events from 1 game. The 9.80 Tier 3 grade is a ceiling; 0.28 G/90 is a floor. <strong>Monitor. Return with 5 matches of data.</strong></div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">1/5 matches</div>'
+    : '<span class="tag tag-info" style="font-size:0.85rem;padding:6px 18px;">HISTORICAL SEASON</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">' + season.label + '.</strong> ' + season.apps + ' MP · ' + season.goals + ' G · ' + season.assists + ' A · ' + (season.g90 ? season.g90.toFixed(2) : '—') + ' G/90.</div>';
+  renderRecommendation(recText, 'recommendationCard');
+
+  renderFGA();
+  renderCrossLeague();
+  renderPhilosophy();
+  renderScouting();
+  renderMatches();
+  renderEventLog();
+  renderAttributeCards();
+
+  updateDial();
+  initCharts();
+}
+
+function switchTab(id) {
+  var panels = document.querySelectorAll('.tab-panel');
+  var buttons = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var j = 0; j < buttons.length; j++) buttons[j].classList.remove('active');
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  for (var k = 0; k < buttons.length; k++) { if (buttons[k].getAttribute('data-tab') === id) buttons[k].classList.add('active'); }
+  if (id === 'attributes' || id === 'philosophy') setTimeout(initCharts, 50);
+}
+window.switchTab = switchTab;
+window.updateSeason = updateSeason;
+
+function init() {
+  var select = document.getElementById('seasonSelect');
+  if (select) {
+    select.innerHTML = '';
+    careerSeasons.forEach(function(s){ var opt = document.createElement('option'); opt.value = s.id; opt.textContent = s.label; select.appendChild(opt); });
+    select.value = '2026';
+  }
+  renderCareerTimeline();
+  renderCareerStatsTable();
+  renderHonours();
+  updateSeason();
+  initCharts();
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function(){
+      var tab = this.getAttribute('data-tab');
+      if (tab) switchTab(tab);
+    });
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>
