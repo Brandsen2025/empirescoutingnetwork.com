@@ -59,6 +59,15 @@
     color:#FF8080;font-size:.78rem;text-align:center;
   }
   .err.show{display:block;}
+  .msg{
+    display:none;margin-top:14px;padding:10px 12px;border-radius:8px;
+    background:rgba(34,212,106,.1);border:1px solid rgba(34,212,106,.3);
+    color:var(--grn);font-size:.78rem;text-align:center;
+  }
+  .msg.show{display:block;}
+  .forgot{display:block;text-align:right;margin-top:6px;font-size:.72rem;}
+  .forgot a{color:var(--cyan);text-decoration:none;}
+  .forgot a:hover{text-decoration:underline;}
   .foot{margin-top:26px;text-align:center;font-size:.66rem;color:var(--t3);font-family:var(--M);letter-spacing:.02em;}
   .switch{margin-top:18px;text-align:center;font-size:.78rem;color:var(--t2);}
   .switch a{color:var(--cyan);text-decoration:none;font-weight:600;}
@@ -78,17 +87,19 @@
     <div class="field">
       <label for="p">Password</label>
       <input id="p" name="p" type="password" autocomplete="current-password" required>
+      <div class="forgot"><a href="#" id="forgotLink">Forgot password?</a></div>
     </div>
 
     <button type="submit" id="submitBtn">Sign In</button>
     <div class="err" id="err">Incorrect username or password.</div>
+    <div class="msg" id="msg"></div>
     <div class="switch">Don't have an account? <a href="signup.html">Start a free trial</a></div>
     <div class="foot">EMPIRE SCOUTING NETWORK &middot; 779 METRICS &middot; 60 PHILOSOPHIES</div>
   </form>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   var SALT = 'ESN-FGA-2026';
   var DEFAULT_REDIRECT = 'platform.html';
@@ -177,8 +188,10 @@
     var u = document.getElementById('u').value.trim();
     var p = document.getElementById('p').value;
     var err = document.getElementById('err');
+    var msg = document.getElementById('msg');
     var btn = document.getElementById('submitBtn');
     err.classList.remove('show');
+    msg.classList.remove('show');
 
     // 1. Check the hardcoded accounts first (unchanged from before).
     var uh = await sha256(SALT + u);
@@ -210,10 +223,48 @@
       localStorage.setItem('esn_fga_user', u);
       window.location.replace(FIREBASE_REDIRECTS[u.toLowerCase()] || DEFAULT_REDIRECT);
     } catch (error) {
+      // Surface the real reason instead of always saying "wrong password" --
+      // a disabled account, an unauthorized domain, or a rate limit all need
+      // a different next step than a mistyped password does.
+      var code = error && error.code;
+      if (code === 'auth/user-disabled') {
+        err.textContent = 'This account has been disabled. Contact Jim.';
+      } else if (code === 'auth/too-many-requests') {
+        err.textContent = 'Too many attempts. Wait a few minutes and try again, or use "Forgot password?" below.';
+      } else if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
+        err.textContent = 'Sign-in is temporarily unavailable on this domain. Contact Jim.';
+      } else if (code === 'auth/network-request-failed') {
+        err.textContent = 'Network error -- check your connection and try again.';
+      } else {
+        err.textContent = 'Incorrect username or password.';
+      }
       err.classList.add('show');
       btn.disabled = false;
       btn.textContent = 'Sign In';
     }
+  });
+
+  document.getElementById('forgotLink').addEventListener('click', async function(ev){
+    ev.preventDefault();
+    var u = document.getElementById('u').value.trim();
+    var err = document.getElementById('err');
+    var msg = document.getElementById('msg');
+    err.classList.remove('show');
+    msg.classList.remove('show');
+    if (u.indexOf('@') === -1) {
+      err.textContent = 'Enter your email address above, then click "Forgot password?" again.';
+      err.classList.add('show');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, u);
+    } catch (e) {
+      // Never reveal whether the email has an account -- show the same
+      // neutral message either way (Firebase itself does this by default
+      // for most project configs; this just guarantees it client-side too).
+    }
+    msg.textContent = 'If an account exists for that email, a password reset link has been sent.';
+    msg.classList.add('show');
   });
 </script>
 </body>
