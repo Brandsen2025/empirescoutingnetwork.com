@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Matias Molina | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#1e6fbf;--accent-dim:rgba(30,111,191,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--teal:#00c5a8;--tier1:#00d084;--tier2:#ff3b3b;--tier3:#d4a020;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo{position:absolute;inset:0;background:url('https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fshupirates.com%2Fimages%2F2025%2F9%2F18%2F54788828512_7448dcc2e3_o.jpg&height=1100&type=webp') center 15% / cover no-repeat;filter:brightness(0.42) saturate(0.9);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.3) 0%,rgba(30,111,191,0.22) 40%,rgba(10,10,15,0.85) 70%,var(--bg-primary) 100%);}
+.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e6fbf 33%,#fbbf24 33%,#fbbf24 66%,#1e6fbf 66%);z-index:10;}
+.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#dbeafe;border:1px solid rgba(30,111,191,0.45);}
+.champ-badge::before{content:'ARG/ESP · ';font-weight:800;color:var(--gold);}
+.ref-badge{position:absolute;top:60px;right:24px;z-index:5;background:rgba(255,59,59,0.15);padding:5px 12px;border-radius:8px;font-family:var(--font-heading);font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--danger);border:1px solid rgba(255,59,59,0.5);}
+.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(30,111,191,0.07);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item.current{background:var(--accent-dim);border-color:rgba(30,111,191,0.45);color:#93c5fd;}
+.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag{font-size:1.1rem;font-weight:700;color:var(--gold);}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club{background:var(--accent-dim);color:#93c5fd;border:1px solid rgba(30,111,191,0.35);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.28);}
+.tag-warning{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.fga-dial-wrap{position:relative;width:160px;height:160px;flex-shrink:0;}
+.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.58rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--warning);}
+.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.52rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--danger);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.28);}
+.tier-pill.t2{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.28);}
+.tier-pill.t3{background:rgba(212,160,32,0.12);color:#f4b84a;border:1px solid rgba(212,160,32,0.28);}
+.season-selector{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;background:var(--bg-card);padding:16px 20px;border-radius:12px;border:1px solid var(--border-subtle);max-width:1200px;margin:20px auto 0;}
+.season-selector label{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+.season-selector select{background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-medium);border-radius:8px;padding:8px 16px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;cursor:pointer;outline:none;min-width:320px;}
+.season-selector select:hover{border-color:var(--accent);}
+.season-selector select option{background:var(--bg-primary);color:var(--text-primary);}
+.season-average{font-family:var(--font-heading);font-size:0.85rem;color:var(--text-secondary);margin-left:auto;padding:4px 12px;background:var(--accent-dim);border-radius:100px;border:1px solid rgba(30,111,191,0.35);display:flex;align-items:center;gap:8px;}
+.season-average strong{color:var(--gold);font-size:1rem;}
+.trend-arrow{font-size:1.2rem;line-height:1;}
+.trend-up{color:var(--success);}.trend-down{color:var(--danger);}.trend-flat{color:var(--text-tertiary);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:#93c5fd;border-bottom-color:#93c5fd;background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-verified{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.22);color:var(--danger);}
+.banner-gold{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.04));border:1px solid rgba(251,191,36,0.3);color:var(--gold);}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;}
+.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;line-height:1;}
+.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}
+.pos-map-wrap svg{max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;}
+.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;}
+.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}
+.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}
+.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}
+.scout-verdict{background:var(--accent-dim);border:1px solid rgba(30,111,191,0.25);}.scout-verdict h4{color:#93c5fd;}
+.scout-box ul{list-style:none;padding:0;margin:0;}
+.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before{content:'\2014';color:var(--text-tertiary);flex-shrink:0;}
+.physical-card{background:linear-gradient(135deg,rgba(30,111,191,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,111,191,0.2);border-radius:12px;padding:20px;}
+.physical-card h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:#93c5fd;margin-bottom:12px;}
+.physical-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item{display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label{color:var(--text-tertiary);}
+.physical-item .value{color:var(--text-primary);font-weight:600;}
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(30,111,191,0.5);}
+.timeline-item.hist::before{background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);}
+.timeline-item.danger::before{background:var(--danger);border-color:var(--danger);}
+.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;color:#93c5fd;}
+.timeline-item.hist .timeline-date{color:var(--success);}
+.timeline-item.champ .timeline-date{color:var(--gold);}
+.timeline-item.danger .timeline-date{color:var(--danger);}
+.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas{width:100%!important;height:100%!important;}
+.recommendation-card{border-left:4px solid var(--accent);background:linear-gradient(135deg,rgba(30,111,191,0.1),rgba(10,10,15,0.5));}
+.key-strengths{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.strength-item{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:8px 16px;display:flex;align-items:center;gap:8px;}
+.strength-item .label{font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
+.strength-item .value{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--gold);}
+.league-compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.league-compare-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;}
+.league-compare-card .league-flag{font-size:1.8rem;margin-bottom:4px;}
+.league-compare-card .league-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.league-compare-card .league-tier{font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.league-compare-card .projected-goals{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--gold);margin:8px 0 2px;}
+.league-compare-card .projected-label{font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.3px;}
+.league-compare-card .log-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:0.6rem;font-weight:700;background:rgba(30,111,191,0.12);color:#93c5fd;border:1px solid rgba(30,111,191,0.3);margin-top:6px;}
+.league-compare-card .multiplier{font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;}
+.league-compare-card .multiplier strong{color:var(--text-secondary);}
+.pairing-row{display:grid;grid-template-columns:80px 1fr 120px 120px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-subtle);}
+.pairing-row:last-child{border-bottom:none;}
+.pairing-pct{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--gold);text-align:center;}
+.pairing-name{font-family:var(--font-heading);font-size:0.95rem;font-weight:600;color:var(--text-primary);}
+.pairing-meta{font-size:0.72rem;color:var(--text-tertiary);}
+.pairing-stat-label{font-family:var(--font-heading);font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.pairing-stat-value{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold);}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;display:block;cursor:pointer;transition:transform 0.2s,border-color 0.2s;}
+.match-card:hover{transform:translateY(-3px);border-color:#93c5fd;box-shadow:0 8px 24px rgba(30,111,191,0.15);}
+.match-thumb{height:120px;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center top;}
+.match-thumb .play-icon{width:48px;height:48px;background:rgba(30,111,191,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(30,111,191,0.5);}
+.match-thumb .play-icon svg{width:18px;height:18px;fill:rgba(255,255,255,0.7);margin-left:3px;}
+.match-info{padding:16px;}
+.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-halo{background:rgba(251,191,36,0.15);color:var(--gold);}
+.flag-box{border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:0.8rem;display:flex;align-items:flex-start;gap:10px;}
+.flag-box .icon{font-family:var(--font-heading);font-size:0.7rem;font-weight:700;flex-shrink:0;letter-spacing:0.5px;}
+.flag-box.validated{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);color:var(--success);}
+.flag-box.risk{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);color:var(--danger);}
+.flag-box.market{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);color:var(--info);}
+.flag-box.warn{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);color:var(--warning);}
+.halo-block{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,111,191,0.04));border:2px solid rgba(251,191,36,0.35);border-radius:14px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden;}
+.halo-block .halo-label{font-family:var(--font-heading);font-size:0.7rem;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+.halo-block h3{font-family:var(--font-display);font-size:1.2rem;font-weight:600;text-transform:uppercase;color:#fff;margin-bottom:12px;letter-spacing:0.5px;}
+.halo-block p{font-size:0.88rem;color:var(--text-secondary);line-height:1.75;margin-bottom:10px;}
+.halo-block .quote-block{border-left:3px solid var(--gold);padding:8px 0 8px 16px;margin:12px 0;font-style:italic;color:var(--text-secondary);font-size:0.85rem;}
+.action-grade-hero{background:linear-gradient(135deg,rgba(30,111,191,0.14),rgba(251,191,36,0.06));border:2px solid rgba(30,111,191,0.4);border-radius:14px;padding:24px;margin-bottom:20px;}
+.action-grade-hero .ag-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.action-grade-hero .ag-num{font-family:var(--font-display);font-size:3.4rem;font-weight:700;color:var(--gold);line-height:1;}
+.action-grade-hero .ag-label{font-family:var(--font-heading);font-size:0.9rem;color:#93c5fd;font-weight:600;letter-spacing:0.5px;margin-top:6px;}
+.action-grade-hero .ag-sub{font-family:var(--font-heading);font-size:0.75rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.action-grade-hero h4{font-family:var(--font-display);font-size:1.1rem;font-weight:600;text-transform:uppercase;color:#93c5fd;margin-bottom:8px;}
+.action-grade-hero p{font-size:0.85rem;color:var(--text-secondary);line-height:1.7;}
+@media (max-width:768px){.hero{height:440px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:130px;height:130px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.season-selector{flex-direction:column;align-items:stretch;}.season-average{margin-left:0;text-align:center;}.pairing-row{grid-template-columns:70px 1fr;}.champ-badge,.ref-badge{font-size:0.55rem;padding:4px 10px;}.ref-badge{top:55px;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Westchester SC · 2026 · USL League One</div>
+  <div class="ref-badge">⚠️ SINGLE-SEASON AUDIT · NO FGA RATING ISSUED</div>
+  <div class="jersey-watermark">1</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Rosario Central II</div>
+      <div class="badge-item"><span style="color:var(--text-tertiary);">&gt;</span></div>
+      <div class="badge-item">Seton Hall (NCAA)</div>
+      <div class="badge-item"><span style="color:var(--text-tertiary);">&gt;</span></div>
+      <div class="badge-item current">Westchester SC</div>
+    </div>
+    <h1 class="hero-name">Matias Molina</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇦🇷/🇪🇸</span> Argentina / Spain</span>
+      <span class="dot"></span>
+      <span>25 years (15 Jan 2001)</span>
+      <span class="dot"></span>
+      <span>181 cm · 85 kg</span>
+      <span class="dot"></span>
+      <span>Goalkeeper</span>
+      <span class="dot"></span>
+      <span>Right-footed</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t3">T3 NOT COMPUTABLE · 0 EVENTS</div>
+          <div class="tier-pill t2">T2 NOT COMPUTABLE</div>
+          <div class="tier-pill t1">T1 PARTIAL 6.00 · VOLATILE</div>
+        </div>
+        <div class="hero-tags" id="heroTags" style="margin-top:10px;"></div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="160" height="160"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA PROXY</div>
+          <div class="fga-score">6.0</div>
+          <div class="fga-status">VOLATILE · BLOCKED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="season-selector">
+  <label for="seasonSelect">Season</label>
+  <select id="seasonSelect" onchange="updateSeason()"></select>
+  <span class="season-average">
+    <span>FGA Rating: <strong style="color:var(--danger);">NOT ISSUED</strong></span>
+    <span class="trend-arrow trend-flat">—</span>
+  </span>
+</div>
+
+<div id="keyStrengthsContainer" style="max-width:1200px;margin:0 auto;padding:0 24px;">
+  <div class="key-strengths" id="keyStrengths"></div>
+</div>
+
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" data-tab="attributes" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" data-tab="fga" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" data-tab="crossleague" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" data-tab="philosophy" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" data-tab="career" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" data-tab="scouting" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" data-tab="matches" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<main class="content">
+
+  <div id="overview" class="tab-panel active">
+    <div id="overviewBanners"></div>
+
+    <div style="background:linear-gradient(135deg,rgba(255,59,59,0.12),rgba(255,59,59,0.03));border:2px solid rgba(255,59,59,0.4);border-radius:14px;padding:24px;margin-bottom:20px;">
+      <div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;letter-spacing:1.5px;color:var(--danger);text-transform:uppercase;margin-bottom:8px;">⚠️ SINGLE-SEASON AUDIT — NO FGA RATING ISSUED</div>
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+        <div>
+          <div style="font-family:var(--font-display);font-size:3.4rem;font-weight:700;color:var(--gold);line-height:1;">6.00</div>
+          <div style="font-family:var(--font-heading);font-size:0.9rem;color:#93c5fd;font-weight:600;letter-spacing:0.5px;margin-top:6px;">FGA Proxy (Tier 1 Partial)</div>
+          <div style="font-family:var(--font-heading);font-size:0.75rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">VOLATILE · BLOCKED</div>
+        </div>
+        <div style="flex:1;min-width:280px;">
+          <h4 style="font-family:var(--font-display);font-size:1.1rem;font-weight:600;text-transform:uppercase;color:#93c5fd;margin-bottom:8px;">◆ The NCAA-to-Pro Transition Problem</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">Molina's 2025 NCAA season at Seton Hall was elite: <strong>0.79 GAA (program record), .770 SV%, 8 shutouts, and a penalty shootout hero vs Siena.</strong> His 2026 USL League One debut has been a sharp regression: <strong>2.00 GAA, .333 SV%, 0 clean sheets in 2 matches.</strong> Both are true. The gap between the two levels is significant — NCAA Division I sits at LOG 1.5–1.8, USL League One at LOG 2.0–2.2. <strong>FGA_v3_Final is BLOCKED.</strong> No Tier 3 video has been logged. No FGA rating can be issued from a single season without video verification.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="halo-block">
+      <div class="halo-label">⚠️ Halo Effect Rule — Applied Before Reading Further</div>
+      <h3>The 2025 NCAA Numbers Are Elite. The 2026 USL Numbers Are Poor.</h3>
+      <p>The Halo Effect Rule in the framework exists to prevent reputation or isolated data points from distorting a scoring judgement. In this file, the risk runs both ways:</p>
+      <div class="quote-block">"A poor decision is a poor decision for Johan Cruyff or a Belgian fourth-division midfielder. The timestamp is your evidence. The rubric is your standard. Nothing else."</div>
+      <p><strong>Risk 1 — Overrating the NCAA data:</strong> The 0.79 GAA and 8 shutouts look elite on paper, but they may have been inflated by a strong collegiate defense. NCAA Division I football is not the professional level. The 0.79 GAA could mean "elite shot-stopper" or "goalkeeper behind a good defense."</p>
+      <p><strong>Risk 2 — Overreacting to the USL data:</strong> Two matches is a tiny sample. The knee injury in May 2026 disrupted his season. The step up from NCAA to USL League One is significant, and the team is 13th of 13. The 2.00 GAA and .333 SV% could mean "not good enough" or "adaptation struggling behind a bad defense."</p>
+      <p><strong>The honest read: neither the NCAA data nor the USL data can be trusted as a standalone assessment.</strong> Only additional logged matches with full Tier 3 video assessment can distinguish between adaptation struggle and level limitation.</p>
+    </div>
+
+    <div class="stat-hero-grid" id="heroStatsGrid"></div>
+
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+    <div class="pos-map-wrap">
+      <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+        <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a5a1a" stroke="#4a8c4a" stroke-width="2"/>
+        <line x1="260" y1="10" x2="260" y2="330" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="35" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="10" y="105" width="55" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <rect x="445" y="105" width="65" height="130" fill="none" stroke="#4a8c4a" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="55" cy="170" r="20" fill="rgba(30,111,191,0.45)" stroke="#93c5fd" stroke-width="3"/>
+        <circle cx="55" cy="170" r="14" fill="#1e6fbf" stroke="#fff" stroke-width="2"/>
+        <text x="55" y="175" text-anchor="middle" fill="#fff" font-family="Oswald,sans-serif" font-size="11" font-weight="700">1</text>
+        <text x="55" y="203" text-anchor="middle" fill="#93c5fd" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600">GK</text>
+        <text x="55" y="218" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="7" opacity="0.75">Shot-stopper · Penalty specialist</text>
+      </svg>
+      <div class="pos-map-caption">Tactical board · Primary: Goalkeeper · Shot-stopper profile · Penalty specialist</div>
+    </div>
+
+    <div class="grid-3" id="overviewProfileCards"></div>
+
+    <div class="section-title">Tactical DNA Pairing — Argentinian Goalkeeper Development Pathway <span class="line"></span></div>
+    <div class="card">
+      <div class="banner banner-warning" style="margin-bottom:16px;"><span>⚠️</span> <strong>PAIRING IS PROVISIONAL AND POSITION-CONTINGENT.</strong> The data set does not include GK-specific philosophy scores. The pairings below are based on outfield metrics applied to a goalkeeper, which is structurally imperfect. They are <strong>aspirational references, not descriptive assessments.</strong></div>
+
+      <div class="pairing-row">
+        <div class="pairing-pct">74%</div>
+        <div><div class="pairing-name">Angelo Peruzzi</div><div class="pairing-meta">Primary · Juventus / Lazio / Italy · 181cm · Shot-stopper · Positioning master · 2006 World Cup winner</div></div>
+        <div><div class="pairing-stat-label">Height match</div><div class="pairing-stat-value">100%</div></div>
+        <div><div class="pairing-stat-label">Mechanism</div><div class="pairing-stat-value">85%</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">71%</div>
+        <div><div class="pairing-name">Óscar "Conejo" Pérez</div><div class="pairing-meta">Secondary · Cruz Azul / Mexico · 172cm · Agility · Reflexes · Penalty-saving heroics</div></div>
+        <div><div class="pairing-stat-label">Agility/spring</div><div class="pairing-stat-value">90%</div></div>
+        <div><div class="pairing-stat-label">Penalty specialist</div><div class="pairing-stat-value">88%</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">68%</div>
+        <div><div class="pairing-name">Carlos Roa</div><div class="pairing-meta">Tertiary · River Plate / Argentina · 191cm · Penalty hero (1998 WC) · Late bloomer · Positional shot-stopper</div></div>
+        <div><div class="pairing-stat-label">Pathway</div><div class="pairing-stat-value">85%</div></div>
+        <div><div class="pairing-stat-label">Height</div><div class="pairing-stat-value" style="color:var(--warning);">Divergence</div></div>
+      </div>
+      <div class="pairing-row" style="opacity:0.85;">
+        <div class="pairing-pct" style="color:var(--silver);">65%</div>
+        <div><div class="pairing-name">Emiliano Martínez</div><div class="pairing-meta">Reference · Aston Villa / Argentina · 195cm · Late bloomer to penalty specialist · Different physical profile</div></div>
+        <div><div class="pairing-stat-label">Late bloomer</div><div class="pairing-stat-value">88%</div></div>
+        <div><div class="pairing-stat-label">Height</div><div class="pairing-stat-value" style="color:var(--danger);">Divergence</div></div>
+      </div>
+      <div class="pairing-row" style="opacity:0.85;">
+        <div class="pairing-pct" style="color:var(--silver);">62%</div>
+        <div><div class="pairing-name">Roberto Abbondanzieri</div><div class="pairing-meta">Reference · Boca Juniors / Argentina · 186cm · Late bloomer (Argentina starter at 32) · Domestic anchor</div></div>
+        <div><div class="pairing-stat-label">Late bloomer</div><div class="pairing-stat-value">85%</div></div>
+        <div><div class="pairing-stat-label">Domestic level</div><div class="pairing-stat-value" style="color:var(--danger);">Divergence</div></div>
+      </div>
+
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">⚠️ Aspirational References — Not Descriptive Assessments</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">Every reference in this set is a <strong>professional goalkeeper at a higher level</strong> than Molina's current USL League One context. Peruzzi was a Serie A and World Cup winner. Pérez was a Cruz Azul and Mexico legend. Roa was Argentina's 1998 World Cup penalty hero. <strong>The mechanism fits (Argentinian goalkeeper, penalty specialist, late bloomer, shot-stopper), but the level does not yet.</strong> The pairing describes the pathway — not the current achievement. These should be revisited once GK-specific metrics (GKI, SDI) are populated and Tier 3 video assessment is performed.</div>
+      </div>
+    </div>
+
+    <div class="section-title">Top Philosophy Fits <span class="line"></span></div>
+    <div class="grid-2" id="philosophyFits"></div>
+    <div class="card recommendation-card" style="margin-top:12px;" id="recommendationCard"></div>
+  </div>
+
+  <div id="attributes" class="tab-panel">
+    <div class="banner banner-danger"><span>⚠️</span> <strong>NO TIER 3 VIDEO LOGGED.</strong> 0 of 12 metrics scored. 0 matches registered for video assessment. Every Tier 3 sub-metric shows VIDEO_PENDING.</div>
+    <div class="banner banner-warning"><span>⚠️</span> <strong>GK-specific metrics not populated.</strong> GKI, SDI, and GK Philosophy scores are required for a meaningful goalkeeper assessment. The file relies on outfield metrics applied to a goalkeeper — structurally imperfect.</div>
+    <div id="attributeCards"></div>
+    <div class="card" style="margin-top:20px;"><div style="max-width:520px;margin:0 auto;"><canvas id="attrRadar" width="400" height="350"></canvas></div></div>
+  </div>
+
+  <div id="fga" class="tab-panel">
+    <div id="fgaBanner"></div>
+    <div id="fgaContent"></div>
+  </div>
+
+  <div id="crossleague" class="tab-panel">
+    <div class="banner banner-warning"><span>📊</span> <strong>LOG-ADJUSTED CROSS-LEAGUE PROJECTIONS</strong> — Source: USL League One (LOG ≈ 2.1). Base: 6.00 (Tier 1 partial average). <strong>Every projection here is hypothetical.</strong></div>
+    <div class="section-title">Performance Projection by League <span class="line"></span></div>
+    <div class="league-compare-grid" id="crossLeagueGrid"></div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📐 Methodology — LOG-Adjusted Projection</h3>
+      <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+        <p><strong>Adjusted Score = Base FGA × (Source LOG ÷ Target LOG)</strong></p>
+        <p style="margin-top:8px;"><strong>Source:</strong> USL League One 2026 — LOG ≈ <strong>2.1</strong> (structural estimate; below USL Championship 2.4 and MLS 2.6).</p>
+        <p style="margin-top:4px;"><strong>Base FGA:</strong> <strong>6.00</strong> — Tier 1 partial average (volatile).</p>
+        <p style="margin-top:4px;color:var(--text-tertiary);font-size:0.72rem;">Note: This is a projection, not a rating. Any upward move requires new Tier 3 video validation and GK-specific metrics. The 6.00 base is volatile — it sits between an elite NCAA season (0.79 GAA) and a poor USL start (2.00 GAA).</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="philosophy" class="tab-panel">
+    <div class="banner banner-info"><span>ℹ️</span> <strong>Philosophy fit matrix supplied in the reference file.</strong> All scores are dampened because the file does not yet have enough evidence to support higher confidence. No philosophy fit can be reliably assessed without GK-specific metrics and video analysis.</div>
+    <div class="grid-2">
+      <div class="card"><h3 class="section-title" style="margin-bottom:16px;">Philosophy Fit Matrix (Provisional)</h3><div id="philosophyFitList"></div></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;"><div class="radar-container"><canvas id="philosophyRadar2" width="500" height="450"></canvas></div></div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:#93c5fd;">Tactical Archetype</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;" id="philosophyArchetype"></p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="philosophyTags"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">School Averages <span class="line"></span></div>
+    <div class="grid-4" id="schoolAverages"></div>
+  </div>
+
+  <div id="career" class="tab-panel">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card" style="max-width:100%;overflow-x:hidden;">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+        <div class="timeline" id="careerTimeline"></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+        <div id="careerStatsTable"></div>
+        <h3 class="section-title" style="margin:24px 0 16px;">Honours &amp; Notable</h3>
+        <table class="data-table" id="honoursTable"><thead><tr><th>Item</th><th>Detail</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+    <div class="section-title">Medical &amp; Physical Panel <span class="line"></span></div>
+    <div class="grid-2">
+      <div class="physical-card">
+        <h4>Physical Profile</h4>
+        <div class="physical-grid">
+          <div class="physical-item"><span class="label">Age</span><span class="value">25 (15 Jan 2001)</span></div>
+          <div class="physical-item"><span class="label">Height</span><span class="value">181 cm</span></div>
+          <div class="physical-item"><span class="label">Weight</span><span class="value">85 kg</span></div>
+          <div class="physical-item"><span class="label">Position</span><span class="value">Goalkeeper</span></div>
+          <div class="physical-item"><span class="label">Foot</span><span class="value">Right</span></div>
+          <div class="physical-item"><span class="label">Nationality</span><span class="value">Argentina / Spain</span></div>
+          <div class="physical-item"><span class="label">Current Club</span><span class="value">Westchester SC</span></div>
+          <div class="physical-item"><span class="label">League</span><span class="value">USL League One (LOG ≈ 2.1)</span></div>
+          <div class="physical-item"><span class="label">Previous clubs</span><span class="value">Rosario Central II · Seton Hall</span></div>
+          <div class="physical-item"><span class="label">Contract</span><span class="value">Expires 30 Nov 2026</span></div>
+          <div class="physical-item"><span class="label">Market value</span><span class="value">€150,000 (FotMob estimate)</span></div>
+          <div class="physical-item"><span class="label">Squad number</span><span class="value">#1 (report) / #23 (Transfermarkt)</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Assessment Note</h3>
+        <div class="flag-box risk"><div class="icon">⚠️ SINGLE-SEASON AUDIT</div><div><strong>No FGA rating issued.</strong> Two USL matches, one NCAA season. No Tier 3 video assessment. Cannot be treated as a player assessment.</div></div>
+        <div class="flag-box risk" style="margin-top:10px;"><div class="icon">⚠️ VOLATILE STATISTICAL PROFILE</div><div><strong>2025 NCAA: 0.79 GAA, 8 shutouts, .770 SV%.</strong> <strong>2026 USL: 2.00 GAA, .333 SV%, 0 clean sheets.</strong> Both are true. The gap is the story.</div></div>
+        <div class="flag-box warn" style="margin-top:10px;"><div class="icon">⚠️ GK-SPECIFIC METRICS MISSING</div><div><strong>GKI, SDI, and GK Philosophy scores not populated.</strong> The file relies on outfield metrics applied to a goalkeeper — structurally imperfect.</div></div>
+        <div class="flag-box validated" style="margin-top:10px;"><div class="icon">✅ PENALTY SHOOTOUT HERO</div><div><strong>Two saves vs Siena in NCAA Tournament first round.</strong> Seton Hall's first home tournament win since 2006. This is a real, documented, high-pressure moment.</div></div>
+        <div class="flag-box market" style="margin-top:10px;"><div class="icon">ℹ️ NO COACH · NO 2ND SCOUT</div><div>COACH not scored. No blind cross-validation. FGA_v3_Final BLOCKED.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scouting" class="tab-panel"><div id="scoutingContent"></div></div>
+
+  <div id="matches" class="tab-panel">
+    <div class="banner banner-warning"><span>◆</span> <strong>MATCH FOOTAGE — PENDING</strong> — No Tier 3 video assessment has been performed. The source data is statistical (FBref, Seton Hall Athletics, FotMob). Video verification is required to distinguish between adaptation struggle and level limitation.</div>
+    <div class="section-title" style="margin-bottom:16px;">🎬 Match Footage — None Registered</div>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="card" style="margin-top:24px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Tier 3 Event Log — Pending</h3>
+      <div id="eventLogTable"></div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;">2025 Seton Hall — Season Snapshot</h3>
+      <div class="grid-3">
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:#93c5fd;margin-bottom:10px;">NCAA Division I (2025)</h4>
+          <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+            <strong style="color:var(--gold);">19</strong> — Matches · <strong style="color:var(--gold);">19</strong> Starts<br />
+            <strong style="color:var(--gold);">1,717</strong> — Minutes<br />
+            <strong style="color:var(--success);">0.79</strong> — GAA (program record)<br />
+            <strong style="color:var(--success);">8</strong> — Shutouts (program record)<br />
+            <strong style="color:var(--success);">.770</strong> — Save Percentage
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:#93c5fd;margin-bottom:10px;">Recognition 2025</h4>
+          <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+            <strong style="color:var(--gold);">BIG EAST Weekly Honor Roll</strong> — 4 times<br />
+            <strong style="color:var(--gold);">2nd in BIG EAST</strong> — Save Percentage (.770)<br />
+            <strong style="color:var(--gold);">2nd in BIG EAST</strong> — GAA (0.79)<br />
+            <strong style="color:var(--gold);">NCAA Tournament</strong> — PK shootout win vs Siena
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:#93c5fd;margin-bottom:10px;">2026 USL League One</h4>
+          <div style="font-size:0.74rem;color:var(--text-secondary);line-height:1.85">
+            <strong style="color:var(--gold);">2</strong> — Matches · <strong style="color:var(--gold);">180</strong> min<br />
+            <strong style="color:var(--danger);">2.00</strong> — GAA<br />
+            <strong style="color:var(--danger);">.333</strong> — Save Percentage<br />
+            <strong style="color:var(--danger);">0</strong> — Clean sheets<br />
+            <strong style="color:var(--text-tertiary);">Team 12th of 13</strong>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.18);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--danger);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">⚠️ The Central Question</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;"><strong>Scenario 1 — Adaptation issue:</strong> Molina is a professional-caliber goalkeeper whose 2026 struggle is an adaptation problem. The step up from NCAA to USL L1 is significant. The knee injury disrupted his season. The 2025 NCAA numbers are the true indicator of his ability.</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;margin-top:8px;"><strong>Scenario 2 — Level limitation:</strong> Molina is a below-average professional prospect whose 2025 NCAA statistics were inflated by a strong collegiate defense. The 2026 USL numbers are the true indicator of his level.</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7;margin-top:8px;"><strong>Only additional logged matches with full Tier 3 video assessment can distinguish between these two scenarios.</strong></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+var careerSeasons = [
+  { id:'2026', label:'2026 · Westchester SC · USL League One', club:'Westchester SC', league:'USL League One', apps:2, starts:2, minutes:180, ga:4, cs:0, gaa:2.00, svpct:0.333, fga:6.00, age:'25', badge:'Westchester SC · 2026 · USL League One', t3Status:'Not Assessed — 0 matches logged', photo:'https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fshupirates.com%2Fimages%2F2025%2F9%2F18%2F54788828512_7448dcc2e3_o.jpg&height=1100&type=webp' },
+  { id:'2025', label:'2025 · Seton Hall · NCAA Division I', club:'Seton Hall', league:'NCAA Division I', apps:19, starts:19, minutes:1717, ga:15, cs:8, gaa:0.79, svpct:0.770, fga:null, age:'24', badge:'Seton Hall · 2025 · NCAA D1 · Program Record', t3Status:'Not Assessed', photo:'https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fshupirates.com%2Fimages%2F2025%2F9%2F18%2F54788828512_7448dcc2e3_o.jpg&height=1100&type=webp' },
+  { id:'2024', label:'2024 · Seton Hall · NCAA Division I', club:'Seton Hall', league:'NCAA Division I', apps:10, starts:10, minutes:900, ga:8, cs:5, gaa:0.80, svpct:0.752, fga:null, age:'23', badge:'Seton Hall · 2024 · NCAA D1', t3Status:'Not Assessed', photo:'https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fshupirates.com%2Fimages%2F2025%2F9%2F18%2F54788828512_7448dcc2e3_o.jpg&height=1100&type=webp' },
+  { id:'2023', label:'2023 · Seton Hall · NCAA Division I', club:'Seton Hall', league:'NCAA Division I', apps:3, starts:2, minutes:0, ga:0, cs:0, gaa:null, svpct:null, fga:null, age:'22', badge:'Seton Hall · 2023 · NCAA D1', t3Status:'Not Assessed', photo:'https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fshupirates.com%2Fimages%2F2025%2F9%2F18%2F54788828512_7448dcc2e3_o.jpg&height=1100&type=webp' },
+  { id:'2022', label:'2022 · Seton Hall · NCAA Division I', club:'Seton Hall', league:'NCAA Division I', apps:1, starts:1, minutes:0, ga:1, cs:0, gaa:null, svpct:null, fga:null, age:'21', badge:'Seton Hall · 2022 · NCAA D1', t3Status:'Not Assessed', photo:'https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fshupirates.com%2Fimages%2F2025%2F9%2F18%2F54788828512_7448dcc2e3_o.jpg&height=1100&type=webp' }
+];
+
+var logReference = {
+  'USL League One':{tier:2.1,flag:'🇺🇸',short:'USL1'},
+  'USL Championship':{tier:2.4,flag:'🇺🇸',short:'USL Champ'},
+  'MLS':{tier:2.6,flag:'🇺🇸',short:'MLS'},
+  'Liga MX':{tier:2.7,flag:'🇲🇽',short:'Liga MX'},
+  'Argentine Primera':{tier:3.4,flag:'🇦🇷',short:'Primera'},
+  'La Liga':{tier:3.7,flag:'🇪🇸',short:'La Liga'},
+  'Serie A':{tier:3.6,flag:'🇮🇹',short:'Serie A'}
+};
+var crossLeagues = ['Argentine Primera','Liga MX','USL Championship','MLS','La Liga','Serie A'];
+
+var careerTimelineData = [
+  {date:'15 January 2001 · Born', text:'Born in <strong>Rosario, Argentina</strong>. Height 181cm, weight 85kg, right-footed. Position: Goalkeeper. Youth career at Rosario Central.', type:''},
+  {date:'2021-2022 · Rosario Central II', text:'Goalkeeper for <strong>Rosario Central II</strong> in Rosario, Argentina. Reserve team football before NCAA move.', type:'hist'},
+  {date:'2022 · Seton Hall (freshman)', text:'<strong>1 match, 1 start vs Army.</strong> Faced 5 shots, made 1 save in a 1-1 draw.', type:'hist'},
+  {date:'2023 · Seton Hall (sophomore)', text:'<strong>3 matches, 2 starts.</strong> Made 1 save vs Bucknell, 3 saves vs Princeton.', type:'hist'},
+  {date:'2024 · Seton Hall (junior)', text:'<strong>10 matches, 10 starts, 0.80 GAA, 5 clean sheets, 25 saves.</strong> Set a single-season program record for GAA (0.800). Named to BIG EAST All-Academic Team. 6-save game vs Georgetown.', type:'hist'},
+  {date:'2025 · Seton Hall (senior)', text:'<strong>PROGRAM-RECORD SEASON.</strong> <strong>19 matches, 19 starts, 1,717 minutes, 0.79 GAA, 8 shutouts, .770 SV%.</strong> Single-season records for GAA and shutouts. 2nd in BIG EAST for SV% and GAA. BIG EAST Weekly Honor Roll 4 times. <strong>Penalty shootout hero vs Siena in NCAA Tournament</strong> — saved 2 kicks to give Seton Hall its first home tournament win since 2006. Career: 33 appearances, 0.80 GAA, .752 SV%, 13 clean sheets.', type:'champ'},
+  {date:'29 January 2026 · Signs with Westchester SC', text:'Signed professional contract with <strong>Westchester SC</strong> in USL League One. Free transfer from Seton Hall. Coach George Gjokaj.', type:'current'},
+  {date:'2026 · USL League One debut', text:'<strong>2 matches, 180 minutes, 2.00 GAA, .333 SV%, 0 clean sheets.</strong> Conceded 4 goals on 6 shots on target. Team is 13th of 13. <strong>Sidelined with knee injury in May 2026.</strong> FotMob rating 6.30 — below average.', type:'danger'},
+  {date:'Tier 3 Assessment Status', text:'<strong>0 events, 0 matches.</strong> No Tier 3 video assessment has been performed. All 12 metrics show VIDEO_PENDING. <strong>FGA_v3_Final BLOCKED.</strong>', type:'danger'},
+  {date:'Contract Status', text:'<strong>Contract expires 30 November 2026.</strong> Urgent window for decision. Contract extension, USL Championship move, or return to Argentina.', type:'danger'}
+];
+
+var honoursData = [
+  {name:'★ NCAA Division I program record — GAA (0.79, 2025)', year:'2025'},
+  {name:'★ NCAA Division I program record — Shutouts (8, 2025)', year:'2025'},
+  {name:'★ 2nd in BIG EAST — Save Percentage (.770) and GAA (0.79)', year:'2025'},
+  {name:'★ BIG EAST Weekly Honor Roll — 4 times', year:'2025'},
+  {name:'★ Penalty shootout hero vs Siena — 2 saves in NCAA Tournament', year:'2025'},
+  {name:'★ BIG EAST All-Academic Team', year:'2023, 2024'},
+  {name:'★ Career: 33 appearances, 0.80 GAA, .752 SV%, 13 clean sheets', year:'2022-2025'}
+];
+
+function renderKeyStrengths(strengths, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; strengths.forEach(function(s){ var d = document.createElement('div'); d.className = 'strength-item'; d.innerHTML = '<span class="label">'+s.label+'</span><span class="value">'+s.value+'</span>'; c.appendChild(d); }); }
+function renderBanners(banners, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; banners.forEach(function(b){ var d = document.createElement('div'); d.className = 'banner ' + b.type; d.innerHTML = b.text; c.appendChild(d); }); }
+function renderTags(tags, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; tags.forEach(function(t){ var s = document.createElement('span'); s.className = 'tag ' + t.class; s.textContent = t.text; c.appendChild(s); }); }
+function renderHeroStats(stats, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; stats.forEach(function(s){ var d = document.createElement('div'); d.className = 'stat-hero'; d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.label+'</div>'; c.appendChild(d); }); }
+function renderProfileCards(cards, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; cards.forEach(function(card){ var d = document.createElement('div'); d.className = 'card'; d.innerHTML = '<h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">'+card.title+'</h3><div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">'+card.content+'</div>'; c.appendChild(d); }); }
+function renderPhilosophyFits(fits, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = ''; var firstCard = document.createElement('div'); firstCard.className = 'card'; var html = ''; fits.forEach(function(f){ html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);"><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;">'+f.rank+'</div><div style="flex:1;font-size:0.85rem;color:var(--text-primary);">'+f.name+'</div><div style="width:120px;"><div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;border-radius:3px;width:'+f.width+';background:'+f.color+';"></div></div></div><div style="font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;">'+f.score+'</div></div>'; }); firstCard.innerHTML = html; c.appendChild(firstCard); }
+function renderRecommendation(text, containerId) { var c = document.getElementById(containerId); if (!c) return; c.innerHTML = '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">'+text+'</div>'; }
+function metricColor(score) { if (score >= 8.5) return 'var(--success)'; if (score >= 7.0) return 'var(--gold)'; if (score >= 5.0) return 'var(--warning)'; return 'var(--danger)'; }
+
+function renderAttributeCards() {
+  var c = document.getElementById('attributeCards'); if (!c) return;
+  var metrics = ['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM','CRS','OMS','DYN','CRK','COACH','GKI','SDI'];
+  var html = '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="font-size:0.95rem;margin-bottom:16px;">Tier 3 Metrics — All VIDEO_PENDING</h3>';
+  html += '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th>Code</th><th>Metric</th><th>Events</th><th>Matches</th><th>Status</th><th>Score</th></tr></thead><tbody>';
+  metrics.forEach(function(m){
+    var isGK = m === 'GKI' || m === 'SDI';
+    html += '<tr><td><strong style="color:var(--gold);">'+m+'</strong></td><td>'+m+(isGK ? ' (GK-specific)' : '')+'</td><td style="color:var(--text-tertiary);">0</td><td style="color:var(--text-tertiary);">0</td><td style="color:'+(isGK ? 'var(--danger)' : 'var(--pending)')+';">'+(isGK ? 'NOT POPULATED' : 'VIDEO_PENDING')+'</td><td style="color:var(--text-tertiary);">—</td></tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div style="margin-top:14px;padding:12px 16px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.18);border-radius:8px;font-size:0.82rem;color:var(--danger);"><strong>0 events · 0 matches registered.</strong> The framework requires a minimum of 5 matches with 3+ events per sub-metric. No Tier 3 video assessment has been performed. FGA_v3_Final is BLOCKED.</div>';
+  html += '<div style="margin-top:10px;padding:12px 16px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.18);border-radius:8px;font-size:0.82rem;color:var(--warning);"><strong>GK-specific metrics (GKI, SDI) not populated.</strong> The file relies on outfield metrics applied to a goalkeeper — structurally imperfect. A meaningful goalkeeper assessment requires GK-specific philosophy scores (Yashin Revolution, Neuer Sweeper, etc.).</div>';
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function renderFGA() {
+  var c = document.getElementById('fgaContent'); if (!c) return;
+  var banner = document.getElementById('fgaBanner');
+  if (banner) banner.innerHTML = '<div class="banner banner-danger"><span>⚠️</span> <strong>FGA Rating: NOT ISSUED.</strong> Single-season audit. Tier 3 not computable. Tier 2 not computable. Tier 1 partial (4 of 6 categories, volatile). FGA_v3_Final BLOCKED.</div>';
+
+  var html = '';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier Composition</h3>';
+  html += '<div style="display:flex;height:44px;border-radius:8px;overflow:hidden;border:1px solid var(--border-subtle);">';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#fff;padding:0 8px;background:linear-gradient(135deg,#ff3b3b,#cc0000);flex:5;">TIER 3 — 50% · NOT COMPUTABLE (0 events)</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#fff;padding:0 8px;background:linear-gradient(135deg,#ff3b3b,#cc0000);flex:3;">TIER 2 — 30% · N/A ❌</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:#0a0a0f;padding:0 8px;background:linear-gradient(135deg,#ffb800,#cc9200);flex:2;">TIER 1 — 20% · 6.00 (4/6)</div>';
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;"><span>No video logged</span><span>Not computable</span><span>GAA · SV% · Shutouts · Minutes</span></div>';
+  html += '<div style="margin-top:16px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;"><strong>The 50% + 30% weight of Tier 3 and Tier 2 is absent.</strong> Only the 20% Tier 1 layer is populated, and even that is partial — distribution, command of area, reflexes, and positioning are all missing. The Tier 1 average is volatile — it sits between an elite NCAA season (0.79 GAA) and a poor USL start (2.00 GAA).</div>';
+  html += '</div>';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Partial Statistical Detail (4 of 6)</h3>';
+  html += '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th>Category</th><th>Value</th><th>Normalized</th><th>Band</th></tr></thead><tbody>';
+  html += '<tr><td><strong>GAA (2026 USL)</strong></td><td>2.00 GAA · 4 GA in 180 min</td><td style="color:var(--danger);font-weight:700;">3.0</td><td>BELOW AVG</td></tr>';
+  html += '<tr><td><strong>Save % (2026 USL)</strong></td><td>.333 SV% · 2 saves on 6 SoTA</td><td style="color:var(--danger);font-weight:700;">3.0</td><td>BELOW AVG</td></tr>';
+  html += '<tr><td><strong>GAA (2025 NCAA)</strong></td><td>0.79 GAA · program record · 26th in nation</td><td style="color:var(--success);font-weight:700;">9.0</td><td>ELITE (NCAA)</td></tr>';
+  html += '<tr><td><strong>Save % (2025 NCAA)</strong></td><td>.770 SV% · 2nd in BIG EAST</td><td style="color:var(--success);font-weight:700;">8.0</td><td>ABOVE AVG (NCAA)</td></tr>';
+  html += '<tr><td><strong>Shutouts (2025 NCAA)</strong></td><td>8 shutouts · program record</td><td style="color:var(--success);font-weight:700;">9.0</td><td>ELITE (NCAA)</td></tr>';
+  html += '<tr><td>Distribution</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr><td>Command of Area</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr><td>Reflexes</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr><td>Positioning</td><td>NOT IN DATA</td><td style="color:var(--text-tertiary);">—</td><td>—</td></tr>';
+  html += '<tr style="border-top:2px solid var(--border-medium);"><td colspan="2"><strong>Tier 1 Average — 4 of 6 categories</strong></td><td><strong style="color:var(--warning);">6.00</strong></td><td><strong>VOLATILE</strong></td></tr>';
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;"><strong>The 6.00 Tier 1 average is volatile.</strong> It sits between an elite NCAA season (0.79 GAA, 8 shutouts) and a poor USL start (2.00 GAA, .333 SV%). The two data points are not reconcilable without video assessment. The 6.00 is a mathematical midpoint, not a settled judgement.</div>';
+  html += '</div>';
+
+  html += '<div class="card" style="margin-bottom:20px;">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Career Arc — NCAA and Professional</h3>';
+  html += '<div style="overflow-x:auto;"><table class="data-table" style="font-size:0.8rem;"><thead><tr><th>Season</th><th>Club</th><th>League</th><th>MP</th><th>Starts</th><th>Min</th><th>GA</th><th>GAA</th><th>CS</th><th>SV%</th></tr></thead><tbody>';
+  html += '<tr><td>2022</td><td>Seton Hall</td><td>NCAA D1</td><td>1</td><td>1</td><td>—</td><td>1</td><td>—</td><td>0</td><td>—</td></tr>';
+  html += '<tr><td>2023</td><td>Seton Hall</td><td>NCAA D1</td><td>3</td><td>2</td><td>—</td><td>—</td><td>—</td><td>0</td><td>—</td></tr>';
+  html += '<tr><td>2024</td><td>Seton Hall</td><td>NCAA D1</td><td>10</td><td>10</td><td>900</td><td>8</td><td style="color:var(--success);font-weight:700;">0.80</td><td>5</td><td>—</td></tr>';
+  html += '<tr style="background:rgba(0,208,132,0.06);"><td>2025</td><td>Seton Hall</td><td>NCAA D1</td><td>19</td><td>19</td><td>1,717</td><td>15</td><td style="color:var(--success);font-weight:700;">0.79</td><td>8</td><td style="color:var(--success);font-weight:700;">.770</td></tr>';
+  html += '<tr style="background:rgba(255,59,59,0.06);"><td>2026</td><td>Westchester SC</td><td>USL L1</td><td>2</td><td>2</td><td>180</td><td>4</td><td style="color:var(--danger);font-weight:700;">2.00</td><td>0</td><td style="color:var(--danger);font-weight:700;">.333</td></tr>';
+  html += '<tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career total (2 clubs)</strong></td><td><strong>35</strong></td><td><strong>34</strong></td><td><strong>2,797</strong></td><td><strong>28</strong></td><td><strong style="color:var(--warning);">0.90</strong></td><td><strong>13</strong></td><td>—</td></tr>';
+  html += '</tbody></table></div>';
+  html += '<div style="margin-top:12px;font-size:0.78rem;color:var(--text-secondary);line-height:1.7;">The 2025 NCAA season is the statistical peak (0.79 GAA, 8 shutouts). The 2026 USL start is the statistical trough (2.00 GAA, .333 SV%). <strong>The gap between the two is the single most important fact in the file.</strong> The question the file cannot answer is which is closer to his true level.</div>';
+  html += '</div>';
+
+  html += '<div class="card">';
+  html += '<h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">📋 Punch List</h3>';
+  html += '<table class="data-table" style="font-size:0.8rem;"><thead><tr><th>#</th><th>Item</th><th>Priority</th></tr></thead><tbody>';
+  html += '<tr><td>1</td><td>Populate GK-specific metrics (GKI, SDI, GK Philosophy scores)</td><td style="color:var(--danger);font-weight:700;">HIGH</td></tr>';
+  html += '<tr><td>2</td><td>Video analysis of saves, distribution, command of area</td><td style="color:var(--danger);font-weight:700;">HIGH</td></tr>';
+  html += '<tr><td>3</td><td>Score COACH metric — development-phase player</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>4</td><td>Assign second scout for blind cross-validation</td><td style="color:var(--danger);">HIGH</td></tr>';
+  html += '<tr><td>5</td><td>Source xG and passing data from Synergy or InStat</td><td style="color:var(--warning);">MEDIUM</td></tr>';
+  html += '<tr><td>6</td><td>Confirm knee injury status — fully fit now?</td><td style="color:var(--warning);">MEDIUM</td></tr>';
+  html += '<tr><td>7</td><td>Clarify contract situation — extension or move?</td><td style="color:var(--warning);">MEDIUM</td></tr>';
+  html += '</tbody></table></div>';
+
+  c.innerHTML = html;
+}
+
+function renderCrossLeague() {
+  var sourceLog = 2.1;
+  var sourceFga = 6.00;
+  var grid = document.getElementById('crossLeagueGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  crossLeagues.forEach(function(name){
+    var ref = logReference[name]; if (!ref) return;
+    var ratio = sourceLog / ref.tier;
+    var proj = sourceFga * ratio;
+    var dir = ref.tier > sourceLog ? 'down' : (ref.tier < sourceLog ? 'up' : 'same');
+    var txt = ref.tier > sourceLog ? 'TOUGHER LEAGUE' : (ref.tier < sourceLog ? 'EASIER LEAGUE' : 'SAME LEVEL');
+    var card = document.createElement('div');
+    card.className = 'league-compare-card';
+    card.innerHTML = '<div class="league-flag">'+ref.flag+'</div><div class="league-name">'+name+'</div><div class="league-tier">'+ref.short+' · LOG '+ref.tier.toFixed(1)+'</div><div class="projected-goals">'+proj.toFixed(2)+'</div><div class="projected-label">Adjusted FGA</div><div class="multiplier">Multiplier: <strong>'+ratio.toFixed(2)+'×</strong></div><div class="log-badge">Base FGA: 6.00</div><div style="font-size:0.65rem;margin-top:6px;color:var(--text-tertiary);"><span style="'+(dir==='down'?'color:var(--danger);':(dir==='up'?'color:var(--success);':''))+'">'+txt+'</span></div>';
+    grid.appendChild(card);
+  });
+}
+
+function renderMatches() {
+  var grid = document.getElementById('matchGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  var match = {
+    title:'🎥 Video Footage — Pending',
+    meta:'No match registered · Tier 3 VIDEO_PENDING',
+    desc:'No match footage has been registered for Tier 3 assessment. The source data is statistical (FBref, Seton Hall Athletics, FotMob). Video verification is required to distinguish between adaptation struggle and level limitation.',
+    thumb:'https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fshupirates.com%2Fimages%2F2025%2F9%2F18%2F54788828512_7448dcc2e3_o.jpg&height=1100&type=webp'
+  };
+  var card = document.createElement('div');
+  card.className = 'match-card';
+  card.style.cursor = 'default';
+  card.innerHTML = '<div class="match-thumb" style="background-image:url(\''+match.thumb+'\');background-size:cover;background-position:center top;opacity:0.5;"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="match-info"><div class="match-teams">'+match.title+'</div><div class="match-meta"><span class="match-badge badge-comp">'+match.meta+'</span></div><div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;">'+match.desc+'</div></div>';
+  grid.appendChild(card);
+}
+
+function renderEventLog() {
+  var c = document.getElementById('eventLogTable'); if (!c) return;
+  c.innerHTML = '<div style="padding:20px;text-align:center;background:var(--bg-card-hover);border-radius:8px;border:1px dashed var(--border-medium);"><div style="font-family:var(--font-display);font-size:1rem;color:var(--text-secondary);margin-bottom:8px;">TIER 3 EVENT LOG — PENDING</div><div style="font-size:0.82rem;color:var(--text-tertiary);">No events have been logged. Register a match and score at least one event to populate this table.</div></div>';
+}
+
+function renderCareerTimeline() { var c = document.getElementById('careerTimeline'); if (!c) return; var html = ''; careerTimelineData.forEach(function(item){ html += '<div class="timeline-item '+item.type+'"><div class="timeline-date">'+item.date+'</div><div class="timeline-text">'+item.text+'</div></div>'; }); c.innerHTML = html; }
+
+function renderCareerStatsTable() {
+  var c = document.getElementById('careerStatsTable'); if (!c) return;
+  var html = '<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>Season</th><th>Club</th><th>League</th><th>MP</th><th>Starts</th><th>Min</th><th>GA</th><th>GAA</th><th>CS</th><th>SV%</th></tr></thead><tbody>';
+  careerSeasons.forEach(function(s){
+    var hl = (s.id === '2025') ? 'style="background:rgba(0,208,132,0.06);"' : ((s.id === '2026') ? 'style="background:rgba(255,59,59,0.06);"' : '');
+    var gd = s.gaa && s.gaa <= 0.85 ? 'var(--success)' : (s.gaa && s.gaa <= 1.2 ? 'var(--gold)' : 'var(--danger)');
+    html += '<tr '+hl+'><td>'+s.id+'</td><td>'+s.club+'</td><td style="font-size:0.72rem;">'+s.league+'</td><td>'+s.apps+'</td><td>'+s.starts+'</td><td>'+s.minutes.toLocaleString()+'</td><td>'+s.ga+'</td><td style="color:'+gd+';font-weight:700;">'+(s.gaa ? s.gaa.toFixed(2) : '—')+'</td><td>'+s.cs+'</td><td>'+(s.svpct ? s.svpct.toFixed(3) : '—')+'</td></tr>';
+  });
+  html += '<tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>Career total (2 clubs)</strong></td><td><strong>35</strong></td><td><strong>34</strong></td><td><strong>2,797</strong></td><td><strong>28</strong></td><td><strong style="color:var(--warning);">0.90</strong></td><td><strong>13</strong></td><td>—</td></tr>';
+  html += '</tbody></table></div>';
+  html += '<div style="margin-top:10px;font-size:0.72rem;color:var(--text-tertiary);">Career total includes 2022-2025 NCAA (Seton Hall) and 2026 USL League One (Westchester SC). The 2025 NCAA season is the statistical peak; the 2026 USL start is the statistical trough.</div>';
+  c.innerHTML = html;
+}
+
+function renderHonours() { var tbody = document.querySelector('#honoursTable tbody'); if (!tbody) return; tbody.innerHTML = ''; honoursData.forEach(function(h){ var tr = document.createElement('tr'); tr.innerHTML = '<td><strong>'+h.name+'</strong></td><td>'+h.detail+'</td>'; tbody.appendChild(tr); }); }
+
+function updateDial() {
+  var canvas = document.getElementById('heroDial'); if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var midpoint = 6.0, max = 10;
+  var angle = (midpoint / max) * 1.5 * Math.PI + 0.75 * Math.PI;
+  ctx.clearRect(0,0,160,160);
+  ctx.beginPath(); ctx.arc(80,80,66,0.75*Math.PI,2.25*Math.PI); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(80,80,72,0.75*Math.PI,2.25*Math.PI); ctx.strokeStyle = 'rgba(30,111,191,0.35)'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(80,80,66,0.75*Math.PI,angle);
+  var grad = ctx.createLinearGradient(0,0,160,160); grad.addColorStop(0,'#1e6fbf'); grad.addColorStop(1,'#ffb800');
+  ctx.strokeStyle = grad; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+}
+
+function renderScouting() {
+  var c = document.getElementById('scoutingContent'); if (!c) return;
+  c.innerHTML =
+    '<div class="scout-box scout-pos"><h4>✓ Positive Signals</h4><ul>' +
+      '<li><strong>0.79 GAA (2025 NCAA)</strong> — program record, 26th in nation.</li>' +
+      '<li><strong>8 shutouts (2025 NCAA)</strong> — program record.</li>' +
+      '<li><strong>.770 save percentage (2025 NCAA)</strong> — 2nd in BIG EAST.</li>' +
+      '<li><strong>Penalty shootout hero</strong> — 2 saves vs Siena in NCAA Tournament. First home tournament win since 2006.</li>' +
+      '<li><strong>6-save games</strong> vs Princeton, Georgetown, FIU.</li>' +
+      '<li><strong>Clean sheet vs St. John\'s</strong> on 11 shots faced.</li>' +
+      '<li><strong>BIG EAST Weekly Honor Roll</strong> — 4 times (9/22, 10/6, 10/13, 10/27).</li>' +
+      '<li><strong>Age 25</strong> — experienced, physically mature (181cm, 85kg).</li>' +
+      '<li><strong>Contract expires Nov 2026</strong> — urgent window for decision.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-caut"><h4>◈ Caution Signals</h4><ul>' +
+      '<li><strong>2.00 GAA (2026 USL)</strong> — high, below average.</li>' +
+      '<li><strong>.333 save percentage (2026 USL)</strong> — very low.</li>' +
+      '<li><strong>0 clean sheets (2026 USL)</strong> — none in 2 games.</li>' +
+      '<li><strong>No distribution data</strong> — passing, decision-making unknown.</li>' +
+      '<li><strong>No GK-specific metrics</strong> (GKI, SDxG, Save%).</li>' +
+      '<li><strong>0/12 video completeness</strong> — no Tier 3 assessment possible.</li>' +
+      '<li><strong>No COACH, no second scout.</strong></li>' +
+      '<li><strong>Knee injury (May 2026)</strong> — disrupted season.</li>' +
+      '<li><strong>Team finished 13th of 13</strong> — PPM 1.12 is low.</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-gap"><h4>✗ Critical Gaps</h4><ul>' +
+      '<li><strong>Populate GK-specific metrics.</strong> GKI, SDI, and GK Philosophy scores are required.</li>' +
+      '<li><strong>Video analysis.</strong> The 2026 USL data must be verified against video evidence to determine whether the goals conceded are positioning errors, reflex failures, or defensive breakdowns.</li>' +
+      '<li><strong>Score COACH.</strong> Development-phase player — coachability is essential.</li>' +
+      '<li><strong>Assign second scout.</strong> Given the single-season limitation, blind cross-validation is critical.</li>' +
+      '<li><strong>Source xG and passing data.</strong> USL League One does not provide advanced goalkeeping metrics.</li>' +
+      '<li><strong>Confirm injury status.</strong> Is he fully fit now?</li>' +
+      '<li><strong>Clarify contract situation.</strong> Extension, USL Championship move, or return to Argentina?</li>' +
+    '</ul></div>' +
+    '<div class="scout-box scout-verdict"><h4>◆ Empire FGA Single-Season Audit Verdict</h4>' +
+      '<p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">' +
+      '<strong style="color:var(--text-primary);">FGA Rating: NOT ISSUED. This is a single-season statistical audit, not a player assessment. FGA_v3_Final BLOCKED.</strong> ' +
+      'Matias Molina is a 25-year-old Argentinian goalkeeper at Westchester SC in USL League One. The 2025 NCAA season at Seton Hall was genuinely elite: 0.79 GAA (program record), 8 shutouts (program record), .770 SV%, and a penalty shootout hero vs Siena. The 2026 USL debut has been a sharp regression: 2.00 GAA, .333 SV%, 0 clean sheets in 2 matches. ' +
+      '<strong>Both are true. The gap is the story.</strong> The step up from NCAA Division I (LOG 1.5–1.8) to USL League One (LOG 2.0–2.2) is significant, and the knee injury in May 2026 disrupted his season. ' +
+      '<strong>The framework cannot yet distinguish between two scenarios:</strong> (1) adaptation struggle behind a bad defense on a 13th-place team, or (2) level limitation with the 2025 NCAA numbers inflated by a strong collegiate defense. ' +
+      '<strong>Only additional logged matches with full Tier 3 video assessment — and a populated GK-specific metric layer — can resolve this.</strong> Four more logged matches and a second scout are required before the file can be treated as a player assessment rather than a season-action audit.' +
+      '</p></div>';
+}
+
+function renderPhilosophy() {
+  var fits = [
+    {rank:1, name:'South American / Bielsa Vertical', width:'55%', color:'#e67e22', score:'5.5'},
+    {rank:2, name:'German / Klopp Gegenpressing', width:'50%', color:'#6CABDD', score:'5.0'},
+    {rank:3, name:'Italian / Sacchi Compact', width:'45%', color:'#c8102e', score:'4.5'},
+    {rank:4, name:'Spanish / Guardiola Positional', width:'40%', color:'#3498db', score:'4.0'},
+    {rank:5, name:'Dutch / Cruyff Total Football', width:'35%', color:'#009b3a', score:'3.5'},
+    {rank:6, name:'Italian / Ancelotti Pragmatism', width:'30%', color:'#8b1538', score:'3.0'},
+    {rank:7, name:'Argentine / Menotti Artistry', width:'28%', color:'#27ae60', score:'2.8'},
+    {rank:8, name:'Italian / Lippi Sophistication', width:'25%', color:'#9b59b6', score:'2.5'},
+    {rank:9, name:'Argentine / Simeone Cholismo', width:'22%', color:'#e07820', score:'2.2'},
+    {rank:10, name:'Defensive Positioning System', width:'20%', color:'#95a5a6', score:'2.0'}
+  ];
+  var c = document.getElementById('philosophyFitList'); if (!c) return;
+  var html = '';
+  fits.forEach(function(f){ html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);"><div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;">'+f.rank+'</div><div style="flex:1;font-size:0.85rem;color:var(--text-primary);">'+f.name+'</div><div style="width:120px;"><div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;border-radius:3px;width:'+f.width+';background:'+f.color+';"></div></div></div><div style="font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:36px;text-align:right;">'+f.score+'</div></div>'; });
+  c.innerHTML = html;
+  var pa = document.getElementById('philosophyArchetype');
+  if (pa) pa.innerHTML = '<strong style="color:var(--text-primary);">"Development-Phase Goalkeeper — Limited Data, Provisional Profile"</strong> — A 181cm, right-footed Argentinian goalkeeper whose 2025 NCAA season was elite (0.79 GAA, .770 SV%, 8 shutouts, penalty shootout hero) and whose 2026 USL debut has been difficult (2.00 GAA, .333 SV%). <strong>All philosophy scores are dampened because the file does not yet have enough evidence to support higher confidence.</strong> No philosophy fit can be reliably assessed without GK-specific metrics and video analysis. <strong style="color:var(--danger);">FGA Rating: NOT ISSUED.</strong>';
+  var pt = document.getElementById('philosophyTags');
+  if (pt) pt.innerHTML = '<span class="tag tag-club">Goalkeeper</span><span class="tag tag-club">Right-footed</span><span class="tag tag-info">ARG/ESP</span><span class="tag tag-danger">FGA NOT ISSUED</span><span class="tag tag-warning">SINGLE-SEASON AUDIT</span><span class="tag tag-gold">181 cm</span>';
+  var sc = document.getElementById('schoolAverages');
+  if (sc) {
+    var schools = [
+      {name:'South American', value:'5.5', color:'var(--warning)'},
+      {name:'German School', value:'5.0', color:'var(--warning)'},
+      {name:'Italian School', value:'4.5', color:'var(--warning)'},
+      {name:'Spanish School', value:'4.0', color:'var(--warning)'}
+    ];
+    sc.innerHTML = '';
+    schools.forEach(function(s){ var d = document.createElement('div'); d.className = 'stat-hero'; d.innerHTML = '<div class="value" style="color:'+s.color+'">'+s.value+'</div><div class="label">'+s.name+'</div>'; sc.appendChild(d); });
+  }
+}
+
+var charts = {};
+function initCharts() {
+  var radarEl = document.getElementById('attrRadar');
+  if (radarEl && typeof Chart !== 'undefined') {
+    if (charts.attrRadar) { try { charts.attrRadar.destroy(); } catch(e){} }
+    charts.attrRadar = new Chart(radarEl.getContext('2d'), {
+      type:'radar',
+      data:{ labels:['GAA (2026)','SV% (2026)','GAA (2025)','SV% (2025)','Shutouts (2025)','Distribution','Command','Reflexes','Positioning'],
+        datasets:[
+          {label:'Tier 1 Partial (4 of 9 dimensions)', data:[3.0,3.0,9.0,8.0,9.0,0,0,0,0], backgroundColor:'rgba(30,111,191,0.2)', borderColor:'#1e6fbf', pointBackgroundColor:'#fbbf24', pointBorderColor:'#fff', pointRadius:5, borderWidth:2.5},
+          {label:'NOT IN DATA', data:[0,0,0,0,0,0,0,0,0], backgroundColor:'rgba(255,59,59,0.05)', borderColor:'rgba(255,59,59,0.5)', pointRadius:0, borderWidth:1.5, borderDash:[4,4]}
+        ] },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:9,weight:'600'}}}}, plugins:{legend:{labels:{color:'#8b92a8',font:{family:'DM Sans',size:11}}}}}
+    });
+  }
+  var pRadar = document.getElementById('philosophyRadar2');
+  if (pRadar && typeof Chart !== 'undefined') {
+    if (charts.philoRadar2) { try { charts.philoRadar2.destroy(); } catch(e){} }
+    charts.philoRadar2 = new Chart(pRadar.getContext('2d'), {
+      type:'radar',
+      data:{ labels:['Bielsa','Klopp','Sacchi','Guardiola','Cruyff','Ancelotti'],
+        datasets:[{label:'Molina (provisional)', data:[5.5,5.0,4.5,4.0,3.5,3.0], backgroundColor:'rgba(30,111,191,0.2)', borderColor:'#1e6fbf', pointBackgroundColor:['#e67e22','#6CABDD','#c8102e','#3498db','#009b3a','#8b1538'], pointBorderColor:'#fff', pointRadius:5, borderWidth:2}] },
+      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:0,max:10,ticks:{display:false,stepSize:2},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b92a8',font:{family:'Rajdhani',size:12,weight:'600'},padding:20}}}, plugins:{legend:{display:false}}}
+    });
+  }
+}
+
+function updateSeason() {
+  var sel = document.getElementById('seasonSelect'); if (!sel) return;
+  var id = sel.value;
+  var season = careerSeasons.find(function(s){return s.id === id;});
+  if (!season) return;
+  var isCurrent = season.id === '2026';
+
+  var tags = [
+    {class: isCurrent ? 'tag-danger' : 'tag-pending', text: season.t3Status},
+    {class:'tag-club', text:season.club},
+    {class:'tag-value', text:season.ga + ' GA · ' + season.cs + ' CS'},
+    {class:'tag-info', text:season.league},
+    {class: isCurrent ? 'tag-danger' : 'tag-pending', text: isCurrent ? 'FGA NOT ISSUED' : '—'}
+  ];
+  renderTags(tags, 'heroTags');
+
+  renderHeroStats([
+    {value: isCurrent ? '6.00' : '—', label:'FGA Proxy', color:'var(--gold)'},
+    {value: season.gaa ? season.gaa.toFixed(2) : '—', label:'GAA', color: season.gaa <= 0.85 ? 'var(--success)' : 'var(--danger)'},
+    {value: season.svpct ? season.svpct.toFixed(3) : '—', label:'Save %', color: season.svpct >= 0.7 ? 'var(--success)' : 'var(--danger)'},
+    {value: season.cs, label:'Clean Sheets', color: season.cs > 0 ? 'var(--success)' : 'var(--danger)'},
+    {value: season.apps, label:'Matches', color:'var(--text-primary)'},
+    {value: season.minutes.toLocaleString(), label:'Minutes', color:'var(--warning)'},
+    {value: isCurrent ? '0/12' : '—', label:'Video Completeness', color:'var(--danger)'}
+  ], 'heroStatsGrid');
+
+  renderKeyStrengths([
+    {label:'NCAA GAA', value:'0.79'},
+    {label:'NCAA Shutouts', value:'8'},
+    {label:'USL GAA', value:'2.00'},
+    {label:'USL SV%', value:'.333'}
+  ], 'keyStrengths');
+
+  var banners = [];
+  banners.push({type:'banner-danger', text:'<span>⚠️</span> <strong>SINGLE-SEASON AUDIT — NO FGA RATING ISSUED.</strong> Two USL matches, one NCAA season. No Tier 3 video assessment. FGA_v3_Final BLOCKED.'});
+  banners.push({type:'banner-warning', text:'<span>⚠️</span> <strong>Volatile statistical profile.</strong> 2025 NCAA: 0.79 GAA, 8 shutouts, .770 SV%. 2026 USL: 2.00 GAA, .333 SV%, 0 clean sheets. Both are true. The gap is the story.'});
+  banners.push({type:'banner-danger', text:'<span>⚠️</span> <strong>GK-specific metrics not populated.</strong> GKI, SDI, and GK Philosophy scores missing. The file relies on outfield metrics applied to a goalkeeper — structurally imperfect.'});
+  renderBanners(banners, 'overviewBanners');
+
+  var profileCards = [
+    {title:'👤 Player Profile', content:'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:0.85rem;line-height:1.6;"><div><strong>Full Name:</strong> Matias Molina</div><div><strong>DOB:</strong> 15 Jan 2001 (25)</div><div><strong>Position:</strong> Goalkeeper</div><div><strong>Foot:</strong> Right</div><div><strong>Height:</strong> 181 cm</div><div><strong>Weight:</strong> 85 kg</div><div><strong>Club:</strong> Westchester SC</div><div><strong>League:</strong> USL League One (LOG ≈ 2.1)</div><div><strong>Nationality:</strong> Argentina / Spain</div><div><strong>Previous:</strong> Rosario Central II · Seton Hall</div></div>'},
+    {title:'📊 File Status', content:'<strong style="color:var(--danger);">SINGLE-SEASON AUDIT.</strong> 0 Tier 3 events, 0 matches. Video completeness 0/12. GK-specific metrics not populated. No FGA rating issued. FGA_v3_Final BLOCKED.'},
+    {title:'🏅 Key Question', content:'<strong style="color:var(--warning);">Adaptation struggle or level limitation?</strong> The 2025 NCAA data is elite (0.79 GAA, 8 shutouts). The 2026 USL data is poor (2.00 GAA, .333 SV%). Two games is a tiny sample, and the knee injury disrupted his season. Only video assessment can distinguish between the two.'}
+  ];
+  renderProfileCards(profileCards, 'overviewProfileCards');
+
+  var philosophyFits = [
+    {rank:1, name:'South American / Bielsa Vertical', width:'55%', color:'#e67e22', score:'5.5'},
+    {rank:2, name:'German / Klopp Gegenpressing', width:'50%', color:'#6CABDD', score:'5.0'},
+    {rank:3, name:'Italian / Sacchi Compact', width:'45%', color:'#c8102e', score:'4.5'},
+    {rank:4, name:'Spanish / Guardiola Positional', width:'40%', color:'#3498db', score:'4.0'},
+    {rank:5, name:'Dutch / Cruyff Total Football', width:'35%', color:'#009b3a', score:'3.5'}
+  ];
+  renderPhilosophyFits(philosophyFits, 'philosophyFits');
+
+  var recText = isCurrent
+    ? '<span class="tag tag-danger" style="font-size:0.85rem;padding:6px 18px;">FGA NOT ISSUED</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">Single-season audit.</strong> 0.79 GAA (NCAA) vs 2.00 GAA (USL). Two games is a tiny sample. Knee injury disrupted season. <strong>Video assessment required.</strong></div> <div style="font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-align:right;white-space:nowrap;">0/12 metrics</div>'
+    : '<span class="tag tag-info" style="font-size:0.85rem;padding:6px 18px;">HISTORICAL SEASON</span> <div style="flex:1;font-size:0.85rem;color:var(--text-secondary);line-height:1.6;"><strong style="color:var(--text-primary);">' + season.label + '.</strong> ' + season.apps + ' MP · ' + season.ga + ' GA · ' + season.cs + ' CS · ' + (season.gaa ? season.gaa.toFixed(2) : '—') + ' GAA.</div>';
+  renderRecommendation(recText, 'recommendationCard');
+
+  renderFGA();
+  renderCrossLeague();
+  renderPhilosophy();
+  renderScouting();
+  renderMatches();
+  renderEventLog();
+  renderAttributeCards();
+
+  updateDial();
+  initCharts();
+}
+
+function switchTab(id) {
+  var panels = document.querySelectorAll('.tab-panel');
+  var buttons = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var j = 0; j < buttons.length; j++) buttons[j].classList.remove('active');
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  for (var k = 0; k < buttons.length; k++) { if (buttons[k].getAttribute('data-tab') === id) buttons[k].classList.add('active'); }
+  if (id === 'crossleague') { var sel = document.getElementById('seasonSelect'); if (sel) renderCrossLeague(); }
+  if (id === 'attributes' || id === 'philosophy') setTimeout(initCharts, 50);
+}
+window.switchTab = switchTab;
+window.updateSeason = updateSeason;
+
+function init() {
+  var select = document.getElementById('seasonSelect');
+  if (select) {
+    select.innerHTML = '';
+    careerSeasons.forEach(function(s){ var opt = document.createElement('option'); opt.value = s.id; opt.textContent = s.label; select.appendChild(opt); });
+    select.value = '2026';
+  }
+  renderCareerTimeline();
+  renderCareerStatsTable();
+  renderHonours();
+  updateSeason();
+  initCharts();
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function(){
+      var tab = this.getAttribute('data-tab');
+      if (tab) switchTab(tab);
+    });
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>
