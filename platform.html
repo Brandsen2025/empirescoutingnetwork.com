@@ -612,8 +612,8 @@ td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
       <div class="mleg-card primary">
         <div class="mleg-code">FGA</div>
         <div class="mleg-body">
-          <div class="mleg-name">FGA Rating Base <span class="core-tag">★ CORE METRIC</span></div>
-          <div class="mleg-def">The primary Empire FGA score. Weighted average of all 38 Tier 1+2+3 metrics — your foundation of raw performance stripped of philosophy context. Sort by this to compare players purely on what they deliver on the pitch. Every other metric either feeds into or extends from FGA.</div>
+          <div class="mleg-name">FGA Base (Tier 1+2) <span class="core-tag">★ CORE METRIC</span></div>
+          <div class="mleg-def">Stats-anchored base score built from Tier 1 and Tier 2 metrics. Tier 3 scout grading is included only for players who have completed it (most have not), so this is not a full FGA rating on its own — your foundation of raw performance stripped of philosophy context. Sort by this to compare players purely on what they deliver on the pitch. Every other metric either feeds into or extends from FGA.</div>
           <div class="mleg-formula">FGA = AVG(21 Tier-1 automated + 6 Tier-2 composite + 11 Tier-3 scout metrics)</div>
           <div class="mleg-weight" style="color:var(--gold)">Scale: 0–100 &nbsp;·&nbsp; 25% weight in Ultimate</div>
         </div>
@@ -703,7 +703,7 @@ td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
 
     <div class="charts3">
       <div class="panel"><div class="ptitle"><span><i class="fas fa-chart-bar"></i>League Distribution</span></div><div id="ch-lg"></div></div>
-      <div class="panel"><div class="ptitle"><span><i class="fas fa-signal"></i>FGA Rating Bands</span></div><div id="ch-fga"></div></div>
+      <div class="panel"><div class="ptitle"><span><i class="fas fa-signal"></i>FGA Base Bands</span></div><div id="ch-fga"></div></div>
       <div class="panel">
         <div class="ptitle">
           <span><i class="fas fa-chart-area"></i>Composite Intelligence Profile</span>
@@ -772,7 +772,7 @@ td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
     <div class="charts2">
       <div class="panel" style="grid-column:1/-1">
         <div class="ptitle">
-          <span><i class="fas fa-crown"></i>Top Players by FGA Rating</span>
+          <span><i class="fas fa-crown"></i>Top Players by FGA Base</span>
           <select class="fsel" style="font-size:.62rem;padding:3px 18px 3px 7px;min-width:auto;width:115px" id="top-lg" onchange="drawTop()">
             <option value="">All Leagues</option>
             <option value="A-League">🇦🇺 A-League</option>
@@ -857,7 +857,7 @@ td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
             <th class="c" style="width:28px" onclick="setSort('mp')">MP</th>
             <th class="c" style="width:26px" onclick="setSort('g')" title="Goals (outfield) / Save% (GK)">G</th>
             <th class="c" style="width:26px" onclick="setSort('a')" title="Assists (outfield) / Clean Sheet % (GK)">A</th>
-            <th class="fga-col" style="width:148px" onclick="setSort('fga')">★ FGA / 100</th>
+            <th class="fga-col" style="width:148px" onclick="setSort('fga')">★ FGA Base / 100</th>
             <th class="c" style="width:158px" onclick="setSort('obi')" title="Empire's video-scouting layer: character, decision-making, coachability, off-ball intelligence — the layer no stats platform can replicate. Click any player to see full breakdown.">TIER 3 &middot; SCOUT INTEL</th>
             <th style="width:105px">Manager</th>
             <th class="c" style="width:50px">+</th>
@@ -908,7 +908,7 @@ td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
         <div class="fgrp"><label>Min Goals</label>
           <input type="number" id="sc-gmin" min="0" placeholder="0">
         </div>
-        <div class="fgrp fgrp-slider"><label>FGA Rating <span class="fgrp-range-val" id="sc-fga-val">0–100</span></label>
+        <div class="fgrp fgrp-slider"><label>FGA Base <span class="fgrp-range-val" id="sc-fga-val">0–100</span></label>
           <div class="dual-slider" id="sc-fga-slider">
             <div class="hist-row" id="sc-fga-hist"></div>
             <div class="slider-track"><div class="slider-fill" id="sc-fga-fill"></div></div>
@@ -1447,7 +1447,7 @@ function goPage(n){
 var scoutFilt=[];var scoutPgNum=1;var SCOUT_PG=24;
 
 // PERCENTILE ENGINE -- StatsBomb-style position-relative rankings
-var PCTL_METRICS=[{key:'g90',label:'Goals /90'},{key:'a90',label:'Assists /90'},{key:'ga90',label:'G+A /90'},{key:'min',label:'Minutes Played'},{key:'fga',label:'FGA Rating'}];
+var PCTL_METRICS=[{key:'g90',label:'Goals /90'},{key:'a90',label:'Assists /90'},{key:'ga90',label:'G+A /90'},{key:'min',label:'Minutes Played'},{key:'fga',label:'FGA Base'}];
 var PCTL_POOL={};
 function buildPercentilePool(){
   var groups={GK:[],DF:[],MF:[],FW:[]};
@@ -1524,7 +1524,7 @@ function playerRadarHtml(p){
 function percentileBarsHtml(p,compact){
   var pr=playerPercentiles(p);
   if(!pr)return '';
-  var items=compact?pr.items.filter(function(it){return it.label==='FGA Rating'||it.label==='G+A /90';}):pr.items;
+  var items=compact?pr.items.filter(function(it){return it.label==='FGA Base'||it.label==='G+A /90';}):pr.items;
   var rows=items.map(function(it){
     if(it.pct==null)return '<div class="pctl-row'+(compact?' compact':'')+'"><span class="pctl-lbl">'+it.label+'</span><div class="pctl-track"><div class="pctl-fill" style="width:0%;background:#44627A"></div></div><span class="pctl-val" style="color:#5A7389">\u2014</span></div>';
     var col=pctlColor(it.pct);
@@ -1859,10 +1859,10 @@ function openModal(pid,season,squad){
         '</div>'
       ):'')+
 
-      '<div class="m-sec"><i class="fas fa-sitemap" style="margin-right:5px;opacity:.6"></i>FGA Rating Breakdown</div>'+
+      '<div class="m-sec"><i class="fas fa-sitemap" style="margin-right:5px;opacity:.6"></i>FGA Base Breakdown</div>'+
       '<div class="fga-hier">'+
         '<div class="hier-card main">'+
-          '<div class="hier-code" style="color:var(--gold)">★ FGA RATING — CORE</div>'+
+          '<div class="hier-code" style="color:var(--gold)">★ FGA BASE — CORE</div>'+
           '<div class="hier-val" style="color:'+(p.gradingProgress!=null&&isPending(fga)?(p.gradingProgress>=9?'#5FA87A':'#C9A961'):col)+'">'+(p.gradingProgress!=null&&isPending(fga)?p.gradingProgress+'/12':mtxtP(fga,3,p))+'</div>'+
           '<div class="hier-lbl" style="color:'+(p.tier2Complete?'#5FA87A':(p.gradingProgress!=null&&isPending(fga)?'var(--t2)':'var(--gold)'))+'">'+(p.tier2Complete?'✓ COMPLETE — T1 + T3 + all '+p.tier2Applicable+' currently-possible T2 metrics':(p.gradingProgress!=null&&isPending(fga)?'TIER 3 VALIDATED — FGA composite awaits Tier 2':cls))+'</div>'+
           '<div class="hier-bar"><div class="hier-bar-fill" style="width:'+(isPending(fga)&&fullyT3?100:mbar(fga))+'%;background:'+col+'"></div></div>'+
