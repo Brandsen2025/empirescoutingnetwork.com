@@ -1,402 +1,895 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-(function(){
-  try{
-    if(localStorage.getItem('esn_fga_auth') !== '1'){
-      window.location.replace('login.html');
-    }
-  }catch(e){
-    window.location.replace('login.html');
-  }
-})();
-</script>
-
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Diego Forlán — Empire FGA Profile (Expanded)</title>
-  <style>
-    :root{
-      --bg:#071026; --card:#071622; --accent:#0b5bb0; --accent2:#ffd24d;
-      --muted:#98a7bf; --white:#eef6ff;
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif
-    }
-    html,body{height:100%;margin:0;padding:0;background:
-      radial-gradient(900px 500px at 8% 12%, rgba(11,91,176,0.06),transparent 10%),
-      radial-gradient(800px 400px at 92% 88%, rgba(255,210,77,0.04),transparent 8%),var(--bg);
-      color:var(--white);-webkit-font-smoothing:antialiased}
-    header{max-width:1300px;margin:18px auto;padding:0 22px;display:flex;align-items:center}
-    header img{height:48px;object-fit:contain}
-    .container{max-width:1300px;margin:18px auto;padding:22px;display:grid;grid-template-columns:360px 1fr;gap:26px}
-    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);position:relative}
-    .photo{width:100%;height:520px;object-fit:cover;object-position: center; border-radius:10px;border:3px solid var(--accent2);background:#0b1624}
-    .title{font-size:34px;font-weight:900;margin:14px 0;color:var(--white)}
-    .sub{color:var(--muted);margin-bottom:10px}
-    .pill{display:inline-block;background:rgba(11,91,176,0.12);padding:7px 12px;border-radius:999px;font-weight:700;font-size:13px;color:var(--white);margin:6px 8px 6px 0;border:1px solid rgba(255,210,77,0.18)}
-    table{width:100%;border-collapse:collapse;margin-top:12px;color:var(--white);font-size:14px}
-    th,td{padding:10px;border:1px solid rgba(255,255,255,0.06);vertical-align:top;text-align:left}
-    th{background:linear-gradient(90deg, rgba(11,91,176,0.85), rgba(255,210,77,0.85));font-weight:800;color:#071122}
-    .rating-badge{position:absolute;right:18px;top:18px;background:linear-gradient(90deg,#ffd24d,#0b5bb0);color:#071122;font-weight:900;padding:12px 18px;border-radius:16px;font-size:26px;box-shadow:0 10px 30px rgba(11,91,176,0.18)}
-    .section{margin-top:18px}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .small{color:var(--muted);font-size:14px;line-height:1.6}
-    .lead{color:var(--white);font-size:16px;line-height:1.5}
-    ul.small{margin:0;padding-left:18px}
-    .visual-canvas{background:transparent;border-radius:8px;padding:12px;height:420px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(255,210,77,0.18)}
-    .accent-heading{color:var(--accent2)}
-    .muted-box{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-top:8px;color:var(--muted)}
-    @media (max-width:980px){.container{grid-template-columns:1fr}.photo{height:320px}.visual-canvas{height:auto}}
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diego Forlán | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#0D47A1;--accent-dim:rgba(13,71,161,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--tier1:#00d084;--tier2:#ffb800;--tier3:#d4a020;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:560px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo{position:absolute;inset:0;background:url('https://e0.365dm.com/11/03/2048x1152/diego-forlan-atletico-madrid-2011_2570397.jpg?20110305230946') center 20% / cover no-repeat;filter:brightness(0.42) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo{transform:scale(1.03);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.35) 0%,rgba(13,71,161,0.2) 40%,rgba(10,10,15,0.88) 72%,var(--bg-primary) 100%);}
+.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#0D47A1 33%,#fbbf24 33%,#fbbf24 66%,#0D47A1 66%);z-index:10;}
+.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before{content:'🇺🇾';font-size:0.8rem;}
+.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}
+.badge-item.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag{font-size:1.1rem;}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club{background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-warning{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-updated{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-anchor{background:linear-gradient(135deg,rgba(0,156,59,0.2),rgba(251,191,36,0.1));color:#4ade80;border:1px solid rgba(0,156,59,0.5);}
+.fga-dial-wrap{position:relative;width:150px;height:150px;flex-shrink:0;}
+.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.58rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3{background:rgba(212,160,32,0.12);color:#f4b84a;border:1px solid rgba(212,160,32,0.28);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-verified{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-gold{background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(251,191,36,0.04));border:1px solid rgba(251,191,36,0.25);color:var(--gold);}
+.banner-proxy{background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(168,85,247,0.04));border:1px solid rgba(168,85,247,0.3);color:#c4b5fd;}
+.banner-anchor{background:linear-gradient(135deg,rgba(0,156,59,0.14),rgba(251,191,36,0.06));border:2px solid rgba(0,156,59,0.4);color:#4ade80;}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}
+.pos-map-wrap svg{max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;}
+.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child{border-bottom:none;}
+.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green{color:var(--success);}.ac-yellow{color:var(--warning);}.ac-red{color:var(--danger);}.ac-pend{color:var(--pending);}
+.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green{background:var(--success);}.circle-yellow{background:var(--warning);}.circle-red{background:var(--danger);}.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child{border-bottom:none;}
+.philo-row.anchor{background:linear-gradient(90deg,rgba(0,156,59,0.08),transparent);border-left:3px solid #009C3B;padding-left:9px;margin-left:-12px;}
+.philo-row.caveat{opacity:0.95;}
+.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-name small{display:block;font-size:0.68rem;color:var(--text-tertiary);margin-top:2px;letter-spacing:0.3px;}
+.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:42px;text-align:right;}
+.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(13,71,161,0.1);}
+.match-thumb{height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb .play-icon{width:48px;height:48px;background:rgba(13,71,161,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon{transform:scale(1.1);background:var(--accent);}
+.play-icon svg{width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info{padding:16px;}
+.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending{background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-not-graded{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.badge-updated{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}
+.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}
+.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}
+.scout-verdict{background:var(--accent-dim);border:1px solid rgba(13,71,161,0.2);}.scout-verdict h4{color:var(--silver);}
+.scout-box ul{list-style:none;padding:0;margin:0;}
+.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before{content:'—';color:var(--text-tertiary);flex-shrink:0;}
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(13,71,161,0.4);}
+.timeline-item.hist::before{background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before{background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date{color:var(--success);}
+.timeline-item.champ .timeline-date{color:var(--gold);}
+.timeline-item.danger .timeline-date{color:var(--danger);}
+.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas{width:100%!important;height:100%!important;}
+.pairing-row{display:grid;grid-template-columns:80px 1fr 90px 90px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-subtle);}
+.pairing-row:last-child{border-bottom:none;}
+.pairing-pct{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--gold);text-align:center;}
+.pairing-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.pairing-meta{font-size:0.72rem;color:var(--text-tertiary);}
+.pairing-stat-label{font-family:var(--font-heading);font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.pairing-stat-value{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold);}
+.bio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.bio-item{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px 16px;}
+.bio-item .bio-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.bio-item .bio-value{font-family:var(--font-body);font-size:0.92rem;font-weight:600;color:var(--text-primary);line-height:1.3;}
+.bio-item .bio-sub{font-size:0.72rem;color:var(--text-tertiary);margin-top:3px;}
+.quote-box{background:rgba(251,191,36,0.05);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;}
+.quote-box p{font-style:italic;color:var(--text-primary);font-size:0.9rem;line-height:1.6;margin-bottom:8px;}
+.quote-box cite{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);font-style:normal;text-transform:uppercase;letter-spacing:0.5px;}
+@media (max-width:768px){.hero{height:460px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:120px;height:120px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.pairing-row{grid-template-columns:60px 1fr;}.philo-bar-wrap{width:60px;}}
+</style>
 </head>
 <body>
-  <header>
-    <img src="https://media.licdn.com/dms/image/v2/D4E12AQEjuDAF0uOTrw/article-cover_image-shrink_720_1280/B4EZiOwG01GwAI-/0/1754741632806?e=2147483647&v=beta&t=L9ct0jEaWdSp7vfTI0urIqPPig0MspEd-6RtzxaQzzQ" alt="Empire Scouting Network">
-  </header>
 
-  <div class="container" role="main" aria-labelledby="profile-name">
-    <aside class="card" aria-label="summary">
-      <img class="photo" src="https://e0.365dm.com/11/03/2048x1152/diego-forlan-atletico-madrid-2011_2570397.jpg?20110305230946" alt="Diego Forlán photo">
-      <div style="margin-top:12px">
-        <div id="profile-name" class="title">Diego Forlán</div>
-        <div class="sub">Centre-Forward (Retired) · Uruguay · Born: 19 May 1979 · Height: 1.80 m</div>
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Centre-Forward / Second Striker · Retired 2019</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Independiente (1998–2002)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Man Utd · Villarreal · Atlético (2002–2011)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Retired — 2019 (aged 40)</div>
+    </div>
+    <h1 class="hero-name">Diego Forlán</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇺🇾</span> Uruguay</span>
+      <span class="dot"></span>
+      <span>Retired 2019 (b. 19 May 1979, Montevideo)</span>
+      <span class="dot"></span>
+      <span>Centre-forward / Second Striker</span>
+      <span class="dot"></span>
+      <span>1.80m · 78kg · Right-footed</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 COMPLETE · FBREF / STATSBOMB</div>
+          <div class="tier-pill t2">T2 NOT COMPUTABLE</div>
+          <div class="tier-pill t3">T3 PARTIAL · ~8/12</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-gold">159G 44A · 388 LEAGUE MATCHES</span>
+          <span class="tag tag-value">0.32 GOALS PER SHOT</span>
+          <span class="tag tag-info">112 CAPS · 36 GOALS (URUGUAY)</span>
+          <span class="tag tag-updated">2010 WC GOLDEN BALL · TOP SCORER</span>
+          <span class="tag tag-club">2X PICHICHI · 2X EUROPEAN GOLDEN SHOE</span>
+          <span class="tag tag-warning">FGA PROVISIONAL · NO COMPOSITE COMPUTED</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="150" height="150"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">VIDEO COMPLETE</div>
+          <div class="fga-score">8/12</div>
+          <div class="fga-status">PARTIAL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('bio')">Bio & Contract</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<main class="content">
+
+  <!-- OVERVIEW -->
+  <div id="overview" class="tab-panel active">
+
+    <div class="banner banner-verified"><span>✅</span> <strong>TIER 1 COMPLETE — FBREF / STATSBOMB.</strong> 388 league matches, 159 goals, 44 assists, 27,832 minutes played across 7 clubs and 6 leagues. 428 shots on target (1.38 per 90), 0.32 goals per shot, 15 of 20 penalties scored (75%), 28 yellow cards, 0 red cards in career. Uruguay: 112 caps, 36 goals across the 2002, 2010 and 2014 World Cups and the 2011 Copa América. No Tier 1 gap on this file.</div>
+
+    <div class="banner banner-warning"><span>⚠️</span> <strong>TIER 3 PARTIAL — NO FULL 90-MINUTE EVENT LOG.</strong> Full HD match footage is not held in this file. Comprehensive FBref/StatsBomb data supports the Tier 1 foundation, but no timestamped event log exists across the minimum 5 matches required. Video completeness ≈ ~8/12. No Tier 3 sub-metric scores (STK, RDS, TEC, CRK, OBI_P, SII, PVI) have been assigned — the punch list calls for a 5–10 match event log before technical and shooting metrics can be scored. COACH metric is NOT POSSIBLE — no training-ground footage. No second scout assigned. FGA_v3_Final is PROVISIONAL.</div>
+
+    <div class="banner banner-info"><span>ℹ️</span> <strong>TIER 2 NOT COMPUTABLE.</strong> The composite-index layer cannot be completed from seasonal aggregates alone in this file. Tier 1 and the inferential philosophy/pairing read are the evidentiary base here. Path to full FGA: timestamped 5–10 match event log → score STK/RDS/TEC → add OBI_P/SII/PVI → assign a second scout for blind cross-validation.</div>
+
+    <div class="stat-hero-grid">
+      <div class="stat-hero"><div class="value" style="color:var(--success);">159</div><div class="label">Goals · 388 League Matches</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--success);">44</div><div class="label">Assists · 0.14 per 90 mins</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--gold);">0.32</div><div class="label">Goals per Shot (Elite)</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--gold);">75%</div><div class="label">Penalty Conversion (15/20)</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--text-primary);">112</div><div class="label">Caps · Uruguay</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--text-primary);">36</div><div class="label">Goals · Uruguay NT</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--text-primary);">2x</div><div class="label">Pichichi Trophy (04-05, 08-09)</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--warning);">~8/12</div><div class="label">Tier 3 Video Completeness</div></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+          <strong>Diego Forlán Corazo</strong> is a <strong>retired Uruguayan centre-forward / second striker</strong> (1998–2019) who played for Independiente, Manchester United, Villarreal, Atlético Madrid, Inter Milan, Internacional, Cerezo Osaka, Peñarol, Mumbai City and Kitchee. <strong>388 league matches, 159 goals, 44 assists.</strong> Two-time Pichichi Trophy and European Golden Shoe winner, and a Europa League / UEFA Super Cup winner with Atlético Madrid. His career peak was the <strong>2010 World Cup</strong>, where he won the Golden Ball as the tournament's best player and was joint top scorer with 5 goals, leading Uruguay to the semi-finals under Óscar Tabárez.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Tier 3 Status</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+          Tier 3 evidence is <strong style="color:var(--warning);">PARTIAL — FBref/StatsBomb data, no full 90-minute event log.</strong> Video completeness ≈ <strong>~8/12</strong>. No STK/RDS/CRK/TEC/OBI_P/SII/PVI sub-metric scores have been assigned in this file; the punch list calls for a 5–10 match event log before technical and shooting metrics can be scored. <strong style="color:var(--danger);">COACH metric NOT POSSIBLE</strong> — no training-ground footage. No second scout assigned.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+          As archetype language, Forlán is a <strong>high-confidence example</strong> of the technical, hard-working, big-game forward — a player who could score from distance, link play, and lead a team. As FGA evidence, the file is strong on statistics but partial on video: a comprehensive FBref dataset, but <strong>no match-by-match event log, no full 90-minute footage, and no second scout</strong>. The correct output is a <strong style="color:var(--warning);">provisional FGA status</strong> with a documented path to completion.
+        </p>
+      </div>
+    </div>
+
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+    <div class="pos-map-wrap">
+      <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+        <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a2a3a" stroke="#3a5a7c" stroke-width="2"/>
+        <line x1="260" y1="10" x2="260" y2="330" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="45" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="2" fill="#3a5a7c" opacity="0.6"/>
+        <rect x="10" y="95" width="55" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <rect x="445" y="95" width="65" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="410" cy="170" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+        <text x="410" y="175" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="12" font-weight="700">CF</text>
+        <text x="410" y="203" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">PRIMARY — CENTRE-FORWARD / NO.9</text>
+        <circle cx="330" cy="195" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="330" y="199" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="10" font-weight="700">SS</text>
+        <text x="330" y="217" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="8" font-weight="600">Second striker / withdrawn forward</text>
+        <circle cx="130" cy="110" r="12" fill="none" stroke="#5a5a70" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <text x="130" y="114" text-anchor="middle" fill="#5a5a70" font-family="Oswald,sans-serif" font-size="9" font-weight="700">LW</text>
+        <text x="130" y="130" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="7.5" font-weight="600">Wide left — occasional</text>
+        <path d="M 410 170 Q 440 230 400 290" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4,3" opacity="0.8"/>
+        <text x="455" y="270" fill="#fbbf24" font-family="Rajdhani,sans-serif" font-size="8" font-weight="600">powerful shooting from distance</text>
+      </svg>
+      <div class="pos-map-caption">Tactical board · Primary: Centre-forward / No.9 · Secondary: Second striker / withdrawn forward · Tertiary: Wide left, occasional · Known for powerful shooting from distance</div>
+    </div>
+
+    <div class="section-title">Tactical DNA Pairing — Same Position Only <span class="line"></span></div>
+    <div class="banner banner-proxy"><span>🔮</span> <strong>INFERENTIAL PAIRING.</strong> Same-position archetypes only (centre-forward / second striker). Percentages are analyst estimates supported by career context and source quotes, not Tier 3 output.</div>
+    <div class="card">
+      <div class="pairing-row">
+        <div class="pairing-pct">88%</div>
+        <div><div class="pairing-name">Luis Suárez — Uruguay</div><div class="pairing-meta">Primary · Same nation, same era, same position · formed a lethal strike partnership at the 2010 WC and 2011 Copa América</div></div>
+        <div><div class="pairing-stat-label">Position</div><div class="pairing-stat-value" style="font-size:0.95rem;">CF</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value" style="font-size:0.78rem;">Same position</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">85%</div>
+        <div><div class="pairing-name">David Villa — Spain</div><div class="pairing-meta">Secondary · Left-footed forward, lethal shot from distance · joint top scorer with Forlán at the 2010 World Cup (5 goals each)</div></div>
+        <div><div class="pairing-stat-label">Position</div><div class="pairing-stat-value" style="font-size:0.95rem;">CF/LW</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value" style="font-size:0.78rem;">Same position</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">82%</div>
+        <div><div class="pairing-name">Sergio Agüero — Argentina</div><div class="pairing-meta">Tertiary · Short, powerful, technical forward with a brilliant left foot · same era, same position</div></div>
+        <div><div class="pairing-stat-label">Position</div><div class="pairing-stat-value" style="font-size:0.95rem;">CF</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value" style="font-size:0.78rem;">Same position</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">75%</div>
+        <div><div class="pairing-name">Enzo Francescoli — Uruguay</div><div class="pairing-meta">Reference · The "Prince" of Uruguayan football — more creative/playmaking, but shares technical elegance, leadership and national importance</div></div>
+        <div><div class="pairing-stat-label">Position</div><div class="pairing-stat-value" style="font-size:0.95rem;">AM/CF</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value" style="font-size:0.78rem;">Same position</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">70%</div>
+        <div><div class="pairing-name">Gabriel Batistuta — Argentina</div><div class="pairing-meta">Reference · A more traditional No.9 / pure poacher — powerful shooting and goal record is a valid comparison for La Liga output</div></div>
+        <div><div class="pairing-stat-label">Position</div><div class="pairing-stat-value" style="font-size:0.95rem;">CF</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value" style="font-size:0.78rem;">Same position</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Excluded (Wrong Position)</h3>
+      <table class="data-table">
+        <thead><tr><th>Player</th><th>Position</th><th>Reason for Exclusion</th></tr></thead>
+        <tbody>
+          <tr><td>Cristiano Ronaldo</td><td>Winger / Forward</td><td>Different role, different physical profile.</td></tr>
+          <tr><td>Wayne Rooney</td><td>Second Striker / AM</td><td>Different role and physical profile.</td></tr>
+          <tr><td>Diego Maradona</td><td>Attacking Midfielder</td><td>Different position.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BIO & CONTRACT -->
+  <div id="bio" class="tab-panel">
+    <div class="banner banner-verified"><span>✅</span> <strong>BIOGRAPHICAL DATA — CONFIRMED.</strong> Sources: Guerín Sportivo (2026-10 feature), FIFA, UEFA, MARCA, FBref. Retired — 2019 (aged 40). Report ref ESN-DFO-2026-001 (v1.0).</div>
+
+    <div class="section-title">Confirmed Biographical Data <span class="line"></span></div>
+    <div class="bio-grid">
+      <div class="bio-item"><div class="bio-label">Full Name</div><div class="bio-value">Diego Forlán Corazo</div></div>
+      <div class="bio-item"><div class="bio-label">Date of Birth</div><div class="bio-value">19 May 1979</div><div class="bio-sub">Age 47 (as of October 2026)</div></div>
+      <div class="bio-item"><div class="bio-label">Place of Birth</div><div class="bio-value">Montevideo, Uruguay</div></div>
+      <div class="bio-item"><div class="bio-label">Nationality</div><div class="bio-value">🇺🇾 Uruguay</div></div>
+      <div class="bio-item"><div class="bio-label">Nickname</div><div class="bio-value">Cacha (Cachavacha)</div><div class="bio-sub">A blonde witch from an Argentine comic</div></div>
+      <div class="bio-item"><div class="bio-label">Height</div><div class="bio-value">1.80 m</div></div>
+      <div class="bio-item"><div class="bio-label">Weight</div><div class="bio-value">78 kg</div></div>
+      <div class="bio-item"><div class="bio-label">Preferred Foot</div><div class="bio-value">Right</div></div>
+      <div class="bio-item"><div class="bio-label">Position</div><div class="bio-value">Centre-forward / Second Striker</div><div class="bio-sub">Also capable as a No.9, withdrawn forward, or wide left</div></div>
+      <div class="bio-item"><div class="bio-label">Current Status</div><div class="bio-value">Retired</div><div class="bio-sub">2019 (aged 40)</div></div>
+      <div class="bio-item"><div class="bio-label">Career Span</div><div class="bio-value">1998–2019</div><div class="bio-sub">21 seasons</div></div>
+      <div class="bio-item"><div class="bio-label">Career Totals (League)</div><div class="bio-value">388 matches</div><div class="bio-sub">159 goals · 44 assists</div></div>
+      <div class="bio-item"><div class="bio-label">National Team</div><div class="bio-value">Uruguay — 112 caps, 36 goals</div><div class="bio-sub">2002, 2010, 2014 World Cups · 2011 Copa América</div></div>
+      <div class="bio-item"><div class="bio-label">Honours (Club)</div><div class="bio-value">Man Utd: PL 2002-03, FA Cup 2003-04</div><div class="bio-sub">Atlético: Europa League &amp; Super Cup 2009-10/2010 · Peñarol: Uruguayan Primera 2015-16 · Kitchee: HK Premier League 2018</div></div>
+      <div class="bio-item"><div class="bio-label">Honours (Individual)</div><div class="bio-value">2010 WC Golden Ball &amp; Top Scorer</div><div class="bio-sub">2x Pichichi (04-05, 08-09) · 2x European Golden Shoe</div></div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">Career Pathway <span class="line"></span></div>
+    <div class="card">
+      <div class="timeline">
+        <div class="timeline-item hist"><div class="timeline-date">19 May 1979</div><div class="timeline-text"><strong>Born in Montevideo, Uruguay.</strong></div></div>
+        <div class="timeline-item hist"><div class="timeline-date">25 October 1997</div><div class="timeline-text"><strong>First-team debut at Independiente under César Luis Menotti.</strong> The strongest system link in this file for the Menotti Liberty philosophy.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">1998–2002</div><div class="timeline-text"><strong>Independiente.</strong> Youth product; 37 goals in 80 apps.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2002–2004</div><div class="timeline-text"><strong>Manchester United.</strong> Signed for £6.9m; 17 goals in 98 apps; crucial goals vs Liverpool (double at Anfield, Dec 2002) &amp; Chelsea (2003) — vital for the Premier League 2002-03 title. FA Cup 2003-04, Community Shield 2003.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2004–2007</div><div class="timeline-text"><strong>Villarreal.</strong> Pichichi (25 goals) in his first season; 59 goals in 128 apps; European Golden Shoe 2004-05.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2007–2011</div><div class="timeline-text"><strong>Atlético Madrid.</strong> Signed for €21m; 96 goals in 196 apps; Pichichi (32 goals, 2008-09) &amp; European Golden Shoe 2008-09; Europa League 2009-10 &amp; UEFA Super Cup 2010 winner.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">July 2010</div><div class="timeline-text"><strong>2010 FIFA World Cup, South Africa.</strong> Uruguay reach the semi-finals under Óscar Tabárez. Golden Ball (Best Player), joint top scorer (5 goals), Goal of the Tournament — a volley vs Germany in the third-place play-off.</div></div>
+        <div class="timeline-item"><div class="timeline-date">2011–2012</div><div class="timeline-text"><strong>Inter Milan.</strong> Signed for €5m; 2 goals in 20 apps; injury-hit spell.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2012–2019</div><div class="timeline-text"><strong>Late-career global tour.</strong> Internacional, Cerezo Osaka, Peñarol (Uruguayan Primera 2015-16), Mumbai City, Kitchee (Hong Kong Premier League 2018).</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2019</div><div class="timeline-text"><strong>Retires, aged 40.</strong> Career totals: 388 league matches, 159 goals, 44 assists, 27,832 minutes. FGA status: PROVISIONAL (Tier 1 complete, Tier 3 partial ≈ 8/12, Tier 2 not computable).</div></div>
+        <div class="timeline-item danger"><div class="timeline-date">Evidence gaps</div><div class="timeline-text"><strong>No full Tier 3 event log, no full 90-minute footage, no second scout.</strong> The provisional status is honest by design — the file does not pretend to be a final FGA.</div></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">Status &amp; ESN Context <span class="line"></span></div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Status &amp; Use</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>Retired — 2019.</strong> This is an active historical archival scouting reference file (DRAFT status), not a recruitment card. For ESN use: <strong>benchmark / philosophy-and-pairing reference file</strong>, built from a comprehensive FBref/StatsBomb statistical dataset and a retrospective Guerín Sportivo biography feature, not from a timestamped video event log.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Archetype Role</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>The modern Uruguayan forward archetype:</strong> technical quality, shooting power, and tactical intelligence. Institutionally anchored in Tabárez's El Proceso (Uruguay national team, 2010 Golden Ball) and tracing its origin to Menotti's libertad con orden at Independiente. Pellegrini's refined, possession-based Villarreal is the strongest secondary stylistic/developmental link (first Pichichi, 2004-05).
+        </p>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">The Guerín Sportivo Source <span class="line"></span></div>
+    <div class="banner banner-info"><span>ℹ️</span> Source: <strong>Guerín Sportivo (2026-10 feature)</strong>. A retrospective Italian magazine piece with photographs, narrative prose, and direct quotes — not a contemporaneous match report.</div>
+
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--gold);">The Family Tragedy and the Promise</h3>
+      <div class="quote-box">
+        <p>"Le spese mediche ingenti mandano in crisi finanziaria la famiglia... e Diego promette a papà e mamma che diventerà professionista e pagherà tutte le cure."</p>
+        <cite>— Guerín Sportivo, 2026</cite>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">At the age of 12, Diego's life was turned upside down when his older sister Alejandra was involved in a terrible car accident that left her confined to a wheelchair. The family's finances were devastated. Diego promised his parents he would become a professional footballer to pay for her medical care. This promise became the defining motivation for his career.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--gold);">The Menotti Debut — "Divertiti e fai quel sai"</h3>
+      <div class="quote-box">
+        <p>"Mi parlava con naturalezza, come se fossi sempre stato in quella squadra. Mi disse: 'Divertiti e fai quel sai'."</p>
+        <cite>— Diego Forlán on César Luis Menotti, Guerín Sportivo</cite>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">César Luis Menotti gave Forlán his first-team debut at Independiente on 25 October 1997. The quote is a perfect encapsulation of Menotti's <em>libertad con orden</em> philosophy — giving the player the freedom to express himself on the pitch. It is the strongest system link in this file for the Menotti Liberty philosophy.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--gold);">The Ferguson Years — "Sapeva Tutto"</h3>
+      <div class="quote-box">
+        <p>"Alex Ferguson era uno che sapeva tutto: preparava i match, ce li spiegava per filo e per segno... Ma nello United realizzai gol importanti, come la doppietta ad Anfield al Liverpool e poi il gol al Chelsea, decisivi per il titolo nazionale 2003."</p>
+        <cite>— Diego Forlán on Alex Ferguson, Guerín Sportivo</cite>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">Forlán's time at Manchester United was mixed, but he earned a place in the fans' hearts with crucial goals — the double at Anfield in December 2002 and the winner against Chelsea in 2003, both vital for the Premier League title. He acknowledged Ferguson's obsessive match preparation and the leadership of Roy Keane.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--gold);">The 2010 World Cup</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">The crowning achievement of his career. Under Óscar Tabárez, Uruguay reached the semi-finals of the 2010 World Cup in South Africa. Forlán was awarded the Golden Ball as the tournament's best player and was joint top scorer with five goals. His stunning volley against Germany in the third-place play-off was voted Goal of the Tournament.</p>
+    </div>
+  </div>
+
+  <!-- ATTRIBUTES -->
+  <div id="attributes" class="tab-panel">
+    <div class="banner banner-warning"><span>⚠️</span> <strong>TIER 3 NOT YET SCORED — EVIDENCE PARTIAL (~8/12).</strong> No STK/RDS/CRK/TEC/OBI_P/SII/PVI sub-metric scores exist in this file. The Tier 1 statistics below are real FBref/StatsBomb career totals. Tier 3 metrics are shown PENDING pending a 5–10 match timestamped event log (Punch List items 1–3).</div>
+
+    <div class="grid-3">
+      <div class="attr-card">
+        <h3>Career Output (Tier 1)</h3>
+        <div class="attr-row"><span class="name">Matches Played</span><span class="score ac-green"><span class="circle circle-green"></span> 388</span></div>
+        <div class="attr-row"><span class="name">Minutes Played</span><span class="score ac-green"><span class="circle circle-green"></span> 27,832</span></div>
+        <div class="attr-row"><span class="name">Goals (0.51 / 90)</span><span class="score ac-green"><span class="circle circle-green"></span> 159</span></div>
+        <div class="attr-row"><span class="name">Assists (0.14 / 90)</span><span class="score ac-green"><span class="circle circle-green"></span> 44</span></div>
+        <div class="attr-row"><span class="name">Shots on Target (1.38 / 90)</span><span class="score ac-green"><span class="circle circle-green"></span> 428</span></div>
+        <div class="attr-row"><span class="name">Goals per Shot</span><span class="score ac-green"><span class="circle circle-green"></span> 0.32</span></div>
+      </div>
+      <div class="attr-card">
+        <h3>Discipline &amp; Context (Tier 1)</h3>
+        <div class="attr-row"><span class="name">Penalties Scored</span><span class="score ac-green"><span class="circle circle-green"></span> 15 / 20 (75%)</span></div>
+        <div class="attr-row"><span class="name">Yellow Cards</span><span class="score ac-green"><span class="circle circle-green"></span> 28</span></div>
+        <div class="attr-row"><span class="name">Red Cards</span><span class="score ac-green"><span class="circle circle-green"></span> 0 — never sent off</span></div>
+        <div class="attr-row"><span class="name">Clubs / Leagues</span><span class="score ac-green"><span class="circle circle-green"></span> 7 / 6</span></div>
+        <div class="attr-row"><span class="name">National Team Caps</span><span class="score ac-green"><span class="circle circle-green"></span> 112</span></div>
+        <div class="attr-row"><span class="name">National Team Goals</span><span class="score ac-green"><span class="circle circle-green"></span> 36</span></div>
+      </div>
+      <div class="attr-card">
+        <h3>Tier 3 Evidence Status</h3>
+        <div class="attr-row"><span class="name">STK / RDS — Finishing</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+        <div class="attr-row"><span class="name">TEC — Technique</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+        <div class="attr-row"><span class="name">CRK — Creative Risk</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+        <div class="attr-row"><span class="name">OBI_P / SII / PVI — Link &amp; Movement</span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+        <div class="attr-row"><span class="name">COACH — Coachability</span><span class="score ac-red"><span class="circle circle-red"></span> NOT POSSIBLE</span></div>
+        <div class="attr-row"><span class="name">Second scout</span><span class="score ac-red"><span class="circle circle-red"></span> NOT ASSIGNED</span></div>
+        <div class="attr-row"><span class="name">Video completeness</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> ~8 / 12</span></div>
+        <div class="attr-row"><span class="name">FGA_v3_Final</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> PROVISIONAL</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Career Output (FBref) — 388 Matches · 159 Goals · 44 Assists</h3>
+      <div style="max-width:560px;margin:0 auto;"><canvas id="careerOutputChart" width="500" height="260"></canvas></div>
+      <p style="font-size:0.78rem;color:var(--text-tertiary);text-align:center;margin-top:12px;">388 league matches · 159 goals (0.41 per match) · 44 assists (0.11 per match) · 27,832 minutes played. Source: FBref.</p>
+    </div>
+  </div>
+
+  <!-- FGA ANALYTICS -->
+  <div id="fga" class="tab-panel">
+    <div class="banner banner-warning"><span>⚠️</span> <strong>FGA_v3_Final PROVISIONAL — TIER 3 PARTIAL (~8/12). NO COMPOSITE COMPUTED.</strong> Tier 1 complete (FBref/StatsBomb). Tier 2 not computable. Tier 3 evidence completeness ~8/12 with no per-metric scores assigned. The Empire FGA Active Protocol uses 50/30/20 master weighting (Tier 3/Tier 2/Tier 1), but with Tier 3 unscored, no composite can be issued.</div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Composite Breakdown</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+        <div style="background:linear-gradient(135deg,rgba(0,208,132,0.1),rgba(0,208,132,0.03));border:1px solid rgba(0,208,132,0.25);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--success);letter-spacing:1px;">TIER 1</div><div style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--success);line-height:1;">COMPLETE</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">FBref / StatsBomb career totals</div></div>
+        <div style="background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.2);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--danger);letter-spacing:1px;">TIER 2</div><div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--danger);line-height:1;">NOT COMPUTABLE</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">Composite inputs incomplete</div></div>
+        <div style="background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--warning);letter-spacing:1px;">TIER 3</div><div style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--warning);line-height:1;">~8/12</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">Partial — no sub-metrics scored yet</div></div>
+        <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--gold);letter-spacing:1px;">FGA_v3_FINAL</div><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--gold);line-height:1;">PROVISIONAL</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">No composite computed</div></div>
+      </div>
+      <div style="margin-top:20px;padding:14px 18px;background:var(--bg-card-hover);border-radius:8px;font-family:monospace;font-size:0.8rem;color:var(--text-primary);text-align:center;letter-spacing:0.5px;">Tier 3 50% <strong style="color:var(--warning);">PENDING SCORING (~8/12 evidence)</strong> · Tier 2 30% <strong style="color:var(--danger);">NOT COMPUTABLE</strong> · Tier 1 20% <strong style="color:var(--success);">COMPLETE</strong> · <strong style="color:var(--gold);">FGA PROVISIONAL — NO COMPOSITE COMPUTED</strong></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Statistical Foundation (FBref / StatsBomb, Career)</h3>
+      <div class="grid-2">
         <div>
-          <span class="pill"><strong>Iconic Clubs</strong> Atlético Madrid, Villarreal, Manchester United, Uruguay NT</span>
-          <span class="pill"><strong>Position</strong> Striker / Forward</span>
-          <span class="pill"><strong>Primary Foot</strong> Both</span>
-        </div>
-
-        <div class="section">
-          <h3 class="accent-heading" style="margin:0 0 8px;">Quick Summary</h3>
-          <p class="lead">One of the greatest forwards of his generation, Forlán was a versatile, intelligent, and technically gifted striker. He was famed for his "very strong" long shots, passing ability, and two-footed prowess. He won two European Golden Shoes and the 2010 World Cup Golden Ball.</p>
-        </div>
-
-        <div class="section">
-          <h3 class="accent-heading" style="margin:0 0 8px;">Snapshot Metrics (Playing Career Peak)</h3>
-          <table aria-describedby="physical-metrics">
-            <thead><tr><th>Metric</th><th>Value (ERA-Adjusted)</th></tr></thead>
+          <table class="data-table">
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
             <tbody>
-              <tr><td>FIN - Finishing</td><td>9.5</td></tr>
-              <tr><td>SHO - Long Shots</td><td>9.8</td></tr>
-              <tr><td>STK - Technique</td><td>9.2</td></tr>
-              <tr><td>VIS - Vision</td><td>9.0</td></tr>
-              <tr><td>WRK - Work Rate</td><td>8.8</td></tr>
-              <tr><td>ELE - Elegance</td><td>9.0</td></tr>
+              <tr><td>Matches Played</td><td><strong>388</strong></td></tr>
+              <tr><td>Minutes Played</td><td><strong>27,832</strong> (~309.2 full 90s)</td></tr>
+              <tr><td>Goals</td><td><strong>159</strong> (0.51 per 90)</td></tr>
+              <tr><td>Assists</td><td><strong>44</strong> (0.14 per 90)</td></tr>
+              <tr><td>Shots on Target</td><td><strong>428</strong> (1.38 per 90)</td></tr>
+              <tr><td>Goals per Shot</td><td><strong style="color:var(--success);">0.32</strong> — elite finishing efficiency</td></tr>
+              <tr><td>Penalties Scored</td><td><strong>15 / 20</strong> (75%)</td></tr>
+              <tr><td>Yellow Cards</td><td><strong>28</strong> (0 red cards in career)</td></tr>
+              <tr><td>National Team</td><td><strong>112 caps, 36 goals</strong> (Uruguay)</td></tr>
             </tbody>
           </table>
         </div>
-
-        <div class="section">
-          <h3 class="accent-heading" style="margin:0 0 8px;">Audit Flags</h3>
-          <ul class="small">
-            <li>Profile is historical and based on archival footage and reports.</li>
-            <li>Analyze 2010 World Cup and Atlético/Villarreal footage to verify metrics.</li>
-          </ul>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.18);border-radius:8px;padding:16px;color:#c4b5fd;font-size:0.8rem;line-height:1.7;">
+            <strong>⚠ Data limitation.</strong> While the statistical data is extensive (thanks to FBref/StatsBomb), it is still a seasonal aggregate. It gives us volume, efficiency, and output, but not the tactical context of each action. For a full Tier 3 assessment, we would need timestamped event data across at least five matches.
+          </div>
         </div>
-
-        <div class="section small">Bio and career details referenced from FIFA archives, UEFA/CONMEBOL databases, and historical media reports.</div>
       </div>
-    </aside>
+    </div>
 
-    <main class="card" aria-label="full-profile">
-      <div class="rating-badge" aria-hidden="false">90.5</div>
-
-      <section class="section" aria-labelledby="overview">
-        <h2 id="overview" style="color:var(--accent)">Player Overview</h2>
-        <p class="lead">Diego Forlán was a complete and highly intelligent modern forward. While he struggled at Manchester United, he exploded in La Liga, winning two European Golden Shoes. His game was defined by versatility, "very strong" long shots, and elite technique. He was comfortable shooting with both feet, taking free-kicks, and dropping deep to create. His peak came at the 2010 World Cup, where he scored 5 goals and was awarded the Golden Ball as the tournament's best player, leading Uruguay to the semi-finals.</p>
-      </section>
-
-      <section class="section" aria-labelledby="career-timeline">
-        <h2 id="career-timeline" style="color:var(--accent)">Career Timeline (Table)</h2>
-        <table aria-describedby="timeline-table">
-          <thead><tr><th>Years</th><th>Club / Role</th><th>Notes</th></tr></thead>
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Validation Status &amp; Required Actions</h3>
+        <table class="data-table">
+          <thead><tr><th>Requirement</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>1997–2002</td><td>Independiente</td><td>80 apps, 37 goals. Earned move to Europe.</td></tr>
-            <tr><td>2002–2004</td><td>Manchester United</td><td>63 apps, 10 goals. Won Premier League ('03) & FA Cup ('04).</td></tr>
-            <tr><td>2004–2007</td><td>Villarreal</td><td>106 apps, 54 goals. Won European Golden Shoe (2005).</td></tr>
-            <tr><td>2007–2011</td><td>Atlético Madrid</td><td>134 apps, 74 goals. Won European Golden Shoe (2009). Won Europa League (2010).</td></tr>
-            <tr><td>2011–2012</td><td>Inter Milan</td><td>18 apps, 2 goals.</td></tr>
-            <tr><td>2002–2014</td><td>Uruguay National Team</td><td>112 caps, 36 goals. Won 2010 World Cup Golden Ball. Won 2011 Copa América.</td></tr>
+            <tr><td>Minimum 5 matches registered</td><td><span class="score ac-yellow">⚠ PARTIAL — FBref seasonal data, no full match log</span></td></tr>
+            <tr><td>Video completeness (of 12)</td><td><span class="score ac-yellow">⚠ ~8/12 — extensive FBref &amp; historical data</span></td></tr>
+            <tr><td>FGA_v3_Final activation</td><td><span class="score ac-yellow">⚠ PROVISIONAL</span></td></tr>
+            <tr><td>COACH metric</td><td><span class="score ac-red">✗ NOT POSSIBLE — no training-ground footage</span></td></tr>
+            <tr><td>Second scout</td><td><span class="score ac-red">✗ NOT ASSIGNED</span></td></tr>
+            <tr><td>Tier 1 statistical foundation</td><td><span class="score ac-green">✓ COMPLETE — FBref, StatsBomb</span></td></tr>
+            <tr><td>Biographical data</td><td><span class="score ac-green">✓ COMPLETE — Guerín Sportivo, FIFA, UEFA</span></td></tr>
+            <tr><td>Philosophy DNA fit</td><td><span class="score ac-yellow">⚠ INFERENTIAL — supported by career data</span></td></tr>
+            <tr><td>Player pairing</td><td><span class="score ac-yellow">⚠ Same-position only, inferential</span></td></tr>
           </tbody>
         </table>
-      </section>
-
-      <section class="section" aria-labelledby="key-matches">
-        <h2 id="key-matches" style="color:var(--accent)">Key Matches and Milestones (Table)</h2>
-        <table aria-describedby="key-matches-table">
-          <thead><tr><th>Date</th><th>Milestone / Event</th><th>Note</th></tr></thead>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Data Integrity Flags</h3>
+        <table class="data-table">
+          <thead><tr><th>Flag</th><th>Impact</th><th>Action</th></tr></thead>
           <tbody>
-            <tr><td>2010</td><td>FIFA World Cup</td><td>Won the Golden Ball (Best Player) and was joint-top scorer (5 goals).</td></tr>
-            <tr><td>2005, 2009</td><td>European Golden Shoe</td><td>Won the award twice as Europe's top scorer (with Villarreal & Atlético).</td></tr>
-            <tr><td>2010</td><td>UEFA Europa League Final</td><td>Scored the decisive goal for Atlético Madrid in the final.</td></tr>
-            <tr><td>2011</td><td>Copa América Final</td><td>Won the tournament with Uruguay.</td></tr>
-            <tr><td>2008-09</td><td>Pichichi Trophy</td><td>Top scorer in La Liga with 32 goals.</td></tr>
+            <tr><td>FBref data is seasonal aggregate</td><td>No match-by-match context for each action</td><td>Build a timestamped event log from available footage</td></tr>
+            <tr><td>No full 90-minute footage</td><td>Tier 3 cannot be completed</td><td>Source match recordings</td></tr>
+            <tr><td>No second scout</td><td>Reliability of any eventual score cannot be tested</td><td>Assign on first scoring pass</td></tr>
           </tbody>
         </table>
-      </section>
-
-      <section class="section" aria-labelledby="strengths-weaknesses">
-        <h2 id="strengths-weaknesses" style="color:var(--accent)">Strengths and Weaknesses</h2>
-        <div class="two-col">
-          <div>
-            <h3 class="accent-heading" style="margin:0 0 8px;">Strengths</h3>
-            <ul class="small">
-              <li><strong>Long Shots:</strong> "Very Strong" ability to shoot from distance.</li>
-              <li><strong>Finishing (FIN):</strong> An elite, prolific goalscorer (2x Golden Shoe winner).</li>
-              <li><strong>Technique & Passing:</strong> "Very Strong" passing and technique; "likes to play long balls".</li>
-              <li><strong>Two-Footed:</strong> Comfortable and dangerous with both feet.</li>
-              <li><strong>Intelligence & Versatility:</strong> A highly intelligent forward who could create and score.</li>
-            </ul>
-          </div>
-          <div>
-            <h3 class="accent-heading" style="margin:0 0 8px;">Weaknesses</h3>
-            <ul class="small">
-              <li><strong>Defensive Contribution:</strong> "Very Weak" defensive work.</li>
-              <li><strong>Aerial Duels:</strong> "Weak" in the air.</li>
-              <li><strong>Early Career Form:</strong> Famously struggled to score at Manchester United.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" aria-labelledby="global-impact">
-        <h2 id="global-impact" style="color:var(--accent)">Global Impact Analysis</h2>
-        <div class="two-col">
-          <div>
-            <p class="small"><strong>Marketability & Commercial Value:</strong> Global icon. His 2010 World Cup performance made him a household name. A legend in Uruguay, Spain (Atlético/Villarreal), and Argentina (Independiente).</td>
-            <p class="small"><strong>Transfer Market Positioning (Player):</strong> At his peak, he was one of the world's elite #9s. His post-Man Utd career proved his immense value, culminating in his 2010 Golden Ball.</td>
-          </div>
-          <div>
-            <p class="small"><strong>Cross-League Fit (Player):</strong> His technical, intelligent style was a perfect fit for La Liga, where he dominated. He struggled with the pace and physicality of the Premier League.</td>
-            <p class="small"><strong>International Impact:</strong> Legendary. Won the 2010 World Cup Golden Ball and the 2011 Copa América, becoming one of Uruguay's most celebrated players.</td>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" aria-labelledby="advanced">
-        <h2 id="advanced" style="color:var(--accent)">Advanced Metrics (Playing Career Peak)</h2>
-        <div class="two-col">
-          <div>
-            <h3 class="accent-heading" style="margin:0 0 8px;">Per-90 Core (ERA-Adjusted Estimates)</h3>
-            <table>
-              <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-              <tbody>
-                <tr><td>FIN - Finishing</td><td>9.5</td></tr>
-                <tr><td>SHO - Long Shots</td><td>9.8</td></tr>
-                <tr><td>VIS - Vision</td><td>9.0</td></tr>
-                <tr><td>SCA - Shot Creating Actions</td><td>4.8</td></tr>
-                <tr><td>TKL - Tackles</td><td>0.3 (Very Weak)</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h3 class="accent-heading" style="margin:0 0 8px;">Percentile Context (Historical Strikers)</h3>
-            <ul class="small">
-              <li>Long Shots (SHO): 99th percentile.</li>
-              <li>Finishing (FIN): 98th percentile.</li>
-              <li>Passing / Vision (VIS): 95th percentile (for a striker).</li>
-              <li>Defensive Work (TPI): 5th percentile.</li>
-            </ul>
-          </div>
-        </div>
-        <p class="small">Before publication, cross-reference estimates with archival World Cup and La Liga data. ERA Factor: ~1.10 (2000s).</p>
-      </section>
-
-      <section class="section" aria-labelledby="tactical-philosophies">
-        <h2 id="tactical-philosophies" style="color:var(--accent)">Tactical Philosophies & DNA</h2>
-
-        <h3 class="accent-heading" style="margin:8px 0 6px;">Core Tactical DNA</h3>
-        <p class="small">Forlán's DNA was the **Complete Technical Striker**. He was a "versatile, intelligent" forward who prioritized **Lethal Finishing (FIN/SHO)** from all ranges and **Creative Link-Up Play (VIS/PAS)**. He was a hybrid #9/#10 who could score 30 goals or drop deep to create.</p>
-
-        <div class="two-col">
-          <div>
-            <h4 class="accent-heading" style="margin:6px 0">Primary Philosophies (Top 6)</h4>
-            <table>
-              <thead><tr><th>Philosophy</th><th>Score (0-10)</th><th>Rationale</th></tr></thead>
-              <tbody>
-                <tr><td>Lewandowski Finisher</td><td>9.6</td><td>Elite, two-time Golden Shoe winner.</td></tr>
-                <tr><td>Platini Elegance</td><td>9.4</td><td>A creative, technical #10 who was also a top scorer.</td></tr>
-                <tr><td>Cruyff Intelligence</td><td>9.0</td><td>High technical skill, vision, and intelligence.</td></tr>
-                <tr><td>Menotti Artistry</td><td>8.5</td><td>Game was built on high technique and flair.</td></tr>
-                <tr><td>Haaland Power</td><td>7.0</td><td>Not a physical bully, but a powerful long-shot threat.</td></tr>
-                <tr><td>Klopp Intensity</td><td>5.0</td><td>"Very weak" defensive contribution.</td></tr>
-              </tbody>
-            </table>
-            <div class="muted-box small">Action: attach four PHILOSOPHY_SUBCOMP evidence rows per philosophy above. Focus on 2010 WC Golden Ball, European Golden Shoes, and long shots.</div>
-          </div>
-
-          <div>
-            <h4 class="accent-heading" style="margin:6px 0">Subcomponent Signals (Representative)</h4>
-            <ul class="small">
-              <li><strong>2010 World Cup Golden Ball:</strong> Named tournament's best player.</li>
-              <li><strong>European Golden Shoe (x2):</strong> Top scorer in Europe in 2005 and 2009.</li>
-              <li><strong>Long Shots:</strong> A "Very Strong" and defining attribute.</li>
-              <li><strong>Passing:</strong> "Very Strong" passing and key pass ability.</li>
-            </ul>
-          </div>
-        </div>
-
-        <h3 class="accent-heading" style="margin:12px 0 6px;">Philosophy Integration Method</h3>
-        <p class="small">Each published philosophy score is the arithmetic mean of its four PHILOSOPHY_SUBCOMP rows. Subcomponents must include archival clip IDs, event descriptions, stat support (goals, awards), and confidence level.</p>
-
-        <h3 class="accent-heading" style="margin:12px 0 6px;">Tactical Recommendations Based on DNA (Historical)</h3>
-        <ul class="small">
-          <li>Deploy as a central striker (#9) or as a second striker (#10).</li>
-          <li>Grant him the freedom to drop deep, link play, and shoot from distance.</li>
-          <li>Designate as a primary free-kick taker.</li>
-          <li>Pair with a high-energy partner (like Sergio Agüero) to compensate for his lack of defensive work.</li>
-        </ul>
-      </section>
-
-      <section class="section" aria-labelledby="psych-profile">
-        <h2 id="psych-profile" style="color:var(--accent)">Psychological Profile & Personality Analysis</h2>
-
-        <h3 class="accent-heading" style="margin:8px 0 6px;">Core Psychological Traits</h3>
-        <ul class="small">
-          <li><strong>Intelligent & Professional:</strong> "Widely regarded" for his intelligence on the pitch.</li>
-          <li><strong>Resilient:</strong> Failed at Man Utd but rebuilt his career to become a 2x Golden Shoe winner.</li>
-          <li><strong>Confident:</strong> Maintained his "shoot-on-sight" policy even after his Man Utd struggles.</li>
-        </ul>
-
-        <h3 class="accent-heading" style="margin:8px 0 6px;">MENTAL STRENGTHS</h3>
-        <ul class="small">
-          <li>Supreme confidence in his shooting ability.</li>
-          <li>Mental toughness to bounce back from a major career failure (Man Utd).</li>
-          <li>"Big game" player (2010 World Cup, 2010 Europa League Final).</li>
-        </ul>
-
-        <h3 class="accent-heading" style="margin:8px 0 6px;">PSYCHOLOGICAL CHALLENGES</h3>
-        <ul class="small">
-          <li>Struggled with the pressure and style of play at Manchester United.</li>
-          <li>(No other significant psychological challenges noted).</li>
-        </ul>
-
-        <h3 class="accent-heading" style="margin:12px 0 6px;">Philosophy & Experience</h3>
-        <p class="small">Forlán's career is a testament to resilience. After failing to launch at Manchester United, he moved to Spain and reinvented himself as one of the world's most complete forwards. His experience was vast, from South America to England, Spain, and Italy. His career peaked at 31, winning the Golden Ball, proving his intelligence and longevity.</p>
-      </section>
-
-      <section class="section" aria-labelledby="career-stats">
-        <h2 id="career-stats" style="color:var(--accent)">Complete Career Statistics & FGA Rating Breakdown (Player)</h2>
-        <p class="small">Populate the table below with season data from historical archives. ERA Factor: ~1.10 (2000s)</p>
-        <table>
-          <thead><tr><th>Season</th><th>Club</th><th>Apps</th><th>Goals</th><th>Assists (Est.)</th><th>KEY p90 (Est.)</th><th>ERA‑FGA</th></tr></thead>
+        <h3 class="section-title" style="margin:20px 0 16px;font-size:0.9rem;">Punch List</h3>
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Priority</th></tr></thead>
           <tbody>
-            <tr><td>2002-03</td><td>Manchester United</td><td>25 (Prem. Lg)</td><td>6</td><td>~2</td><td>~0.8</td><td>81.0</td></tr>
-            <tr><td>2004-05</td><td>Villarreal</td><td>38 (La Liga)</td><td>25</td><td>~5</td><td>~1.5</td><td>90.0 (Golden Shoe)</td></tr>
-            <tr><td>2008-09</td><td>Atlético Madrid</td><td>33 (La Liga)</td><td>32</td><td>~10</td><td>~2.0</td><td>91.0 (Golden Shoe)</td></tr>
-            <tr><td>2009-10</td><td>Atlético Madrid</td><td>33 (La Liga)</td><td>18</td><td>~7</td><td>~1.8</td><td>89.5 (EL Win)</td></tr>
-            <tr><td>2010</td><td>Uruguay NT (WC)</td><td>7</td><td>5</td><td>1</td><td>~3.0</td><td>91.5 (Golden Ball)</td></tr>
+            <tr><td>Build a 5–10 match event log from available footage</td><td><span class="tag tag-danger">HIGH</span></td></tr>
+            <tr><td>Score technical and shooting metrics first: STK, RDS, TEC</td><td><span class="tag tag-danger">HIGH</span></td></tr>
+            <tr><td>Add link-play and movement metrics: OBI_P, SII, PVI</td><td><span class="tag tag-warning">MEDIUM</span></td></tr>
+            <tr><td>Assign second scout for blind cross-validation</td><td><span class="tag tag-warning">MEDIUM</span></td></tr>
           </tbody>
         </table>
-        <div class="muted-box small">Replace placeholders with exact historical data where available. Assists/KEY estimated based on profile.</div>
-      </section>
-
-      <section class="section" aria-labelledby="psych-leadership">
-        <h2 id="psych-leadership" style="color:var(--accent)">Psychological & Leadership Notes (table)</h2>
-        <table>
-          <thead><tr><th>Area</th><th>Observation</th><th>Recommendation</th></tr></thead>
-          <tbody>
-            <tr><td>Leadership Presence</td><td>Led by example of technical excellence and intelligence. A key leader for Uruguay.</td><td>N/A (Historical)</td></tr>
-            <tr><td>Pressure Handling</td><td>Exceptional. Scored 5 goals and won Golden Ball at 2010 World Cup.</td><td>N/A (Historical)</td></tr>
-            <tr><td>Development Focus (Historical)</td><td>His career exploded after leaving Man Utd, showing his resilience.</td><td>N/A (Historical)</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="section" aria-labelledby="relationships">
-        <h2 id="relationships" style="color:var(--accent)">Key Relationships & Interpersonal Dynamics (table)</h2>
-        <table>
-          <thead><tr><th>Type</th><th>Person / Group</th><th>Pattern / Impact</th></tr></thead>
-          <tbody>
-            <tr><td>Teammate Partnership</td><td>Sergio Agüero (Atlético)</td><td>Formed one of Europe's most lethal strike partnerships.</td></tr>
-            <tr><td>Club Dynamics</td><td>Manchester United</td><td>A famously difficult period; failed to score for months.</td></tr>
-            <tr><td>Club Legend</td><td>Villarreal / Atlético</td><td>An icon at both Spanish clubs.</td></tr>
-            <tr><td>National Hero</td><td>Uruguay</td><td>A legend; led them to a World Cup semi-final and Copa América title.</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="section" aria-labelledby="last5">
-        <h2 id="last5" style="color:var(--accent)">Last 5 Matches (Representative Historical Samples - Player)</h2>
-        <table>
-          <thead><tr><th>Date (Approx)</th><th>Opponent</th><th>Result</th><th>Key Actions</th><th>Notes</th></tr></thead>
-          <tbody>
-            <tr><td>Jul 10, 2010</td><td>Germany (WC 3rd Place)</td><td>L 2-3</td><td>90 mins, 1 goal (Goal of Tournament nominee)</td><td>2010 World Cup</td></tr>
-            <tr><td>Jul 6, 2010</td><td>Netherlands (WC Semi)</td><td>L 2-3</td><td>90 mins, 1 goal</td><td>2010 World Cup</td></tr>
-            <tr><td>Jul 2, 2010</td><td>Ghana (WC Quarter-final)</td><td>D 1-1 (W Pens)</td><td>120 mins, 1 goal (free-kick)</td><td>2010 World Cup</td></tr>
-            <tr><td>May 12, 2010</td><td>Fulham (Europa League Final)</td><td>W 2-1 (AET)</td><td>120 mins, 2 goals (decisive goal)</td><td>Won Europa League</td></tr>
-            <tr><td>May 2009</td><td>(Atlético Match)</td><td>W</td><td>Scored Hat-trick (Est.)</td><td>Part of 2009 Golden Shoe run</td></tr>
-          </tbody>
-        </table>
-        <div class="muted-box small">Sources: attach archived match reports/summaries. Matches chosen for significance.</div>
-      </section>
-
-      <section class="section" aria-labelledby="video-highlights">
-        <h2 id="video-highlights" style="color:var(--accent)">Video Highlights (Player Career)</h2>
-        <p class="small">Attach archival clips and event IDs in PHILOSOPHY_SUBCOMP rows. Focus on 2010 World Cup Golden Ball and Europa League final.</p>
-        <table>
-          <thead><tr><th>Clip Tag</th><th>Match</th><th>Approx Year</th><th>Event</th><th>Source ID</th></tr></thead>
-          <tbody>
-            <tr><td>VH-DF-01</td><td>Uruguay vs Germany</td><td>2010</td><td>WC 2010 Volley (Goal of Tournament)</td><td>ARCH-DF-2010-GER (attach)</td></tr>
-            <tr><td>VH-DF-02</td><td>Uruguay vs Ghana</td><td>2010</td><td>WC 2010 Free-kick goal</td><td>ARCH-DF-2010-GHA (attach)</td></tr>
-            <tr><td>VH-DF-03</td><td>Atlético vs Fulham</td><td>2010</td><td>Europa League Final goals</td><td>ARCH-DF-2010-FUL (attach)</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="section" aria-labelledby="comparison">
-        <h2 id="comparison" style="color:var(--accent)">Player Comparison with Radar Chart (Complete Forwards)</h2>
-        <p class="small">Comparators: Luis Suárez (Profile), Wayne Rooney (Profile). Generate radar visuals from peak ERA-adjusted data.</p>
-        <div class="visual-canvas">
-          <canvas id="forlanRadar" aria-label="Radar comparing Forlán and comparators" width="720" height="420"></canvas>
-        </div>
-      </section>
-
-      <section class="section" aria-labelledby="psych-app">
-        <h2 id="psych-app" style="color:var(--accent)">Psychological Application Notes (Historical)</h2>
-        <ul class="small">
-          <li>A highly intelligent and professional player.</li>
-          <li>Demonstrated elite resilience by overcoming his Man Utd failure to become a global star.</li>
-          <li>His confidence was built on his technique, not his physicality.</li>
-          <li>A "big moment" player who delivered at World Cups and in European finals.</li>
-        </ul>
-      </section>
-
-      <section class="section" aria-labelledby="sources">
-        <h2 id="sources" style="color:var(--accent)">Sources & Verification Notes</h2>
-        <p class="small">Primary player data: FIFA archives, UEFA/CONMEBOL archives, Transfermarkt, Wikipedia, WhoScored, Premier League, MUFCInfo. All metrics are based on his historical peak (circa 2005-2011). Each PHILOSOPHY_SUBCOMP row must include clip descriptions/IDs.</p>
-        <div class="muted-box small">All final numbers must be replaced with verified exports or clearly marked estimates prior to client delivery. Cross-validate Golden Boot/Ball awards.</div>
-      </section>
-
-      <footer style="margin-top:18px;color:var(--muted)">Empire FGA — Diego Forlán expanded scouting profile. This document follows the exact section order provided. Replace editorial placeholders with per-event evidence and PHILOSOPHY_SUBCOMP rows before client delivery.</footer>
-    </main>
+      </div>
+    </div>
   </div>
 
-  <script>
-    const ctx = document.getElementById('forlanRadar')?.getContext('2d');
-    if (ctx) {
-      new Chart(ctx, {
-        type: 'radar',
-        data: {
-          labels: ['Finishing (FIN)','Long Shots (SHO)','Vision (VIS)','Technique (STK)','Work Rate (WRK)','Pace (SPR)'],
-          datasets: [
-            { label: 'Diego Forlán (Peak)', data: [9.5, 9.8, 9.0, 9.2, 8.8, 8.5],
-              backgroundColor:'rgba(11,91,176,0.10)', borderColor:'#0b5bb0', pointBackgroundColor:'#ffd24d', borderWidth:2 },
-            { label: 'Luis Suárez (Profile)', data: [9.6, 8.8, 9.2, 9.0, 9.4, 8.6],
-              backgroundColor:'rgba(255,210,77,0.10)', borderColor:'#ffd24d', pointBackgroundColor:'#0b5bb0', borderWidth:2 },
-            { label: 'Wayne Rooney (Profile)', data: [9.2, 9.0, 9.4, 9.0, 9.5, 8.7],
-              backgroundColor:'rgba(52,211,153,0.08)', borderColor:'#34d399', pointBackgroundColor:'#34d399', borderWidth:2 }
-          ]
-        },
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          plugins:{ legend:{ labels:{ color:'#eef6ff' } }, tooltip:{ backgroundColor:'#071122', titleColor:'#fff', bodyColor:'#cfe6ff' } },
-          scales:{ r:{ beginAtZero:true, max:10, ticks:{ color:'#cfe6ff', stepSize:1 }, pointLabels:{ color:'#eef6ff', font:{ size:12 } }, grid:{ color:'rgba(255,255,255,0.06)' }, angleLines:{ color:'rgba(255,255,255,0.06)' } } }
-        }
-      });
+  <!-- PHILOSOPHY DNA -->
+  <div id="philosophy" class="tab-panel">
+    <div class="banner banner-proxy"><span>🔮</span> <strong>INFERENTIAL ONLY — TIER 3 PARTIAL.</strong> The percentages below are inferential analyst estimates, supported by historical data and direct quotes. They are NOT derived from a scored Tier 3 event log and are NOT FGA output.</div>
+    <div class="banner banner-gold"><span>★</span> <strong>STRONGEST LINK — TABÁREZ PROCESS (90%, SOURCE-LINKED).</strong> Forlán was the centerpiece of Óscar Tabárez's Uruguay — the team that reached the 2010 World Cup semi-finals and won the 2011 Copa América. He won the Golden Ball playing under Tabárez's system. This is the best-evidenced link in the file — still an inferential estimate, not a Tier 3 score.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Top Philosophy Fits</h3>
+        <div class="philo-row anchor"><div class="philo-rank">1</div><div class="philo-name">🇺🇾 Tabárez — Process (#75) <small>Source-linked · Uruguay national team manager · 2010 WC Golden Ball</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:#75AADB;"></div></div></div><div class="philo-score">90%</div></div>
+        <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">🇦🇷 Menotti — Liberty (#44) <small>Source-linked · gave Forlán his Independiente debut, direct quote</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#e07820;"></div></div></div><div class="philo-score">85%</div></div>
+        <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">🇨🇱 Pellegrini — Refinement (#12) <small>Inferred · Villarreal manager, platform for first Pichichi</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#27ae60;"></div></div></div><div class="philo-score">80%</div></div>
+        <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">🏴 Ferguson — Mental (#21) <small>Inferred · Manchester United manager, direct quote</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:#6CABDD;"></div></div></div><div class="philo-score">75%</div></div>
+        <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">🇦🇷 Simeone — Cholismo (#47) <small>Inferred · Atlético Madrid manager, 2009-10/2010</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#3498db;"></div></div></div><div class="philo-score">70%</div></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;"><div class="radar-container"><canvas id="philosophyRadar2" width="500" height="450"></canvas></div></div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;"><strong style="color:var(--text-primary);">"Modern Uruguayan Forward"</strong> — a right-footed centre-forward / second striker whose career is institutionally anchored in Tabárez's El Proceso (Uruguay national team, 2010 Golden Ball) and traces its origin to Menotti's libertad con orden — the Independiente debut, "Divertiti e fai quel sai". Pellegrini's refined, possession-based Villarreal is the strongest secondary stylistic/developmental link (first Pichichi, 2004-05). The Ferguson and Simeone links are inferred from club context rather than direct system quotes.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="tag tag-anchor">Tabárez 90% ★</span>
+            <span class="tag tag-gold">Menotti 85%</span>
+            <span class="tag tag-info">Pellegrini 80%</span>
+            <span class="tag tag-value">Ferguson 75%</span>
+            <span class="tag tag-warning">Simeone 70%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAREER -->
+  <div id="career" class="tab-panel">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card" style="max-width:100%;overflow-x:hidden;">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Trajectory</h3>
+        <table class="data-table">
+          <thead><tr><th>Period</th><th>Club / League</th><th>Key Context</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1998–2002</strong></td><td>Independiente <br><span style="color:var(--text-tertiary);">Argentine Primera</span></td><td>Youth product; debut under Menotti (25 Oct 1997); 37 goals in 80 apps</td></tr>
+            <tr><td><strong>2002–2004</strong></td><td>Manchester United <br><span style="color:var(--text-tertiary);">Premier League</span></td><td>Signed for £6.9m; 17 goals in 98 apps; crucial goals vs Liverpool &amp; Chelsea</td></tr>
+            <tr><td><strong>2004–2007</strong></td><td>Villarreal <br><span style="color:var(--text-tertiary);">La Liga</span></td><td>Pichichi (25 goals) in first season; 59 goals in 128 apps</td></tr>
+            <tr><td><strong>2007–2011</strong></td><td>Atlético Madrid <br><span style="color:var(--text-tertiary);">La Liga</span></td><td>Signed for €21m; 96 goals in 196 apps; Pichichi (32 goals); Europa League &amp; Super Cup winner</td></tr>
+            <tr><td><strong>2011–2012</strong></td><td>Inter Milan <br><span style="color:var(--text-tertiary);">Serie A</span></td><td>Signed for €5m; 2 goals in 20 apps; struggled with injuries</td></tr>
+            <tr><td><strong>2012–2019</strong></td><td>Internacional · Cerezo Osaka · Peñarol · Mumbai · Kitchee <br><span style="color:var(--text-tertiary);">Various</span></td><td>Late-career global tour; won titles in Uruguay and Hong Kong</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+        <table class="data-table">
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Matches (League)</strong></td><td>388</td></tr>
+            <tr><td><strong>Goals (League)</strong></td><td>159</td></tr>
+            <tr><td><strong>Assists (League)</strong></td><td>44</td></tr>
+            <tr><td><strong>Minutes Played</strong></td><td>27,832</td></tr>
+            <tr><td><strong>Shots on Target</strong></td><td>428</td></tr>
+            <tr><td><strong>Goals per Shot</strong></td><td style="color:var(--success);font-weight:700;">0.32</td></tr>
+            <tr><td><strong>Penalties Scored</strong></td><td>15 / 20 (75%)</td></tr>
+            <tr><td><strong>Yellow / Red Cards</strong></td><td>28 / 0</td></tr>
+            <tr><td><strong>National Team Caps / Goals</strong></td><td>112 / 36</td></tr>
+            <tr style="border-top:2px solid var(--border-medium);"><td><strong>Club honours</strong></td><td>PL 2002-03 · FA Cup 2003-04 · Europa League 2009-10 · UEFA Super Cup 2010 · Uruguayan Primera 2015-16 · HK Premier League 2018</td></tr>
+            <tr><td><strong>Individual honours</strong></td><td>2010 WC Golden Ball &amp; Top Scorer · 2x Pichichi · 2x European Golden Shoe</td></tr>
+            <tr><td><strong>National team honours</strong></td><td>2011 Copa América winner · 2002, 2010, 2014 World Cups</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Full Club History</h3>
+      <table class="data-table">
+        <thead><tr><th>Years</th><th>Club</th></tr></thead>
+        <tbody>
+          <tr><td>1998–2002</td><td>Independiente</td></tr>
+          <tr><td>2002–2004</td><td>Manchester United</td></tr>
+          <tr><td>2004–2007</td><td>Villarreal</td></tr>
+          <tr><td>2007–2011</td><td>Atlético Madrid</td></tr>
+          <tr><td>2011–2012</td><td>Inter Milan</td></tr>
+          <tr><td>2012–2013</td><td>Internacional</td></tr>
+          <tr><td>2014–2015</td><td>Cerezo Osaka</td></tr>
+          <tr><td>2015–2016</td><td>Peñarol</td></tr>
+          <tr><td>2016</td><td>Mumbai City</td></tr>
+          <tr><td>2018</td><td>Kitchee</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SCOUTING -->
+  <div id="scouting" class="tab-panel">
+    <div class="scout-box scout-pos">
+      <h4>✓ Positive Filters</h4>
+      <ul>
+        <li><strong>159 goals in 388 league matches</strong> — 0.41 per game (FBref)</li>
+        <li><strong>2010 World Cup Golden Ball and Top Scorer</strong> (FIFA)</li>
+        <li><strong>2x Pichichi Trophy</strong> — La Liga Top Scorer (MARCA)</li>
+        <li><strong>Europa League and UEFA Super Cup winner</strong> (UEFA)</li>
+        <li><strong>Elite shooting efficiency</strong> — 0.32 goals per shot (FBref)</li>
+        <li><strong>Never sent off</strong> in his entire career (FBref)</li>
+        <li><strong>112 caps, 36 goals for Uruguay</strong> across three World Cups and a Copa América win</li>
+      </ul>
+    </div>
+    <div class="scout-box scout-caut">
+      <h4>◈ Caution Signals</h4>
+      <ul>
+        <li><strong>No full Tier 3 event log</strong> — FBref data is a seasonal aggregate, no match-by-match context</li>
+        <li><strong>No full 90-minute footage</strong> held in this file</li>
+        <li><strong>No per-metric Tier 3 scores assigned</strong> — STK, RDS, TEC, CRK, OBI_P, SII, PVI all PENDING</li>
+        <li><strong>COACH metric NOT POSSIBLE</strong> — no training-ground footage</li>
+        <li><strong>No second scout</strong> — reliability of any eventual score untested</li>
+        <li><strong>Tier 2 not computable</strong> — the composite-index layer is incomplete</li>
+        <li><strong>Video completeness ~8/12 only</strong></li>
+      </ul>
+    </div>
+    <div class="scout-box scout-gap">
+      <h4>✗ Critical Gaps</h4>
+      <ul>
+        <li><strong>FGA_v3_Final PROVISIONAL</strong> — no composite computed</li>
+        <li><strong>Struggled at Manchester United</strong> — only 17 goals in 98 appearances (Guerín Sportivo)</li>
+        <li><strong>Injury-hit spell at Inter Milan</strong> — 2 goals in 20 appearances (Guerín Sportivo)</li>
+        <li><strong>No timestamped event log</strong> — the single missing element for a definitive Tier 3</li>
+        <li><strong>No second scout</strong> — no blind cross-validation</li>
+      </ul>
+    </div>
+    <div class="scout-box scout-verdict">
+      <h4>◆ Empire FGA Verdict</h4>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        The honest reading is therefore twofold. <strong style="color:var(--text-primary);">As archetype language</strong>, Forlán is a high-confidence example of the technical, hard-working, big-game forward — a player who could score from distance, link play, and lead a team. <strong style="color:var(--text-primary);">As FGA evidence</strong>, the file is strong on statistics but partial on video: a comprehensive FBref dataset, but no match-by-match event log, no full 90-minute footage, and no second scout. The correct output is a <strong style="color:var(--warning);">provisional FGA status</strong> with a documented path to completion.
+      </p>
+      <p style="font-size:0.78rem;color:var(--text-tertiary);line-height:1.7;margin-top:10px;">Status: DRAFT — ACTIVE ARCHIVE. Tier 3 partial (~8/12) · Tier 2 not computable · Tier 1 complete · FGA_v3_Final PROVISIONAL. No COACH metric. No second scout. Philosophy fit and player pairing percentages are inferential analyst estimates, supported by historical data where available — not Tier 3 output. Pairing restricted to same-position players only (centre-forward / second striker). This document is an active scouting reference file, not a final assessment.</p>
+    </div>
+  </div>
+
+  <!-- MATCHES -->
+  <div id="matches" class="tab-panel">
+    <div class="banner banner-warning"><span>⚠️</span> <strong>NO MATCH-BY-MATCH EVENT LOG HELD IN THIS FILE.</strong> Tier 1 data is FBref/StatsBomb career and competition aggregate (388 league matches, 112 national-team caps). A small number of individually significant matches are referenced narratively in the Guerín Sportivo source piece (2010 World Cup, Europa League 2009-10) but without a timestamped box score in this file. A full timestamped log is the single missing element that would unlock a definitive Tier 3.</div>
+
+    <div class="section-title" style="margin-bottom:16px;">Aggregate Output — Career <span class="line"></span></div>
+    <div class="match-grid">
+      <div class="match-card" style="cursor:default;">
+        <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">League Career — 1998–2019</div>
+          <div class="match-meta"><span class="match-badge badge-verified">388 MATCHES ✅</span><span class="match-badge badge-comp">159G · 44A</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">Aggregate across 7 clubs, 6 leagues. 428 shots on target · 0.32 goals per shot · 27,832 minutes played.</div>
+        </div>
+      </div>
+      <div class="match-card" style="cursor:default;">
+        <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">Uruguay National Team — 2002–2014</div>
+          <div class="match-meta"><span class="match-badge badge-verified">112 CAPS ✅</span><span class="match-badge badge-comp">36 GOALS</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">2002, 2010 &amp; 2014 World Cups. 2011 Copa América winner.</div>
+        </div>
+      </div>
+      <div class="match-card" style="cursor:default;">
+        <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">2010 FIFA World Cup — South Africa</div>
+          <div class="match-meta"><span class="match-badge badge-comp">DOCUMENTED (NARRATIVE)</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">Golden Ball (Best Player), joint Top Scorer (5 goals), Goal of the Tournament — volley vs Germany, third-place play-off, under Óscar Tabárez. No per-match event log held.</div>
+        </div>
+      </div>
+      <div class="match-card" style="cursor:default;opacity:0.65;">
+        <div class="match-thumb"><div class="play-icon" style="background:rgba(90,96,112,0.6);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">Match-by-match event log</div>
+          <div class="match-meta"><span class="match-badge badge-not-graded">NOT HELD</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">Required for a definitive Tier 3. Would unlock STK/RDS/TEC/CRK scoring and full video completeness.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Key Output Metrics — Career</h3>
+      <div class="grid-3">
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">League (All Clubs)</h4>
+          <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9">
+            <strong style="color:var(--success);">388 matches</strong><br>
+            <strong style="color:var(--text-primary);">159 goals · 44 assists</strong><br>
+            428 shots on target<br>
+            0.32 goals per shot<br>
+            27,832 minutes played<br>
+            15/20 penalties (75%)
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Uruguay National Team</h4>
+          <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9">
+            <strong style="color:var(--text-primary);">112 caps</strong><br>
+            36 goals<br>
+            2002, 2010, 2014 World Cups<br>
+            2011 Copa América winner<br>
+            2010 WC Golden Ball &amp; Top Scorer
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Honours</h4>
+          <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9">
+            <strong style="color:var(--text-primary);">2x Pichichi Trophy</strong><br>
+            2x European Golden Shoe<br>
+            Europa League &amp; Super Cup 2010<br>
+            Premier League 2002-03 · FA Cup 2003-04<br>
+            Uruguayan Primera 2015-16 · HK League 2018
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
     }
-  </script>
+  }
+}
+
+(function() {
+  // Hero dial shows VIDEO COMPLETENESS (~8/12), not a fabricated Tier 3 average — no per-metric
+  // Tier 3 scores exist in the source file for this player, so no composite score is drawn here.
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 8;
+  var heroMax = 12;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(75, 75, 62, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(75, 75, 62, 0.75 * Math.PI, heroAngle);
+  var grad = heroCtx.createLinearGradient(0, 0, 150, 150);
+  grad.addColorStop(0, '#0D47A1');
+  grad.addColorStop(1, '#ffb800');
+  heroCtx.strokeStyle = grad;
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+(function() {
+  // Real Tier 1 career output (FBref) — matches / goals / assists. No Tier 3 subscores fabricated.
+  var el = document.getElementById('careerOutputChart');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Matches Played', 'Goals Scored', 'Assists'],
+      datasets: [{
+        label: 'Career Output (FBref)',
+        data: [388, 159, 44],
+        backgroundColor: ['rgba(13,71,161,0.65)', 'rgba(0,208,132,0.65)', 'rgba(251,191,36,0.65)'],
+        borderColor: ['#0D47A1', '#00d084', '#fbbf24'],
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        x: { beginAtZero: true, ticks: { color: '#8b92a8' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        y: { ticks: { color: '#cfe6ff', font: { family: 'Rajdhani', size: 12, weight: '600' } }, grid: { display: false } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+(function() {
+  var el = document.getElementById('philosophyRadar2');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Tabárez / Process', 'Menotti / Liberty', 'Pellegrini / Refinement', 'Ferguson / Mental', 'Simeone / Cholismo'],
+      datasets: [{
+        label: 'Diego Forlán (inferential)',
+        data: [90, 85, 80, 75, 70],
+        backgroundColor: 'rgba(117,170,219,0.15)',
+        borderColor: '#75AADB',
+        pointBackgroundColor: ['#75AADB', '#e07820', '#27ae60', '#6CABDD', '#3498db'],
+        pointBorderColor: '#fff',
+        pointRadius: 5,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 40, max: 100,
+          ticks: { display: false, stepSize: 10 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' }, padding: 16 }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

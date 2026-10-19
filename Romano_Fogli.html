@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Romano Fogli | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);--text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;--accent:#0D47A1;--accent-dim:rgba(13,71,161,0.15);--gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;--success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;--tier1:#00d084;--tier2:#ffb800;--tier3:#d4a020;--pending:#5a5a70;--font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg-primary);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.hero{position:relative;height:560px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo{position:absolute;inset:0;background:linear-gradient(145deg,#15151f 0%,#0a0a0f 55%,#0d1420 100%);filter:brightness(0.9) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo{transform:scale(1.03);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.35) 0%,rgba(13,71,161,0.2) 40%,rgba(10,10,15,0.88) 72%,var(--bg-primary) 100%);}
+.hero-branding{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#0D47A1 33%,#fbbf24 33%,#fbbf24 66%,#0D47A1 66%);z-index:10;}
+.champ-badge{position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before{content:'🇮🇹';font-size:0.8rem;}
+.hero-content{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark{position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow{color:var(--text-tertiary);font-size:0.6rem;}
+.badge-item.current{background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.hero-name{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span{font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag{font-size:1.1rem;}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending{background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club{background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value{background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger{background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-warning{background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tag-updated{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-anchor{background:linear-gradient(135deg,rgba(0,156,59,0.2),rgba(251,191,36,0.1));color:#4ade80;border:1px solid rgba(0,156,59,0.5);}
+.fga-dial-wrap{position:relative;width:150px;height:150px;flex-shrink:0;}
+.fga-dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label{font-family:var(--font-heading);font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score{font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status{font-family:var(--font-heading);font-size:0.58rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+.tier-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1{background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2{background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3{background:rgba(212,160,32,0.12);color:#f4b84a;border:1px solid rgba(212,160,32,0.28);}
+.tier-pill.t3block{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.25);}
+.tab-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+.content{max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line{flex:1;height:1px;background:var(--border-subtle);}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.banner{padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-verified{background:rgba(0,208,132,0.08);border:1px solid rgba(0,208,132,0.2);color:var(--success);}
+.banner-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-gold{background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(251,191,36,0.04));border:1px solid rgba(251,191,36,0.25);color:var(--gold);}
+.banner-proxy{background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(168,85,247,0.04));border:1px solid rgba(168,85,247,0.3);color:#c4b5fd;}
+.banner-anchor{background:linear-gradient(135deg,rgba(0,156,59,0.14),rgba(251,191,36,0.06));border:2px solid rgba(0,156,59,0.4);color:#4ade80;}
+.stat-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover{transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label{font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}
+.pos-map-wrap svg{max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;}
+.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child{border-bottom:none;}
+.attr-row .name{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score{font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green{color:var(--success);}.ac-yellow{color:var(--warning);}.ac-red{color:var(--danger);}.ac-pend{color:var(--pending);}
+.circle{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green{background:var(--success);}.circle-yellow{background:var(--warning);}.circle-red{background:var(--danger);}.circle-pend{background:var(--pending);}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.philo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child{border-bottom:none;}
+.philo-row.anchor{background:linear-gradient(90deg,rgba(0,156,59,0.08),transparent);border-left:3px solid #009C3B;padding-left:9px;margin-left:-12px;}
+.philo-row.caveat{opacity:0.95;}
+.philo-rank{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name{flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-name small{display:block;font-size:0.68rem;color:var(--text-tertiary);margin-top:2px;letter-spacing:0.3px;}
+.philo-score{font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:42px;text-align:right;}
+.philo-bar-wrap{width:120px;}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover{transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(13,71,161,0.1);}
+.match-thumb{height:120px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb .play-icon{width:48px;height:48px;background:rgba(13,71,161,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon{transform:scale(1.1);background:var(--accent);}
+.play-icon svg{width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info{padding:16px;}
+.match-teams{font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta{font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified{background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp{background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending{background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-not-graded{background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.badge-updated{background:rgba(0,208,132,0.12);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th{text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong{color:var(--text-primary);font-weight:600;}
+.scout-box{border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4{font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos{background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}.scout-pos h4{color:var(--success);}
+.scout-caut{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}.scout-caut h4{color:var(--warning);}
+.scout-gap{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}.scout-gap h4{color:var(--danger);}
+.scout-verdict{background:var(--accent-dim);border:1px solid rgba(13,71,161,0.2);}.scout-verdict h4{color:var(--silver);}
+.scout-box ul{list-style:none;padding:0;margin:0;}
+.scout-box li{padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before{content:'—';color:var(--text-tertiary);flex-shrink:0;}
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-item::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before{background:var(--accent);box-shadow:0 0 8px rgba(13,71,161,0.4);}
+.timeline-item.hist::before{background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before{background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date{font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date{color:var(--success);}
+.timeline-item.champ .timeline-date{color:var(--gold);}
+.timeline-item.danger .timeline-date{color:var(--danger);}
+.timeline-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong{color:var(--text-primary);}
+.radar-container{width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas{width:100%!important;height:100%!important;}
+.pairing-row{display:grid;grid-template-columns:80px 1fr 90px 90px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-subtle);}
+.pairing-row:last-child{border-bottom:none;}
+.pairing-pct{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--gold);text-align:center;}
+.pairing-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.pairing-meta{font-size:0.72rem;color:var(--text-tertiary);}
+.pairing-stat-label{font-family:var(--font-heading);font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.pairing-stat-value{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold);}
+.bio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.bio-item{background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px 16px;}
+.bio-item .bio-label{font-family:var(--font-heading);font-size:0.65rem;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.bio-item .bio-value{font-family:var(--font-body);font-size:0.92rem;font-weight:600;color:var(--text-primary);line-height:1.3;}
+.bio-item .bio-sub{font-size:0.72rem;color:var(--text-tertiary);margin-top:3px;}
+.quote-box{background:rgba(255,255,255,0.03);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:12px;}
+.quote-box .q-text{font-size:0.85rem;color:var(--text-secondary);font-style:italic;line-height:1.7;}
+.quote-box .q-src{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:8px;text-transform:uppercase;letter-spacing:0.5px;}
+@media (max-width:768px){.hero{height:460px;}.jersey-watermark{font-size:140px;}.hero-bottom{flex-direction:column;align-items:flex-start;}.fga-dial-wrap{width:120px;height:120px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.match-grid{grid-template-columns:1fr;}.pairing-row{grid-template-columns:60px 1fr;}.philo-bar-wrap{width:60px;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Historical Archive · Deceased 2021</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Torino (1955–1958)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Bologna (1958–1968)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">AC Milan (1968–1970)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Catania (1970–1974)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Deceased 21 Sep 2021</div>
+    </div>
+    <h1 class="hero-name">Romano Fogli</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇮🇹</span> Italy</span>
+      <span class="dot"></span>
+      <span>Born 21 Jan 1938 · Santa Maria a Monte (Pisa) · Died 21 Sep 2021 (aged 83)</span>
+      <span class="dot"></span>
+      <span>Midfielder (Mediano / Regista)</span>
+      <span class="dot"></span>
+      <span>1.72m · 69kg</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t2">T1 PARTIAL · HONOURS &amp; CAREER TOTALS ONLY</div>
+          <div class="tier-pill t2">T2 NOT COMPUTABLE</div>
+          <div class="tier-pill t3block">T3 BLOCKED · 0/12</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-gold">SERIE A CHAMPION 1963-64 · BOLOGNA</span>
+          <span class="tag tag-gold">EUROPEAN CUP &amp; INTERCONTINENTAL CUP 1969 · MILAN</span>
+          <span class="tag tag-info">13 CAPS · ITALY · 1966 WORLD CUP</span>
+          <span class="tag tag-pending">NICKNAME: IL GRISSINO</span>
+          <span class="tag tag-danger">FGA NOT ISSUED</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="150" height="150"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">FGA</div>
+          <div class="fga-score" style="font-size:2rem;color:var(--danger);">N/A</div>
+          <div class="fga-status" style="color:var(--danger);">TIER 3 BLOCKED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('bio')">Bio & Contract</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<main class="content">
+
+  <!-- OVERVIEW -->
+  <div id="overview" class="tab-panel active">
+
+    <div class="banner banner-danger"><span>⛔</span> <strong>HISTORICAL ARCHIVE · TIER 3 BLOCKED, NOT PARTIAL.</strong> Romano Fogli played from 1955 to 1974. No full 90-minute footage is held in this file, and no match-by-match event log, no line-ups, and no video-derived scoring have been performed. The only sources are a retrospective magazine feature (Guerin Sportivo, 2026) and contemporary press (Calcio Illustrato, 1966) plus historical records. <strong>No FGA rating can be issued.</strong></div>
+
+    <div class="banner banner-warning"><span>⚠️</span> <strong>PHILOSOPHY FIT &amp; PLAYER PAIRING ARE INFERENTIAL ANALYST ESTIMATES ONLY</strong> — not Tier 3 validated, not video-scored, not FGA output. The percentages on this page are directional reading, not a fabricated number.</div>
+
+    <div class="banner banner-verified"><span>✅</span> <strong>BIOGRAPHICAL DATA COMPLETE.</strong> Sourced from Guerin Sportivo (2026-09 feature), Calcio Illustrato (1966) and FIGC records. Career totals, club history, honours and national-team record are documented.</div>
+
+    <div class="stat-hero-grid">
+      <div class="stat-hero"><div class="value" style="color:var(--text-primary);">1955–1974</div><div class="label">Career Span (19 Seasons)</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--text-primary);">280+</div><div class="label">Career Matches (Top Flight)</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--text-primary);">15+</div><div class="label">Career Goals (Top Flight)</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--text-primary);">13</div><div class="label">Caps · Italy (0 Goals)</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--gold);">1</div><div class="label">Serie A Title · Bologna 1963-64</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--gold);">1</div><div class="label">European Cup · Milan 1968-69</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--danger);">0/12</div><div class="label">Tier 3 Evidence — BLOCKED</div></div>
+      <div class="stat-hero"><div class="value" style="color:var(--danger);">N/A</div><div class="label">FGA Rating — Withheld by Rule</div></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+          <strong>Romano Fogli</strong>, nicknamed <strong>"Il Grissino"</strong> (The Breadstick) for his slight 1.72m / 69kg frame, was a <strong>technically gifted deep-lying playmaker / box-to-box midfielder</strong> for Torino, Bologna, AC Milan and Catania between 1955 and 1974. A Serie A champion with Bologna (1963-64) and European Cup / Intercontinental Cup winner with AC Milan (1969), he won 13 caps for Italy including the 1966 World Cup. He died on 21 September 2021, aged 83.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Tier 3 Status</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+          <strong style="color:var(--danger);">BLOCKED — 0/12.</strong> No event log exists, no footage is supplied, and the source is a retrospective magazine feature rather than contemporaneous match reporting. Every Tier 3 sub-metric is unscoreable on this file. COACH is NOT POSSIBLE (historical subject, no training-ground footage). No second scout assigned.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+          <strong style="color:var(--danger);">FGA_v3_Final BLOCKED. Numeric rating NOT ASSIGNED.</strong> As archetype language, Fogli is a high-confidence example of the Italian regista. As FGA evidence, the file is thin: one retrospective feature, no event log, no video, no line-ups, no second scout. <strong>The correct output is a blocked FGA status with a documented unblock path — not a fabricated number.</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+    <div class="pos-map-wrap">
+      <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+        <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a2a3a" stroke="#3a5a7c" stroke-width="2"/>
+        <line x1="260" y1="10" x2="260" y2="330" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="45" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="170" r="2" fill="#3a5a7c" opacity="0.6"/>
+        <rect x="10" y="95" width="55" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <rect x="445" y="95" width="65" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="260" cy="190" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+        <text x="260" y="195" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="11" font-weight="700">CM</text>
+        <text x="260" y="222" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">PRIMARY — REGISTA / MEDIANO</text>
+        <circle cx="200" cy="150" r="13" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="200" y="154" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="9" font-weight="700">B2B</text>
+        <text x="200" y="172" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="7.5" font-weight="600">Box-to-box (documented)</text>
+        <text x="260" y="300" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="8" font-weight="600">No video-derived heat / touch map held — narrative source only</text>
+      </svg>
+      <div class="pos-map-caption">Tactical board (descriptive only, not video-derived) · Primary: deep-lying playmaker / regista · Documented secondary role: mediano / box-to-box</div>
+    </div>
+
+    <div class="section-title">Tactical DNA Pairing — Same Position Only <span class="line"></span></div>
+    <div class="banner banner-proxy"><span>🔮</span> <strong>INFERENTIAL PAIRING — NOT TIER 3 OUTPUT.</strong> Same-position archetypes only (central midfielder / deep-lying playmaker). The percentages below are analyst estimates, not measured Tier 3 scores. Wingers, forwards and attacking midfielders are excluded.</div>
+    <div class="card">
+      <div class="pairing-row">
+        <div class="pairing-pct">92%</div>
+        <div><div class="pairing-name">Giacomo Bulgarelli 🇮🇹 — Central Midfielder</div><div class="pairing-meta">Primary · Bologna teammate and successor as midfield metronome · 1964 Scudetto side together</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value">Era</div></div>
+        <div><div class="pairing-stat-label">Status</div><div class="pairing-stat-value">Inferred</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">88%</div>
+        <div><div class="pairing-name">Andrea Pirlo 🇮🇹 — Regista</div><div class="pairing-meta">Secondary · modern archetype of the Italian deep-lying playmaker · same lineage</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value">Lineage</div></div>
+        <div><div class="pairing-stat-label">Status</div><div class="pairing-stat-value">Inferred</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">85%</div>
+        <div><div class="pairing-name">Demetrio Albertini 🇮🇹 — Central Midfielder</div><div class="pairing-meta">Tertiary · metronome of Capello's Milan · same club, same national lineage</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value">Club</div></div>
+        <div><div class="pairing-stat-label">Status</div><div class="pairing-stat-value">Inferred</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">80%</div>
+        <div><div class="pairing-name">Fernando Redondo 🇦🇷 — DM/CM</div><div class="pairing-meta">Reference · elegant left-footed deep playmaker, more of a pure destroyer</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value">Style</div></div>
+        <div><div class="pairing-stat-label">Status</div><div class="pairing-stat-value">Inferred</div></div>
+      </div>
+      <div class="pairing-row">
+        <div class="pairing-pct">75%</div>
+        <div><div class="pairing-name">Claudio Marchisio 🇮🇹 — Central Midfielder</div><div class="pairing-meta">Reference · national tradition and stylistic ethos consistent, more box-to-box</div></div>
+        <div><div class="pairing-stat-label">Basis</div><div class="pairing-stat-value">Tradition</div></div>
+        <div><div class="pairing-stat-label">Status</div><div class="pairing-stat-value">Inferred</div></div>
+      </div>
+      <div style="margin-top:14px;padding:12px 14px;background:rgba(255,59,59,0.05);border:1px solid rgba(255,59,59,0.15);border-radius:8px;font-size:0.78rem;color:var(--text-tertiary);">
+        <strong style="color:var(--danger);">Excluded (wrong position):</strong> Gianni Rivera (attacking midfielder/playmaker — different role), Sandro Mazzola (attacking midfielder — different role), Mario Corso (winger — different role).
+      </div>
+    </div>
+  </div>
+
+  <!-- BIO & CONTRACT -->
+  <div id="bio" class="tab-panel">
+    <div class="banner banner-verified"><span>✅</span> <strong>BIOGRAPHICAL DATA — COMPLETE.</strong> Source: Guerin Sportivo (2026-09), Calcio Illustrato (1966), FIGC. Status: historical archive subject — deceased 21 September 2021. This is a historical reference file, not an active recruitment card.</div>
+
+    <div class="section-title">Confirmed Biographical Data <span class="line"></span></div>
+    <div class="bio-grid">
+      <div class="bio-item"><div class="bio-label">Full Name</div><div class="bio-value">Romano Fogli</div></div>
+      <div class="bio-item"><div class="bio-label">Date of Birth</div><div class="bio-value">21 January 1938</div><div class="bio-sub">Santa Maria a Monte (Pisa), Italy</div></div>
+      <div class="bio-item"><div class="bio-label">Date of Death</div><div class="bio-value">21 September 2021</div><div class="bio-sub">Aged 83</div></div>
+      <div class="bio-item"><div class="bio-label">Nationality</div><div class="bio-value">🇮🇹 Italy</div></div>
+      <div class="bio-item"><div class="bio-label">Height</div><div class="bio-value">1.72 m</div></div>
+      <div class="bio-item"><div class="bio-label">Weight</div><div class="bio-value">69 kg</div></div>
+      <div class="bio-item"><div class="bio-label">Nickname</div><div class="bio-value">Il Grissino</div><div class="bio-sub">"The Breadstick" — due to his slight build</div></div>
+      <div class="bio-item"><div class="bio-label">Preferred Foot</div><div class="bio-value">Not stated in source</div></div>
+      <div class="bio-item"><div class="bio-label">Position</div><div class="bio-value">Midfielder (Mediano / Regista)</div><div class="bio-sub">Deep-lying playmaker / box-to-box</div></div>
+      <div class="bio-item"><div class="bio-label">Current Status</div><div class="bio-value">Deceased</div><div class="bio-sub">Historical archive subject</div></div>
+      <div class="bio-item"><div class="bio-label">Career Span</div><div class="bio-value">1955–1974</div><div class="bio-sub">19 seasons</div></div>
+      <div class="bio-item"><div class="bio-label">Career Totals (League)</div><div class="bio-value">280+ matches · 15+ goals</div><div class="bio-sub">Top flight</div></div>
+      <div class="bio-item"><div class="bio-label">Honours (Club)</div><div class="bio-value">Serie A 1963-64 (Bologna)</div><div class="bio-sub">European Cup &amp; Intercontinental Cup 1969 (Milan)</div></div>
+      <div class="bio-item"><div class="bio-label">Honours (Individual)</div><div class="bio-value">Not catalogued in source</div></div>
+      <div class="bio-item"><div class="bio-label">National Team</div><div class="bio-value">Italy · 13 caps, 0 goals</div><div class="bio-sub">1958–1967 · 1966 World Cup</div></div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">Club History <span class="line"></span></div>
+    <div class="card">
+      <table class="data-table">
+        <thead><tr><th>Period</th><th>Club</th><th>League</th></tr></thead>
+        <tbody>
+          <tr><td>1952–1955</td><td><strong>Santa Maria a Monte</strong></td><td>Dilettanti</td></tr>
+          <tr><td>1955–1958</td><td><strong>Torino</strong></td><td>Serie A</td></tr>
+          <tr><td>1958–1968</td><td><strong>Bologna</strong></td><td>Serie A</td></tr>
+          <tr><td>1968–1970</td><td><strong>AC Milan</strong></td><td>Serie A</td></tr>
+          <tr><td>1970–1974</td><td><strong>Catania</strong></td><td>Serie A / Serie B</td></tr>
+          <tr><td>1958–1967</td><td><strong>Italy (National Team)</strong></td><td>International — 13 caps</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">Career Pathway <span class="line"></span></div>
+    <div class="card">
+      <div class="timeline">
+        <div class="timeline-item hist"><div class="timeline-date">21 January 1938</div><div class="timeline-text"><strong>Born in Santa Maria a Monte, Pisa, Italy.</strong></div></div>
+        <div class="timeline-item hist"><div class="timeline-date">1952–1955</div><div class="timeline-text"><strong>Santa Maria a Monte (Dilettanti).</strong> Amateur beginnings.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">1955–1958</div><div class="timeline-text"><strong>Torino.</strong> Youth product; breakthrough at 18; 2 goals in 49 appearances.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">1958–1968</div><div class="timeline-text"><strong>Bologna — club legend.</strong> 280+ appearances; Serie A champion 1963-64; Man of the Match in the 1964 Scudetto playoff against Inter.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">1968–1970</div><div class="timeline-text"><strong>AC Milan.</strong> Signed by Nereo Rocco; European Cup winner 1968-69; Intercontinental Cup winner 1969; 43 appearances.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">1970–1974</div><div class="timeline-text"><strong>Catania — veteran leader.</strong> Played until age 36.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">1958–1967</div><div class="timeline-text"><strong>Italy national team.</strong> 13 caps, 0 goals; part of the 1966 World Cup squad (including the North Korea defeat).</div></div>
+        <div class="timeline-item danger"><div class="timeline-date">21 September 2021</div><div class="timeline-text"><strong>Died, aged 83.</strong></div></div>
+        <div class="timeline-item danger"><div class="timeline-date">2026</div><div class="timeline-text"><strong>Empire FGA Historical Archival Report generated (v1.0).</strong> Tier 3 BLOCKED (0/12) — no footage, no event log, no second scout. FGA rating NOT ASSIGNED.</div></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">Archive Context <span class="line"></span></div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Status</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>Deceased historical subject — this file is a reference and legacy archive, not a recruitment card.</strong> There is no contract, transfer or commercial dimension to this profile. It exists to document Fogli's career, honours and historical role within the Empire FGA Archive Protocol.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Archetype Role</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+          <strong>The archetypal Italian technical midfielder of the 1960s</strong> — a regista capable of both creating and destroying, described in contemporary press as the "caposcuola" (headmaster) who paved the way for Gianni Rivera and Mario Corso.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATTRIBUTES -->
+  <div id="attributes" class="tab-panel">
+    <div class="banner banner-danger"><span>⛔</span> <strong>TIER 3 BLOCKED — 0/12. NO SCORES CAN BE ISSUED.</strong> Retrospective feature only, no event log, no video log. Every sub-metric below is unscoreable on this file — this is not a partial score, it is a documented absence of evidence.</div>
+
+    <div class="grid-3">
+      <div class="attr-card">
+        <h3>Documented Career Output</h3>
+        <div class="attr-row"><span class="name">Career matches (top flight)</span><span class="score ac-green"><span class="circle circle-green"></span> 280+</span></div>
+        <div class="attr-row"><span class="name">Career goals (top flight)</span><span class="score ac-green"><span class="circle circle-green"></span> 15+</span></div>
+        <div class="attr-row"><span class="name">Caps · Italy</span><span class="score ac-green"><span class="circle circle-green"></span> 13 (0 goals)</span></div>
+        <div class="attr-row"><span class="name">Career span</span><span class="score ac-green"><span class="circle circle-green"></span> 1955–1974</span></div>
+        <div class="attr-row"><span class="name">Bologna appearances</span><span class="score ac-green"><span class="circle circle-green"></span> 280+ (club total)</span></div>
+        <div class="attr-row"><span class="name">AC Milan appearances</span><span class="score ac-green"><span class="circle circle-green"></span> 43</span></div>
+        <div class="attr-row"><span class="name">Torino appearances / goals</span><span class="score ac-green"><span class="circle circle-green"></span> 49 / 2</span></div>
+      </div>
+      <div class="attr-card">
+        <h3>Honours (Documented)</h3>
+        <div class="attr-row"><span class="name">Serie A title</span><span class="score ac-green"><span class="circle circle-green"></span> 1963-64 (Bologna)</span></div>
+        <div class="attr-row"><span class="name">European Cup</span><span class="score ac-green"><span class="circle circle-green"></span> 1968-69 (Milan)</span></div>
+        <div class="attr-row"><span class="name">Intercontinental Cup</span><span class="score ac-green"><span class="circle circle-green"></span> 1969 (Milan)</span></div>
+        <div class="attr-row"><span class="name">Man of the Match</span><span class="score ac-green"><span class="circle circle-green"></span> 1964 Scudetto playoff</span></div>
+        <div class="attr-row"><span class="name">Individual honours</span><span class="score ac-pend"><span class="circle circle-pend"></span> Not catalogued</span></div>
+        <div class="attr-row"><span class="name">1966 World Cup</span><span class="score ac-red"><span class="circle circle-red"></span> Squad member — eliminated vs N. Korea</span></div>
+      </div>
+      <div class="attr-card">
+        <h3>Tier 3 Metrics — BLOCKED (0/12)</h3>
+        <div class="attr-row"><span class="name">TEC — Technique</span><span class="score ac-pend"><span class="circle circle-pend"></span> BLOCKED</span></div>
+        <div class="attr-row"><span class="name">PVI — Passing / Vision</span><span class="score ac-pend"><span class="circle circle-pend"></span> BLOCKED</span></div>
+        <div class="attr-row"><span class="name">LGP — Long/Ground Pass</span><span class="score ac-pend"><span class="circle circle-pend"></span> BLOCKED</span></div>
+        <div class="attr-row"><span class="name">OTP — Off-the-ball Positioning</span><span class="score ac-pend"><span class="circle circle-pend"></span> BLOCKED</span></div>
+        <div class="attr-row"><span class="name">POS — Positional Discipline</span><span class="score ac-pend"><span class="circle circle-pend"></span> BLOCKED</span></div>
+        <div class="attr-row"><span class="name">TAC / INT / COV / END</span><span class="score ac-pend"><span class="circle circle-pend"></span> BLOCKED</span></div>
+        <div class="attr-row"><span class="name">COACH metric</span><span class="score ac-red"><span class="circle circle-red"></span> NOT POSSIBLE</span></div>
+        <div class="attr-row"><span class="name">Evidence completeness</span><span class="score ac-red"><span class="circle circle-red"></span> 0/12</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 Evidence Gauge</h3>
+      <div style="max-width:500px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-secondary);margin-bottom:6px;"><span>Video completeness</span><span style="color:var(--danger);font-weight:700;">0 / 12</span></div>
+        <div class="progress-bar" style="height:10px;"><div class="progress-fill" style="width:0%;background:var(--danger);"></div></div>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-tertiary);text-align:center;margin-top:16px;">This gauge is intentionally empty. No scored Tier 3 event log, no video, no sub-metric values exist for this file — displaying a synthetic score here would be a fabricated number, which this report does not produce.</p>
+    </div>
+  </div>
+
+  <!-- FGA ANALYTICS -->
+  <div id="fga" class="tab-panel">
+    <div class="banner banner-danger"><span>⛔</span> <strong>FGA_v3_Final BLOCKED. NUMERIC RATING NOT ASSIGNED.</strong> Tier 1 partial (honours and career totals only). Tier 2 not computable. Tier 3 blocked at 0/12. No COACH metric. No second scout. This is a historical reference file, not a scouting assessment.</div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Composite Breakdown</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+        <div style="background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--warning);letter-spacing:1px;">TIER 1</div><div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--warning);line-height:1;">PARTIAL</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">Honours &amp; career totals only</div></div>
+        <div style="background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.2);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--danger);letter-spacing:1px;">TIER 2</div><div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--danger);line-height:1;">NOT COMPUTABLE</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">Composite inputs absent</div></div>
+        <div style="background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.2);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--danger);letter-spacing:1px;">TIER 3</div><div style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--danger);line-height:1;">0/12</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">BLOCKED — no event log</div></div>
+        <div style="background:rgba(255,59,59,0.08);border:2px solid rgba(255,59,59,0.3);border-radius:8px;padding:16px;text-align:center;"><div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--danger);letter-spacing:1px;">FGA_v3_FINAL</div><div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--danger);line-height:1;">N/A</div><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:6px;">Withheld by rule — no proxy</div></div>
+      </div>
+      <div style="margin-top:20px;padding:14px 18px;background:var(--bg-card-hover);border-radius:8px;font-family:monospace;font-size:0.85rem;color:var(--text-primary);text-align:center;letter-spacing:1px;">Tier 3 50% <strong style="color:var(--danger);">BLOCKED (0/12)</strong> · Tier 2 30% <strong style="color:var(--danger);">NOT COMPUTABLE</strong> · Tier 1 20% <strong style="color:var(--warning);">PARTIAL</strong> · <strong style="color:var(--danger);">FGA NOT ISSUED</strong></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Statistical Foundation (Historical Records)</h3>
+      <div class="grid-2">
+        <div>
+          <table class="data-table">
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Career span</td><td><strong>1955–1974 (19 seasons)</strong></td></tr>
+              <tr><td>Career matches (top flight)</td><td><strong>280+</strong></td></tr>
+              <tr><td>Career goals (top flight)</td><td><strong>15+</strong></td></tr>
+              <tr><td>Caps · Italy</td><td><strong>13 (0 goals)</strong></td></tr>
+              <tr><td>Serie A titles</td><td><strong>1963-64 (Bologna)</strong></td></tr>
+              <tr><td>European Cup</td><td><strong>1968-69 (Milan)</strong></td></tr>
+              <tr><td>Intercontinental Cup</td><td><strong>1969 (Milan)</strong></td></tr>
+              <tr><td>Torino apps / goals</td><td><strong>49 / 2</strong></td></tr>
+              <tr><td>AC Milan appearances</td><td><strong>43</strong></td></tr>
+              <tr><td>Individual honours</td><td><strong>Not catalogued in source</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.18);border-radius:8px;padding:14px;font-size:0.8rem;color:var(--text-secondary);line-height:1.7;">
+            <strong style="color:var(--danger);">Reading:</strong> this is biographical and honours-level data, not a timestamped seasonal statistical feed. There is no shot map, no xG, no pass map, no touch data — those categories of evidence do not exist for a player whose career predates such tracking. Tier 1 is therefore marked PARTIAL, not COMPLETE.
+          </div>
+          <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;">
+            <div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:8px;">EVIDENCE BASE</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">280+ top-flight matches (Torino, Bologna, Milan, Catania) · 13 caps (Italy) · Serie A 1963-64 · European Cup 1968-69 · Intercontinental Cup 1969 · Primary source: Guerin Sportivo (2026-09) &amp; Calcio Illustrato (1966) · FIGC · no match log · no video log.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Where the Rating Lands</h3>
+      <div style="position:relative;height:60px;">
+        <div style="display:flex;height:40px;border-radius:6px;overflow:hidden;opacity:0.35;">
+          <div style="flex:1;background:linear-gradient(135deg,#b91c1c,#991b1b);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.6rem;font-weight:700;color:#fff;">CONCERNING</div>
+          <div style="flex:1;background:linear-gradient(135deg,#94a3b8,#64748b);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.6rem;font-weight:700;color:#fff;">AVERAGE</div>
+          <div style="flex:1;background:linear-gradient(135deg,#475569,#334155);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.6rem;font-weight:700;color:#fff;">GOOD</div>
+          <div style="flex:1;background:linear-gradient(135deg,#8a6508,#a67a10);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.6rem;font-weight:700;color:#fff;">VERY GOOD</div>
+          <div style="flex:1;background:linear-gradient(135deg,#047857,#065f46);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.6rem;font-weight:700;color:#fff;">EXCELLENT</div>
+          <div style="flex:1;background:linear-gradient(135deg,#b45309,#92400e);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:0.6rem;font-weight:700;color:#fff;">ELITE</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--font-heading);font-size:0.65rem;color:var(--text-tertiary);margin-top:4px;padding:0 4px;">
+          <span>&lt;3.5</span><span>3.5–4.9</span><span>5.0–6.4</span><span>6.5–7.9</span><span>8.0–9.9</span><span>10.0–11.9</span>
+        </div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-top:16px;"><strong style="color:var(--danger);">No rating is plotted on this scale.</strong> The band above is shown dimmed deliberately — FGA_v3_Final is BLOCKED and no composite has been computed. Placing a marker anywhere on this gauge would constitute a fabricated number, which this report does not produce.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Data Integrity Flags</h3>
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Flag</th><th>Impact</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Retrospective source</td><td>Guerin Sportivo feature is not contemporaneous match evidence</td></tr>
+            <tr><td>2</td><td>No match line-ups or scorelines</td><td>No match-level anchor</td></tr>
+            <tr><td>3</td><td>Magazine feature, not a match report</td><td>Narrative and quotations only</td></tr>
+            <tr><td>4</td><td>No second scout</td><td>Reliability of any eventual score cannot be tested</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Punch List — Unblock Path</h3>
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Item</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Build a 5–10 match midfielder event log from available footage</td><td><strong style="color:var(--danger);">HIGH</strong></td></tr>
+            <tr><td>2</td><td>Score TEC, PVI, LGP, OTP, POS first</td><td><strong style="color:var(--danger);">HIGH</strong></td></tr>
+            <tr><td>3</td><td>Add TAC, INT, COV, END</td><td><strong style="color:var(--warning);">MEDIUM</strong></td></tr>
+            <tr><td>4</td><td>Source contemporaneous reports for the 1964 playoff &amp; 1969 semi-final</td><td><strong style="color:var(--warning);">MEDIUM</strong></td></tr>
+            <tr><td>5</td><td>Assign second scout for blind cross-validation</td><td><strong style="color:var(--warning);">MEDIUM</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Validation Status &amp; Required Actions</h3>
+      <table class="data-table">
+        <thead><tr><th>Requirement</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Minimum 5 matches registered</td><td><strong style="color:var(--danger);">❌ 0 — NO MATCH LOG EXISTS</strong></td></tr>
+          <tr><td>Video completeness (of 12)</td><td><strong style="color:var(--danger);">❌ 0/12 — NO FOOTAGE SUPPLIED</strong></td></tr>
+          <tr><td>FGA_v3_Final activation</td><td><strong style="color:var(--danger);">❌ BLOCKED</strong></td></tr>
+          <tr><td>COACH metric</td><td><strong style="color:var(--danger);">❌ NOT POSSIBLE — HISTORICAL SUBJECT</strong></td></tr>
+          <tr><td>Second scout</td><td><strong style="color:var(--danger);">❌ NOT ASSIGNED</strong></td></tr>
+          <tr><td>Tier 1 statistical foundation</td><td><strong style="color:var(--warning);">⚠ PARTIAL — HONOURS &amp; CAREER TOTALS ONLY</strong></td></tr>
+          <tr><td>Biographical data</td><td><strong style="color:var(--success);">✅ COMPLETE — GUERIN SPORTIVO, CALCIO ILLUSTRATO, FIGC</strong></td></tr>
+          <tr><td>Philosophy DNA fit</td><td><strong style="color:var(--warning);">⚠ INFERENTIAL ONLY — PERCENTAGES ARE ESTIMATES</strong></td></tr>
+          <tr><td>Player pairing</td><td><strong style="color:var(--warning);">⚠ SAME-POSITION ONLY, INFERENTIAL — PERCENTAGES ARE ESTIMATES</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PHILOSOPHY DNA -->
+  <div id="philosophy" class="tab-panel">
+    <div class="banner banner-proxy"><span>🔮</span> <strong>INFERENTIAL ONLY.</strong> Tier 3 is BLOCKED. The percentages below are analyst estimates based on documented club/manager relationships and era context — not a scored event log and not FGA output. They indicate directional archetype fit, not measured performance.</div>
+    <div class="banner banner-anchor"><span>★</span> <strong>DIRECT SYSTEM MATCH — ROCCO FORTRESS.</strong> Fogli played under Nereo Rocco at AC Milan during the 1968-69 season, winning the European Cup and Intercontinental Cup. This is a documented institutional relationship, not just a stylistic inference.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Top Philosophy Fits (80-Philosophy Framework)</h3>
+        <div class="philo-row anchor"><div class="philo-rank">1</div><div class="philo-name">🇮🇹 Rocco Fortress (#14) <small>Direct system match · played under Nereo Rocco at AC Milan, 1968-69</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:88%;background:#009C3B;"></div></div></div><div class="philo-score">88%</div></div>
+        <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">🇮🇹 Herrera Catenaccio (#13) <small>Era match · Bologna faced Herrera's Inter in the 1964 Scudetto playoff</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:82%;background:#c8102e;"></div></div></div><div class="philo-score">82%</div></div>
+        <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">🇮🇹 Trapattoni Dominance (#18) <small>Lineage link · Fogli as prototype of the technical ball-playing mediano</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:#e07820;"></div></div></div><div class="philo-score">78%</div></div>
+        <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">🇦🇷 Bilardo Planner (#45) <small>Inferred · tactical discipline and pragmatism</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:#3498db;"></div></div></div><div class="philo-score">70%</div></div>
+        <div class="philo-row"><div class="philo-rank">5</div><div class="philo-name">🇮🇹 Sacchi Synchrony (#17) <small>Low fit · pressing-system philosophy postdates Fogli's playing era</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#6CABDD;"></div></div></div><div class="philo-score">55%</div></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;"><div class="radar-container"><canvas id="philosophyRadar2" width="500" height="450"></canvas></div></div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;"><strong style="color:var(--text-primary);">"The Italian Regista Caposcuola"</strong> — a technically pure deep-lying playmaker who bridged the defensive-era catenaccio context of 1960s Italian football and the technical midfield revolution that followed. Rocco's pragmatic, tactically flexible system at Milan is the strongest direct fit; the Herrera-era Inter rivalry and the Trapattoni lineage are the supporting era and succession links.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="tag tag-anchor">Rocco Fortress 88% ★</span>
+            <span class="tag tag-gold">Herrera Catenaccio 82%</span>
+            <span class="tag tag-info">Trapattoni Dominance 78%</span>
+            <span class="tag tag-value">Bilardo Planner 70%</span>
+            <span class="tag tag-warning">Sacchi Synchrony 55%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">The Source &amp; Quotes <span class="line"></span></div>
+    <div class="card">
+      <p style="font-size:0.82rem;color:var(--text-tertiary);margin-bottom:16px;">Sources: Guerin Sportivo (2026-09 feature) and Calcio Illustrato (1966). Retrospective and contemporary Italian magazine pieces with photographs, narrative prose, and direct quotes — <strong>not contemporaneous match reports.</strong></p>
+      <div class="quote-box">
+        <div class="q-text">"Il calcio italiano esprimeva quel giorno di dicembre del 1958 soltanto Romano Fogli, che sta a Corso e a Rivera come un caposcuola. Tecnica pura, ai limiti del lirismo, la sua. Il football di casa nostra partoriva il primo 'enfant prodige', il capostipite degli 'abatini'…"</div>
+        <div class="q-src">— Lino Cascioli, Il Calcio Illustrato, 26 June 1966 · "Il Caposcuola" (The Headmaster)</div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;margin-bottom:16px;">Fogli was seen as the pioneer of a new, technically gifted generation — the "caposcuola" (headmaster) who paved the way for Gianni Rivera and Mario Corso, combining tecnica pura (pure technique) with a willingness to sacrifice himself defensively.</p>
+      <div class="quote-box">
+        <div class="q-text">"Fogli ha la classe innata di chi trova facilissime le cose difficili, di chi realizza l'impossibile. Abbiamo visto molti celeberrimi assi fare, davanti a lui, la figura dei principianti. Preferisce le mezzali tecniche, che accettano il confronto sul terreno delle reciproche finezze. Il suo gioco è miniato, cesellato."</div>
+        <div class="q-src">— Gian Paolo Ormezzano, Lo Sport, 27 March 1958 · "Il Gioco Miniato" (The Miniature Game)</div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">He was not a physical powerhouse (hence "Grissino"), but majestic in possession, using close control and precise passing to dictate tempo — "miniato, cesellato" (miniature, chiselled) captures the artistry of his game.</p>
+    </div>
+  </div>
+
+  <!-- CAREER -->
+  <div id="career" class="tab-panel">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card" style="max-width:100%;overflow-x:hidden;">
+        <h3 class="section-title" style="margin-bottom:16px;">Assessment Timeline</h3>
+        <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+          <div class="timeline-item hist"><div class="timeline-date">21 January 1938</div><div class="timeline-text"><strong>Born in Santa Maria a Monte, Pisa, Italy.</strong></div></div>
+          <div class="timeline-item hist"><div class="timeline-date">1955–1958</div><div class="timeline-text"><strong>Torino.</strong> Breakthrough at 18; 2 goals in 49 appearances.</div></div>
+          <div class="timeline-item champ"><div class="timeline-date">7 June 1964</div><div class="timeline-text"><strong>1964 Scudetto playoff.</strong> Bologna 2-0 Inter at the Stadio Olimpico, Rome. Fogli, Man of the Match, opened the scoring with a deflected free-kick and assisted Harald Nielsen's decisive second — Bologna's first title in 23 years.</div></div>
+          <div class="timeline-item champ"><div class="timeline-date">1969</div><div class="timeline-text"><strong>1969 European Cup semi-final.</strong> AC Milan 2-0 Manchester United at San Siro. Came off the bench to replace an injured Gianni Rivera, nullified Denis Law, and drove Milan to victory en route to the European Cup and Intercontinental Cup.</div></div>
+          <div class="timeline-item current"><div class="timeline-date">1970–1974</div><div class="timeline-text"><strong>Catania.</strong> Veteran leader; played until age 36.</div></div>
+          <div class="timeline-item danger"><div class="timeline-date">21 September 2021</div><div class="timeline-text"><strong>Died, aged 83.</strong></div></div>
+          <div class="timeline-item danger"><div class="timeline-date">Evidence gaps</div><div class="timeline-text"><strong>No full match footage, no timestamped event log, no second scout, no COACH metric.</strong> The BLOCKED status is honest by design — the file does not pretend to be a final FGA.</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+        <table class="data-table">
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Career span</strong></td><td>1955–1974 (19 seasons)</td></tr>
+            <tr><td><strong>Career matches (top flight)</strong></td><td>280+</td></tr>
+            <tr><td><strong>Career goals (top flight)</strong></td><td>15+</td></tr>
+            <tr><td><strong>Torino</strong></td><td>49 apps · 2 goals (1955–58)</td></tr>
+            <tr><td><strong>Bologna</strong></td><td>280+ apps (1958–68)</td></tr>
+            <tr><td><strong>AC Milan</strong></td><td>43 apps (1968–70)</td></tr>
+            <tr><td><strong>Catania</strong></td><td>1970–74, until age 36</td></tr>
+            <tr><td><strong>Caps · Italy</strong></td><td>13 (0 goals), 1958–67</td></tr>
+            <tr style="border-top:2px solid var(--border-medium);"><td><strong>Club honours</strong></td><td>Serie A 1963-64 · European Cup 1968-69 · Intercontinental Cup 1969</td></tr>
+            <tr><td><strong>Individual honours</strong></td><td>Not catalogued in source</td></tr>
+            <tr><td><strong>National team honours</strong></td><td>1966 World Cup squad</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">Historical Context &amp; Legacy <span class="line"></span></div>
+    <div class="card">
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;margin-bottom:12px;">Romano Fogli is the archetypal Italian technical midfielder of the 1960s: a player whose elegance, intelligence, and tactical versatility made him one of the most respected midfielders of his generation. Born in Santa Maria a Monte, he came through the Torino youth system before joining Bologna in 1958, where he became the heartbeat of the team that won the 1963-64 Serie A title.</p>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;margin-bottom:12px;">His performance in the 1964 Scudetto playoff against Inter is part of Italian football folklore. Fogli scored the opening goal with a deflected free-kick and provided the assist for Nielsen's decisive second, earning Man of the Match honours — a performance that cemented his reputation as a big-game player.</p>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;margin-bottom:12px;">He later moved to AC Milan, where he played a crucial role in their 1969 European Cup triumph. In the semi-final against Manchester United, he came off the bench to replace the injured Gianni Rivera and produced a colossal defensive midfield performance, nullifying Denis Law and driving Milan to victory. He also played in the Intercontinental Cup against Estudiantes.</p>
+      <p style="font-size:0.85rem;color:var(--text-primary);line-height:1.8;">The honest reading of this file is therefore twofold. <strong>As archetype language</strong>, Fogli is a high-confidence example of the Italian regista: technically pure, tactically intelligent, and capable of combining defensive discipline with creative distribution. <strong>As FGA evidence</strong>, the file is thin: a single retrospective magazine feature, no event log, no video, no line-ups, no second scout. <strong>The correct output is a blocked FGA status with a documented unblock path — not a fabricated number.</strong></p>
+    </div>
+  </div>
+
+  <!-- SCOUTING -->
+  <div id="scouting" class="tab-panel">
+    <div class="scout-box scout-pos">
+      <h4>✓ Strengths (Documented)</h4>
+      <ul>
+        <li><strong>Serie A champion 1963-64 with Bologna</strong></li>
+        <li><strong>European Cup and Intercontinental Cup winner with Milan in 1969</strong></li>
+        <li><strong>Man of the Match in the 1964 Scudetto playoff</strong></li>
+        <li><strong>"Caposcuola" of the Italian technical midfield revolution</strong> — named successor-line to Rivera and Corso</li>
+        <li><strong>Technically pure</strong> — "tecnica pura, ai limiti del lirismo"</li>
+        <li><strong>Tactical versatility</strong> — played as a regista, a mediano, and a box-to-box midfielder</li>
+      </ul>
+    </div>
+    <div class="scout-box scout-caut">
+      <h4>◈ Limitations &amp; Gaps (Documented)</h4>
+      <ul>
+        <li><strong>No Tier 3 event log</strong> — every sub-metric is unscoreable</li>
+        <li><strong>Source is a retrospective magazine feature</strong>, not contemporaneous match reporting</li>
+        <li><strong>Part of the 1966 World Cup disaster</strong> against North Korea</li>
+        <li><strong>Slight physical frame</strong> — 1.72 m and 69 kg</li>
+        <li><strong>No per-match data, line-ups, or opposition detail</strong> to anchor match-level claims</li>
+        <li><strong>No second scout</strong>; reliability untested</li>
+      </ul>
+    </div>
+    <div class="scout-box scout-gap">
+      <h4>✗ Critical Gaps</h4>
+      <ul>
+        <li><strong>FGA_v3_Final BLOCKED</strong> — no numeric rating assigned</li>
+        <li><strong>0 matches registered</strong> — no match log exists</li>
+        <li><strong>0/12 video completeness</strong> — no footage supplied</li>
+        <li><strong>COACH metric NOT POSSIBLE</strong> — historical subject, no training-ground footage</li>
+        <li><strong>No second scout</strong> — not assigned</li>
+        <li><strong>Tier 2 not computable</strong> — composite-index layer has no inputs</li>
+      </ul>
+    </div>
+    <div class="scout-box scout-verdict">
+      <h4>◆ Empire FGA Verdict</h4>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">FGA_v3_Final BLOCKED — Tier 3 0/12. Numeric rating NOT ASSIGNED.</strong> The file is strong on documented biography and honours (Serie A 1963-64, European Cup &amp; Intercontinental Cup 1969, Man of the Match in the 1964 playoff, 13 Italy caps) but thin as FGA evidence: a single retrospective magazine feature, no event log, no video, no line-ups, no second scout. <strong>As archetype language, Fogli is a high-confidence example of the Italian regista — technically pure, tactically intelligent, capable of combining defensive discipline with creative distribution.</strong> The honest output here is a blocked FGA status with a documented unblock path: build a 5–10 match event log, score TEC/PVI/LGP/OTP/POS then TAC/INT/COV/END, source contemporaneous reports for the 1964 playoff and 1969 semi-final, and assign a second scout. <strong>Not a fabricated number.</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- MATCHES -->
+  <div id="matches" class="tab-panel">
+    <div class="banner banner-danger"><span>⛔</span> <strong>NO MATCH-BY-MATCH EVENT LOG HELD IN THIS FILE.</strong> No video, no line-ups, no timestamped data exist for this player. The cards below summarise documented historical matches from narrative press sources only — they are not video-verified and carry no Tier 3 score.</div>
+
+    <div class="section-title" style="margin-bottom:16px;">Documented Historical Matches (Narrative Source Only) <span class="line"></span></div>
+    <div class="match-grid">
+      <div class="match-card" style="cursor:default;">
+        <div class="match-thumb"><div class="play-icon" style="background:rgba(90,96,112,0.6);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">Bologna 2–0 Inter · 1964 Scudetto Playoff</div>
+          <div class="match-meta"><span class="match-badge badge-not-graded">NOT VIDEO-GRADED</span><span class="match-badge badge-pending">NARRATIVE SOURCE</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">7 June 1964, Stadio Olimpico, Rome. Fogli — Man of the Match: opened the scoring with a deflected free-kick, assisted Nielsen's decisive second. Bologna's first Scudetto in 23 years. Source: Guerin Sportivo retrospective.</div>
+        </div>
+      </div>
+      <div class="match-card" style="cursor:default;">
+        <div class="match-thumb"><div class="play-icon" style="background:rgba(90,96,112,0.6);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">AC Milan 2–0 Manchester United · 1969 European Cup Semi-final</div>
+          <div class="match-meta"><span class="match-badge badge-not-graded">NOT VIDEO-GRADED</span><span class="match-badge badge-pending">NARRATIVE SOURCE</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">San Siro, 1969. Came off the bench to replace the injured Gianni Rivera; nullified Denis Law; drove Milan to victory en route to the European Cup and Intercontinental Cup. Source: Guerin Sportivo retrospective.</div>
+        </div>
+      </div>
+      <div class="match-card" style="cursor:default;">
+        <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">Career totals — Torino / Bologna / Milan / Catania</div>
+          <div class="match-meta"><span class="match-badge badge-verified">280+ MATCHES</span><span class="match-badge badge-comp">15+G</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">Serie A 1963-64 and European Cup / Intercontinental Cup 1969. Italy: 13 caps, 1966 World Cup squad.</div>
+        </div>
+      </div>
+      <div class="match-card" style="cursor:default;opacity:0.65;">
+        <div class="match-thumb"><div class="play-icon" style="background:rgba(90,96,112,0.6);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="match-info">
+          <div class="match-teams">Match-by-match event log</div>
+          <div class="match-meta"><span class="match-badge badge-not-graded">NOT HELD</span></div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">Required for any Tier 3 score. Would unlock TEC, PVI, LGP, OTP, POS, TAC, INT, COV, END and a completeness score. 0/12 currently.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+      <h3 class="section-title" style="margin-bottom:16px;">Key Documented Output — By Club</h3>
+      <div class="grid-3">
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Bologna (1958–1968)</h4>
+          <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9">
+            <strong style="color:var(--success);">280+ appearances</strong><br>
+            Serie A champion 1963-64<br>
+            Man of the Match, 1964 Scudetto playoff<br>
+            Club legend / midfield metronome
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">AC Milan (1968–1970)</h4>
+          <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9">
+            <strong style="color:var(--text-primary);">43 appearances</strong><br>
+            European Cup winner 1968-69<br>
+            Intercontinental Cup winner 1969<br>
+            Signed by Nereo Rocco
+          </div>
+        </div>
+        <div>
+          <h4 style="font-family:var(--font-display);font-size:0.85rem;text-transform:uppercase;color:var(--silver);margin-bottom:10px;">Italy (1958–1967)</h4>
+          <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9">
+            <strong style="color:var(--text-primary);">13 caps, 0 goals</strong><br>
+            1966 World Cup squad<br>
+            No per-match international log held
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer style="max-width:1200px;margin:0 auto;padding:24px 24px 48px;border-top:1px solid var(--border-subtle);">
+  <p style="font-size:0.72rem;color:var(--text-tertiary);line-height:1.8;">
+    <strong style="color:var(--text-secondary);">Empire Scouting Network</strong> · Brandsen Sports · The Hague, Netherlands · jim.totime@brandsensports.com · empirescoutingnetwork.com<br>
+    Report ref <strong>ESN-RFO-2026-001 (v1.0)</strong> · Method: Empire FGA Archive Protocol · 50/30/20 master weighting · Tier 3 midfielder block · 80-Philosophy Framework (v3.2 draft) · no video scoring performed · no composite computed.<br>
+    Status: DRAFT — HISTORICAL ARCHIVE. Tier 3 0/12 · Tier 2 not computable · Tier 1 partial · FGA_v3_Final BLOCKED · Numeric rating NOT ASSIGNED. No COACH metric. No second scout. Philosophy fit and player pairing percentages are inferential analyst estimates — not Tier 3 output. Pairing restricted to same-position players only. This document is a historical reference file, not a scouting assessment. Confidential. Proprietary to Empire Scouting Network.
+  </p>
+</footer>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+(function() {
+  // Hero dial intentionally shows no score — Tier 3 is BLOCKED and FGA is N/A.
+  // Only a flat, unfilled ring is drawn so no numeric value is implied.
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  heroCtx.beginPath();
+  heroCtx.arc(75, 75, 62, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(75, 75, 62, 0.75 * Math.PI, 0.78 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,59,59,0.5)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+(function() {
+  var el = document.getElementById('philosophyRadar2');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Rocco Fortress', 'Herrera Catenaccio', 'Trapattoni Dominance', 'Bilardo Planner', 'Sacchi Synchrony'],
+      datasets: [{
+        label: 'Romano Fogli (inferential estimate)',
+        data: [88, 82, 78, 70, 55],
+        backgroundColor: 'rgba(168,85,247,0.15)',
+        borderColor: '#a855f7',
+        pointBackgroundColor: ['#009C3B', '#c8102e', '#e07820', '#3498db', '#6CABDD'],
+        pointBorderColor: '#fff',
+        pointRadius: 5,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 40, max: 100,
+          ticks: { display: false, stepSize: 10 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' }, padding: 16 }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
