@@ -1,0 +1,119 @@
+<!-- ===== AI "Ask the database" search (added 2026-10-20) =====
+     Translates a plain-English question into the EXISTING filter inputs
+     below and runs the EXISTING applyF() — never a separate results path.
+     Set SEARCH_API_URL once the Cloudflare Worker is deployed; until then
+     this shows a disabled/explanatory state instead of breaking anything. -->
+<div id="ai-search-bar" style="max-width:1400px;margin:14px auto 0;padding:0 20px">
+  <div style="display:flex;gap:8px;align-items:center;background:var(--bg2);border:1px solid var(--ln2);border-radius:10px;padding:10px 14px">
+    <i class="fas fa-wand-magic-sparkles" style="color:var(--gold)"></i>
+    <input id="ai-search-input" type="text" placeholder="Ask in plain English — e.g. “young left-backs with a Cruyff fit”"
+           style="flex:1;background:transparent;border:none;outline:none;color:var(--t1);font-family:var(--M);font-size:.85rem"
+           onkeydown="if(event.key==='Enter')aiSearch()">
+    <button onclick="aiSearch()" style="background:var(--gold);color:#0D1520;border:none;border-radius:6px;padding:7px 16px;font-family:var(--D);font-size:.7rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Ask</button>
+  </div>
+  <div id="ai-search-status" style="font-family:var(--M);font-size:.75rem;color:var(--t2);margin-top:6px;min-height:1.1em"></div>
+</div>
+<script>
+// Fill this in once the Worker is deployed (see esn-ai-search-worker.js deployment steps).
+// Leaving it blank keeps the box visible but disabled, rather than breaking the page.
+const SEARCH_API_URL = ""; // e.g. "https://esn-ai-search.yoursubdomain.workers.dev"
+
+function aiCollectEnums(){
+  function opts(id){
+    var el=document.getElementById(id);
+    if(!el) return [];
+    return Array.prototype.slice.call(el.options)
+      .map(function(o){return o.value;})
+      .filter(function(v){return v;}); // drop the blank "All ..." option
+  }
+  return {
+    leagues: opts('f-lg'),
+    positions: opts('f-pos'),
+    schools: opts('f-sch'),
+    managers: opts('f-mgr'),
+  };
+}
+
+function aiSetStatus(msg, isError){
+  var el=document.getElementById('ai-search-status');
+  if(!el) return;
+  el.textContent = msg || '';
+  el.style.color = isError ? '#E05252' : 'var(--t2,#9aa5b1)';
+}
+
+function aiResetFilters(){
+  ['fs'].forEach(function(id){var el=document.getElementById(id); if(el) el.value='';});
+  ['f-lg','f-cl','f-pos','f-sch','f-mgr'].forEach(function(id){var el=document.getElementById(id); if(el) el.value='';});
+  ['f-amin','f-amax','f-fmin','f-fmax','f-ymin','f-ymax'].forEach(function(id){var el=document.getElementById(id); if(el) el.value='';});
+}
+
+async function aiSearch(){
+  var input = document.getElementById('ai-search-input');
+  var q = (input && input.value || '').trim();
+  if (!q) { aiSetStatus('Type a question first.', true); return; }
+
+  if (!SEARCH_API_URL) {
+    aiSetStatus('AI search isn’t connected yet — use the filters below for now.', true);
+    return;
+  }
+
+  aiSetStatus('Thinking…');
+  var enums = aiCollectEnums();
+
+  var res;
+  try {
+    res = await fetch(SEARCH_API_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ query: q, enums: enums }),
+    });
+  } catch (e) {
+    aiSetStatus('Search is temporarily unavailable — try the filters below.', true);
+    return;
+  }
+
+  if (!res.ok) {
+    aiSetStatus('Search is temporarily unavailable — try the filters below.', true);
+    return;
+  }
+
+  var filter;
+  try { filter = await res.json(); } catch (e) {
+    aiSetStatus('Search is temporarily unavailable — try the filters below.', true);
+    return;
+  }
+  if (filter.error) {
+    aiSetStatus('Search is temporarily unavailable — try the filters below.', true);
+    return;
+  }
+
+  aiResetFilters();
+  var applied = [];
+  function setVal(id, val, label){
+    if (val === null || val === undefined || val === '') return;
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    applied.push(label + ': ' + val);
+  }
+  setVal('fs', filter.nameSearch, 'name');
+  setVal('f-lg', filter.league, 'league');
+  setVal('f-cl', filter.club, 'club');
+  setVal('f-pos', filter.position, 'position');
+  setVal('f-sch', filter.school, 'school');
+  setVal('f-mgr', filter.manager, 'philosophy/manager');
+  if (Number.isFinite(filter.ageMin)) { setVal('f-amin', filter.ageMin, 'age ≥'); }
+  if (Number.isFinite(filter.ageMax)) { setVal('f-amax', filter.ageMax, 'age ≤'); }
+  if (Number.isFinite(filter.fgaMin)) { setVal('f-fmin', filter.fgaMin, 'FGA ≥'); }
+  if (Number.isFinite(filter.fgaMax)) { setVal('f-fmax', filter.fgaMax, 'FGA ≤'); }
+  if (Number.isFinite(filter.yearMin)) { setVal('f-ymin', filter.yearMin, 'season ≥'); }
+  if (Number.isFinite(filter.yearMax)) { setVal('f-ymax', filter.yearMax, 'season ≤'); }
+
+  if (typeof applyF === 'function') applyF();
+
+  var msg = applied.length ? ('Applied: ' + applied.join(', ') + '.') : 'Couldn’t map that to a filter.';
+  if (filter.unsupported) msg += ' (' + filter.unsupported + ')';
+  aiSetStatus(msg, applied.length === 0);
+}
+</script>
+<!-- ===== end AI search ===== -->
