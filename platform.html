@@ -466,6 +466,8 @@ td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
     try{
       localStorage.removeItem('esn_fga_auth');
       localStorage.removeItem('esn_fga_user');
+      localStorage.removeItem('esn_fga_name');
+      localStorage.removeItem('esn_fga_role');
     }catch(e){}
     location.replace('login.html');
   };
@@ -473,11 +475,16 @@ td.mono{font-family:var(--M);font-size:.7rem;text-align:center;color:var(--t3)}
     try{
       var u = localStorage.getItem('esn_fga_user') || '';
       if(u){
-        var label = u.indexOf('@') > -1 ? u.split('@')[0] : u;
+        // Real name and title are saved by login.html; older sessions only have the username
+        var name = localStorage.getItem('esn_fga_name') || (u.indexOf('@') > -1 ? u.split('@')[0] : u);
+        var role = localStorage.getItem('esn_fga_role') || '';
+        var words = name.split(/[\s.]+/).filter(Boolean);
         var nameEl = document.getElementById('nu-name-slot');
+        var roleEl = document.getElementById('nu-role-slot');
         var avEl = document.getElementById('nu-avatar-slot');
-        if(nameEl) nameEl.textContent = label;
-        if(avEl) avEl.textContent = label.slice(0,2).toUpperCase();
+        if(nameEl) nameEl.textContent = name;
+        if(roleEl) roleEl.textContent = role;
+        if(avEl) avEl.textContent = (words.length > 1 ? words[0][0] + words[1][0] : name.slice(0,2)).toUpperCase();
       }
     }catch(e){}
   });
