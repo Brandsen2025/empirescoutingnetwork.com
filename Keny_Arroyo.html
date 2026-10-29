@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  try{
+    if(localStorage.getItem('esn_fga_auth') !== '1'){
+      window.location.replace('login.html');
+    }
+  }catch(e){
+    window.location.replace('login.html');
+  }
+})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keny Arroyo | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ffb800;--pending:#5a5a70;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://media.bolavip.com/wp-content/uploads/sites/26/2026/04/30204101/Keny-Arroyo-Cruzeiro-1200x740.webp') center 25% / cover no-repeat;filter:brightness(0.42) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.35) 0%,rgba(30,58,138,0.2) 40%,rgba(10,10,15,0.88) 72%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#1e3a8a 33%,#fbbf24 33%,#fbbf24 66%,#1e3a8a 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,var(--accent),#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🇪🇨';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.badge-item.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:var(--accent-dim);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-warning {background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--warning);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(30,58,138,0.1),rgba(251,191,36,0.05));border:1px solid rgba(30,58,138,0.2);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(251,191,36,0.06));border:2px solid rgba(30,58,138,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(30,58,138,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-box.danger {background:linear-gradient(135deg,rgba(255,59,59,0.12),rgba(30,58,138,0.06));border-color:rgba(255,59,59,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-box.danger .t1-hl-val {color:var(--danger);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(30,58,138,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+.t1-hl-box.danger .t1-hl-bar-fill {background:var(--danger);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(30,58,138,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-row.anchor{background:linear-gradient(90deg,rgba(0,156,59,0.08),transparent);border-left:3px solid #009C3B;padding-left:9px;margin-left:-12px;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-name small {display:block;font-size:0.68rem;color:var(--text-tertiary);margin-top:2px;letter-spacing:0.3px;}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:42px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+.pairing-row{display:grid;grid-template-columns:80px 1fr 90px 90px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-subtle);}
+.pairing-row:last-child{border-bottom:none;}
+.pairing-pct{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--gold);text-align:center;}
+.pairing-name{font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.pairing-meta{font-size:0.72rem;color:var(--text-tertiary);}
+.pairing-stat-label{font-family:var(--font-heading);font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;}
+.pairing-stat-value{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--gold);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(30,58,138,0.08) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(30,58,138,0.15);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(30,58,138,0.4);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before {background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-item.danger .timeline-date {color:var(--danger);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(30,58,138,0.1);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(30,58,138,0.15)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(30,58,138,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:var(--accent);}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(30,58,138,0.12);color:var(--silver);}
+.badge-excluded {background:rgba(255,59,59,0.12);color:var(--danger);}
+.badge-suggest {background:rgba(255,184,0,0.12);color:var(--warning);}
+.badge-nolink {background:rgba(90,96,112,0.18);color:var(--text-tertiary);border:1px dashed rgba(90,96,112,0.4);}
+.badge-red {background:rgba(255,59,59,0.18);color:var(--danger);border:1px solid rgba(255,59,59,0.3);}
+
+.moment-card {background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px;margin-bottom:12px;}
+.moment-header {display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;flex-wrap:wrap;gap:6px;}
+.moment-match {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;}
+.moment-time {font-family:var(--mono);font-size:0.7rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+.moment-quote {font-size:0.82rem;color:var(--text-secondary);font-style:italic;line-height:1.5;margin-bottom:6px;}
+.moment-tags {display:flex;flex-wrap:wrap;gap:4px;}
+.moment-tag {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(251,191,36,0.1);color:var(--gold);border:1px solid rgba(251,191,36,0.2);}
+
+.anti-row {display:grid;grid-template-columns:60px 1fr 70px;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;}
+.anti-row:last-child {border-bottom:none;}
+.anti-time {font-family:var(--mono);color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+.anti-metric {color:var(--danger);font-weight:600;font-family:var(--font-heading);font-size:0.72rem;}
+
+@media (max-width:768px) {
+  .hero {height:460px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+  .pairing-row{grid-template-columns:60px 1fr;}
+  .philo-bar-wrap{width:60px;}
+}
+</style>
+<link rel="canonical" href="https://www.empirescoutingnetwork.com/Keny_Arroyo.html">
+<meta name="description" content="Empire FGA scouting profile for Keny Arroyo, graded by Empire Scouting Network from full match footage.">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="Empire Scouting Network">
+<meta property="og:title" content="Keny Arroyo | Empire FGA Intelligence Dashboard">
+<meta property="og:url" content="https://www.empirescoutingnetwork.com/Keny_Arroyo.html">
+<meta property="og:image" content="https://www.empirescoutingnetwork.com/esn-logo.png">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Cruzeiro EC · Brasileirão Série A</div>
+  <div class="jersey-watermark">7</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Independiente del Valle (2023–24)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item">Beşiktaş (2024–25)</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">Cruzeiro (Sep 2025–)</div>
+    </div>
+    <h1 class="hero-name">Keny Arroyo</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇪🇨</span> Ecuador</span>
+      <span class="dot"></span>
+      <span>20 (b. 14 Feb 2006)</span>
+      <span class="dot"></span>
+      <span>Right Winger / AM</span>
+      <span class="dot"></span>
+      <span>Ecuador senior international</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 COMPLETE</div>
+          <div class="tier-pill t2">T2 PARTIAL · CPX 7.95 · MTI 7.92</div>
+          <div class="tier-pill t3">T3 PARTIAL · 11/12</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-warning">T3 PARTIAL · 11/12 (COACH incomplete)</span>
+          <span class="tag tag-club">Cruzeiro · Brasileirão Série A</span>
+          <span class="tag tag-gold">4G · 4A · 1,596 MIN (2026)</span>
+          <span class="tag tag-danger">MATCH 6 RED CARD · DISCIPLINE FLAG</span>
+          <span class="tag tag-info">226 EVENT TAGS · 96 MOMENTS</span>
+          <span class="tag tag-value">88% POSITIVE TAGS</span>
+          <span class="tag tag-warning">COACH_R 8.33 · COACH INCOMPLETE</span>
+          <span class="tag tag-info">NO SECOND SCOUT</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">PARTIAL T3 AVG</div>
+          <div class="fga-score">8.17</div>
+          <div class="fga-status">PRELIMINARY · PROVISIONAL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('crossleague')">Cross-League</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('moments')">Defining Moments</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-warning">
+    <span>⚠</span> <strong>TIER 3 PARTIAL — 11/12 METRICS SCORED · COACH INCOMPLETE.</strong> Eleven of the 12 Tier 3 metrics are scored. <strong>COACH has only one scoreable part of three (COACH_R 8.33)</strong>, so the Tier 3 average is Pending. Partial average over the 11 is <strong>81.7/100 positive-only</strong>, and <strong>77.9/100 including anti-indicators</strong>. Prelim composite rating: <strong>PENDING</strong>. Second-scout validation not assigned.
+  </div>
+  <div class="banner banner-danger">
+    <span>⚠</span> <strong>DISCIPLINE FLAG — MATCH 6 RED CARD.</strong> Push on the keeper (yellow, 63'30") then elbow foul for a second yellow (65'53") — sent off in 65 minutes. FBref 2026: <strong>25 fouls committed, 7 yellows, 1 red in 17.7 league 90s.</strong> Scores move once weak moments count: STK 8.39 positive-only vs 6.81, MCS 7.80 vs 6.67, DMA 7.79 vs 6.55.
+  </div>
+  <div class="banner banner-gold">
+    <span>◆</span> <strong>ATTACKING OUTPUT — ELITE CLUTCH PROFILE.</strong> 226 event tags · 96 match moments · 6 of 6 registered matches logged. <strong>CRS 9.50, OBI_T 8.50, SII_R 8.50, KEY 8.46, UNP 9.00, DRB 8.42.</strong> 2026 Série A: <strong>4 goals, 4 assists in 1,596 minutes</strong> (FBref). Ecuador senior international. 199 of 226 tags (88%) positive.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Independiente del Valle (2023–24)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node">Beşiktaş (2024–25)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">Cruzeiro (Sep 2025–)</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">4</div><div class="label">Goals (Série A 2026)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">4</div><div class="label">Assists (Série A 2026)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">1,596</div><div class="label">Minutes (Série A 2026)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">9.50</div><div class="label">CRS · Clutch Response</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">8.46</div><div class="label">KEY · Key Passes</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">8.50</div><div class="label">OBI_T · Run Timing</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">11/12</div><div class="label">T3 Metrics Scored</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--danger);">24/226</div><div class="label">Anti-Indicator Events</div></div>
+  </div>
+
+  <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a2a3a" stroke="#3a5a7c" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#3a5a7c" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="380" cy="125" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="380" y="130" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="12" font-weight="700">RW</text>
+      <text x="380" y="158" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">PRIMARY — RIGHT WINGER</text>
+      <circle cx="330" cy="170" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="330" y="174" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="10" font-weight="700">AM</text>
+      <text x="330" y="192" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="8" font-weight="600">FBref alt. AM</text>
+      <path d="M 380 125 Q 350 160 330 200" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4,3" opacity="0.8"/>
+      <text x="385" y="205" fill="#fbbf24" font-family="Rajdhani,sans-serif" font-size="8" font-weight="600">cut inside → shoot / create</text>
+      <rect x="18" y="18" width="180" height="58" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary position</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary / alt role</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: Right Winger · FBref alt. role: Attacking Midfielder · Left-footed inside-cutting profile</div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Kenya Alexander Arroyo Alvarado</strong> is a <strong>20-year-old Ecuadorian right winger / attacking midfielder</strong> born 14 February 2006 in Guayaquil. <strong>Cruzeiro EC, Brasileirão Série A 2026.</strong> Ecuador senior international. Career path: <strong>Independiente del Valle → Beşiktaş → Cruzeiro (Sep 2025–)</strong>. 2026 Série A: <strong>4 goals, 4 assists in 1,596 minutes</strong> (FBref). Market value not established in this file.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">T3 Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--warning);">Tier 3 PARTIAL — 11/12 metrics scored.</strong> Strongest: <strong>CRS 9.50, OBI_T 8.50, SII_R 8.50, KEY 8.46, UNP 9.00, DRB 8.42, SII_A 8.33, SII_T 8.36, CHR 8.25, OBI_S 8.20, SPI 8.20, CRK 8.19.</strong> Weakest: <strong>DMA 7.79, MCS 7.80, STK 8.39 (positive) vs 6.81 (incl. anti), CLM 7.80, SOA 7.97.</strong> <strong>COACH incomplete</strong> (COACH_R 8.33; COACH_T 5.00; COACH_I 3.00 — one event each). No second scout.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--text-primary);">PRELIMINARY · COMPOSITE PENDING · TIER 3 PARTIAL (11/12).</strong> The event log shows a <strong>high-output attacking right winger</strong> whose strengths are clutch finishing (CRS 9.50), off-ball timing (OBI_T 8.50), recovery sprints (SII_R 8.50) and final-ball creation (KEY 8.46, UNP 9.00). <strong>The weak side is final-third decision-making and discipline</strong> — four weak shots, a missed chest pass, and a Match 6 push-plus-elbow that ended his game. <strong>The file is a partial rating; COACH is incomplete.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="banner banner-info" style="margin-top:16px;">
+    <span>●</span> <strong>SAMPLE & TAG DENSITY.</strong> 226 tags from 96 moments — one highlight lifts several metrics at once. <strong>Treat the scores as correlated, not independent.</strong> Every core positive score is 7.7 or higher — on a 218-tag log, that means the analyst rarely rated a good-looking moment below 7. The 'Incl. anti' column is the mean over every event for that metric, neutral observations included. The partial 81.7 and 77.9 are means of 11 scored metrics × 10 — not a rating.
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="banner banner-warning"><span>⚠</span> <strong>TIER 3 PARTIAL — 11/12 METRICS SCORED.</strong> COACH incomplete. Scores are means of positive-indicator events. 'Incl. anti' is the mean including anti-indicators. Bands: Elite ≥ 8.5, High 8.0–8.49, Watch 7.0–7.99, Caution below 7.0. Partial average: <strong>81.7/100 positive</strong>, <strong>77.9/100 incl. anti</strong>.</div>
+
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>OBI Composite — 8.24 (High)</h3>
+      <div class="attr-row"><span class="name">OBI_T — Run Timing <span style="color:var(--success);font-size:0.7rem;">ELITE</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.50 (6+1a) ✅</span></div>
+      <div class="attr-row"><span class="name">OBI_S — Space Architecture <span style="color:var(--success);font-size:0.7rem;">ELITE</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.20 (10+1a) ✅</span></div>
+      <div class="attr-row"><span class="name">OBI_P — Positional Anticipation <span style="color:var(--success);font-size:0.7rem;">HIGH</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.00 (5) ✅</span></div>
+      <div class="attr-row" style="border-top:2px solid var(--border-medium);margin-top:6px;padding-top:10px;"><span class="name"><strong>OBI Composite</strong></span><span class="score ac-green"><span class="circle circle-green"></span> 8.24 ✅</span></div>
+      <div class="attr-row"><span class="name">Incl. anti</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.77 ⚠</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>SII Composite — 8.38 (High)</h3>
+      <div class="attr-row"><span class="name">SII_A — Explosive Acceleration <span style="color:var(--success);font-size:0.7rem;">HIGH</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.33 (9) ✅</span></div>
+      <div class="attr-row"><span class="name">SII_T — Top-End Speed <span style="color:var(--success);font-size:0.7rem;">HIGH</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.36 (7) ✅</span></div>
+      <div class="attr-row"><span class="name">SII_R — Recovery Sprints <span style="color:var(--success);font-size:0.7rem;">ELITE</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.50 (5) ✅</span></div>
+      <div class="attr-row" style="border-top:2px solid var(--border-medium);margin-top:6px;padding-top:10px;"><span class="name"><strong>SII Composite</strong></span><span class="score ac-green"><span class="circle circle-green"></span> 8.38 ✅</span></div>
+      <div class="attr-row"><span class="name">Incl. anti</span><span class="score ac-green"><span class="circle circle-green"></span> 8.38 ✅</span></div>
+    </div>
+    <div class="attr-card">
+      <h3>Other Core Metrics</h3>
+      <div class="attr-row"><span class="name">CRS — Clutch Response <span style="color:var(--success);font-size:0.7rem;">ELITE</span></span><span class="score ac-green"><span class="circle circle-green"></span> 9.50 ✅</span></div>
+      <div class="attr-row"><span class="name">SPI — Spatial Performance <span style="color:var(--success);font-size:0.7rem;">HIGH</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.20 ✅</span></div>
+      <div class="attr-row"><span class="name">CHR — Character <span style="color:var(--success);font-size:0.7rem;">HIGH</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.25 ✅</span></div>
+      <div class="attr-row"><span class="name">CRK — Creative Risk <span style="color:var(--success);font-size:0.7rem;">HIGH</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.19 ✅</span></div>
+      <div class="attr-row"><span class="name">OMS — Transition <span style="color:var(--success);font-size:0.7rem;">HIGH</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.17 ✅</span></div>
+      <div class="attr-row"><span class="name">SOA — Speed on Action <span style="color:var(--warning);font-size:0.7rem;">WATCH</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.97 ⚠</span></div>
+      <div class="attr-row"><span class="name">DYN — Dynamism <span style="color:var(--warning);font-size:0.7rem;">WATCH</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.88 ⚠</span></div>
+      <div class="attr-row"><span class="name">DMA — Decision Making <span style="color:var(--warning);font-size:0.7rem;">WATCH</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.79 ⚠</span></div>
+      <div class="attr-row"><span class="name">MCS — Mental Competence <span style="color:var(--warning);font-size:0.7rem;">WATCH</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.80 ⚠</span></div>
+      <div class="attr-row"><span class="name">CLM — Calmness <span style="color:var(--warning);font-size:0.7rem;">WATCH</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.80 ⚠</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">COACH Composite — INCOMPLETE</h3>
+    <div class="grid-3">
+      <div class="attr-card">
+        <div class="attr-row"><span class="name">COACH_R — Receptivity</span><span class="score ac-green"><span class="circle circle-green"></span> 8.33 ✅</span></div>
+        <div class="attr-row"><span class="name">COACH_T — Retention</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 5.00 (1 event) ⚠</span></div>
+        <div class="attr-row"><span class="name">COACH_I — Initiative</span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 3.00 (1 event) ⚠</span></div>
+        <div class="attr-row" style="border-top:2px solid var(--border-medium);margin-top:6px;padding-top:10px;"><span class="name"><strong>COACH Composite</strong></span><span class="score ac-pend"><span class="circle circle-pend"></span> PENDING</span></div>
+      </div>
+      <div class="card" style="grid-column:span 2;background:rgba(255,184,0,0.05);border-color:rgba(255,184,0,0.2);margin:0;">
+        <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:700;color:var(--warning);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">COACH is incomplete</div>
+        <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">Only COACH_R (Receptivity, 3 positive events, 8.33) is fully scoreable. <strong>COACH_T (Retention) and COACH_I (Initiative) each have one weak event</strong> — COACH_T 5.00, COACH_I 3.00. A composite needs all three parts. Until COACH_T and COACH_I have a 3-event sample, the COACH composite and the Tier 3 average are <strong>Pending</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Full Scorecard — 12 Core Metrics</h3>
+    <div style="max-width:540px;margin:0 auto 20px;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Events</th><th>Score</th><th>Incl. Anti</th><th>Band</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td><strong>OBI Composite</strong></td><td>—</td><td><strong style="color:var(--success);">8.24</strong></td><td>7.77</td><td><span style="color:var(--success);">High</span></td><td>Supporting, not in T3 average</td></tr>
+        <tr><td><strong>OBI_T — Run Timing</strong></td><td>6+1a</td><td><strong style="color:var(--success);">8.50</strong></td><td>7.33</td><td><span style="color:var(--success);">Elite</span></td><td>Scores diverge</td></tr>
+        <tr><td><strong>OBI_S — Space Architecture</strong></td><td>10+1a</td><td><strong style="color:var(--success);">8.20</strong></td><td>8.00</td><td><span style="color:var(--success);">High</span></td><td>—</td></tr>
+        <tr><td><strong>OBI_P — Positional Anticipation</strong></td><td>5</td><td><strong style="color:var(--success);">8.00</strong></td><td>8.00</td><td><span style="color:var(--success);">High</span></td><td>—</td></tr>
+        <tr><td><strong>SII Composite</strong></td><td>—</td><td><strong style="color:var(--success);">8.38</strong></td><td>8.38</td><td><span style="color:var(--success);">High</span></td><td>Tier 3 input</td></tr>
+        <tr><td><strong>SII_A — Explosive Acceleration</strong></td><td>9</td><td><strong style="color:var(--success);">8.33</strong></td><td>8.33</td><td><span style="color:var(--success);">High</span></td><td>—</td></tr>
+        <tr><td><strong>SII_T — Top-End Speed</strong></td><td>7</td><td><strong style="color:var(--success);">8.36</strong></td><td>8.36</td><td><span style="color:var(--success);">High</span></td><td>No GPS reference</td></tr>
+        <tr><td><strong>SII_R — Recovery Sprints</strong></td><td>5</td><td><strong style="color:var(--success);">8.50</strong></td><td>8.50</td><td><span style="color:var(--success);">Elite</span></td><td>—</td></tr>
+        <tr><td><strong>CRS — Clutch Response</strong></td><td>4</td><td><strong style="color:var(--success);">9.50</strong></td><td>9.50</td><td><span style="color:var(--success);">Elite</span></td><td>Indicative</td></tr>
+        <tr><td><strong>SPI — Spatial Performance</strong></td><td>5</td><td><strong style="color:var(--success);">8.20</strong></td><td>8.20</td><td><span style="color:var(--success);">High</span></td><td>—</td></tr>
+        <tr><td><strong>CHR — Character</strong></td><td>4</td><td><strong style="color:var(--success);">8.25</strong></td><td>8.25</td><td><span style="color:var(--success);">High</span></td><td>Indicative</td></tr>
+        <tr><td><strong>CRK — Creative Risk</strong></td><td>16</td><td><strong style="color:var(--success);">8.19</strong></td><td>8.19</td><td><span style="color:var(--success);">High</span></td><td>—</td></tr>
+        <tr><td><strong>OMS — Transition</strong></td><td>6+1a</td><td><strong style="color:var(--success);">8.17</strong></td><td>7.43</td><td><span style="color:var(--success);">High</span></td><td>—</td></tr>
+        <tr><td><strong>SOA — Speed on Action</strong></td><td>17+1a</td><td><strong style="color:var(--warning);">7.97</strong></td><td>7.69</td><td><span style="color:var(--warning);">Watch</span></td><td>—</td></tr>
+        <tr><td><strong>DYN — Dynamism</strong></td><td>4</td><td><strong style="color:var(--warning);">7.88</strong></td><td>7.88</td><td><span style="color:var(--warning);">Watch</span></td><td>Indicative</td></tr>
+        <tr><td><strong>DMA — Decision Making</strong></td><td>7+3a</td><td><strong style="color:var(--warning);">7.79</strong></td><td>6.55</td><td><span style="color:var(--warning);">Watch</span></td><td>Scores diverge</td></tr>
+        <tr><td><strong>MCS — Mental Competence</strong></td><td>5+1a</td><td><strong style="color:var(--warning);">7.80</strong></td><td>6.67</td><td><span style="color:var(--warning);">Watch</span></td><td>Scores diverge</td></tr>
+        <tr><td><strong>CLM — Calmness</strong></td><td>5+1a</td><td><strong style="color:var(--warning);">7.80</strong></td><td>7.00</td><td><span style="color:var(--warning);">Watch</span></td><td>—</td></tr>
+        <tr style="border-top:2px solid var(--border-medium);"><td><strong>COACH Composite</strong></td><td>—</td><td><strong style="color:var(--pending);">—</strong></td><td>—</td><td><span style="color:var(--pending);">Pending</span></td><td>COACH_T & COACH_I no positive event</td></tr>
+        <tr><td><strong>COACH_R</strong></td><td>3</td><td><strong style="color:var(--success);">8.33</strong></td><td>8.33</td><td><span style="color:var(--success);">High</span></td><td>Indicative</td></tr>
+        <tr><td><strong>COACH_T</strong></td><td>0+1a</td><td><strong style="color:var(--warning);">—</strong></td><td>5.00</td><td><span style="color:var(--warning);">Pending</span></td><td>One event, rated 5</td></tr>
+        <tr><td><strong>COACH_I</strong></td><td>0+1a</td><td><strong style="color:var(--warning);">—</strong></td><td>3.00</td><td><span style="color:var(--warning);">Pending</span></td><td>One event, rated 3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Additional Position Metrics — Indicative</h3>
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Events</th><th>Score</th><th>Incl. Anti</th></tr></thead>
+      <tbody>
+        <tr><td><strong>KEY — Key Passes</strong></td><td>12</td><td><strong style="color:var(--success);">8.46</strong></td><td>8.46</td></tr>
+        <tr><td><strong>STK — Shot Technique</strong></td><td>9+4a</td><td><strong style="color:var(--success);">8.39</strong></td><td><strong style="color:var(--warning);">6.81</strong></td></tr>
+        <tr><td><strong>UNP — Unexpected Pass</strong></td><td>7</td><td><strong style="color:var(--success);">9.00</strong></td><td>8.69</td></tr>
+        <tr><td><strong>DRB — Dribbling</strong></td><td>6+1a</td><td><strong style="color:var(--success);">8.42</strong></td><td>7.64</td></tr>
+        <tr><td><strong>HZP — Horizontal Pass</strong></td><td>4</td><td><strong style="color:var(--success);">8.53</strong></td><td>8.53</td></tr>
+        <tr><td><strong>TMS — Team Movement Sync</strong></td><td>4</td><td><strong style="color:var(--success);">8.25</strong></td><td>8.25</td></tr>
+        <tr><td><strong>INT — Interceptions</strong></td><td>5</td><td><strong style="color:var(--warning);">7.80</strong></td><td>7.80</td></tr>
+        <tr><td><strong>OTP — One Touch Pass</strong></td><td>4+1a</td><td><strong style="color:var(--warning);">7.75</strong></td><td>6.83</td></tr>
+        <tr><td><strong>LGP — Long Pass Precision</strong></td><td>3</td><td><strong style="color:var(--warning);">7.33</strong></td><td>7.33</td></tr>
+        <tr><td><strong>VRP — Vertical Pass</strong></td><td>2+2a</td><td><strong style="color:var(--warning);">7.50</strong></td><td><strong style="color:var(--danger);">5.50</strong></td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:0.78rem;color:var(--text-tertiary);margin-top:12px;">Also logged, 1–3 events each: LCR, STR, CAR, CLE, TAC, DGP, SCR, PRS, VIS, MRK, AGR, ACL, BDY, BAL, RDS and MOV — no positive event.</div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — FBref · Cruzeiro 2026</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">MP</div><div class="t1-hl-val">27</div><div class="t1-hl-pct">2026 Cruzeiro</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:80%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">MIN</div><div class="t1-hl-val">1,596</div><div class="t1-hl-pct">Série A 2026</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">GLS</div><div class="t1-hl-val">4</div><div class="t1-hl-pct">Série A 2026</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:45%"></div></div></div>
+        <div class="t1-hl-box gold"><div class="t1-hl-code">AST</div><div class="t1-hl-val">4</div><div class="t1-hl-pct">Série A 2026</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:45%"></div></div></div>
+        <div class="t1-hl-box danger"><div class="t1-hl-code">Y/R</div><div class="t1-hl-val">7/1</div><div class="t1-hl-pct">Discipline flag</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:75%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Career Context (Tier 1, FBref)</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">2023</span><span class="t1-metric-desc">Independiente del Valle, age 16-17</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:2%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1 MP</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">2024</span><span class="t1-metric-desc">Independiente del Valle</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent)"></div></div></div><span class="t1-metric-val">28 MP</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">24-25</span><span class="t1-metric-desc">Beşiktaş</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--accent)"></div></div></div><span class="t1-metric-val">11 MP</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">2025</span><span class="t1-metric-desc">Cruzeiro</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--gold)"></div></div></div><span class="t1-metric-val">18 MP</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">2026</span><span class="t1-metric-desc">Cruzeiro</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--gold)"></div></div></div><span class="t1-metric-val">27 MP</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">2026 Série A — Per-90 vs Midfielders</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">GLS</span><span class="t1-metric-desc">Goals per 90 · 90th pct</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--success)"></div></div></div><span class="t1-metric-val">0.23</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">AST</span><span class="t1-metric-desc">Assists per 90 · 85th pct</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--success)"></div></div></div><span class="t1-metric-val">0.25</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SHOT</span><span class="t1-metric-desc">Shots per 90 · 98th pct</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:98%;background:var(--success)"></div></div></div><span class="t1-metric-val">2.1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">SoT</span><span class="t1-metric-desc">Shots on target · 97th pct</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:97%;background:var(--success)"></div></div></div><span class="t1-metric-val">1.1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">FL</span><span class="t1-metric-desc">Fouls committed · 70th pct</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--danger)"></div></div></div><span class="t1-metric-val">1.4</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">TKL</span><span class="t1-metric-desc">Tackles won · 54th pct</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:54%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1.2</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">CROSS</span><span class="t1-metric-desc">Crosses · 85th pct</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--success)"></div></div></div><span class="t1-metric-val">5.3</span></div>
+      </div>
+      <div class="banner banner-info" style="margin-top:12px;font-size:0.78rem;">
+        <span>●</span> <strong>Reading the percentiles.</strong> The "top-percentile" figures are 2025 season, not 2026. 2026 league files are needed for a like-for-like rank. Percentile = share of players below him, ten-tile. The file has no xG, passing or possession, and the Norm method is not yet in Main Formulas. Tier 1 stays Pending.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Composure (DMA, CHR, MCS, SOA)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.95 ✅</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">MTI — Match Impact (DYN, SOA)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--success);">7.92 ✅</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPI — Creative Player Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">T3 Average (11 of 12)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--warning);">PENDING (COACH)</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--success);margin-bottom:4px;">Tier 2 Composites Computed</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);"><strong>CPX 7.95</strong> (from DMA, CHR, MCS, SOA) and <strong>MTI 7.92</strong> (from DYN, SOA) are computed. Both are solid but not elite — consistent with the event-log 'Watch' bands on DMA, MCS and SOA.</div>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Tier 3 Average Pending</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">Tier 3 average = mean of CHR, DMA, MCS, SOA, SPI, CLM, CRS, OMS, SII, DYN, CRK and COACH. <strong>COACH is incomplete</strong>, so the average is Pending. The 81.7 and 77.9 figures are partial means of the 11 scored metrics × 10 — not a rating.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: 3.6</strong><br>
+          <strong style="color:var(--text-primary);">Brasileirão Série A:</strong> Tier 3.6 (confirmed)<br>
+          <strong style="color:var(--text-primary);">Top-8 fixtures:</strong> Tier 3.7<br>
+          <strong style="color:var(--text-primary);">Copa Libertadores:</strong> Tier 3.5–4.0<br><br>
+          <strong style="color:var(--gold);">LOG 3.6</strong> reflects a Brasileirão season at a top-8 club (Cruzeiro). Top-4 domestic and continental knockouts sit higher.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · 11/12 OK · Partial Average 81.7 / 77.9</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--success);margin-left:auto;">8.24</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">OBI_T 8.50</strong> — Elite · scores diverge<br>
+            <strong style="color:var(--success);">OBI_S 8.20</strong> — High<br>
+            <strong style="color:var(--success);">OBI_P 8.00</strong> — High<br>
+            <strong style="color:var(--success);">Composite 8.24 — HIGH</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:var(--success);margin-left:auto;">8.38</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">SII_A 8.33</strong> — High<br>
+            <strong style="color:var(--success);">SII_T 8.36</strong> — High · no GPS<br>
+            <strong style="color:var(--success);">SII_R 8.50</strong> — Elite<br>
+            <strong style="color:var(--success);">Composite 8.38 — HIGH</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Completeness & Gaps</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--success);">✓</span> 11/12 metrics OK<br>
+            <span style="color:var(--warning);">◐</span> COACH incomplete: COACH_T (5.00) and COACH_I (3.00) each one event<br>
+            <span style="color:var(--danger);">✗</span> No second scout<br>
+            <span style="color:var(--danger);">✗</span> No GPS reference<br>
+            <span style="color:var(--danger);">✗</span> Match 5 logged only to 48'<br><br>
+            <strong>Partial avg: 81.7 positive / 77.9 incl. anti</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="banner banner-danger" style="margin-top:12px;font-size:0.8rem;">
+      <span>⚠</span> <strong>Integrity flags:</strong> (1) COACH incomplete — COACH_T and COACH_I each have one weak event; (2) 24 anti-indicator events out of 226; (3) STK drops from 8.39 to 6.81 once four weak shots are counted; DMA 7.79 → 6.55; MCS 7.80 → 6.67; (4) Match 6 red card (push + elbow) — 18-minute window unlogged; (5) Match 5 logged only to 48'; (6) no second scout; (7) no GPS — SII_T rated visually.
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-LEAGUE -->
+<div id="crossleague" class="tab-panel">
+  <div class="banner banner-info">
+    <span>●</span> <strong>PROVISIONAL PROJECTION — BRASILEIRÃO IS A TOP-10 LEAGUE, SO THE STEP-UP IS IN CLUB TIER AND IN DEFENSIVE RESPONSIBILITY, NOT LEAGUE TIER.</strong> The projection below uses the event-log scores as the only available signal. Tier 2 is partial; the Tier 3 average is Pending because COACH is incomplete. No Base FGA exists yet.
+  </div>
+
+  <h3 class="section-title">Cross-League Projection <span class="line"></span></h3>
+  <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+    LOG (Level of Game) contextualizes performance across leagues of differing quality. Arroyo's current context is <strong>Brasileirão Série A (LOG 3.6, top-8 club Cruzeiro)</strong>. The event-log scores are encouraging (CRS 9.50, OBI_T 8.50, SII_R 8.50, KEY 8.46) but the attacking profile is high-volume and the discipline flag is real. <strong style="color:var(--warning);">Any projection to a top-five-league club is speculative.</strong>
+  </p>
+
+  <div class="t1-highlight-grid" style="margin-bottom:20px;">
+    <div class="stat-hero" style="border-color:rgba(255,184,0,0.25);">
+      <div class="label" style="margin-bottom:6px;">Current Context</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇷 Brasileirão (Cruzeiro)</div>
+      <div class="value" style="font-size:1.6rem;color:var(--warning);">3.6</div>
+      <div class="label">LOG · top-8 club</div>
+    </div>
+    <div class="stat-hero" style="border-color:rgba(59,130,246,0.25);">
+      <div class="label" style="margin-bottom:6px;">Target — Top-4 Brasileirão</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🇧🇷 Top-4 club</div>
+      <div class="value" style="font-size:1.6rem;">3.7</div>
+      <div class="label">Step-up projection only</div>
+    </div>
+    <div class="stat-hero">
+      <div class="label" style="margin-bottom:6px;">Target — Premier League</div>
+      <div style="font-size:1.05rem;font-weight:600;margin-bottom:4px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 EPL</div>
+      <div class="value" style="font-size:1.6rem;">3.7</div>
+      <div class="label">Long-term projection only</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Methodology & Caution</h3>
+    <p style="font-size:0.78rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Formula:</strong> LOG-Adjusted Score = Base FGA × (Current League Tier ÷ Target League Tier).<br>
+      <strong style="color:var(--warning);">But there is no Base FGA.</strong> Tier 2 is partial, the Tier 3 average is Pending (COACH incomplete), and the file has no xG, passing or possession. A numeric projection would be fabricated. The correct output is: <strong style="color:var(--text-primary);">"promising high-output RW with clutch finishing; discipline and final-third decision-making are the risk."</strong><br><br>
+      <strong style="color:var(--text-primary);">What the event log does say:</strong> CRS 9.50 (clutch), OBI_T 8.50 (run timing), SII_R 8.50 (recovery), SII_A 8.33, SII_T 8.36 (pace), KEY 8.46 (key passes). The weak side is final-third decision (DMA 7.79 → 6.55 with anti), mental control (MCS 7.80 → 6.67), shot selection (STK 8.39 → 6.81). A full Tier 3 pass — including COACH_T and COACH_I — and a second scout are required before any cross-league claim is credible.
+    </p>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="banner banner-info"><span>●</span> <strong>INFERENTIAL ONLY.</strong> Tier 3 is partial. <strong>The Coaching Lineage is not built</strong> — neither the player nor Artur Jorge (Cruzeiro head coach) has an entry in the Coached-By Ledger v1.7 or the 78-Philosophy Framework. The fit below is a stylistic hypothesis from the event-log sample.</div>
+  <div class="banner banner-gold"><span>◆</span> <strong>LEGEND PAIRING SCREEN — PENDING.</strong> Position G1 open (FBref lists AM, analyst RW — pin role first). Stage gate G2 met (94 club matches, European move, senior international). Height/weight not in source. No third-party observation. Full logs: Matches 1, 2, 3, 4 (55' of 67), 5 (47' of 90). Mechanism candidates: M3 DRB 7 events, M7 UNP and KEY 20 events, M4 CAR 2 events. These are metric tags, not logged mechanisms. <strong>Nothing named yet; no comp search was run.</strong></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Top Philosophy Fits (Inferred)</h3>
+      <div class="philo-row anchor"><div class="philo-rank">1</div><div class="philo-name">🇦🇷 Menotti — Liberty <small>Creative freedom in the final third · CRS 9.50 · CRK 8.19 · UNP 9.00</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:#27ae60;"></div></div></div><div class="philo-score">72%</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">🇦🇷 Bielsa — Intensity <small>High press · recovery · SII_R 8.50 · OMS 8.17</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:68%;background:#c8102e;"></div></div></div><div class="philo-score">68%</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">🇪🇸 Guardiola — Positional <small>Wide creator · spatial (SPI 8.20) · positional discipline</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#6CABDD;"></div></div></div><div class="philo-score">60%</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">🇦🇷 Bilardo — Planner <small>Reference · pressing + set-piece reference</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#e07820;"></div></div></div><div class="philo-score">55%</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"High-Output Right Winger with Clutch Finishing"</strong> — a 20-year-old Ecuadorian wide attacker whose primary value is off-ball timing (OBI_T 8.50), clutch finishing (CRS 9.50) and final-ball creation (KEY 8.46, UNP 9.00). The risk is final-third decision-making (DMA 7.79 → 6.55) and discipline (Match 6 red card; 7 yellows in 2026). Left-footed inside-cutting profile.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-anchor">Menotti 72%</span>
+          <span class="tag tag-gold">Bielsa 68%</span>
+          <span class="tag tag-info">Guardiola 60%</span>
+          <span class="tag tag-value">Bilardo 55%</span>
+          <span class="tag tag-club">RW · Cruzeiro</span>
+          <span class="tag tag-info">Ecuador International</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner banner-warning" style="margin-top:16px;">
+    <span>⚠</span> <strong>FRAMEWORK CAVEAT.</strong> The Coaching Lineage is not built — Artur Jorge does not have a philosophy entry in the current 80-framework. The Menotti fit rests on the clutch and creative-risk scores. The Bielsa fit rests on recovery sprints and transition. The Guardiola fit is a positional-discipline reference. The Bilardo fit is a stylistic reference only. None is a validated Tier 3 finding, and the Legend pairing screen is Pending (G1 role pin, G6 height missing, G5 no third-party).
+  </div>
+
+  <div class="section-title" style="margin-top:24px;">School Averages (Proxy) <span class="line"></span></div>
+  <div class="grid-4">
+    <div class="stat-hero"><div class="value" style="color:var(--danger);">6.8</div><div class="label">Argentine School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--accent);">6.0</div><div class="label">Spanish School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.5</div><div class="label">Dutch School</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">5.0</div><div class="label">Brazilian School</div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item hist"><div class="timeline-date">14 February 2006</div><div class="timeline-text">Born <strong>Kenya Alexander Arroyo Alvarado</strong> in <strong>Guayaquil, Ecuador</strong>.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2023</div><div class="timeline-text"><strong>Independiente del Valle</strong> — age 16-17. 1 league MP, 30 min.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2024</div><div class="timeline-text"><strong>Independiente del Valle</strong> — 28 MP, 1,530 min, 3 goals, 8 assists.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2024-25</div><div class="timeline-text"><strong>Beşiktaş</strong> — European move. 11 MP, 237 min, 1 goal, 0 assists.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2025</div><div class="timeline-text"><strong>Cruzeiro (from 2 Sep 2025)</strong> — 18 MP, 646 min, 2 goals, 1 assist. Artur Jorge head coach from 23 Mar 2026.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">2026</div><div class="timeline-text"><strong>Cruzeiro — breakout Série A season.</strong> 27 MP, 1,596 min, 4 goals, 4 assists. Ecuador senior international. <strong>Career league totals: 80 MP, 4,039 min, 10 goals, 13 assists.</strong></div></div>
+        <div class="timeline-item danger"><div class="timeline-date">Discipline flag</div><div class="timeline-text"><strong>Match 6 red card</strong> (push on keeper + elbow, 65'). FBref 2026: 25 fouls, 7 yellows, 1 red in 17.7 league 90s. COACH_T 5.00 / COACH_I 3.00.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season</th><th>Club</th><th>Age</th><th>MP</th><th>Min</th><th>Gls</th><th>Ast</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2023</strong></td><td>Independiente del Valle</td><td>16</td><td>1</td><td>30</td><td>0</td><td>0</td></tr>
+          <tr><td><strong>2024</strong></td><td>Independiente del Valle</td><td>17</td><td>28</td><td>1,530</td><td>3</td><td>8</td></tr>
+          <tr><td><strong>2024-25</strong></td><td>Beşiktaş</td><td>18</td><td>11</td><td>237</td><td>1</td><td>0</td></tr>
+          <tr><td><strong>2025</strong></td><td>Cruzeiro</td><td>18</td><td>18</td><td>646</td><td>2</td><td>1</td></tr>
+          <tr><td><strong>2026</strong></td><td>Cruzeiro</td><td>19</td><td>27</td><td>1,596</td><td>4</td><td>4</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td colspan="3"><strong>League Total</strong></td><td><strong>80</strong></td><td><strong>4,039</strong></td><td><strong>10</strong></td><td><strong>13</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">2026 Série A — Per-90 vs Midfielders</h3>
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Per 90</th><th>Percentile</th></tr></thead>
+        <tbody>
+          <tr><td>Goals</td><td>0.23</td><td>90th</td></tr>
+          <tr><td>Assists</td><td>0.25</td><td>85th</td></tr>
+          <tr><td>Shots</td><td>2.1</td><td>98th</td></tr>
+          <tr><td>Shots on target</td><td>1.1</td><td>97th</td></tr>
+          <tr><td>Fouls committed</td><td>1.4</td><td>70th</td></tr>
+          <tr><td>Tackles won</td><td>1.2</td><td>54th</td></tr>
+          <tr><td>Crosses</td><td>5.3</td><td>85th</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.78rem;color:var(--text-tertiary);margin-top:12px;line-height:1.6;"><strong style="color:var(--warning);">Note:</strong> the "top-percentile" figures are 2025 season, not 2026. 2026 league files are needed for a like-for-like rank. The file has no xG, passing or possession, and the Norm method is not yet in Main Formulas.</p>
+    </div>
+  </div>
+  <div class="section-title">Physical & Biographical Panel <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value">Not in source</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value">Not in source</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value">Not in source</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">RW / AM</span></div>
+        <div class="physical-item"><span class="label">Age</span><span class="value">20 (b. 14 Feb 2006)</span></div>
+        <div class="physical-item"><span class="label">Birthplace</span><span class="value">Guayaquil, Ecuador</span></div>
+        <div class="physical-item"><span class="label">Nationality</span><span class="value">Ecuador</span></div>
+        <div class="physical-item"><span class="label">Club</span><span class="value">Cruzeiro EC</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Coaching Lineage (Cruzeiro 2026)</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--info);margin-bottom:4px;">Head Coach — Artur Jorge</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">In charge from <strong>23 Mar 2026</strong>. All 6 logged matches under him. <strong>No entry</strong> in the Coached-By Ledger v1.7 or the 78-Philosophy Framework. Philosophy assignment: Pending.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">Interim — Wesley Carvalho</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Mid-March 2026 assistant, then interim before Artur Jorge. No logged matches in this period.</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">Coach-Linked Events</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">M5 9'27 (COACH_R 9): coach demands quick forward play and Arroyo delivers through pass. M5 47'07 (COACH_T 5): coach demands more direct game and compact shape without ball. M6 65'53 (COACH_I 3): sent off for elbow foul while coach was shouting to replace him.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEFINING MOMENTS -->
+<div id="moments" class="tab-panel">
+  <div class="banner banner-gold"><span>◆</span> <strong>DEFINING MOMENTS — ANALYST NOTES.</strong> Taken from the event log and lightly edited for spelling. Ratings are 1–10. <strong>Each moment carries several metric tags.</strong> Highlights sit next to the caution signals below, as they should on a 226-tag log.</div>
+
+  <div class="section-title">Top Highlights <span class="line"></span></div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">Match 3 · Flamengo (Home, Winning)</span><span class="moment-time">54'44"</span></div>
+    <div class="moment-quote">"His signature: good first touch, drives inside and an excellent rolling shot into the corner. Goal."</div>
+    <div class="moment-tags"><span class="moment-tag">CRS 10</span><span class="moment-tag">STK 10</span><span class="moment-tag">CRK 10</span><span class="moment-tag">DMA 9</span><span class="moment-tag">SOA 9</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">Match 2 · Vitória (Away, Winning)</span><span class="moment-time">65'09"</span></div>
+    <div class="moment-quote">"In a throw-in he escapes his marker and comes into the crowded penalty area. Instead of crossing near the goal, he chooses a lob pass near the penalty spot for Villalba, who scores by volley. Superb assist."</div>
+    <div class="moment-tags"><span class="moment-tag">TMS 10</span><span class="moment-tag">DMA 10</span><span class="moment-tag">UNP 10</span><span class="moment-tag">VIS 9.5</span><span class="moment-tag">OBL 9</span><span class="moment-tag">SILT 9</span><span class="moment-tag">KEY 9</span><span class="moment-tag">CRS 9</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">Match 4 · São Paulo (Away, Losing)</span><span class="moment-time">46'23"</span></div>
+    <div class="moment-quote">"Explosive acceleration, faster than his opponent. Wins the ball 1v1 with a genius feint and delivers a powerful cross for Christian, who scores. Super assist."</div>
+    <div class="moment-tags"><span class="moment-tag">KEY 10</span><span class="moment-tag">CRS 10</span><span class="moment-tag">DRB 9.5</span><span class="moment-tag">SOA 9</span><span class="moment-tag">SILT 9</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">Match 2 · Vitória</span><span class="moment-time">47'48"</span></div>
+    <div class="moment-quote">"Receives an inaccurate pass in a 1v1 duel. His opponent stays on the floor after body contact; Kenny turns with the ball and delivers an amazing outside-foot through pass for Kaio Jorge."</div>
+    <div class="moment-tags"><span class="moment-tag">UNP 10</span><span class="moment-tag">SPI 9</span><span class="moment-tag">KEY 9</span><span class="moment-tag">STR 9</span><span class="moment-tag">BDY 9</span><span class="moment-tag">BAL 9</span><span class="moment-tag">DRB 8</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">Match 1 · Grêmio (Away, Winning)</span><span class="moment-time">10'06"</span></div>
+    <div class="moment-quote">"Tremendous explosive acceleration to get past his teammate, who is already in the penalty area. Kenny is so fast he steals the ball from his own teammate to finish the action, and Weverton makes a good save."</div>
+    <div class="moment-tags"><span class="moment-tag">SILA 9.5</span><span class="moment-tag">CHR 8</span><span class="moment-tag">SOA 8</span><span class="moment-tag">CRK 8</span><span class="moment-tag">STK 8</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">Match 6 · Atlético Mineiro (Home, Losing)</span><span class="moment-time">27'05"</span></div>
+    <div class="moment-quote">"Impressive high speed in defensive transition, following his missed cross. A high-speed run over three quarters of the field prevents the forward from shooting."</div>
+    <div class="moment-tags"><span class="moment-tag">OMS 10</span><span class="moment-tag">SILR 10</span><span class="moment-tag">MCS 9</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">Match 2 · Vitória</span><span class="moment-time">5'13"</span></div>
+    <div class="moment-quote">"Good run timing to recover the ball and make an amazing long pass with the outside foot."</div>
+    <div class="moment-tags"><span class="moment-tag">HZP 10</span><span class="moment-tag">CRK 10</span><span class="moment-tag">UNP 10</span><span class="moment-tag">OBLT 9</span><span class="moment-tag">INT 9</span></div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px;">Anti-Indicator Events — Timing, Shot Selection, Decisions <span class="line"></span></div>
+  <div class="banner banner-danger"><span>⚠</span> <strong>24 anti-indicator events.</strong> The workbook tags 19 as anti-indicators. The other 5 were rated 5 or lower but tagged positive or neutral (MOV, CLE, CLM, DMA at 8'57, VRP at 4'26) and are re-tagged here under the 5-or-lower rule. The weak events cluster in four places: low-percentage finishing (four of 24 are shots), passes and crosses that don't connect (VRP, LCR, OTP), <strong>Match 2 (nine)</strong> and <strong>Match 6 (eight)</strong>.</div>
+
+  <div class="card">
+    <div class="anti-row"><span class="anti-time">M1 44'48</span><div><span class="anti-metric">VRP (2)</span> — "Excellent effort to catch the ball after a wrong pass, but misses the pass behind, creating a big chance for Grêmio."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M1 no time</span><div><span class="anti-metric">MOV (4)</span> — "Lack of space covering by runs, stays 10 minutes without receiving the ball."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M1 75'20</span><div><span class="anti-metric">CLE (4), CLM (4)</span> — "Clearance missed."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M2 0'32</span><div><span class="anti-metric">TAC (3)</span> — "Dangerous tackle and foul committed."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M2 8'57</span><div><span class="anti-metric">DMA (4)</span> — "Too late to make a decision; carrying the ball blocks his own angles and options."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M2 24'34</span><div><span class="anti-metric">LCR (5), DMA (5), OTP (4)</span> — "Lifted cross missed; second chance comes back and his one-touch chest pass is missed too."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M2 29'48</span><div><span class="anti-metric">STK (5)</span> — "Shot wide, neither accurate nor powerful."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M2 41'28</span><div><span class="anti-metric">SOA (3), DRB (3)</span> — "1v1 attack fails, loses the ball, poor dribbling speed, too nonchalant."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M2 70'57</span><div><span class="anti-metric">STK (3)</span> — "Key pass from Kaio Jorge's dribble; Keny misses his shot totally."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M4 4'26</span><div><span class="anti-metric">VRP (5)</span> — "Through pass not successful (logged as a neutral observation)."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M5 11'10</span><div><span class="anti-metric">OBL_S (5)</span> — "Miscommunication on the one-two."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M5 47'07</span><div><span class="anti-metric">COACH_T (5)</span> — "Coach demands a more direct game and a compact shape without the ball (logged as a weak response)."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M6 63'06</span><div><span class="anti-metric">STK (2)</span> — "Attempts an impossible acrobatic volley and misses the ball; frustrated."</div><span class="badge-red match-badge">Anti</span></div>
+    <div class="anti-row"><span class="anti-time">M6 63'30</span><div><span class="anti-metric">MCS (1)</span> — "Pushes the keeper, nervous, yellow card."</div><span class="badge-red match-badge">RED</span></div>
+    <div class="anti-row"><span class="anti-time">M6 65'53</span><div><span class="anti-metric">OMS (3), MRK (5), OBL_T (3), COACH_I (3)</span> — "Surprised by an opponent's speed, stops him with the elbow; foul, second yellow and sent off. The coach had been shouting to replace him."</div><span class="badge-red match-badge">RED</span></div>
+    <div class="anti-row"><span class="anti-time">M6 45'21</span><div><span class="anti-metric">STK (3), DMA (2)</span> — "Curious decision to shoot from so far; the shot looks like a clearance."</div><span class="badge-red match-badge">Anti</span></div>
+  </div>
+
+  <div class="banner banner-danger" style="margin-top:16px;">
+    <span>⚠</span> <strong>Reading the anti-events.</strong> Match 3 has none — only 36 events were logged there. Match 6 is different in kind: a loss of control (push on keeper, elbow foul that ended his match). FBref confirms <strong>2 yellows and 1 red in 65 minutes</strong>. The pattern is a high-volume attacker whose bad moments are end-product and, when his team is losing, discipline.
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters</h4>
+    <ul>
+      <li><strong>CRS 9.50 across three matches</strong> — includes a goal and two assists</li>
+      <li><strong>Explosive pace: SII_A 8.33, SII_T 8.36, SII_R 8.50</strong> over 21 events</li>
+      <li><strong>Final-ball creativity: KEY 12 events at 8.46, UNP 9.00</strong></li>
+      <li><strong>Defensive work rate: OMS 8.17</strong> and a 10-rated recovery run in Match 6</li>
+      <li><strong>2026 Série A: 4 goals, 4 assists in 1,596 minutes</strong></li>
+      <li><strong>Goal involvement: goal + 2 assists in M2, goal in M3, assist in M4</strong></li>
+      <li><strong>88% of tags positive</strong> (199 of 226)</li>
+      <li><strong>Ecuador senior international at 20</strong></li>
+      <li><strong>94 club matches, 4,039 league minutes, 10G 13A at 20</strong></li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>Shot selection: STK 8.39 positive-only, 6.81 with four weak shots</strong></li>
+      <li><strong>Match 6 discipline: push on keeper (yellow) then elbow foul for second yellow — 8 anti events, 6.44 match average</strong></li>
+      <li><strong>Match 2 dip: nine of 24 anti events</strong>, including a dangerous tackle in the first minute</li>
+      <li><strong>Decision-making drops: DMA 7.79 → 6.55 incl. anti; MCS 7.80 → 6.67</strong></li>
+      <li><strong>Match 5 logged only to the 48th minute</strong></li>
+      <li><strong>No GPS reference</strong> — speed ratings visual only</li>
+      <li><strong>COACH incomplete</strong> — COACH_T 5.00, COACH_I 3.00</li>
+      <li><strong>No second scout</strong> — reliability untested</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>COACH incomplete</strong> — COACH_T and COACH_I each one weak event; T3 average Pending</li>
+      <li><strong>COACH_T 5.00 and COACH_I 3.00</strong> — both point at coachability risk</li>
+      <li><strong>No second scout</strong> — no blind cross-validation</li>
+      <li><strong>No GPS reference</strong> — SII_T rated visually</li>
+      <li><strong>Match 5 logged only to 48'</strong> — second half unobserved</li>
+      <li><strong>Match 6 18-minute gap</strong> after the red card</li>
+      <li><strong>Height / weight / foot not in source</strong> — physical profile incomplete</li>
+      <li><strong>No xG, passing or possession data</strong> — Tier 1 stays Pending for a like-for-like percentile rank</li>
+      <li><strong>No third-party observation</strong> — G5 fails the Legend pairing screen</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict (Preliminary)</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--text-primary);">PRELIMINARY · COMPOSITE PENDING · TIER 3 PARTIAL (11/12).</strong> Keny Arroyo is a <strong>20-year-old Ecuadorian right winger / attacking midfielder</strong> at Cruzeiro with a high-output attacking profile. <strong>His strengths are clutch finishing (CRS 9.50), off-ball timing (OBI_T 8.50), recovery sprints (SII_R 8.50) and final-ball creation (KEY 8.46, UNP 9.00).</strong> 2026 Série A: 4 goals, 4 assists in 1,596 minutes. His <strong>weaknesses are final-third decision-making and discipline</strong> — four weak shots, a missed chest pass, and a Match 6 push-plus-elbow that ended his game. FBref shows <strong>25 fouls, 7 yellows and 1 red in 17.7 league 90s</strong>. <strong>COACH is incomplete</strong> (COACH_R 8.33, COACH_T 5.00, COACH_I 3.00) — the coachability risk is real. <strong>The file is statistically strong but composite-incomplete.</strong> The next steps are clear: complete COACH_T and COACH_I, add a second scout, attach GPS, log the missing Match 5 second half and Match 6 gap, and resolve the final-third decision-making question with a targeted clip review. Until then, this is a preliminary rating, not a final one.
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-warning">
+    <span>⚠</span> <strong>MATCH REGISTER — 6 REGISTERED · BALANCE CHECK PASSED.</strong> Top-third opposition: Matches 1, 3, 4, 6. Away: 1, 2, 4, 5. Team losing: 4, 5, 6. Losing-state sample: 62 events, 51 of them from two matches. <strong>Match 5 is logged only to 48'.</strong> Match 6 has an 18-minute gap after the red card. Dates differ by one day from FBref in Matches 3, 5 and 6 — opponents, venues, results and minutes match FBref exactly.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Registered Matches <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Grêmio vs Cruzeiro (M1)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Away · W 4-2</span><span class="match-badge badge-comp">Top third · 78 min</span><span class="match-badge badge-nolink">91 EVENTS</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: ~-77'</strong> · avg quality 7.55 · 4 anti. Signature moment at 10'06 (SILA 9.5 steal from own teammate).</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Vitória vs Cruzeiro (M2)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Away · W 3-1</span><span class="match-badge badge-comp">Middle third · 90 min</span><span class="match-badge badge-nolink">79 EVENTS (35%)</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: ~-96'</strong> · avg quality 7.75 · 9 anti. Richest match: 2 assists, 5'13 outside-foot long pass, 47'48 UNP 10. But 9 anti events including 0'32 dangerous tackle.</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Cruzeiro vs Flamengo (M3)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Home · W 2-1</span><span class="match-badge badge-comp">Top third · 74 min</span><span class="match-badge badge-nolink">36 EVENTS</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: ~-73'</strong> · avg quality 8.24 · 0 anti. Signature goal at 54'44 (CRS 10, STK 10).</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">São Paulo vs Cruzeiro (M4)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Away · L 1-4</span><span class="match-badge badge-comp">Top third · 67 min</span><span class="match-badge badge-nolink">64 EVENTS</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: ~-55' of 67'</strong> · avg quality 7.98 · 1 anti. Super assist at 46'23 (KEY 10, CRS 10, DRB 9.5).</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon" style="background:rgba(255,184,0,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">RB Bragantino vs Cruzeiro (M5)</div>
+        <div class="match-meta"><span class="match-badge badge-warning">Away · L 2-4</span><span class="match-badge badge-comp">Middle third · 90 min</span><span class="match-badge badge-suggest">11 EVENTS · PARTIAL</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: ~-47' only (first half mostly)</strong> · avg quality 8.00 · 2 anti. Second half of a 90-minute match is unlogged.</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon" style="background:rgba(255,59,59,0.5);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Cruzeiro vs Atlético Mineiro (M6)</div>
+        <div class="match-meta"><span class="match-badge badge-danger">Home · L 1-3</span><span class="match-badge badge-comp">Top third · 65 min (red)</span><span class="match-badge badge-red">8 EVENTS · RED CARD</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: ~-65'</strong> · avg quality 6.44 · 8 anti. <strong>Push on keeper (yellow, 63'30") then elbow foul (second yellow, 65'53").</strong> 18-minute gap after red. Best moment: 27'05 OMS 10 recovery run.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Validation Status & Required Actions</h3>
+    <table class="data-table">
+      <thead><tr><th>Requirement</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Minimum 5 matches registered</td><td><span style="color:var(--success);font-weight:700;">MET</span> (6 registered, 6 logged; M5 to 47' only)</td></tr>
+        <tr><td>2+ vs top-third opposition (logged)</td><td><span style="color:var(--success);font-weight:700;">MET</span> (M1, M3, M4, M6)</td></tr>
+        <tr><td>1+ away match (logged)</td><td><span style="color:var(--success);font-weight:700;">MET</span> (M1, M2, M4, M5)</td></tr>
+        <tr><td>1+ match while losing (logged)</td><td><span style="color:var(--success);font-weight:700;">MET</span> (M4, M5, M6: 62 events; M5 first half only)</td></tr>
+        <tr><td>5+ full matches (CLAUDE.md, 22 Oct 2026)</td><td><span style="color:var(--warning);font-weight:700;">UNCONFIRMED</span> (logs cover M1, 2, 3 fully; M4 to 55' of 67', M5 to 47' of 90, M6 has an 18-minute gap)</td></tr>
+        <tr><td>Tier 3 metrics scored (Main Formulas v2.0)</td><td><span style="color:var(--warning);font-weight:700;">11/12</span> (COACH incomplete, so Tier 3 average Pending)</td></tr>
+        <tr><td>3+ timestamped events per sub-metric</td><td><span style="color:var(--success);font-weight:700;">MET</span> (lowest: OBL_P and SIL_R, 5 each)</td></tr>
+        <tr><td>Anti-indicator rule (rating 5 or lower)</td><td><span style="color:var(--success);font-weight:700;">APPLIED</span> (24 events)</td></tr>
+        <tr><td>Match dates, opponents, fixtures</td><td><span style="color:var(--warning);font-weight:700;">VERIFIED vs FBref</span> (opponent, venue, result, minutes match. Dates differ by one day in M3, M5, M6)</td></tr>
+        <tr><td>GPS reference</td><td><span style="color:var(--danger);font-weight:700;">NOT ATTACHED</span> (SII_T rated visually)</td></tr>
+        <tr><td>COACH metric</td><td><span style="color:var(--danger);font-weight:700;">INCOMPLETE</span> (COACH_R 3 positive events; COACH_T and COACH_I one weak event each)</td></tr>
+        <tr><td>Second scout</td><td><span style="color:var(--danger);font-weight:700;">NOT ASSIGNED</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Punch List</h3>
+    <table class="data-table">
+      <thead><tr><th>Item</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>Complete COACH_T and COACH_I to 3-event samples (currently 5.00 and 3.00 on one event each)</td><td><span style="color:var(--danger);font-weight:700;">HIGH</span></td></tr>
+        <tr><td>Assign a second scout for blind cross-validation</td><td><span style="color:var(--danger);font-weight:700;">HIGH</span></td></tr>
+        <tr><td>Attach GPS reference so SII_T and SII_A are measured, not visual</td><td><span style="color:var(--warning);font-weight:700;">MEDIUM</span></td></tr>
+        <tr><td>Log Match 5 second half (currently 11 events, all before 48')</td><td><span style="color:var(--warning);font-weight:700;">MEDIUM</span></td></tr>
+        <tr><td>Fill the 18-minute Match 6 gap after the red card</td><td><span style="color:var(--warning);font-weight:700;">MEDIUM</span></td></tr>
+        <tr><td>Resolve Match 3, 5 and 6 date discrepancies (register vs FBref)</td><td><span style="color:var(--warning);font-weight:700;">LOW</span></td></tr>
+        <tr><td>Targeted clip review on final-third decision-making (DMA 7.79 → 6.55)</td><td><span style="color:var(--warning);font-weight:700;">MEDIUM</span></td></tr>
+        <tr><td>Attach licensed photo and verify height / weight / foot</td><td><span style="color:var(--warning);font-weight:700;">LOW</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial — partial T3 average 81.7 → 8.17
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 8.17;
+  var heroMax = 10;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  var grad = heroCtx.createLinearGradient(0, 0, 140, 140);
+  grad.addColorStop(0, '#1e3a8a');
+  grad.addColorStop(1, '#ffb800');
+  heroCtx.strokeStyle = grad;
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar — T3 Event Log
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','CRS','SPI','CHR','CRK','OMS','SOA','DYN','DMA','MCS','CLM'],
+      datasets: [{
+        label: 'Arroyo — positive only',
+        data: [8.50, 8.20, 8.00, 8.33, 8.36, 8.50, 9.50, 8.20, 8.25, 8.19, 8.17, 7.97, 7.88, 7.79, 7.80, 7.80],
+        backgroundColor: 'rgba(30,58,138,0.2)',
+        borderColor: '#1e3a8a',
+        pointBackgroundColor: ['#00d084','#00d084','#00d084','#00d084','#00d084','#00d084','#00d084','#00d084','#00d084','#00d084','#00d084','#ffb800','#ffb800','#ffb800','#ffb800','#ffb800'],
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Incl. anti-indicator',
+        data: [7.33, 8.00, 8.00, 8.33, 8.36, 8.50, 9.50, 8.20, 8.25, 8.19, 7.43, 7.69, 7.88, 6.55, 6.67, 7.00],
+        backgroundColor: 'rgba(255,59,59,0.1)',
+        borderColor: 'rgba(255,59,59,0.6)',
+        pointBackgroundColor: '#ff3b3b',
+        pointBorderColor: '#fff',
+        pointRadius: 3,
+        borderWidth: 1.5,
+        borderDash: [4,3]
+      }, {
+        label: 'Elite threshold',
+        data: [8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8],
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderColor: 'rgba(255,255,255,0.15)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false, stepSize: 2 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 9, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 10 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var el = document.getElementById('philosophyRadar2');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Menotti','Bielsa','Guardiola','Bilardo'],
+      datasets: [{
+        label: 'Arroyo — inferential fit (%)',
+        data: [72, 68, 60, 55],
+        backgroundColor: 'rgba(30,58,138,0.15)',
+        borderColor: '#fbbf24',
+        pointBackgroundColor: ['#27ae60', '#c8102e', '#6CABDD', '#e07820'],
+        pointBorderColor: '#fff',
+        pointRadius: 5,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 40, max: 80,
+          ticks: { display: false, stepSize: 5 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' }, padding: 16 }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Complete 20%', 'T2 Partial 30%', 'T3 Partial 50% (11/12)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#00d084', '#ffb800', '#ffb800'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

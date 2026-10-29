@@ -32,6 +32,43 @@ EXCLUDED = {
 # Pages excluded from the public sitemap (private/utility pages).
 SITEMAP_EXCLUDED = {"login.html", "client_login.html"}
 
+# Anything that is not a public player/coach profile: platform copies and their
+# backups, dashboards, client dossiers, test pages, standings, briefs, forms.
+# These must never reach the directory or the sitemap.
+NON_PROFILE = re.compile(
+    r"(?i)(^platform|_PRE_|BACKUP|\.bak|CORRUPTED|^index|^test\.html|^login|^signup"
+    r"|^client_login|dashboard|^brandsen_sports|Intelligence_Dossier|Intelligence_Report"
+    r"|Standings|^Euro_|^World_Cup|^Gift_Links|product_brief|empire_fga_hybrid|^players"
+    r"|^60philosophies|Tactical_Philosophies|_NEW\.html|sample|RAAL|Scout_Assessment"
+    r"|^functions|^README)"
+)
+# Real pages that are not profiles but belong in the sitemap.
+SITEMAP_EXTRA = {"index_en.html", "index_es.html", "index_fr.html", "players.html"}
+
+
+def is_non_profile(f: str) -> bool:
+    return f in EXCLUDED or bool(NON_PROFILE.search(f))
+
+
+def git_lastmods():
+    """Last commit date per file, from one git log pass. Empty dict if git fails."""
+    import subprocess
+    try:
+        out = subprocess.run(
+            ["git", "log", "--name-only", "--format=%x01%ad", "--date=short",
+             "--diff-filter=AM", "--", "*.html"],
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=True,
+        ).stdout
+    except Exception:
+        return {}
+    dates, cur = {}, None
+    for line in out.splitlines():
+        if line.startswith("\x01"):
+            cur = line[1:].strip()
+        elif line.strip() and cur:
+            dates.setdefault(line.strip().strip('"'), cur)
+    return dates
+
 BASE_URL = "https://www.empirescoutingnetwork.com"
 
 
@@ -50,7 +87,7 @@ def display_name(filename: str) -> str:
 
 def build_players_html(files):
     entries = [
-        {"file": f, "name": display_name(f)} for f in files if f not in EXCLUDED
+        {"file": f, "name": display_name(f)} for f in files if not is_non_profile(f)
     ]
     entries.sort(key=lambda e: e["name"].lower())
 
@@ -188,23 +225,27 @@ def build_players_html(files):
 
 def build_sitemap(files):
     today = datetime.date.today().isoformat()
-    urls = [(f"{BASE_URL}/", 1.0, "weekly")]
-    priority_map = {"platform.html": (0.9, "daily"), "players.html": (0.9, "weekly")}
+    mods = git_lastmods()
+    urls = [(f"{BASE_URL}/", 1.0, "weekly", mods.get("index.html", today))]
+    priority_map = {"players.html": (0.9, "weekly")}
+    from urllib.parse import quote
     for f in files:
         if f == "index.html" or f in SITEMAP_EXCLUDED:
             continue
+        if is_non_profile(f) and f not in SITEMAP_EXTRA:
+            continue
         prio, freq = priority_map.get(f, (0.5, "monthly"))
-        url = BASE_URL + "/" + f.replace(" ", "%20")
-        urls.append((url, prio, freq))
+        url = BASE_URL + "/" + quote(f)
+        urls.append((url, prio, freq, mods.get(f, today)))
 
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
-    for url, prio, freq in urls:
+    for url, prio, freq, mod in urls:
         lines.append("  <url>")
         lines.append(f"    <loc>{html.escape(url)}</loc>")
-        lines.append(f"    <lastmod>{today}</lastmod>")
+        lines.append(f"    <lastmod>{mod}</lastmod>")
         lines.append(f"    <changefreq>{freq}</changefreq>")
         lines.append(f"    <priority>{prio}</priority>")
         lines.append("  </url>")
@@ -274,7 +315,7 @@ def main():
     (ROOT / "sitemap.xml").write_text(build_sitemap(files), encoding="utf-8")
     update_platform_existing_profiles(files)
     print(f"Done. {len(files)} html files scanned, "
-          f"{len([f for f in files if f not in EXCLUDED])} treated as player profiles.")
+          f"{len([f for f in files if not is_non_profile(f)])} treated as player profiles.")
 
 
 if __name__ == "__main__":
