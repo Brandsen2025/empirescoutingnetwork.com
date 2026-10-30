@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  try{
+    if(localStorage.getItem('esn_fga_auth') !== '1'){
+      window.location.replace('login.html');
+    }
+  }catch(e){
+    window.location.replace('login.html');
+  }
+})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Julius Suber | Empire FGA Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a0a0f;--bg-card:#0f0f1a;--bg-card-hover:#151525;
+  --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+  --text-primary:#f0f0f5;--text-secondary:#9b9bb0;--text-tertiary:#5a5a70;
+  --accent:#1e3a8a;--accent-dim:rgba(30,58,138,0.15);
+  --gold:#fbbf24;--gold-dim:rgba(251,191,36,0.15);--silver:#94a3b8;
+  --success:#00d084;--warning:#ffb800;--danger:#ff3b3b;--info:#3b82f6;
+  --tier1:#00d084;--tier2:#ffb800;--tier3:#ffb800;--pending:#5a5a70;
+  --duke:#012169;
+  --font-display:'Oswald',sans-serif;--font-heading:'Rajdhani',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+* {margin:0;padding:0;box-sizing:border-box;}
+html {scroll-behavior:smooth;}
+body {font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar {width:6px;}
+::-webkit-scrollbar-track {background:var(--bg-primary);}
+::-webkit-scrollbar-thumb {background:var(--accent);border-radius:3px;}
+
+.hero {position:relative;height:540px;overflow:hidden;border-bottom:1px solid var(--border-subtle);}
+.hero-photo {position:absolute;inset:0;background:url('https://images.sidearmdev.com/resize?url=https%3A%2F%2Fdxbhsrqyrr690.cloudfront.net%2Fsidearm.nextgen.sites%2Fgoduke.com%2Fimages%2F2024%2F10%2F16%2FJulius_Suber_-_Howard.png&height=1100&type=webp') center 20% / cover no-repeat;filter:brightness(0.42) saturate(0.9);transition:transform 8s ease;}
+.hero:hover .hero-photo {transform:scale(1.03);}
+.hero-overlay {position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.35) 0%,rgba(1,33,105,0.25) 40%,rgba(10,10,15,0.88) 72%,var(--bg-primary) 100%);}
+.hero-branding {position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#012169 33%,#fbbf24 33%,#fbbf24 66%,#012169 66%);z-index:10;}
+.champ-badge {position:absolute;top:20px;right:24px;z-index:5;background:linear-gradient(135deg,#012169,#0f172a);padding:6px 14px;border-radius:8px;font-family:var(--font-heading);font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;gap:6px;}
+.champ-badge::before {content:'🛡️';font-size:0.8rem;}
+.hero-content {position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 24px 0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.jersey-watermark {position:absolute;top:50%;right:5%;transform:translateY(-50%);font-family:var(--font-display);font-size:240px;font-weight:700;color:rgba(251,191,36,0.04);line-height:1;pointer-events:none;z-index:2;}
+.club-badge-strip {display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.badge-item {display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:2px 7px;border-radius:100px;border:1px solid var(--border-subtle);font-family:var(--font-heading);font-size:0.58rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.badge-item .arrow {color:var(--text-tertiary);font-size:0.6rem;}
+.badge-item.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.hero-name {font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-meta {display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.hero-meta span {font-family:var(--font-heading);font-size:0.95rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.hero-meta .dot {width:4px;height:4px;background:var(--gold);border-radius:50%;}
+.hero-meta .flag {font-size:1.1rem;}
+.hero-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:32px;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:8px;}
+.tag {padding:5px 12px;border-radius:6px;font-family:var(--font-heading);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-pending {background:rgba(90,96,112,0.2);color:var(--pending);border:1px solid rgba(90,96,112,0.3);}
+.tag-club {background:rgba(1,33,105,0.25);color:var(--silver);border:1px solid rgba(148,163,184,0.25);}
+.tag-gold {background:var(--gold-dim);color:var(--gold);border:1px solid rgba(251,191,36,0.25);}
+.tag-value {background:rgba(0,208,132,0.1);color:var(--success);border:1px solid rgba(0,208,132,0.2);}
+.tag-info {background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2);}
+.tag-danger {background:rgba(255,59,59,0.1);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+.tag-warning {background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+
+.fga-dial-wrap {position:relative;width:140px;height:140px;flex-shrink:0;}
+.fga-dial-inner {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.fga-dial-inner .fga-label {font-family:var(--font-heading);font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary);}
+.fga-dial-inner .fga-score {font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--gold);line-height:1;}
+.fga-dial-inner .fga-status {font-family:var(--font-heading);font-size:0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--danger);margin-top:2px;}
+
+.tier-pills {display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.tier-pill {display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-family:var(--font-heading);font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-pill.t1 {background:rgba(0,208,132,0.12);color:var(--tier1);border:1px solid rgba(0,208,132,0.2);}
+.tier-pill.t2 {background:rgba(255,184,0,0.12);color:var(--tier2);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3 {background:rgba(255,184,0,0.12);color:var(--warning);border:1px solid rgba(255,184,0,0.2);}
+.tier-pill.t3-blocked {background:rgba(255,59,59,0.12);color:var(--danger);border:1px solid rgba(255,59,59,0.2);}
+
+.tab-bar {position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-subtle);}
+.tab-bar-inner {max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;gap:0;}
+.tab-bar-inner::-webkit-scrollbar {display:none;}
+.tab-btn {flex:1;min-width:110px;padding:16px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover {color:var(--text-secondary);}
+.tab-btn.active {color:var(--silver);border-bottom-color:var(--silver);background:linear-gradient(180deg,transparent 0%,var(--accent-dim) 100%);}
+
+.content {max-width:1200px;margin:0 auto;padding:32px 24px;}
+.tab-panel {display:none;}
+.tab-panel.active {display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);}}
+
+.section-title {font-family:var(--font-display);font-size:1.4rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title .line {flex:1;height:1px;background:var(--border-subtle);}
+
+.card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color 0.2s,background 0.2s;}
+.card:hover {background:var(--bg-card-hover);border-color:var(--border-medium);}
+.grid-2 {display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.grid-3 {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.grid-4 {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+
+.banner {padding:14px 18px;border-radius:8px;margin-bottom:20px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px;font-family:var(--font-heading);font-size:0.9rem;font-weight:500;}
+.banner-proxy {background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--warning);}
+.banner-danger {background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);color:var(--danger);}
+.banner-info {background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--info);}
+.banner-gold {background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:var(--gold);}
+.banner-champ {background:linear-gradient(135deg,rgba(1,33,105,0.15),rgba(251,191,36,0.05));border:1px solid rgba(1,33,105,0.3);color:var(--silver);}
+
+.stat-hero-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px;}
+.stat-hero {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;text-align:center;transition:transform 0.2s,border-color 0.2s;}
+.stat-hero:hover {transform:translateY(-2px);border-color:var(--border-medium);}
+.stat-hero .value {font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.stat-hero .label {font-family:var(--font-heading);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-tertiary);margin-top:6px;}
+
+.career-path {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.career-node {display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:6px;font-family:var(--font-heading);font-size:0.7rem;font-weight:600;color:var(--text-secondary);}
+.career-node.current {background:var(--accent-dim);border-color:rgba(148,163,184,0.3);color:var(--silver);}
+.career-arrow {color:var(--text-tertiary);font-size:0.8rem;}
+
+.pos-map-wrap{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;}.pos-map-wrap img{max-width:100%;height:auto;border-radius:8px;}.pos-map-caption{font-family:var(--font-heading);font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.attr-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;}
+.attr-card h3 {font-family:var(--font-display);font-size:1rem;font-weight:600;text-transform:uppercase;margin-bottom:16px;color:var(--text-primary);}
+.attr-row {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.attr-row:last-child {border-bottom:none;}
+.attr-row .name {font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.attr-row .score {font-family:var(--font-heading);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ac-green {color:var(--success);} .ac-yellow {color:var(--warning);} .ac-red {color:var(--danger);} .ac-pend {color:var(--pending);}
+.circle {width:8px;height:8px;border-radius:50%;display:inline-block;}
+.circle-green {background:var(--success);} .circle-yellow {background:var(--warning);} .circle-red {background:var(--danger);} .circle-pend {background:var(--pending);}
+
+.progress-bar {width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:4px;}
+.progress-fill {height:100%;border-radius:3px;transition:width 1s ease;}
+
+.t1-metric-row {display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.t1-metric-row:last-child {border-bottom:none;}
+.t1-metric-code {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--silver);width:50px;flex-shrink:0;text-transform:uppercase;}
+.t1-metric-desc {font-size:0.78rem;color:var(--text-secondary);flex:1;}
+.t1-metric-bar-wrap {width:100px;flex-shrink:0;}
+.t1-metric-val {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--text-primary);width:70px;text-align:right;flex-shrink:0;}
+
+.t1-highlight-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.t1-hl-box {background:linear-gradient(135deg,rgba(1,33,105,0.22),rgba(251,191,36,0.06));border:2px solid rgba(1,33,105,0.4);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
+.t1-hl-box.gold {background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(1,33,105,0.06));border-color:rgba(251,191,36,0.5);}
+.t1-hl-box.danger {background:linear-gradient(135deg,rgba(255,59,59,0.12),rgba(1,33,105,0.06));border-color:rgba(255,59,59,0.5);}
+.t1-hl-code {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;}
+.t1-hl-val {font-family:var(--font-display);font-size:1.65rem;font-weight:500;color:var(--silver);line-height:1;}
+.t1-hl-box.gold .t1-hl-val {color:var(--gold);}
+.t1-hl-box.danger .t1-hl-val {color:var(--danger);}
+.t1-hl-pct {font-size:0.58rem;color:var(--text-tertiary);margin-top:4px;line-height:1.4;}
+.t1-hl-bar {height:3px;background:rgba(1,33,105,0.1);border-radius:99px;overflow:hidden;margin-top:8px;}
+.t1-hl-bar-fill {height:100%;border-radius:99px;background:var(--silver);}
+.t1-hl-box.gold .t1-hl-bar-fill {background:var(--gold);}
+.t1-hl-box.danger .t1-hl-bar-fill {background:var(--danger);}
+
+.t1-group {margin-bottom:14px;}
+.t1-group-head {font-family:var(--font-heading);font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);padding:6px 0;border-bottom:1px solid rgba(1,33,105,0.08);margin-bottom:8px;}
+
+.philo-row {display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.philo-row:last-child {border-bottom:none;}
+.philo-row.anchor{background:linear-gradient(90deg,rgba(0,156,59,0.08),transparent);border-left:3px solid #009C3B;padding-left:9px;margin-left:-12px;}
+.philo-rank {font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-tertiary);width:28px;text-align:center;}
+.philo-name {flex:1;font-family:var(--font-body);font-size:0.85rem;color:var(--text-primary);}
+.philo-name small {display:block;font-size:0.68rem;color:var(--text-tertiary);margin-top:2px;letter-spacing:0.3px;}
+.philo-score {font-family:var(--font-heading);font-size:0.9rem;font-weight:700;color:var(--gold);width:42px;text-align:right;}
+.philo-bar-wrap {width:120px;}
+
+/* COMPARATOR TABLE (new v2.0) */
+.comparator-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
+.comparator-card {background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:10px;padding:16px;}
+.comparator-card.anchor {border-color:rgba(251,191,36,0.4);border-width:2px;}
+.comparator-name {font-family:var(--font-display);font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:var(--text-primary);margin-bottom:2px;}
+.comparator-country {font-family:var(--font-heading);font-size:0.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.comparator-row {display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-subtle);font-size:0.78rem;}
+.comparator-row:last-child {border-bottom:none;}
+.comparator-row .label {color:var(--text-tertiary);font-family:var(--font-heading);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.3px;}
+.comparator-row .value {color:var(--text-primary);font-weight:600;text-align:right;}
+.comparator-row .value.claim {color:var(--warning);font-style:italic;}
+.comparator-row .value.verified {color:var(--success);}
+
+.data-table {width:100%;border-collapse:collapse;font-size:0.82rem;}
+.data-table th {text-align:left;padding:10px 12px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;color:var(--text-tertiary);border-bottom:1px solid var(--border-medium);background:rgba(255,255,255,0.02);}
+.data-table td {padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);}
+.data-table tr:hover td {background:rgba(255,255,255,0.02);color:var(--text-primary);}
+.data-table td strong {color:var(--text-primary);font-weight:600;}
+
+.scout-box {border-radius:10px;padding:18px;margin-bottom:16px;}
+.scout-box h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.scout-pos {background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);}
+.scout-pos h4 {color:var(--success);}
+.scout-caut {background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);}
+.scout-caut h4 {color:var(--warning);}
+.scout-gap {background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);}
+.scout-gap h4 {color:var(--danger);}
+.scout-verdict {background:var(--accent-dim);border:1px solid rgba(30,58,138,0.2);}
+.scout-verdict h4 {color:var(--silver);}
+.scout-box ul {list-style:none;padding:0;margin:0;}
+.scout-box li {padding:5px 0;font-size:0.82rem;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:8px;}
+.scout-box li::before {content:'—';color:var(--text-tertiary);flex-shrink:0;}
+
+.physical-card {background:linear-gradient(135deg,rgba(1,33,105,0.12) 0%,rgba(10,10,15,0.5) 100%);border:1px solid rgba(1,33,105,0.2);border-radius:12px;padding:20px;}
+.physical-card h4 {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;color:var(--silver);margin-bottom:12px;}
+.physical-grid {display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.physical-item {display:flex;justify-content:space-between;font-size:0.8rem;padding:6px 0;border-bottom:1px solid var(--border-subtle);}
+.physical-item .label {color:var(--text-tertiary);}
+.physical-item .value {color:var(--text-primary);font-weight:600;}
+.physical-item .value.verified {color:var(--success);}
+.physical-item .value.claim {color:var(--warning);font-style:italic;}
+.physical-item .value.unconfirmed {color:var(--text-tertiary);}
+
+.timeline {position:relative;padding-left:24px;}
+.timeline::before {content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border-subtle);border-radius:1px;}
+.timeline-item {position:relative;padding-bottom:20px;}
+.timeline-item:last-child {padding-bottom:0;}
+.timeline-item::before {content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--bg-card);border:2px solid var(--accent);z-index:2;}
+.timeline-item.current::before {background:var(--accent);box-shadow:0 0 8px rgba(1,33,105,0.5);}
+.timeline-item.hist::before {background:var(--success);border-color:var(--success);}
+.timeline-item.champ::before {background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(251,191,36,0.3);}
+.timeline-item.danger::before {background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px rgba(255,59,59,0.3);}
+.timeline-date {font-family:var(--font-heading);font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.timeline-item.hist .timeline-date {color:var(--success);}
+.timeline-item.champ .timeline-date {color:var(--gold);}
+.timeline-item.danger .timeline-date {color:var(--danger);}
+.timeline-text {font-size:0.82rem;color:var(--text-secondary);line-height:1.6;}
+.timeline-text strong {color:var(--text-primary);}
+
+.radar-container {width:100%;max-width:520px;margin:0 auto;aspect-ratio:500/450;position:relative;}
+.radar-container canvas {width:100%!important;height:100%!important;}
+.chart-wrap {border:1px solid var(--border-subtle);border-radius:10px;background:var(--bg-card-hover);padding:16px;margin-bottom:16px;}
+.chart-title {font-family:var(--font-display);font-size:0.9rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--silver);margin-bottom:4px;}
+.chart-sub {font-size:0.72rem;color:var(--text-tertiary);margin-bottom:12px;}
+.chart-canvas-wrap {position:relative;width:100%;height:260px;}
+
+.match-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.match-card {background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;text-decoration:none;color:inherit;display:block;}
+.match-card:hover {transform:translateY(-3px);border-color:var(--silver);box-shadow:0 8px 24px rgba(1,33,105,0.15);}
+.match-thumb {height:140px;background:linear-gradient(135deg,var(--bg-card-hover) 0%,var(--bg-card) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.match-thumb::before {content:'';position:absolute;inset:0;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='rgba(1,33,105,0.2)' stroke-width='2'/></svg>") center / 80px no-repeat;}
+.match-thumb .play-icon {width:48px;height:48px;background:rgba(1,33,105,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.2s,background 0.2s;}
+.match-card:hover .play-icon {transform:scale(1.1);background:#012169;}
+.play-icon svg {width:18px;height:18px;fill:white;margin-left:3px;}
+.match-info {padding:16px;}
+.match-teams {font-family:var(--font-heading);font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;line-height:1.3;}
+.match-meta {font-family:var(--font-body);font-size:0.75rem;color:var(--text-tertiary);display:flex;gap:8px;flex-wrap:wrap;}
+.match-badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;text-transform:uppercase;}
+.badge-verified {background:rgba(0,208,132,0.12);color:var(--success);}
+.badge-comp {background:rgba(59,130,246,0.12);color:var(--info);}
+.badge-pending {background:rgba(90,96,112,0.12);color:var(--pending);}
+.badge-champ {background:rgba(1,33,105,0.18);color:var(--silver);}
+.badge-excluded {background:rgba(255,59,59,0.12);color:var(--danger);}
+.badge-suggest {background:rgba(255,184,0,0.12);color:var(--warning);}
+.badge-nolink {background:rgba(90,96,112,0.18);color:var(--text-tertiary);border:1px dashed rgba(90,96,112,0.4);}
+.badge-red {background:rgba(255,59,59,0.18);color:var(--danger);border:1px solid rgba(255,59,59,0.3);}
+
+.moment-card {background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px;margin-bottom:12px;}
+.moment-header {display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;flex-wrap:wrap;gap:6px;}
+.moment-match {font-family:var(--font-heading);font-size:0.72rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;}
+.moment-time {font-size:0.7rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;font-family:monospace;}
+.moment-quote {font-size:0.82rem;color:var(--text-secondary);font-style:italic;line-height:1.5;margin-bottom:6px;}
+.moment-tags {display:flex;flex-wrap:wrap;gap:4px;}
+.moment-tag {font-family:var(--font-heading);font-size:0.6rem;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(251,191,36,0.1);color:var(--gold);border:1px solid rgba(251,191,36,0.2);}
+
+.moment-card.anti {border-left-color:var(--danger);}
+.moment-card.anti .moment-match {color:var(--danger);}
+.moment-card.anti .moment-tag {background:rgba(255,59,59,0.1);color:var(--danger);border-color:rgba(255,59,59,0.2);}
+
+@media (max-width:768px) {
+  .hero {height:460px;}
+  .jersey-watermark {font-size:140px;}
+  .hero-bottom {flex-direction:column;align-items:flex-start;}
+  .fga-dial-wrap {width:110px;height:110px;}
+  .grid-2,.grid-3,.grid-4 {grid-template-columns:1fr;}
+  .match-grid {grid-template-columns:1fr;}
+  .t1-metric-bar-wrap {width:60px;}
+  .t1-metric-val {width:50px;}
+  .philo-bar-wrap{width:60px;}
+  .chart-canvas-wrap{height:220px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-branding"></div>
+  <div class="champ-badge">Duke Blue Devils · NCAA · ACC</div>
+  <div class="jersey-watermark">LB</div>
+  <div class="hero-content">
+    <div class="club-badge-strip">
+      <div class="badge-item">Duke Blue Devils</div>
+      <div class="badge-item"><span class="arrow">→</span></div>
+      <div class="badge-item current">NCAA · ACC · 2026</div>
+    </div>
+    <h1 class="hero-name">Julius Suber</h1>
+    <div class="hero-meta">
+      <span><span class="flag">🇺🇸</span> USA</span>
+      <span class="dot"></span>
+      <span>20–21 (2026)</span>
+      <span class="dot"></span>
+      <span>188cm · 78kg <span style="color:var(--success);font-size:0.7rem;">✓ VERIFIED</span></span>
+      <span class="dot"></span>
+      <span>Foot not confirmed</span>
+      <span class="dot"></span>
+      <span>Left-back</span>
+    </div>
+    <div class="hero-bottom">
+      <div>
+        <div class="tier-pills">
+          <div class="tier-pill t1">T1 PARTIAL</div>
+          <div class="tier-pill t2">T2 NOT COMPUTABLE</div>
+          <div class="tier-pill t3-blocked">T3 BLOCKED · OBI/SII</div>
+        </div>
+        <div class="hero-tags" style="margin-top:10px;">
+          <span class="tag tag-warning">VIDEO PARTIAL · 7/12 CORE</span>
+          <span class="tag tag-club">Duke · NCAA · ACC · v2.0</span>
+          <span class="tag tag-gold">9 APPS · 9 STARTS · 716 MINS</span>
+          <span class="tag tag-info">1G · 1A · 9 SHOTS · 4 SoT</span>
+          <span class="tag tag-danger">RATING WITHHELD</span>
+          <span class="tag tag-warning">34.44 KM/H · AGENT CLAIM</span>
+          <span class="tag tag-value">188cm / 78kg ✓ DUKE ROSTER</span>
+          <span class="tag tag-info">REF: ESN-SUB-2026-008</span>
+        </div>
+      </div>
+      <div class="fga-dial-wrap">
+        <canvas id="heroDial" width="140" height="140"></canvas>
+        <div class="fga-dial-inner">
+          <div class="fga-label">VIDEO COMPLETENESS</div>
+          <div class="fga-score">7/12</div>
+          <div class="fga-status">RATING WITHHELD</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+    <button class="tab-btn" onclick="switchTab('fga')">FGA Analytics</button>
+    <button class="tab-btn" onclick="switchTab('comparators')">Comparators</button>
+    <button class="tab-btn" onclick="switchTab('philosophy')">Philosophy DNA</button>
+    <button class="tab-btn" onclick="switchTab('career')">Career</button>
+    <button class="tab-btn" onclick="switchTab('incidents')">Defining Incidents</button>
+    <button class="tab-btn" onclick="switchTab('scouting')">Scouting Intel</button>
+    <button class="tab-btn" onclick="switchTab('matches')">Matches</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- OVERVIEW -->
+<div id="overview" class="tab-panel active">
+  <div class="banner banner-danger">
+    <span>⚠</span> <strong>RATING WITHHELD — VIDEO PARTIAL · COMPOSITES BLOCKED (v2.0).</strong> The video log covers four matches and produces valid scores for seven core metrics. <strong>OBI composite is blocked (OBI_T, 2 matches); SII composite is blocked (SII_R, 2 matches).</strong> Video completeness is <strong>7 of 12 core metrics</strong>. No COACH score, no second scout. Seven-metric mean is <strong>7.90</strong> — <strong>not</strong> a Tier 3 average, and no final rating is issued.
+  </div>
+  <div class="banner banner-warning">
+    <span>⚠</span> <strong>v2.0 CHANGES — NEW PHYSICAL AND SPEED CONTEXT.</strong> <strong>Height / weight now VERIFIED (188 cm / 78 kg — Duke 2025 roster).</strong> <strong>Preferred foot still not confirmed.</strong> <strong>Top speed 21.4 mph / 34.44 km/h is an agent claim</strong> — directionally consistent with SII_T 8.25 and SII_A 8.06, but <strong>method not disclosed (GPS, optical, radar, hand-timed).</strong> It does <strong>not</strong> upgrade the sample. SII_T remains <strong>4 events across 3 matches</strong>.
+  </div>
+  <div class="banner banner-gold">
+    <span>◆</span> <strong>MOBILE LEFT-BACK · SPEED AND CARRYING PROFILE.</strong> Strongest OK metrics: <strong>SOA 8.27 (11 events, 3 matches), SII_T 8.25 (3 matches), SPI 8.10 (4 matches), SII_A 8.06 (3 matches), OBI_S 7.72 (3 matches), OBI_P 7.70 (4 matches), DMA 7.22 (3 matches).</strong> 2026 NCAA: <strong>9 apps, 9 starts, 716 mins, 1 goal, 1 assist, 9 shots, 4 on target</strong>. ACC: 1 app, 1 start, 90 mins, 1 assist, 2 shots. All-ACC Academic Team.
+  </div>
+
+  <div class="career-path">
+    <div class="career-node">Duke Blue Devils (2024–)</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node current">NCAA · ACC · 2026</div>
+    <div class="career-arrow">→</div>
+    <div class="career-node" style="border-style:dashed;color:var(--text-tertiary);">Pro pathway unverified</div>
+  </div>
+
+  <div class="stat-hero-grid">
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">9</div><div class="label">Apps (2026 NCAA)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--gold);">716</div><div class="label">Minutes</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">1G · 1A</div><div class="label">Direct Output</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--success);">188cm · 78kg</div><div class="label">Physical ✓ Verified</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">34.44</div><div class="label">km/h · Agent Claim</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7/12</div><div class="label">Core Metrics OK</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--warning);">7.90</div><div class="label">7-Metric Mean (not T3)</div></div>
+    <div class="stat-hero"><div class="value" style="color:var(--danger);">4</div><div class="label">Matches Logged</div></div>
+  </div>
+
+  <div class="section-title">Tactical Positioning Map <span class="line"></span></div>
+  <div class="pos-map-wrap">
+    <svg viewBox="0 0 520 340" style="width:100%;max-width:640px;height:auto;display:block;margin:0 auto;">
+      <rect x="10" y="10" width="500" height="320" rx="12" fill="#1a2a3a" stroke="#3a5a7c" stroke-width="2"/>
+      <line x1="260" y1="10" x2="260" y2="330" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="45" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="260" cy="170" r="2" fill="#3a5a7c" opacity="0.6"/>
+      <rect x="10" y="95" width="55" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="125" width="18" height="90" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="445" y="95" width="65" height="150" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="492" y="125" width="18" height="90" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="2" y="145" width="10" height="50" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <rect x="508" y="145" width="10" height="50" fill="none" stroke="#3a5a7c" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="90" cy="240" r="16" fill="#fbbf24" stroke="#fff" stroke-width="2.5"/>
+      <text x="90" y="245" text-anchor="middle" fill="#0a0a0f" font-family="Oswald,sans-serif" font-size="12" font-weight="700">LB</text>
+      <text x="90" y="270" text-anchor="middle" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600" letter-spacing="0.5">LEFT-BACK (primary)</text>
+      <circle cx="140" cy="205" r="14" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="140" y="209" text-anchor="middle" fill="#94a3b8" font-family="Oswald,sans-serif" font-size="10" font-weight="700">LWB</text>
+      <text x="140" y="225" text-anchor="middle" fill="#5a5a70" font-family="Rajdhani,sans-serif" font-size="8" font-weight="600">Overlapping</text>
+      <path d="M 100 230 Q 180 180 260 160" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="4,3" opacity="0.75"/>
+      <text x="200" y="215" fill="#fbbf24" font-family="Rajdhani,sans-serif" font-size="8" font-weight="600">carries + overlaps forward</text>
+      <rect x="18" y="18" width="200" height="78" rx="6" fill="rgba(10,10,15,0.85)" stroke="rgba(251,191,36,0.2)" stroke-width="1"/>
+      <circle cx="34" cy="34" r="6" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="46" y="38" fill="#f0f0f5" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Primary — Left-Back</text>
+      <circle cx="34" cy="56" r="5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="46" y="60" fill="#9b9bb0" font-family="Rajdhani,sans-serif" font-size="10" font-weight="600">Secondary — LWB</text>
+      <text x="34" y="82" fill="#00d084" font-family="Rajdhani,sans-serif" font-size="9" font-weight="600">✓ 188cm / 78kg · Duke 2025 roster</text>
+    </svg>
+    <div class="pos-map-caption">Tactical board · Primary: Left-Back (left side) · Secondary: LWB overlapping role · Mobile carrying profile · 188cm</div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Profile (v2.0)</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong>Julius Suber</strong> is a <strong>20–21 year old American left-back</strong> at <strong>Duke Blue Devils (NCAA, ACC)</strong>. 2026: <strong>9 apps, 9 starts, 716 mins, 1 goal, 1 assist, 9 shots, 4 on target</strong>. <strong>Height / weight now verified</strong> (188 cm / 78 kg, Duke 2025 roster). <strong>Foot still not confirmed.</strong> <strong>Top speed 34.44 km/h is agent-claimed, not verified.</strong> All-ACC Academic Team. <strong>NCAA amateur status</strong> — no professional contract.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Video Status</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--warning);">PARTIAL — 7/12 CORE METRICS OK.</strong> Four matches logged: <strong>M3 Howard, M5 Stanford, M6 Elon, M8 Georgetown</strong>. Seven OK: <strong>OBI_S 7.72, OBI_P 7.70, SII_A 8.06, SII_T 8.25, DMA 7.22, SOA 8.27, SPI 8.10</strong>. Blocking: <strong>OBI_T pending (2 matches), SII_R pending (2 matches), MCS no positive sample</strong>. Rating withheld.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:12px;">Empire FGA Verdict</h3>
+      <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+        <strong style="color:var(--danger);">RATING WITHHELD · VIDEO PARTIAL (7/12) · v2.0.</strong> The event log shows a <strong>mobile, fast left-back</strong> with strong action-speed (SOA 8.27), acceleration (SII_A 8.06) and top-end speed (SII_T 8.25), plus reliable spatial reading (SPI 8.10). <strong>The composure / character evidence is mixed</strong> — Match 5 (Stanford) and Match 8 (Georgetown) carry dense anti clusters. <strong>File supports continued monitoring and validation, not an acquisition decision.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="banner banner-danger" style="margin-top:16px;">
+    <span>⚠</span> <strong>v2.0 KEY CAUTION SIGNALS.</strong> <strong>SII_R 6.83 (pending, 2m)</strong> · <strong>MCS no positive events</strong> · <strong>CHR 7.33 (pending, 2m)</strong> · <strong>CLM 7.67 (pending, 2m)</strong> · <strong>Match 5 anti cluster: MCS 1, OBI_P 1, DMA 2, SOA 1</strong> · <strong>Match 8 goal-conceding OBI_P 1</strong> · <strong>Top speed 34.44 km/h is agent-sourced only</strong> — no tracking method disclosed · <strong>Foot not confirmed</strong>. Three checks would settle situational vs structural: COACH score, second scout blind, and a fifth match with full MCS / CHR / CLM.
+  </div>
+</div>
+
+<!-- ATTRIBUTES -->
+<div id="attributes" class="tab-panel">
+  <div class="banner banner-warning"><span>⚠</span> <strong>TIER 3 PARTIAL — 7/12 CORE METRICS OK.</strong> Composites blocked. Scores are means of positive-indicator events. Pending = fewer than 3 events or fewer than 3 matches. <strong>Mean of 7 scoreable = 7.90 (not a Tier 3 average).</strong></div>
+
+  <div class="grid-3">
+    <div class="attr-card">
+      <h3>Off-Ball Intelligence (Blocked)</h3>
+      <div class="attr-row"><span class="name">OBI_T — Run Timing <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.00 (2m) ⚠</span></div>
+      <div class="attr-row"><span class="name">OBI_S — Space Architecture <span style="color:var(--success);font-size:0.7rem;">OK</span></span><span class="score ac-green"><span class="circle circle-green"></span> 7.72 ✅</span></div>
+      <div class="attr-row"><span class="name">OBI_P — Positional Anticipation <span style="color:var(--success);font-size:0.7rem;">OK</span></span><span class="score ac-green"><span class="circle circle-green"></span> 7.70 ✅</span></div>
+      <div class="attr-row" style="border-top:2px solid var(--border-medium);margin-top:6px;padding-top:10px;"><span class="name"><strong>OBI Composite</strong></span><span class="score ac-red"><span class="circle circle-red"></span> BLOCKED ⚠</span></div>
+      <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:8px;line-height:1.5;">OBI composite cannot be completed because OBI_T appears in only two distinct matches (needs 3+).</div>
+    </div>
+    <div class="attr-card">
+      <h3>Sprint Intensity (Blocked)</h3>
+      <div class="attr-row"><span class="name">SII_A — Explosive Acceleration <span style="color:var(--success);font-size:0.7rem;">OK</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.06 ✅</span></div>
+      <div class="attr-row"><span class="name">SII_T — Top-End Speed <span style="color:var(--success);font-size:0.7rem;">OK</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.25 ✅</span></div>
+      <div class="attr-row"><span class="name">SII_R — Recovery Sprints <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 6.83 (2m) ⚠</span></div>
+      <div class="attr-row" style="border-top:2px solid var(--border-medium);margin-top:6px;padding-top:10px;"><span class="name"><strong>SII Composite</strong></span><span class="score ac-red"><span class="circle circle-red"></span> BLOCKED ⚠</span></div>
+      <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:8px;line-height:1.5;">SII composite cannot be completed because SII_R appears in only two distinct matches (needs 3+).</div>
+    </div>
+    <div class="attr-card">
+      <h3>Other Core Metrics</h3>
+      <div class="attr-row"><span class="name">SOA — Speed on Action <span style="color:var(--success);font-size:0.7rem;">OK</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.27 ✅</span></div>
+      <div class="attr-row"><span class="name">SPI — Spatial Performance <span style="color:var(--success);font-size:0.7rem;">OK</span></span><span class="score ac-green"><span class="circle circle-green"></span> 8.10 ✅</span></div>
+      <div class="attr-row"><span class="name">DMA — Decision Making <span style="color:var(--success);font-size:0.7rem;">OK</span></span><span class="score ac-green"><span class="circle circle-green"></span> 7.22 ✅</span></div>
+      <div class="attr-row"><span class="name">CLM — Calmness <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.67 (2m) ⚠</span></div>
+      <div class="attr-row"><span class="name">CHR — Character <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 7.33 (2m) ⚠</span></div>
+      <div class="attr-row"><span class="name">MCS — Mental Competence</span><span class="score ac-red"><span class="circle circle-red"></span> NONE ⚠</span></div>
+      <div class="attr-row"><span class="name">CRS — Clutch Response <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 10.00 (1e) ⚠</span></div>
+      <div class="attr-row"><span class="name">OMS — Transition <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 9.00 (1e) ⚠</span></div>
+      <div class="attr-row"><span class="name">DYN — Dynamism <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 8.00 (1e) ⚠</span></div>
+      <div class="attr-row"><span class="name">CRK — Creative Risk <span style="color:var(--warning);font-size:0.7rem;">PENDING</span></span><span class="score ac-yellow"><span class="circle circle-yellow"></span> 9.00 (2e) ⚠</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Full Scorecard — 12 Core Metrics</h3>
+    <div style="max-width:540px;margin:0 auto 20px;">
+      <canvas id="attrRadar" width="400" height="350"></canvas>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Positive Events</th><th>Matches</th><th>Score</th><th>Status</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td><strong>OBI_T — Run Timing</strong></td><td>2</td><td>2</td><td><strong style="color:var(--warning);">8.00</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>OBI composite blocked</td></tr>
+        <tr><td><strong>OBI_S — Space Architecture</strong></td><td>9</td><td>3</td><td><strong style="color:var(--success);">7.72</strong></td><td><span style="color:var(--success);">OK</span></td><td>Strong sample across M8, M3, M6</td></tr>
+        <tr><td><strong>OBI_P — Positional Anticipation</strong></td><td>10</td><td>4</td><td><strong style="color:var(--success);">7.70</strong></td><td><span style="color:var(--success);">OK</span></td><td>Largest OBI sample; one low positive (4)</td></tr>
+        <tr><td><strong>SII_A — Explosive Acceleration</strong></td><td>9</td><td>3</td><td><strong style="color:var(--success);">8.06</strong></td><td><span style="color:var(--success);">OK</span></td><td>Good sample across M8, M3, M6</td></tr>
+        <tr><td><strong>SII_T — Top-End Speed</strong></td><td>4</td><td>3</td><td><strong style="color:var(--success);">8.25</strong></td><td><span style="color:var(--success);">OK</span></td><td>Small but valid 3-match sample</td></tr>
+        <tr><td><strong>SII_R — Recovery Sprints</strong></td><td>3</td><td>2</td><td><strong style="color:var(--warning);">6.83</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>SII composite blocked</td></tr>
+        <tr><td><strong>DMA — Decision Making</strong></td><td>9</td><td>3</td><td><strong style="color:var(--success);">7.22</strong></td><td><span style="color:var(--success);">OK</span></td><td>One low positive score (4)</td></tr>
+        <tr><td><strong>CHR — Character</strong></td><td>3</td><td>2</td><td><strong style="color:var(--warning);">7.33</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>Three events, two matches</td></tr>
+        <tr><td><strong>MCS — Mental Competence</strong></td><td>0</td><td>0</td><td><strong style="color:var(--danger);">—</strong></td><td><span style="color:var(--danger);">NONE</span></td><td>One anti event (M5 32'21)</td></tr>
+        <tr><td><strong>SOA — Speed on Action</strong></td><td>11</td><td>3</td><td><strong style="color:var(--success);">8.27</strong></td><td><span style="color:var(--success);">OK</span></td><td>Strongest OK metric by volume</td></tr>
+        <tr><td><strong>SPI — Spatial Performance</strong></td><td>5</td><td>4</td><td><strong style="color:var(--success);">8.10</strong></td><td><span style="color:var(--success);">OK</span></td><td>Four distinct matches</td></tr>
+        <tr><td><strong>CLM — Calmness</strong></td><td>3</td><td>2</td><td><strong style="color:var(--warning);">7.67</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>Three events, two matches</td></tr>
+        <tr><td><strong>CRS — Clutch Response</strong></td><td>1</td><td>1</td><td><strong style="color:var(--warning);">10.00</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>Single event (M3 assist action)</td></tr>
+        <tr><td><strong>OMS — Transition</strong></td><td>1</td><td>1</td><td><strong style="color:var(--warning);">9.00</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>Single event (M3 Maradona action)</td></tr>
+        <tr><td><strong>DYN — Dynamism</strong></td><td>1</td><td>1</td><td><strong style="color:var(--warning);">8.00</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>Single event</td></tr>
+        <tr><td><strong>CRK — Creative Risk</strong></td><td>2</td><td>1</td><td><strong style="color:var(--warning);">9.00</strong></td><td><span style="color:var(--warning);">PENDING</span></td><td>Two events, both in M3</td></tr>
+      </tbody>
+    </table>
+    <div class="banner banner-danger" style="margin-top:12px;font-size:0.8rem;">
+      <span>⚠</span> <strong>Composite status.</strong> OBI composite blocked (OBI_T, 2 matches). SII composite blocked (SII_R, 2 matches). Video completeness 7/12 core metrics. Mean of the seven scoreable = 7.90 — <strong>not</strong> a Tier 3 average, and no final rating is issued.
+    </div>
+  </div>
+</div>
+
+<!-- FGA ANALYTICS -->
+<div id="fga" class="tab-panel">
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 1 — Duke Athletics · NCAA (v2.0)</h3>
+      <div class="t1-highlight-grid">
+        <div class="t1-hl-box gold"><div class="t1-hl-code">Apps</div><div class="t1-hl-val">9</div><div class="t1-hl-pct">2026 NCAA</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:65%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Mins</div><div class="t1-hl-val">716</div><div class="t1-hl-pct">≈ 80 / app</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:70%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">G+A</div><div class="t1-hl-val">1 · 1</div><div class="t1-hl-pct">1 goal · 1 assist</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:40%"></div></div></div>
+        <div class="t1-hl-box"><div class="t1-hl-code">Shots</div><div class="t1-hl-val">9 / 4</div><div class="t1-hl-pct">9 shots · 4 SoT</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:55%"></div></div></div>
+        <div class="t1-hl-box danger"><div class="t1-hl-code">Speed*</div><div class="t1-hl-val">34.44</div><div class="t1-hl-pct">km/h · agent claim</div><div class="t1-hl-bar"><div class="t1-hl-bar-fill" style="width:75%"></div></div></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Physical — v2.0 Verified</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Height</span><span class="t1-metric-desc">Verified — Duke 2025 roster</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:94%;background:var(--success)"></div></div></div><span class="t1-metric-val">188 cm</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Weight</span><span class="t1-metric-desc">Verified — Duke 2025 roster</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--success)"></div></div></div><span class="t1-metric-val">78 kg</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Foot</span><span class="t1-metric-desc">Preferred foot — still not confirmed</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--pending)"></div></div></div><span class="t1-metric-val" style="color:var(--text-tertiary);">N/A</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Speed*</span><span class="t1-metric-desc">Top speed — agent claim, method undisclosed</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--warning)"></div></div></div><span class="t1-metric-val" style="color:var(--warning);">34.44 km/h*</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">NCAA Conference — ACC</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Apps</span><span class="t1-metric-desc">ACC conference apps</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--accent)"></div></div></div><span class="t1-metric-val">1</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">Min</span><span class="t1-metric-desc">ACC conference minutes</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--accent)"></div></div></div><span class="t1-metric-val">90</span></div>
+        <div class="t1-metric-row"><span class="t1-metric-code">A</span><span class="t1-metric-desc">Assists (ACC)</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--success)"></div></div></div><span class="t1-metric-val">1</span></div>
+      </div>
+      <div class="t1-group">
+        <div class="t1-group-head">Academic & Recognition</div>
+        <div class="t1-metric-row"><span class="t1-metric-code">All-ACC</span><span class="t1-metric-desc">All-ACC Academic Team</span><div class="t1-metric-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--gold)"></div></div></div><span class="t1-metric-val">✓</span></div>
+      </div>
+      <div class="banner banner-danger" style="margin-top:12px;font-size:0.78rem;">
+        <span>⚠</span> <strong>Speed caveat.</strong> The <strong>34.44 km/h</strong> figure is agent-sourced. It is directionally consistent with the independently scored <strong>SII_T 8.25</strong> and <strong>SII_A 8.06</strong> — a useful triangulation point, but it <strong>does not upgrade the sample</strong>. The method (GPS, optical, radar, hand-timed) is <strong>not disclosed</strong>. A peak-speed number is not the same as repeated-sprint ability or speed with the ball.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 2 — Composite Scores</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">OBI — Off-Ball Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED (OBI_T 2m)</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">SII — Sprint Intensity Index</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">BLOCKED (SII_R 2m)</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">POI — Position Intelligence</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:0.85rem;color:var(--text-secondary);">CPX — Composure</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--pending);">PENDING</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;"><span style="font-size:0.85rem;color:var(--text-secondary);">Tier 3 Average (full 12)</span><span style="font-family:var(--font-heading);font-weight:700;color:var(--danger);">NOT ISSUED</span></div>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--danger);margin-bottom:4px;">Composite Blocking</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);"><strong>OBI composite blocked</strong> because OBI_T appears in only two distinct matches. <strong>SII composite blocked</strong> because SII_R appears in only two. Both need a third match each. FGA roll-up <strong>Pending</strong>.</div>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+        <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:600;color:var(--warning);margin-bottom:4px;">7-Metric Mean: 7.90</div>
+        <div style="font-size:0.72rem;color:var(--text-secondary);">The seven OK metrics mean <strong>7.90</strong>. This is <strong>not</strong> a Tier 3 average and no final rating is issued.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">FGA Weighting Breakdown</h3>
+        <div style="height:170px;"><canvas id="fgaDonut"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">LOG Context</h3>
+        <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.9;">
+          <strong style="color:var(--text-primary);">Current LOG: ~1.8–2.0</strong><br>
+          <strong style="color:var(--text-primary);">NCAA Division I / ACC:</strong> college soccer<br>
+          <strong style="color:var(--text-primary);">USL Championship:</strong> ~2.0–2.3<br>
+          <strong style="color:var(--text-primary);">MLS:</strong> ~2.6<br>
+          <strong style="color:var(--text-primary);">Top-5 European leagues:</strong> ~3.6–3.7<br><br>
+          <strong style="color:var(--gold);">LOG ~1.8–2.0</strong> reflects NCAA Division I college soccer. Any projection to a top-five league is speculative until a professional pathway is validated.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Tier 3 · 7/12 OK · Composites Blocked · Rating Withheld (v2.0)</h3>
+    <div class="grid-3">
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">OBI</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Off-Ball Intelligence</span>
+            <span style="font-family:var(--font-heading);font-size:1.2rem;font-weight:700;color:var(--danger);margin-left:auto;">BLOCKED</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--warning);">OBI_T 8.00</strong> — 2 matches → PENDING<br>
+            <strong style="color:var(--success);">OBI_S 7.72</strong> — 3 matches → OK<br>
+            <strong style="color:var(--success);">OBI_P 7.70</strong> — 4 matches → OK<br>
+            <strong style="color:var(--danger);">Composite — BLOCKED (OBI_T)</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+            <span style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--gold);">SII</span>
+            <span style="font-size:0.78rem;color:var(--text-secondary);">Sprint Intensity Index</span>
+            <span style="font-family:var(--font-heading);font-size:1.2rem;font-weight:700;color:var(--danger);margin-left:auto;">BLOCKED</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">SII_A 8.06</strong> — 3 matches → OK<br>
+            <strong style="color:var(--success);">SII_T 8.25</strong> — 3 matches → OK<br>
+            <strong style="color:var(--warning);">SII_R 6.83</strong> — 2 matches → PENDING<br>
+            <strong style="color:var(--danger);">Composite — BLOCKED (SII_R)</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg-card-hover);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;">
+          <div style="font-family:var(--font-heading);font-size:0.75rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Completeness & Gaps</div>
+          <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--success);">✓</span> 7 OK: OBI_S, OBI_P, SII_A, SII_T, DMA, SOA, SPI<br>
+            <span style="color:var(--warning);">◐</span> Pending: OBI_T, SII_R, CHR, CLM, CRS, OMS, DYN, CRK<br>
+            <span style="color:var(--danger);">✗</span> MCS — no positive sample<br>
+            <span style="color:var(--danger);">✗</span> COACH — not scored<br>
+            <span style="color:var(--danger);">✗</span> No second scout<br>
+            <span style="color:var(--danger);">✗</span> 4 matches only (5+ required)<br><br>
+            <strong>Rating: WITHHELD</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="banner banner-danger" style="margin-top:12px;font-size:0.8rem;">
+      <span>⚠</span> <strong>Integrity flags:</strong> (1) OBI_T and SII_R appear in only 2 matches each; (2) MCS has no positive sample; (3) CHR and CLM pending at 2 matches; (4) CRS, OMS, DYN, CRK single-match indicative; (5) Match 5 and 8 carry dense anti clusters; (6) no COACH; (7) no second scout; (8) foot not confirmed; (9) top speed agent-claimed only.
+    </div>
+  </div>
+</div>
+
+<!-- COMPARATORS (NEW) -->
+<div id="comparators" class="tab-panel">
+  <div class="banner banner-proxy"><span>🔮</span> <strong>PROVISIONAL COMPARATORS — STYLISTIC REFERENCES ONLY.</strong> Comparators are not FGA-graded. Proxy values are analyst estimates marked with a dagger (†). <strong>None is a stage match</strong> — Suber is in NCAA, pro pathway unverified.</div>
+
+  <div class="comparator-grid">
+    <div class="comparator-card anchor">
+      <div class="comparator-name">Julius Suber</div>
+      <div class="comparator-country">🇺🇸 USA · Duke · NCAA</div>
+      <div class="comparator-row"><span class="label">Height</span><span class="value verified">188 cm</span></div>
+      <div class="comparator-row"><span class="label">Weight</span><span class="value verified">78 kg</span></div>
+      <div class="comparator-row"><span class="label">Top speed</span><span class="value claim">34.44 km/h*</span></div>
+      <div class="comparator-row"><span class="label">FGA proxy</span><span class="value">7.90†</span></div>
+      <div class="comparator-row"><span class="label">Stage</span><span class="value">NCAA · age 20–21</span></div>
+    </div>
+    <div class="comparator-card">
+      <div class="comparator-name">Alphonso Davies</div>
+      <div class="comparator-country">🇨🇦 Canada · Bayern</div>
+      <div class="comparator-row"><span class="label">Height</span><span class="value">181 cm</span></div>
+      <div class="comparator-row"><span class="label">Weight</span><span class="value">75 kg</span></div>
+      <div class="comparator-row"><span class="label">Top speed</span><span class="value">36.51 km/h</span></div>
+      <div class="comparator-row"><span class="label">FGA proxy</span><span class="value">8.8†</span></div>
+      <div class="comparator-row"><span class="label">Stage</span><span class="value">Bayern · 18–19</span></div>
+    </div>
+    <div class="comparator-card">
+      <div class="comparator-name">Antonee Robinson</div>
+      <div class="comparator-country">🇺🇸 USA · Fulham</div>
+      <div class="comparator-row"><span class="label">Height</span><span class="value">183 cm</span></div>
+      <div class="comparator-row"><span class="label">Weight</span><span class="value">70 kg</span></div>
+      <div class="comparator-row"><span class="label">Top speed</span><span class="value">~35.2 km/h</span></div>
+      <div class="comparator-row"><span class="label">FGA proxy</span><span class="value">7.4†</span></div>
+      <div class="comparator-row"><span class="label">Stage</span><span class="value">MLS → Fulham</span></div>
+    </div>
+    <div class="comparator-card">
+      <div class="comparator-name">Theo Hernández</div>
+      <div class="comparator-country">🇫🇷 France · Milan</div>
+      <div class="comparator-row"><span class="label">Height</span><span class="value">184 cm</span></div>
+      <div class="comparator-row"><span class="label">Weight</span><span class="value">81 kg</span></div>
+      <div class="comparator-row"><span class="label">Top speed</span><span class="value">—</span></div>
+      <div class="comparator-row"><span class="label">FGA proxy</span><span class="value">8.1†</span></div>
+      <div class="comparator-row"><span class="label">Stage</span><span class="value">La Liga → Milan</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-wrap">
+      <div class="chart-title">Chart 6 · Physical Profile Comparison</div>
+      <div class="chart-sub">Height (cm) vs Weight (kg). Suber is the tallest of the four.</div>
+      <div class="chart-canvas-wrap"><canvas id="physicalCompareChart"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Chart 7 · Top Speed Benchmark</div>
+      <div class="chart-sub">Suber's agent-claimed 34.44 km/h vs elite fullbacks and league averages.</div>
+      <div class="chart-canvas-wrap"><canvas id="speedBenchmarkChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="banner banner-warning">
+    <span>⚠</span> <strong>SPEED CAVEAT.</strong> The <strong>21.4 mph / 34.44 km/h</strong> figure is <strong>agent-sourced</strong>. Directionally consistent with the independently scored <strong>SII_T 8.25</strong> and <strong>SII_A 8.06</strong> — a useful triangulation point, but it <strong>does not upgrade the sample</strong>. SII_T remains <strong>4 events across 3 matches</strong>. The method (GPS, optical, radar, hand-timed) is <strong>not disclosed</strong>. A peak-speed number is not the same as repeated-sprint ability or speed with the ball.
+  </div>
+
+  <div class="banner banner-warning">
+    <span>⚠</span> <strong>HEIGHT CAVEAT.</strong> At <strong>188 cm</strong>, Suber is the tallest of the four comparators — a physical-profile advantage for a fullback. <strong>However, height is not the same as aerial dominance</strong>, and the event log has no aerial-duel sample. Do not infer aerial dominance from height alone.
+  </div>
+
+  <div class="section-title">Reading the comparator set <span class="line"></span></div>
+  <div class="card">
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Davies</strong> is the stylistic primary for the <strong>speed and carrying mechanism</strong>: SII_A and SII_T are Suber's strongest validated axes, and Davies is the cleanest athletic left-back reference. The agent-claimed 34.44 km/h sits <strong>2.07 km/h below</strong> Davies' 36.51 km/h Bundesliga record — close enough to the burner tier to matter, but not at it, and unverified.
+    </p>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Robinson</strong> is the closest <strong>cultural and career-stage</strong> reference — a USMNT left-back who moved from college / MLS to a top-five league. But his game is more crossing and recovery than Suber's current log shows.
+    </p>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+      <strong style="color:var(--text-primary);">Hernández</strong> is the <strong>attacking-output</strong> reference: a left-back whose carries and shots translate into goals — the upside case for Suber's 9 shots in 716 minutes. The 188 cm frame adds a physical-profile caveat: height is not the same as aerial dominance, and there is no aerial-duel sample.
+    </p>
+    <div class="banner banner-danger" style="margin-top:16px;">
+      <span>⚠</span> <strong>None of the three is a stage match.</strong> Suber is still in NCAA; his professional pathway is unproven. Treat the comparator set as a <strong>mechanism question</strong>, not a projection.
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY DNA -->
+<div id="philosophy" class="tab-panel">
+  <div class="banner banner-info"><span>●</span> <strong>INFERENTIAL ONLY.</strong> Tier 3 is partial. No COACH score. The fit below is a stylistic hypothesis from the event-log sample and the comparator set — not Tier 3 output and not validated findings.</div>
+  <div class="banner banner-gold"><span>◆</span> <strong>MECHANISM QUESTION — DAVIES / ROBINSON / HERNÁNDEZ.</strong> Strong SII_A 8.06 and SII_T 8.25 (Davies direction). SOA 8.27 and SPI 8.10 (Robinson direction). 9 shots / 4 SoT from LB (Hernández direction). <strong>None of the three is a stage match</strong>, and the anti clusters in Match 5 and Match 8 complicate any projection.</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Top Philosophy Fits (Inferred)</h3>
+      <div class="philo-row anchor"><div class="philo-rank">1</div><div class="philo-name">🇦🇷 Bielsa — Intensity <small>High press · recovery · SII_A 8.06 · SOA 8.27</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#c8102e;"></div></div></div><div class="philo-score">65%</div></div>
+      <div class="philo-row"><div class="philo-rank">2</div><div class="philo-name">🇪🇸 Guardiola — Positional <small>Wide overlap + spatial discipline · SPI 8.10 · OBI_P 7.70</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%;background:#6CABDD;"></div></div></div><div class="philo-score">60%</div></div>
+      <div class="philo-row"><div class="philo-rank">3</div><div class="philo-name">🇵🇹 Mourinho — Warfare <small>Defensive discipline · 1v1 recovery · Match 8 anti cluster is caution</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#c8102e;"></div></div></div><div class="philo-score">55%</div></div>
+      <div class="philo-row"><div class="philo-rank">4</div><div class="philo-name">🇦🇷 Menotti — Liberty <small>Reference · creative freedom from the wide role (CRK 9.00 pending)</small></div><div class="philo-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:50%;background:#27ae60;"></div></div></div><div class="philo-score">50%</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:20px;">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div class="radar-container">
+          <canvas id="philosophyRadar2" width="500" height="450"></canvas>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-family:var(--font-display);font-size:0.9rem;text-transform:uppercase;margin-bottom:10px;color:var(--silver);">Tactical Archetype (Provisional)</h4>
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;">
+          <strong style="color:var(--text-primary);">"Athletic Carrying Left-Back"</strong> — a mobile left-back whose primary value is speed, acceleration and spatial reading. SOA 8.27 (strongest by volume), SII_A 8.06, SII_T 8.25, SPI 8.10. <strong>188 cm / 78 kg adds height</strong> not present in earlier versions, but no aerial sample exists. The weak side is composure and character — Match 5 carries MCS 1, OBI_P 1, DMA 2, SOA 1; Match 8 contains a goal-conceding OBI_P 1. Whether this is situational or structural is unresolved.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="tag tag-anchor">Bielsa 65%</span>
+          <span class="tag tag-gold">Guardiola 60%</span>
+          <span class="tag tag-info">Mourinho 55%</span>
+          <span class="tag tag-value">Menotti 50%</span>
+          <span class="tag tag-club">LB · Duke · 188cm</span>
+          <span class="tag tag-info">USA · NCAA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner banner-warning" style="margin-top:16px;">
+    <span>⚠</span> <strong>FRAMEWORK CAVEAT.</strong> The Bielsa and Guardiola fits rest on carrying and spatial signals. The Mourinho fit is qualified by the Match 5 and Match 8 anti clusters. The Menotti fit is stylistic reference only. <strong>None is a validated Tier 3 finding, and no COACH score exists.</strong>
+  </div>
+</div>
+
+<!-- CAREER -->
+<div id="career" class="tab-panel">
+  <div class="grid-2" style="align-items: start;">
+    <div class="card" style="max-width:100%;overflow-x:hidden;">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Timeline</h3>
+      <div class="timeline" style="max-width:100%;overflow-x:hidden;">
+        <div class="timeline-item hist"><div class="timeline-date">Pre-2024</div><div class="timeline-text"><strong>Youth / pre-college path</strong> — not documented in the supplied source set.</div></div>
+        <div class="timeline-item hist"><div class="timeline-date">2024</div><div class="timeline-text"><strong>Duke Blue Devils</strong> — joins the NCAA Division I program. 2024 season stats not in this file.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2026 NCAA</div><div class="timeline-text"><strong>Breakout season.</strong> 9 apps, 9 starts, 716 mins, 1 goal, 1 assist, 9 shots, 4 on target.</div></div>
+        <div class="timeline-item champ"><div class="timeline-date">2026 ACC</div><div class="timeline-text"><strong>All-ACC Academic Team.</strong> 1 conference app, 1 start, 90 mins, 1 assist, 2 shots.</div></div>
+        <div class="timeline-item current"><div class="timeline-date">Oct 2026 · v2.0</div><div class="timeline-text"><strong>Video assessment — 4 matches logged</strong> (M3 Howard, M5 Stanford, M6 Elon, M8 Georgetown). <strong>7/12 core metrics OK.</strong> <strong>Height / weight verified (188 cm / 78 kg).</strong> Top speed agent-claimed (34.44 km/h). Rating withheld; composites blocked.</div></div>
+        <div class="timeline-item danger"><div class="timeline-date">Data gap</div><div class="timeline-text"><strong>4 matches only (5+ required).</strong> No COACH, no second scout. Foot not confirmed. Top speed not verified (agent claim only). Professional pathway unverified.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;">Career Statistics</h3>
+      <table class="data-table">
+        <thead><tr><th>Season / Stage</th><th>Apps</th><th>Starts</th><th>Mins</th><th>Gls</th><th>Ast</th><th>Shots</th><th>SoT</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2026 NCAA</strong></td><td>9</td><td>9</td><td>716</td><td>1</td><td>1</td><td>9</td><td>4</td></tr>
+          <tr><td><strong>2026 ACC</strong></td><td>1</td><td>1</td><td>90</td><td>0</td><td>1</td><td>2</td><td>—</td></tr>
+          <tr style="border-top:2px solid var(--border-medium);"><td><strong>2026 total</strong></td><td><strong>10</strong></td><td><strong>10</strong></td><td><strong>806</strong></td><td><strong>1</strong></td><td><strong>2</strong></td><td><strong>11</strong></td><td><strong>4</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="section-title" style="margin:24px 0 16px;">Academic & Recognition</h3>
+      <table class="data-table">
+        <thead><tr><th>Item</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td>All-ACC Academic Team</td><td><span style="color:var(--success);font-weight:700;">✓ Confirmed</span></td></tr>
+          <tr><td>Conference</td><td>ACC (Atlantic Coast Conference)</td></tr>
+          <tr><td>Institution</td><td>Duke University</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-title">Physical & Biographical Panel — v2.0 Updates <span class="line"></span></div>
+  <div class="grid-2">
+    <div class="physical-card">
+      <h4>Physical Profile (v2.0)</h4>
+      <div class="physical-grid">
+        <div class="physical-item"><span class="label">Height</span><span class="value verified">188 cm ✓ Verified</span></div>
+        <div class="physical-item"><span class="label">Weight</span><span class="value verified">78 kg ✓ Verified</span></div>
+        <div class="physical-item"><span class="label">Foot</span><span class="value unconfirmed">Not confirmed</span></div>
+        <div class="physical-item"><span class="label">Top speed</span><span class="value claim">34.44 km/h*</span></div>
+        <div class="physical-item"><span class="label">Position</span><span class="value">Left-Back</span></div>
+        <div class="physical-item"><span class="label">Age</span><span class="value">20–21 (2026)</span></div>
+        <div class="physical-item"><span class="label">Nationality</span><span class="value">USA</span></div>
+        <div class="physical-item"><span class="label">Club</span><span class="value">Duke Blue Devils</span></div>
+        <div class="physical-item"><span class="label">Status</span><span class="value">NCAA amateur</span></div>
+        <div class="physical-item"><span class="label">Source</span><span class="value">Duke 2025 roster</span></div>
+      </div>
+      <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:10px;line-height:1.5;"><strong style="color:var(--warning);">*</strong> Top speed figure (21.4 mph / 34.44 km/h) is <strong>agent-sourced</strong> — directionally consistent with SII_T 8.25 and SII_A 8.06, but the tracking method is <strong>not disclosed</strong> and the figure <strong>does not upgrade the sample</strong>.</p>
+    </div>
+    <div class="card">
+      <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">v2.0 Source Notes</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:rgba(0,208,132,0.06);border:1px solid rgba(0,208,132,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--success);margin-bottom:4px;">✓ Height / Weight Verified</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>188 cm / 78 kg</strong> — Duke 2025 roster. This resolves the v1.x "not in source" gap. Suber is the tallest of the four comparators.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--warning);margin-bottom:4px;">⚠ Top Speed — Agent Claim</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);"><strong>21.4 mph / 34.44 km/h</strong> — method (GPS, optical, radar, hand-timed) not disclosed. Sits <strong>2.07 km/h below</strong> Davies' 36.51 km/h Bundesliga record. Useful triangulation with SII_T 8.25 and SII_A 8.06; does <strong>not</strong> upgrade the sample.</div>
+        </div>
+        <div style="padding:10px;background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--danger);margin-bottom:4px;">✗ Foot Not Confirmed</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">Preferred foot still <strong>not confirmed</strong> from a dated primary source. Needed for any build-up-role or crossing-side projection.</div>
+        </div>
+        <div style="padding:10px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);border-radius:8px;">
+          <div style="font-family:var(--font-heading);font-size:0.8rem;font-weight:600;color:var(--gold);margin-bottom:4px;">NCAA Amateur Status</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">No professional contract on record. Pathway options: <strong>MLS SuperDraft, USL, or international trial</strong> — no transfer fee.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEFINING INCIDENTS -->
+<div id="incidents" class="tab-panel">
+  <div class="banner banner-gold"><span>◆</span> <strong>DEFINING INCIDENTS — ANALYST NOTES.</strong> Verbatim from the event log, lightly edited for spelling. Ratings are 1–10. <strong>The positive highlights sit next to the caution signals, as they should on a partial file.</strong></div>
+
+  <div class="section-title">Positive Highlights <span class="line"></span></div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">M3 Howard</span><span class="moment-time">25'54"</span></div>
+    <div class="moment-quote">"Excellent run timing and anticipation of the long pass, run faster than his opponent and intercept the ball, dribble him by a superb sombrero trick with backheel and through pass successful."</div>
+    <div class="moment-tags"><span class="moment-tag">CRK 10</span><span class="moment-tag">SOA 10</span><span class="moment-tag">DRB 10</span><span class="moment-tag">SIL_T 9</span><span class="moment-tag">OBI_P 9</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">M3 Howard</span><span class="moment-time">14'02"</span></div>
+    <div class="moment-quote">"A 'Diego Maradona' action. He receives the ball in his own half, carrying the ball in dribbling all players in front of him, penetrating in the penalty area but his shot is deflected by the last defender at the last moment."</div>
+    <div class="moment-tags"><span class="moment-tag">SII_A 9</span><span class="moment-tag">SOA 9</span><span class="moment-tag">OMS 9</span><span class="moment-tag">DRB 9</span><span class="moment-tag">DYN 8</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">M8 Georgetown</span><span class="moment-time">31'58"</span></div>
+    <div class="moment-quote">"Excellent slalom dribbling, two opponents dribbled and combination with his team mate."</div>
+    <div class="moment-tags"><span class="moment-tag">DRB 10</span><span class="moment-tag">SOA 10</span><span class="moment-tag">OBI_S 8.5</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">M8 Georgetown</span><span class="moment-time">22'54"</span></div>
+    <div class="moment-quote">"Excellent long pass to Ulfur Björnsson converted in key pass."</div>
+    <div class="moment-tags"><span class="moment-tag">LGP 10</span><span class="moment-tag">KEY 10</span><span class="moment-tag">DMA 9</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">M6 Elon</span><span class="moment-time">13'32"</span></div>
+    <div class="moment-quote">"Excellent run timing to block the shot of the opponent. Corner kick against."</div>
+    <div class="moment-tags"><span class="moment-tag">OBI_T 9</span><span class="moment-tag">SII_A 8.5</span><span class="moment-tag">INT 8</span></div>
+  </div>
+  <div class="moment-card">
+    <div class="moment-header"><span class="moment-match">M5 Stanford</span><span class="moment-time">10'13"</span></div>
+    <div class="moment-quote">"Excellent marking and game reading, he anticipate the long pass and make a heading to avoid the danger."</div>
+    <div class="moment-tags"><span class="moment-tag">MRK 8.5</span><span class="moment-tag">OBI_P 8</span><span class="moment-tag">INT 8</span></div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px;">Composure & Character Evidence — Anti-Indicators <span class="line"></span></div>
+  <div class="banner banner-danger">
+    <span>⚠</span> <strong>The anti-indicator evidence is concentrated in Match 5 (Stanford) and Match 8 (Georgetown).</strong> Match 5's 30-minute window contains <strong>MCS 1, OBL_P 1, DMA 2, SOA 1</strong>. Match 8 carries a <strong>goal-conceding OBI_P 1</strong>. Match 3 (Howard) has character and decision-making flags but also the strongest positive incidents. <strong>The log cannot say whether this is situational or a pattern.</strong>
+  </div>
+
+  <div class="card">
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M5 Stanford</span><span class="moment-time">32'21" · MCS 1</span></div>
+      <div class="moment-quote">"Ball recovery by his team just after but he's completely elsewhere. His team mate pass him the ball but can't catch it, ball lost, he tries to come back but he crashes straight into his team mate."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M5 Stanford</span><span class="moment-time">32'23" · OBL_P 1</span></div>
+      <div class="moment-quote">"Awful run timing, he's not on his feet, he's not using the back-brake technique and he charges on his opponent in 1v1 def recklessly. Result: nutmeg suffered."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M5 Stanford</span><span class="moment-time">32'37" · DMA 2</span></div>
+      <div class="moment-quote">"He's rushing up to make a long pass for nobody. Not an accuracy problem, it's really a decision marking problem. And lack of lucidity."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M5 Stanford</span><span class="moment-time">42'55" · DMA 2</span></div>
+      <div class="moment-quote">"Long pass comes on him: one touch clearance out of the field. He's so better when he plays football."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M8 Georgetown</span><span class="moment-time">8'47" · OBL_P 1</span></div>
+      <div class="moment-quote">"He's letting go his opponent Mitchell Baker towards the goal and Suber keeps a very low run speed, Baker comes alone in the penalty area, receive a key pass and scores. 0-3."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M8 Georgetown</span><span class="moment-time">1'02" · OBL_T 3</span></div>
+      <div class="moment-quote">"Reaction speed too low to catch the ball and lack of aggressivity vs his opponent who make a good tackle."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M3 Howard</span><span class="moment-time">64'43" · CHR 5</span></div>
+      <div class="moment-quote">"Arguing with the referee during the cooling break."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M3 Howard</span><span class="moment-time">32'02" · DMA 4</span></div>
+      <div class="moment-quote">"Aerial duel won but technical mastery issue to keep the ball possession."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M3 Howard</span><span class="moment-time">36'36" · SOA 5</span></div>
+      <div class="moment-quote">"1v1 attempt not successful."</div>
+    </div>
+    <div class="moment-card anti">
+      <div class="moment-header"><span class="moment-match">M5 Stanford</span><span class="moment-time">25'15" · SPI 3</span></div>
+      <div class="moment-quote">"Approximative control and no ball shielding neither body strength, ball lost."</div>
+    </div>
+  </div>
+
+  <div class="banner banner-info" style="margin-top:16px;">
+    <span>●</span> <strong>Three checks would settle whether this is situational or structural.</strong> (1) A <strong>COACH score</strong>. (2) A <strong>second scout</strong> reviewing the same events blind. (3) A <strong>fifth match</strong> with full MCS / CHR / CLM coverage. Until then, the file supports monitoring, not a decision.
+  </div>
+</div>
+
+<!-- SCOUTING INTEL -->
+<div id="scouting" class="tab-panel">
+  <div class="scout-box scout-pos">
+    <h4><span style="color:var(--success);">✓</span> Positive Filters (v2.0)</h4>
+    <ul>
+      <li><strong>SOA 8.27 across 11 events in 3 matches</strong> — strongest OK metric by volume</li>
+      <li><strong>SII_A 8.06 / SII_T 8.25</strong> — validated acceleration and top-end speed sample</li>
+      <li><strong>SPI 8.10 across 4 matches</strong> — spatial performance passes the threshold</li>
+      <li><strong>OBI_S 7.72 / OBI_P 7.70</strong> — solid off-ball and positional scores</li>
+      <li><strong>9 starts in 2026</strong> — regular starter at NCAA Division I level</li>
+      <li><strong>1 goal + 1 assist in 716 minutes</strong> — direct output from left-back</li>
+      <li><strong>188 cm / 78 kg verified</strong> — physical frame adds a height profile not present in earlier versions</li>
+      <li><strong>Reported 34.44 km/h top speed</strong> — agent claim, directionally consistent with video log</li>
+      <li><strong>All-ACC Academic Team</strong> — commitment and study evidence</li>
+      <li><strong>M3 Maradona and sombrero actions</strong> — genuine technical ceiling in individual actions</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-caut">
+    <h4><span style="color:var(--warning);">⚠</span> Caution Signals</h4>
+    <ul>
+      <li><strong>OBI_T pending</strong> — only two distinct matches; OBI composite blocked</li>
+      <li><strong>SII_R pending</strong> — only two distinct matches; SII composite blocked</li>
+      <li><strong>MCS no positive events</strong> — mental-competence sample missing</li>
+      <li><strong>Match 5 anti cluster</strong> — MCS 1, OBI_P 1, DMA 2, SOA 1 in one match</li>
+      <li><strong>Match 8 goal-conceding OBI_P 1</strong> — Mitchell Baker goal</li>
+      <li><strong>CRS / OMS / DYN / CRK single-match samples</strong> — indicative only</li>
+      <li><strong>Foot not confirmed</strong> — still unverified in the supplied data</li>
+      <li><strong>Top speed unverified</strong> — agent claim only; tracking method not disclosed</li>
+      <li><strong>No COACH score; no second scout</strong> — reliability untested</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-gap">
+    <h4><span style="color:var(--danger);">✗</span> Critical Gaps</h4>
+    <ul>
+      <li><strong>4 matches only</strong> — 5+ required for a full Tier A</li>
+      <li><strong>OBI composite blocked</strong> — OBI_T appears in only 2 matches</li>
+      <li><strong>SII composite blocked</strong> — SII_R appears in only 2 matches</li>
+      <li><strong>MCS has no positive sample</strong> — mental-competence evidence missing</li>
+      <li><strong>CHR and CLM pending at 2 matches</strong> — not enough coverage</li>
+      <li><strong>COACH not scored</strong> — coachability is a key development variable</li>
+      <li><strong>No second scout</strong> — no blind cross-validation</li>
+      <li><strong>Foot not confirmed</strong> — build-up-role projection blocked</li>
+      <li><strong>Top speed agent-claimed only</strong> — needs GPS or optical verification</li>
+      <li><strong>Professional pathway unverified</strong> — no transfer valuation should be inferred</li>
+    </ul>
+  </div>
+  <div class="scout-box scout-verdict">
+    <h4><span style="color:var(--silver);">◆</span> Empire FGA Verdict (Provisional · v2.0)</h4>
+    <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">
+      <strong style="color:var(--danger);">RATING WITHHELD · VIDEO PARTIAL (7/12) · COMPOSITES BLOCKED.</strong> Julius Suber is a <strong>mobile American left-back</strong> at Duke Blue Devils (NCAA / ACC). <strong>188 cm / 78 kg now verified</strong> — he is the tallest of the comparator set. The event log shows a <strong>fast, carrying wide defender</strong> with strong action-speed (SOA 8.27), validated acceleration (SII_A 8.06) and top-end speed (SII_T 8.25), plus reliable spatial reading (SPI 8.10). <strong>The composure and character evidence is mixed</strong> — Match 5 (Stanford) carries MCS 1, OBI_P 1, DMA 2, SOA 1 in one window; Match 8 (Georgetown) contains a goal-conceding OBI_P 1. <strong>The evidence does not yet allow this to be classed as match-specific or structural.</strong> <strong>Three checks would settle it:</strong> a COACH score, a second scout, and a fifth match with full MCS / CHR / CLM coverage. Plus OBI_T and SII_R across a third match each to unlock the composites, dated foot confirmation, and GPS/optical verification of the 34.44 km/h agent claim. <strong>The file supports continued monitoring and validation — not an acquisition decision.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="tab-panel">
+  <div class="banner banner-warning">
+    <span>⚠</span> <strong>MATCH REGISTER — 4 MATCHES LOGGED · BALANCE CHECK PARTIAL PASS.</strong> Two top-third opponents (Elon, Georgetown), one away (Howard), two with team losing (Stanford, Elon, Georgetown). <strong>Minimum five matches required for full Tier A — one more match needed.</strong> Event distribution is uneven: Match 5 carries the densest anti cluster; Match 6 is the cleanest.
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px;">Registered Matches <span class="line"></span></div>
+  <div class="match-grid">
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon" style="background:rgba(255,59,59,0.7);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Georgetown Hoyas vs Duke (M8)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Home · 30 Aug 2026</span><span class="match-badge badge-comp">Losing · Top third</span><span class="match-badge badge-red">62 events · 17 ANTI</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: 1'02 – 44'43.</strong> Dense anti cluster: <strong>OBL_P 1 at 8'47 conceding the goal (0-3)</strong>, OBL_T 3 at 1'02. Positive: 31'58 DRB 10, SOA 10; 22'54 LGP 10, KEY 10.</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon" style="background:rgba(255,59,59,0.7);"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Stanford Cardinal vs Duke (M5)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Home · 5 Oct 2026</span><span class="match-badge badge-comp">Losing · Middle third</span><span class="match-badge badge-red">29 events · 15 ANTI</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: 4'24 – 42'55.</strong> The densest composure cluster: <strong>MCS 1 (32'21), OBI_P 1 (32'23), DMA 2 (32'37), DMA 2 (42'55)</strong>, SPI 3 (25'15). Positive: 10'13 MRK 8.5.</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Howard Bison vs Duke (M3)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Away · 22 Sep 2026</span><span class="match-badge badge-comp">Winning · Bottom third</span><span class="match-badge badge-nolink">60 events · 4 ANTI</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: 0'47 – 44'34.</strong> Strongest positive match: 25'54 sombrero + backheel + through pass (CRK 10, SOA 10, DRB 10); 14'02 Maradona action (SII_A 9, OMS 9). Anti: 64'43 CHR 5, 32'02 DMA 4, 36'36 SOA 5.</div>
+      </div>
+    </div>
+    <div class="match-card" style="cursor:default;">
+      <div class="match-thumb"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      <div class="match-info">
+        <div class="match-teams">Elon Phoenix vs Duke (M6)</div>
+        <div class="match-meta"><span class="match-badge badge-verified">Home · 25 Sep 2026</span><span class="match-badge badge-comp">Losing · Top third</span><span class="match-badge badge-verified">27 events · 0 ANTI</span></div>
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.4;"><strong>Log window: 8'14 – 43'02.</strong> Cleanest match — <strong>zero anti-indicators</strong>. Positive: 13'32 OBI_T 9 blocking a shot (corner against).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Balance Check — Detail (v2.0)</h3>
+    <table class="data-table">
+      <thead><tr><th>Requirement</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Minimum 5 matches registered</td><td><span style="color:var(--danger);font-weight:700;">NOT MET</span> — 4 matches</td></tr>
+        <tr><td>≥2 vs top-third opposition</td><td><span style="color:var(--success);font-weight:700;">MET</span> — Elon, Georgetown</td></tr>
+        <tr><td>≥1 away match</td><td><span style="color:var(--success);font-weight:700;">MET</span> — Howard</td></tr>
+        <tr><td>≥1 match while losing</td><td><span style="color:var(--success);font-weight:700;">MET</span> — Stanford, Elon, Georgetown</td></tr>
+        <tr><td>Video completeness</td><td><span style="color:var(--warning);font-weight:700;">PARTIAL</span> — 7/12 core metrics</td></tr>
+        <tr><td>Anti-indicator rule (rating ≤5)</td><td><span style="color:var(--success);font-weight:700;">APPLIED</span> — core anti events logged separately</td></tr>
+        <tr><td>COACH metric</td><td><span style="color:var(--danger);font-weight:700;">NOT SCORED</span></td></tr>
+        <tr><td>Second scout</td><td><span style="color:var(--danger);font-weight:700;">NOT ASSIGNED</span></td></tr>
+        <tr><td>Tier 1 statistics</td><td><span style="color:var(--warning);font-weight:700;">PARTIAL</span> — Duke Athletics verified; ACC split minimal</td></tr>
+        <tr><td><strong>Height / weight</strong></td><td><span style="color:var(--success);font-weight:700;">✓ VERIFIED</span> — 188 cm / 78 kg (Duke 2025 roster)</td></tr>
+        <tr><td><strong>Preferred foot</strong></td><td><span style="color:var(--danger);font-weight:700;">NOT CONFIRMED</span></td></tr>
+        <tr><td><strong>Top speed</strong></td><td><span style="color:var(--warning);font-weight:700;">AGENT CLAIM ONLY</span> — 34.44 km/h; no GPS/optical verification</td></tr>
+        <tr><td>FGA roll-up (Base / Ultimate)</td><td><span style="color:var(--danger);font-weight:700;">PENDING</span></td></tr>
+        <tr><td>Pairing set</td><td><span style="color:var(--warning);font-weight:700;">PROVISIONAL</span> — stylistic only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Required Before an Acquisition Decision (v2.0)</h3>
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Item</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Score COACH. It decides whether the Match 5 composure flags are developmental or structural.</td><td><span style="color:var(--danger);font-weight:700;">HIGH</span></td></tr>
+        <tr><td class="num">2</td><td>Assign a second scout for blind cross-validation of the same four matches.</td><td><span style="color:var(--danger);font-weight:700;">HIGH</span></td></tr>
+        <tr><td class="num">3</td><td>Log a fifth match with full MCS, CHR and CLM coverage.</td><td><span style="color:var(--danger);font-weight:700;">HIGH</span></td></tr>
+        <tr><td class="num">4</td><td>Complete OBI_T and SII_R across a third match to unlock the OBI and SII composites.</td><td><span style="color:var(--danger);font-weight:700;">HIGH</span></td></tr>
+        <tr><td class="num">5</td><td>Confirm preferred foot from a dated primary source.</td><td><span style="color:var(--warning);font-weight:700;">MEDIUM</span></td></tr>
+        <tr><td class="num">6</td><td>Verify top speed with GPS or optical tracking data from a match or combine.</td><td><span style="color:var(--warning);font-weight:700;">MEDIUM</span></td></tr>
+        <tr><td class="num">7</td><td>Resolve whether the Match 5 / Match 8 anti clusters are situational or structural.</td><td><span style="color:var(--warning);font-weight:700;">MEDIUM</span></td></tr>
+      </tbody>
+    </table>
+    <div class="banner banner-warning" style="margin-top:16px;">
+      <span>⚠</span> <strong>Recommendation (provisional).</strong> Continue monitoring. Complete the validation steps above before any professional projection. <strong>The file supports a trial or draft-pathway conversation, not an acquisition commitment.</strong>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="section-title" style="margin-bottom:16px;font-size:0.9rem;">Market Context (v2.0)</h3>
+    <table class="data-table">
+      <thead><tr><th>Item</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Contract</strong></td><td>NCAA amateur — no professional contract on record</td></tr>
+        <tr><td><strong>Public market value</strong></td><td>Not applicable — NCAA amateur status</td></tr>
+        <tr><td><strong>Reported interest</strong></td><td>Not documented in the supplied source set</td></tr>
+        <tr><td><strong>Asking price</strong></td><td>Not applicable</td></tr>
+        <tr><td><strong>Price comparator</strong></td><td>College pathway (MLS SuperDraft, USL, international trial) — no transfer fee</td></tr>
+        <tr><td><strong>Pathway note</strong></td><td>Duke and ACC context; professional route unverified. No transfer valuation should be inferred from this file.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + id + "'") !== -1) {
+      btns[i].classList.add('active');
+    }
+  }
+}
+
+// Hero Dial — 7 of 12 completeness
+(function() {
+  var heroCanvas = document.getElementById('heroDial');
+  if (!heroCanvas) return;
+  var heroCtx = heroCanvas.getContext('2d');
+  var heroScore = 7;
+  var heroMax = 12;
+  var heroAngle = (heroScore / heroMax) * 1.5 * Math.PI + 0.75 * Math.PI;
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, 2.25 * Math.PI);
+  heroCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+  heroCtx.beginPath();
+  heroCtx.arc(70, 70, 58, 0.75 * Math.PI, heroAngle);
+  var grad = heroCtx.createLinearGradient(0, 0, 140, 140);
+  grad.addColorStop(0, '#012169');
+  grad.addColorStop(1, '#ffb800');
+  heroCtx.strokeStyle = grad;
+  heroCtx.lineWidth = 8;
+  heroCtx.lineCap = 'round';
+  heroCtx.stroke();
+})();
+
+// Attribute Radar — T3 Event Log
+(function() {
+  var el = document.getElementById('attrRadar');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['OBI_T','OBI_S','OBI_P','SII_A','SII_T','SII_R','DMA','CHR','MCS','SOA','SPI','CLM','CRS','OMS','DYN','CRK'],
+      datasets: [{
+        label: 'Suber — event log (v2.0)',
+        data: [8.00, 7.72, 7.70, 8.06, 8.25, 6.83, 7.22, 7.33, 0, 8.27, 8.10, 7.67, 10.00, 9.00, 8.00, 9.00],
+        backgroundColor: 'rgba(1,33,105,0.25)',
+        borderColor: '#012169',
+        pointBackgroundColor: ['#ffb800','#00d084','#00d084','#00d084','#00d084','#ffb800','#00d084','#ffb800','#ff3b3b','#00d084','#00d084','#ffb800','#ffb800','#ffb800','#ffb800','#ffb800'],
+        pointBorderColor: '#fff',
+        pointRadius: 4,
+        borderWidth: 2.5
+      }, {
+        label: 'Elite threshold',
+        data: [8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8],
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderColor: 'rgba(255,255,255,0.15)',
+        pointRadius: 0,
+        borderWidth: 1,
+        borderDash: [4,4]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { display: false, stepSize: 2 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 9, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 10 } } }
+      }
+    }
+  });
+})();
+
+// Philosophy Radar
+(function() {
+  var el = document.getElementById('philosophyRadar2');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Bielsa','Guardiola','Mourinho','Menotti'],
+      datasets: [{
+        label: 'Suber — inferential fit (%)',
+        data: [65, 60, 55, 50],
+        backgroundColor: 'rgba(1,33,105,0.2)',
+        borderColor: '#fbbf24',
+        pointBackgroundColor: ['#c8102e', '#6CABDD', '#c8102e', '#27ae60'],
+        pointBorderColor: '#fff',
+        pointRadius: 5,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 40, max: 80,
+          ticks: { display: false, stepSize: 5 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' }, padding: 16 }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+})();
+
+// FGA Donut
+(function() {
+  var el = document.getElementById('fgaDonut');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['T1 Partial 20%', 'T2 Not computable 30%', 'T3 Partial 50% (7/12)'],
+      datasets: [{
+        data: [20, 30, 50],
+        backgroundColor: ['#ffb800', '#5a5a70', '#ffb800'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 11 }, padding: 16 } }
+      }
+    }
+  });
+})();
+
+// Chart 6 · Physical Profile Comparison
+(function() {
+  var el = document.getElementById('physicalCompareChart');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Suber','Davies','Robinson','Hernández'],
+      datasets: [{
+        label: 'Height (cm)',
+        data: [188, 181, 183, 184],
+        backgroundColor: 'rgba(1,33,105,0.85)',
+        borderColor: '#012169',
+        borderWidth: 1,
+        borderRadius: 3
+      }, {
+        label: 'Weight (kg)',
+        data: [78, 75, 70, 81],
+        backgroundColor: 'rgba(251,191,36,0.85)',
+        borderColor: '#fbbf24',
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#8b92a8', font: { family: 'DM Sans', size: 10 } } },
+        tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}: ${c.raw}` } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#888', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        x: { ticks: { color: '#8b92a8', font: { family: 'Rajdhani', size: 11, weight: '600' } }, grid: { display: false } }
+      }
+    }
+  });
+})();
+
+// Chart 7 · Top Speed Benchmark
+(function() {
+  var el = document.getElementById('speedBenchmarkChart');
+  if (!el) return;
+  new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Davies','Mbappé','Haaland','Rüdiger','Walker','Suber (agent)','Avg T5 fullback','Avg PL player'],
+      datasets: [{
+        label: 'Top speed (km/h)',
+        data: [36.51, 36.0, 35.7, 35.3, 35.0, 34.44, 33.6, 32.4],
+        backgroundColor: [
+          'rgba(148,163,184,0.8)',
+          'rgba(148,163,184,0.8)',
+          'rgba(148,163,184,0.8)',
+          'rgba(148,163,184,0.8)',
+          'rgba(148,163,184,0.8)',
+          'rgba(251,191,36,0.95)',
+          'rgba(59,130,246,0.85)',
+          'rgba(59,130,246,0.7)'
+        ],
+        borderColor: '#8b92a8',
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (c) => ` ${c.raw} km/h` } }
+      },
+      scales: {
+        x: { beginAtZero: false, min: 31, max: 38, ticks: { color: '#888', font: { size: 9 }, callback: (v) => v + ' km/h' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        y: { ticks: { color: '#8b92a8', font: { family: 'Rajdhani', size: 10, weight: '600' } }, grid: { display: false } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
